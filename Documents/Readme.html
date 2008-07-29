@@ -1,0 +1,166 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>BasicSynth Synthesis Library</title>
+</head>
+<body>
+<div style="padding :20px 50px 20px 50px;">
+<h1>BasicSynth Library</h1>
+<p><em>BasicSynth</em> is a set of C++ libraries for sound generation and sequencing. The source distribution
+contains the source code to the libraries, example programs, summary documentation for the classes in each library,
+and a reference manual for the <em>Notelist</em> score language. 
+Complete documentation is contained in the <em>BasicSynth</em> book. Excerpts from the book can also be found on the 
+<a href="http://basicsynth.com"><em>BasicSynth</em> website</a>. The example programs follow the book chapters
+and should be studied along with the book. If you don't have the book, you may be able to glean
+sufficient information from the examples to use the library.</p>
+<p>Note: The book is scheduled to be published in fall/winter 2008. The website excerpts are already available.</p>
+<h2><em>BasicSynth</em> Directory Structure</h2><hr />
+<p>This directory contains source, binaries and documents for <em>BasicSynth</em>. The structure is shown in the following diagram.</p>
+<p><img src="Structure.jpg" /></p>
+<table border="1">
+<thead align="center" >
+<tr>
+<td>Directory</td>
+<td>Usage</td>
+</tr>
+</thead>
+<tbody>
+<tr><td>Bin</td><td>Executable images</td></tr>
+<tr><td>Lib</td><td>Object file libraries</td></tr>
+<tr><td>Include</td><td>Source include files. Much of the <em>BasicSynth</em> sound generation code is contained in these files</td></tr>
+<tr><td>Documents</td><td>Various documents.</td></tr>
+<tr><td>Src</td><td>Source code</td></tr>
+<tr><td>Src/Common</td><td>Common source, mostly implementation of sequencers and file I/O</td></tr>
+<tr><td>Src/Instruments</td><td>Source to the <em>BasicSynth</em> instruments collection library.</td></tr>
+<tr><td>Src/Notelist</td><td>Source to the notelist parser and interpreter library.</td></tr>
+<tr><td>Src/Examples</td><td>Source to the example programs. Each sub-directory contains one example program. 
+The theory and algorithm of each program is explained in the associated book chapter.</td></tr>
+<tr><td>Src/Utilities</td><td>Source to the utility programs. Each sub-directory contains one utility program. 
+These are Windows-only GUI programs that use the <em>BasicSynth</em> library and demonstrate various
+synthesis techniques.</td></tr>
+<tr><td>BSynth</td><td>Command line version of the synthesizer.</td></tr>
+</tbody>
+</table>
+    <p>
+        To build your own synthesis program with <em>BasicSynth</em> you need at a minimum
+        the Include files and the Common library (Lib/Common*.*). The Include directory
+        and the Common library provide the sound generation, wave file and sequencer code.</p>
+    <p>
+        If you want to use the <em>BasicSynth</em> instruments collection in your program,
+        you must also include the header files from the Src/Instruments directory and link
+        the Lib/Instruments.* library.</p>
+    <p>
+        To include the Notelist score processor, you must include the header file NLConvert.h
+        from the Src/Notelist directory and link the Lib/Notelist.* library.</p>
+<h3>Building on MS-Windows</h3>
+<p>There are several solution files that can be built depending on what you want to do. All solution files are for
+Visual Studio 2008 (i.e. version 9). If you have a different version of the compiler, you will have to reproduce
+the project and/or solution files.</p>
+<p>To build just the libraries, use the solution files in Src/Common, Src/Instruments, and Src/Notelist directories.</p>
+<p>To build the Example programs, use the solution file in Src/Examples. This builds all the example programs and libraries.</p>
+<p>To build the "Explorer" utilities, use the solution file in Src/Utilities.</p>
+<p>To build the stand-alone command line synthesizer, build the project in Src/BSynth.</p>
+<p>Each project provides four targets:</p>
+<ol>
+<li>Release Win32 - 32-bit version without debug info.</li>
+<li>Debug Win32 - 32-bit version with debugging.</li>
+<li>Release x64 - 64-bit version without debug info.</li>
+<li>Debug x64 - 64-bit version with debug info.</li>
+</ol>
+<p>Output of the 32-bit release version is in Bin and Lib. The 64-bit version produces output in Bin64 and Lib64</p>
+
+<hr />
+<h3>Building on Linux</h3>
+<p>There is a master Makefile located in the Src directory. This will build all of the system. 
+There is also a Makefile in each directory that can be built if you only want to build part 
+of the system. The file <em>BasicSynth.cfg</em> in the Src directory contains the settings
+for the compiler and linker. Edit this file to point to the appropriate places. Usually you will
+only need to change the location of BSDIR in case you put the source in a directory other than
+your home directory. By default, BasicSynth is built with XML support using the libxml2 library.
+You should install the libxml2-dev package first before building BasicSynth. If you do not need
+to use the project/instrument file loading code, there is a null implementation of the XmlWrapper
+class that can be used instead. The file is Src/Common/XmlWrapN.cpp and should be compiled and
+added to the Common library in place of XmlWrapU.cpp</p>
+<p>Output is to the directories Bin and Lib under the BasicSynth install directory. (Note the capitalization!)</p>
+<p><em>Note:</em>I have noticed a problem with the GNU make that causes make to halt when
+descending three directory levels. Running make with the command line argument --no-print-directory fixes this.</p>
+<hr />
+<h2>Example Programs</h2>
+<hr />
+<h3>Example01 (Chapter 5)</h3>
+<p>This example program shows a basic oscillator. It produces one second of a sin wave and writes the sound into the file Example01.wav</p>
+<h3>Example02 (Chapter 6)</h3>
+<p>These examples demonstrate envelope generators. Example02 has in-line code, Example02a uses the BasicSynth Library, Example02b uses a graphics line algorithm. </p>
+<h3>Example03 (Chapter 7)</h3>
+<p>Program to calculate complex waveforms.</p>
+<ol>
+<li>summation of first 8 partials</li>
+<li>sawtooth wave</li>
+<li>inverse sawtooth wave</li>
+<li>triangle wave</li>
+<li>square wave </li>
+<li>25% pulse wave</li>
+<li>frequency modulation</li>
+<li>phase modulation</li>
+<li>amplituded modulation</li>
+<li>ring modulation</li>
+<li>white noise </li>
+</ol>
+<h3>Example04 (Chapter 8)</h3>
+<p>Program to calculate complex waveforms using wavetable oscillators.</p>
+<h3>Example05 (Chapter 10)</h3>
+<p>Various filters, LP, HP, BP, Reson, using bi-quad filter; FIR and IIR averaging and convolution.</p>
+<h3>Example06 (Chapter 9)</h3>
+<p>Program to demonstrate mixing and panning.</p>
+<h3>Example07 (Chapter 11)</h3>
+<p>Using delay lines to implement echo.</p>
+<h3>Example07a (Chapter 12)</h3>
+<p>Using delay lines to implement reverb.</p>
+<h3>Examle07b (Chapter 13)</h3>
+<p>Using delay lines to implement Flanger/Chorus.</p>
+<h3>Example08 (Chapter 15)</h3>
+<p>BasicSynth sequencer.</p>
+<h3>Example09 (Chapter 16)</h3>
+<p>MIDI Sequencer.</p>
+<h3>Example10 (Chapters 19-25)</h3>
+<p>Synthesizer Instruments</p>
+<ul>
+<li>Tone Generator</li>
+<li>Additive Synthesis</li>
+<li>Subtractive Synthesis</li>
+<li>FM Synthesis (3 oscillators)</li>
+<li>Matrix Synthesizer (8 oscillators, FM or Add)</li>
+<li>Wavefile Playback</li>
+</ul>
+<hr />
+<h2>Utility Programs</h2>
+<hr />
+<h3>Waveform Explorer</h3>
+<p>This program allows setting each of 16 partials to construct a complex waveform using the inverse Fourier transform (sum of sine waves).
+The resulting waveform can be saved to disk as a WAV file and as a graphic (EMF). Settings can be copied to the clipboard.</p>
+<h3>FM Explorer</h3>
+<p>This program implements a three oscillator FM synthesizer. Each oscillator is combined with an ADSR envelope generator. Several presets are available as examples.
+The program can save the sound to a WAV file. The settings can also be copied to the clipboard.</p>
+<h3>Reverb Explorer</h3>
+<p>This program implements a Schroeder reverb. The loop times and reverb time can be set from the program to hear how they affect the sound. 
+Sounds can be internally generated or loaded from a WAV file. The processed sound can be saved to disk.</p>
+<h3>Flanger Explorer</h3>
+<p>This program implements a Flanger/Chorus effect. The delay times, modulation depth, and amplitudes can be set to hear how they affect the sound. 
+Sounds can be internally generated or loaded from a WAV file. The processed sound can be saved to disk.</p>
+<hr />
+<h2>BSynth</h2>
+<p>This program is a complete synthesizer that runs from a command line. It takes one argument, the name of
+the project file to process.</p><p>BSynth <em>project.xml</em></p>
+<p>The documentation on this program gives the specification for the project file and other related files.</p>
+<hr />
+<p>&copy; 2008, Daniel R. Mitchell, All rights reserved except as noted below. </p>
+<p>See more synthesis stuff at <a href="http://basicsynth.com">the <em>BasicSynth</em> Website</a></p>
+<!-- Creative Commons License -->
+<a href="http://creativecommons.org/licenses/GPL/2.0/">
+<img alt="CC-GNU GPL" border="0" src="http://creativecommons.org/images/public/cc-GPL-a.png" /></a><br />
+The <em>BasicSynth</em> library, instrument library, example and utility programs
+are licensed under the <a href="http://creativecommons.org/licenses/GPL/2.0/"> CC-GNU GPL</a>.
+<!-- /Creative Commons License -->
+  </div>
+</body>
+</html>
