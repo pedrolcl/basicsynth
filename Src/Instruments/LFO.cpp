@@ -67,8 +67,8 @@ AmpValue LFO::Gen()
 
 int LFO::Load(XmlSynthElem *elem)
 {
-	double dvals[3];
-	long ival;
+	float dvals[3];
+	short ival;
 
 	elem->GetAttribute("frq", dvals[0]);
 	elem->GetAttribute("wt", ival);
@@ -81,10 +81,10 @@ int LFO::Load(XmlSynthElem *elem)
 
 int LFO::Save(XmlSynthElem *elem)
 {
-	elem->SetAttribute("frq", (double) osc.GetFrequency());
-	elem->SetAttribute("wt",  (long) osc.GetWavetable());
-	elem->SetAttribute("atk", (double)atk.GetRate());
-	elem->SetAttribute("amp", (double) atk.GetLevel());
+	elem->SetAttribute("frq", osc.GetFrequency());
+	elem->SetAttribute("wt",  (short) osc.GetWavetable());
+	elem->SetAttribute("atk", atk.GetRate());
+	elem->SetAttribute("amp", atk.GetLevel());
 	return 0;
 }
 

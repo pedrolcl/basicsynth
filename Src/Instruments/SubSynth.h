@@ -18,7 +18,7 @@ class SubSynth  : public Instrument
 {
 private:
 	GenWaveWT    osc;
-	GenWaveNoise nz;
+	GenNoise nz;
 	EnvGenADSR   envSig;
 	//FilterLP     filt;
 	//Reson        filt;

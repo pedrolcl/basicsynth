@@ -11,7 +11,7 @@
 struct AddSynthPart
 {
 	GenWaveWT osc;
-	EnvGenSeg env;
+	EnvGenSegSus env;
 	FrqValue  mul; // frequency multiplier
 
 	void Copy(AddSynthPart *p)

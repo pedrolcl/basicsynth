@@ -181,11 +181,14 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 		}
 	}
 
+	FrqValue nyquist = synthParams.sampleRate / 2;
 	AddSynthPart *pEnd = &parts[numParts];
 	for (pSig = parts; pSig < pEnd; pSig++)
 	{
-		if (pSig->mul)
-			pSig->osc.SetFrequency(pSig->mul * frq);
+		FrqValue f = pSig->mul * frq;
+		if (f < 0 || f >= nyquist)
+			f = 0;
+		pSig->osc.SetFrequency(f);
 		pSig->osc.Reset(initPhs);
 		pSig->env.Reset(initPhs);
 	}
@@ -256,9 +259,9 @@ void AddSynth::Destroy()
 
 int AddSynth::Load(XmlSynthElem *parent)
 {
-	double dval;
-	double lvl;
-	double rt;
+	float dval;
+	float lvl;
+	float rt;
 	long ival;
 
 	parent->GetAttribute("parts", ival);
@@ -275,8 +278,8 @@ int AddSynth::Load(XmlSynthElem *parent)
 			if (pno < numParts)
 			{
 				AddSynthPart *pn = &parts[pno];
-				elem->GetAttribute("mul", dval);
-				pn->mul = (FrqValue) dval;
+				if (elem->GetAttribute("mul", dval) == 0)
+					pn->mul = FrqValue(dval);
 				XmlSynthElem *partElem = elem->FirstChild();
 				while (partElem != NULL)
 				{
@@ -338,20 +341,20 @@ int AddSynth::Save(XmlSynthElem *parent)
 	XmlSynthElem *subElem;
 	XmlSynthElem *segElem;
 
-	parent->SetAttribute("parts", (long)numParts);
+	parent->SetAttribute("parts", (short)numParts);
 	AddSynthPart *p = parts;
 	for (int n = 0; n < numParts; n++, p++)
 	{
 		partElem = parent->AddChild("part");
 		if (partElem == NULL)
 			return -1;
-		partElem->SetAttribute("pn", (long) n);
+		partElem->SetAttribute("pn", (short) n);
 		partElem->SetAttribute("mul", p->mul);
 		subElem = partElem->AddChild("osc");
 		if (subElem == NULL)
 			return -1;
 		subElem->SetAttribute("frq", p->osc.GetFrequency());
-		subElem->SetAttribute("wt", (long) p->osc.GetWavetable());
+		subElem->SetAttribute("wt", (short) p->osc.GetWavetable());
 		delete subElem;
 
 		subElem = partElem->AddChild("env");
@@ -359,18 +362,18 @@ int AddSynth::Save(XmlSynthElem *parent)
 			return -1;
 		EnvGenSeg *pe = &p->env;
 		int segs = pe->GetSegs();
-		subElem->SetAttribute("segs", (long) segs);
-		subElem->SetAttribute("st", (double) pe->GetStart());
-		subElem->SetAttribute("son", (long) pe->GetSusOn());
+		subElem->SetAttribute("segs", (short) segs);
+		subElem->SetAttribute("st", pe->GetStart());
+		subElem->SetAttribute("son", (short) pe->GetSusOn());
 		for (int sn = 0; sn < segs; sn++)
 		{
 			segElem = subElem->AddChild("seg");
 			if (segElem == NULL)
 				return -1;
-			segElem->SetAttribute("sn", (long) sn);
-			segElem->SetAttribute("rt", (double) pe->GetRate(sn));
-			segElem->SetAttribute("lvl", (double) pe->GetLevel(sn));
-			segElem->SetAttribute("ty", (long) pe->GetType(sn));
+			segElem->SetAttribute("sn", (short) sn);
+			segElem->SetAttribute("rt", pe->GetRate(sn));
+			segElem->SetAttribute("lvl", pe->GetLevel(sn));
+			segElem->SetAttribute("ty", (short) pe->GetType(sn));
 			delete segElem;
 		}
 		delete subElem;

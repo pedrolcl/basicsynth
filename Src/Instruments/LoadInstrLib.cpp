@@ -10,13 +10,21 @@
 
 int LoadInstrLib(InstrManager& mgr, const char *fname)
 {
+	int err;
 	XmlSynthDoc doc;
 	XmlSynthElem *root = doc.Open((char*)fname);
-	if (root == NULL)
-		return -1;
+	if (root != NULL)
+		err = LoadInstrLib(mgr, root);
+	else
+		err = -1;
+	doc.Close();
+	return err;
+}
 
-	XmlSynthElem *next;
+int LoadInstrLib(InstrManager& mgr, XmlSynthElem *root)
+{
 	XmlSynthElem *instr = root->FirstChild();
+	XmlSynthElem *next;
 	while (instr != NULL)
 	{
 		if (instr->TagMatch("instr"))
@@ -25,9 +33,6 @@ int LoadInstrLib(InstrManager& mgr, const char *fname)
 		delete instr;
 		instr = next;
 	}
-
-	doc.Close();
-
 	return 0;
 }
 

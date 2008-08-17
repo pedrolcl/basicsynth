@@ -198,8 +198,8 @@ void SubSynth::Destroy()
 
 int SubSynth::Load(XmlSynthElem *parent)
 {
-	double dvals[7];
-	long ival;
+	float dvals[7];
+	short ival;
 
 	XmlSynthElem *elem;
 	XmlSynthElem *next = parent->FirstChild();
@@ -212,7 +212,8 @@ int SubSynth::Load(XmlSynthElem *parent)
 			elem->GetAttribute("mix", dvals[2]);
 			elem->GetAttribute("fg",  dvals[3]);
 			elem->GetAttribute("wt", ival);
-			osc.InitWT(dvals[0], ival);
+			osc.InitWT(FrqValue(dvals[0]), (int)ival);
+			vol = AmpValue(dvals[0]);
 			sigMix = dvals[2];
 			nzMix  = 1.0 - sigMix;
 			nzOn = nzMix > 0;
@@ -266,38 +267,38 @@ int SubSynth::Save(XmlSynthElem *parent)
 	XmlSynthElem *elem = parent->AddChild("osc");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("frq", (double) osc.GetFrequency());
-	elem->SetAttribute("vol", (double) vol);
-	elem->SetAttribute("mix", (double) sigMix);
-	elem->SetAttribute("fg",  (double) fltGain);
-	elem->SetAttribute("fr",  (double) fltRes);
-	elem->SetAttribute("wt",  (long) osc.GetWavetable());
+	elem->SetAttribute("frq",  osc.GetFrequency());
+	elem->SetAttribute("vol",  vol);
+	elem->SetAttribute("mix",  sigMix);
+	elem->SetAttribute("fg",   fltGain);
+	elem->SetAttribute("fr",   fltRes);
+	elem->SetAttribute("wt",  (short) osc.GetWavetable());
 	delete elem;
 
 	elem = parent->AddChild("egs");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("st",  (double)envSig.GetStart());
-	elem->SetAttribute("atk", (double)envSig.GetAtkRt());
-	elem->SetAttribute("pk",  (double)envSig.GetAtkLvl());
-	elem->SetAttribute("dec", (double)envSig.GetDecRt());
-	elem->SetAttribute("sus", (double)envSig.GetSusLvl());
-	elem->SetAttribute("rel", (double)envSig.GetRelRt());
-	elem->SetAttribute("end", (double)envSig.GetRelLvl());
-	elem->SetAttribute("ty",  (long) envSig.GetType());
+	elem->SetAttribute("st",  envSig.GetStart());
+	elem->SetAttribute("atk", envSig.GetAtkRt());
+	elem->SetAttribute("pk",  envSig.GetAtkLvl());
+	elem->SetAttribute("dec", envSig.GetDecRt());
+	elem->SetAttribute("sus", envSig.GetSusLvl());
+	elem->SetAttribute("rel", envSig.GetRelRt());
+	elem->SetAttribute("end", envSig.GetRelLvl());
+	elem->SetAttribute("ty",  (short) envSig.GetType());
 	delete elem;
 
 	elem = parent->AddChild("egf");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("st",  (double)filt.GetStart());
-	elem->SetAttribute("atk", (double)filt.GetAtkRt());
-	elem->SetAttribute("pk",  (double)filt.GetAtkLvl());
-	elem->SetAttribute("dec", (double)filt.GetDecRt());
-	elem->SetAttribute("sus", (double)filt.GetSusLvl());
-	elem->SetAttribute("rel", (double)filt.GetRelRt());
-	elem->SetAttribute("end", (double)filt.GetRelLvl());
-	elem->SetAttribute("ty",  (long) filt.GetType());
+	elem->SetAttribute("st",  filt.GetStart());
+	elem->SetAttribute("atk", filt.GetAtkRt());
+	elem->SetAttribute("pk",  filt.GetAtkLvl());
+	elem->SetAttribute("dec", filt.GetDecRt());
+	elem->SetAttribute("sus", filt.GetSusLvl());
+	elem->SetAttribute("rel", filt.GetRelRt());
+	elem->SetAttribute("end", filt.GetRelLvl());
+	elem->SetAttribute("ty",  (short) filt.GetType());
 	delete elem;
 
 	elem = parent->AddChild("lfo");

@@ -75,7 +75,7 @@ SeqEvent *WFSynth::WFSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) wp;
 }
 
-void WFSynthEvent::SetParam(bsInt16 n, bsInt16 idx, float v)
+void WFSynthEvent::SetParam(bsInt16 idx, float v)
 {
 	switch (idx)
 	{
@@ -95,7 +95,7 @@ void WFSynthEvent::SetParam(bsInt16 n, bsInt16 idx, float v)
 		rr = (FrqValue) v;
 		break;
 	default:
-		NoteEvent::SetParam(n, idx, v);
+		NoteEvent::SetParam(idx, v);
 		break;
 	}
 }
@@ -209,8 +209,8 @@ void WFSynth::Destroy()
 
 int WFSynth::Load(XmlSynthElem *parent)
 {
-	double atk;
-	double rel;
+	float atk;
+	float rel;
 	long ival;
 
 	memset(wfUsed, 0, sizeof(wfUsed));
@@ -263,15 +263,15 @@ int WFSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("fn", (long) fileID);
-	elem->SetAttribute("lp", (long) looping);
-	elem->SetAttribute("pa", (long) playAll);
+	elem->SetAttribute("lp", (short) looping);
+	elem->SetAttribute("pa", (short) playAll);
 	delete elem;
 
 	elem = parent->AddChild("env");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("ar", (double) eg.GetAtkRt());
-	elem->SetAttribute("rr", (double) eg.GetRelRt());
+	elem->SetAttribute("ar", eg.GetAtkRt());
+	elem->SetAttribute("rr", eg.GetRelRt());
 	delete elem;
 
 	for (int n = 0; n < wfCacheCount; n++)

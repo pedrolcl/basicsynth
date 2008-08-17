@@ -12,18 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include "SynthDefs.h"
-#include "SynthString.h"
-#include "WaveFile.h"
-#include "GenWaveX.h"
-#include "EnvGenSeg.h"
-#include "Mixer.h"
-#include "SynthList.h"
-#include "XmlWrap.h"
-#include "SeqEvent.h"
-#include "Instrument.h"
-#include "Sequencer.h"
-#include "SequenceFile.h"
+#include <BasicSynth.h>
 
 #define P_FRQ   (P_XTRA)
 #define P_WT    (P_XTRA+1)
@@ -54,9 +43,9 @@ struct Note : public SeqEvent
 		return P_REL; 
 	}
 
-	virtual void SetParam(int n, int id, float v)
+	virtual void SetParam(bsInt16 id, float v)
 	{
-		switch (n)
+		switch (id)
 		{
 		case P_FRQ:
 			frq = synthParams.GetFrequency((int)v);
@@ -74,7 +63,7 @@ struct Note : public SeqEvent
 			rel = v;
 			break;
 		default:
-			SeqEvent::SetParam(n, id, v);
+			SeqEvent::SetParam(id, v);
 			break;
 		}
 	}
@@ -159,9 +148,9 @@ struct NoteFM : public Note
 		return P_MODI; 
 	}
 
-	virtual void SetParam(int n, int id, float v)
+	virtual void SetParam(bsInt16 id, float v)
 	{
-		switch (n)
+		switch (id)
 		{
 		case P_MODM:
 			mul = v;
@@ -170,7 +159,7 @@ struct NoteFM : public Note
 			mi = v;
 			break;
 		default:
-			Note::SetParam(n, id, v);
+			Note::SetParam(id, v);
 			break;
 		}
 	}
@@ -258,10 +247,10 @@ int main(int argc, char *argv[])
 	mix.MasterVolume(1.0, 1.0);
 	mix.ChannelOn(0, 1);
 	mix.ChannelVolume(0, 0.7);
-	mix.ChannelPan(0, panLin, 0.6);
+	mix.ChannelPan(0, panTrig, 0.6);
 	mix.ChannelOn(1, 1);
 	mix.ChannelVolume(1, 0.7);
-	mix.ChannelPan(1, panLin, -0.4);
+	mix.ChannelPan(1, panTrig, -0.4);
 
 	InstrManager im;
 	im.Init(&mix, &wvf);

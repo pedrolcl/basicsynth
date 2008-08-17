@@ -34,62 +34,65 @@ FMSynth::FMSynth()
 	chnl = 0;
 	frq = 440.0;
 	vol = 1.0;
-	carEnvDef.Alloc(3, 0, 1);
-	m1EnvDef.Alloc(3, 0, 1);
-	m2EnvDef.Alloc(3, 0, 1);
+	gen1EnvDef.Alloc(3, 0, 1);
+	gen2EnvDef.Alloc(3, 0, 1);
+	gen3EnvDef.Alloc(3, 0, 1);
 	nzEnvDef.Alloc(3, 0, 1);
-	filtEnvDef.Alloc(3, 0, 1);
 	maxPhs = synthParams.ftableLength / 2;
-	carMult = 1.0;
-	m1Mult = 1.0;
-	m2Mult = 2.0;
+	gen1Mult = 1.0;
+	gen2Mult = 1.0;
+	gen3Mult = 2.0;
 	fmMix = 1.0;
 	fmDly = 0.0;
 	nzMix = 0.0;
 	nzDly = 0.0;
+	nzFrqh = 400.0;
+	nzFrqo = 400.0;
 	nzOn = 0;
 	dlyMix = 0.0;
 	dlyOn = 0;
 	dlyTim = 0.01;
 	dlyDec = 0.1;
 	dlySamps = 0;
-	filtGain = 1.0;
+	panOn  = 0;
+	panSet = 0.0;
+	panLft = 0.5;
+	panRgt = 0.5;
 }
 
 FMSynth::~FMSynth()
 {
-	carEnvDef.Clear();
-	m1EnvDef.Clear();
-	m2EnvDef.Clear();
+	gen1EnvDef.Clear();
+	gen2EnvDef.Clear();
+	gen3EnvDef.Clear();
 	nzEnvDef.Clear();
-	filtEnvDef.Clear();
 }
 
 void FMSynth::Copy(FMSynth *ip)
 {
-	carOsc.SetFrequency(ip->carOsc.GetFrequency());
-	carOsc.SetWavetable(ip->carOsc.GetWavetable());
-	carEnvDef.Copy(&ip->carEnvDef);
-	carMult = ip->carMult;
+	gen1Osc.SetFrequency(ip->gen1Osc.GetFrequency());
+	gen1Osc.SetWavetable(ip->gen1Osc.GetWavetable());
+	gen1EnvDef.Copy(&ip->gen1EnvDef);
+	gen1Mult = ip->gen1Mult;
 	fmMix = ip->fmMix;
 	algorithm = ip->algorithm;
 
-	m1Osc.SetFrequency(ip->m1Osc.GetFrequency());
-	m1Osc.SetWavetable(ip->m1Osc.GetWavetable());
-	m1EnvDef.Copy(&ip->m1EnvDef);
-	m1Mult = ip->m1Mult;
+	gen2Osc.SetFrequency(ip->gen2Osc.GetFrequency());
+	gen2Osc.SetWavetable(ip->gen2Osc.GetWavetable());
+	gen2EnvDef.Copy(&ip->gen2EnvDef);
+	gen2Mult = ip->gen2Mult;
 
-	m2Osc.SetFrequency(ip->m2Osc.GetFrequency());
-	m2Osc.SetWavetable(ip->m2Osc.GetWavetable());
-	m2EnvDef.Copy(&ip->m2EnvDef);
-	m2Mult = ip->m2Mult;
+	gen3Osc.SetFrequency(ip->gen3Osc.GetFrequency());
+	gen3Osc.SetWavetable(ip->gen3Osc.GetWavetable());
+	gen3EnvDef.Copy(&ip->gen3EnvDef);
+	gen3Mult = ip->gen3Mult;
 
 	nzEnvDef.Copy(&ip->nzEnvDef);
 	nzMix = ip->nzMix;
+	nzFrqh = ip->nzFrqh;
+	nzFrqo = ip->nzFrqo;
 	nzOn = ip->nzOn;
 
-	filtEnvDef.Copy(&ip->filtEnvDef);
-	
 	dlyTim = ip->dlyTim;
 	dlyDec = ip->dlyDec;
 	dlyMix = ip->dlyMix;
@@ -114,28 +117,41 @@ AmpValue FMSynth::CalcPhaseMod(AmpValue amp, FrqValue mult)
 void FMSynth::Start(SeqEvent *evt)
 {
 	SetParams((VarParamEvent*)evt);
-	carOsc.InitWT(frq*carMult, WT_SIN);
-	FrqValue mul1 = m1Mult * frq;
-	FrqValue mul2 = m2Mult * frq;
-	m1Osc.InitWT(mul1, WT_SIN);
-	m2Osc.InitWT(mul2, WT_SIN);
-	carEG.SetEnvDef(&carEnvDef);
-	carEG.Reset(0);
-	m1EG.InitADSR(CalcPhaseMod(m1EnvDef.start, mul1),
-		m1EnvDef.GetRate(0), CalcPhaseMod(m1EnvDef.GetLevel(0),  mul1),
-		m1EnvDef.GetRate(1), CalcPhaseMod(m1EnvDef.GetLevel(1),  mul1),
-		m1EnvDef.GetRate(2), CalcPhaseMod(m1EnvDef.GetLevel(2),  mul1),
-		m1EnvDef.GetType(0));
-	m2EG.InitADSR(CalcPhaseMod(m2EnvDef.start, mul2),
-		m2EnvDef.GetRate(0), CalcPhaseMod(m2EnvDef.GetLevel(0),  mul2),
-		m2EnvDef.GetRate(1), CalcPhaseMod(m2EnvDef.GetLevel(1),  mul2),
-		m2EnvDef.GetRate(2), CalcPhaseMod(m2EnvDef.GetLevel(2),  mul2),
-		m2EnvDef.GetType(0));
-	filtEG.SetEnvDef(&filtEnvDef);
-	filtEG.Reset(0);
+	FrqValue mul1 = gen2Mult * frq;
+	FrqValue mul2 = gen3Mult * frq;
+	gen1Osc.InitWT(frq*gen1Mult, WT_SIN);
+	gen2Osc.InitWT(mul1, WT_SIN);
+	gen3Osc.InitWT(mul2, WT_SIN);
+	gen1EG.SetEnvDef(&gen1EnvDef);
+	gen1EG.Reset(0);
+	if (algorithm != ALG_DELTA)
+	{
+		gen2EG.InitADSR(CalcPhaseMod(gen2EnvDef.start, mul1),
+			gen2EnvDef.GetRate(0), CalcPhaseMod(gen2EnvDef.GetLevel(0),  mul1),
+			gen2EnvDef.GetRate(1), CalcPhaseMod(gen2EnvDef.GetLevel(1),  mul1),
+			gen2EnvDef.GetRate(2), CalcPhaseMod(gen2EnvDef.GetLevel(2),  mul1),
+			gen2EnvDef.GetType(0));
+	}
+	else
+	{
+		// double carrier
+		gen2EG.SetEnvDef(&gen2EnvDef);
+		gen2EG.Reset(0);
+	}
+	if (algorithm != ALG_STACK)
+	{
+		gen3EG.InitADSR(CalcPhaseMod(gen3EnvDef.start, mul2),
+			gen3EnvDef.GetRate(0), CalcPhaseMod(gen3EnvDef.GetLevel(0),  mul2),
+			gen3EnvDef.GetRate(1), CalcPhaseMod(gen3EnvDef.GetLevel(1),  mul2),
+			gen3EnvDef.GetRate(2), CalcPhaseMod(gen3EnvDef.GetLevel(2),  mul2),
+			gen3EnvDef.GetType(0));
+	}
+
 	nzOn = nzMix > 0;
 	if (nzOn)
 	{
+		nzi.InitH(nzFrqh);
+		nzo.InitWT(nzFrqo, WT_SIN);
 		nzEG.SetEnvDef(&nzEnvDef);
 		nzEG.Reset(0);
 	}
@@ -153,9 +169,14 @@ void FMSynth::Param(SeqEvent *evt)
 	// Envelope rates and levels are not reset while playing.
 	// changing the 'algorithm' while playing is an "interseting" idea...
 	// most likely will produce unpredictable behavior.
-	carOsc.Reset(-1);
-	m1Osc.Reset(-1);
-	m2Osc.Reset(-1);
+	gen1Osc.Reset(-1);
+	gen2Osc.Reset(-1);
+	gen3Osc.Reset(-1);
+	if (nzOn)
+	{
+		nzi.Reset(-1);
+		nzo.Reset(-1);
+	}
 }
 
 void FMSynth::SetParams(VarParamEvent *evt)
@@ -170,7 +191,7 @@ void FMSynth::SetParams(VarParamEvent *evt)
 	int n;
 	for (n = evt->numParam; n > 0; n--)
 	{
-		val = *valp;
+		val = *valp++;
 		switch (*id++)
 		{
 		case 16: //mix
@@ -182,181 +203,167 @@ void FMSynth::SetParams(VarParamEvent *evt)
 		case 18: //alg
 			algorithm = (bsInt16) val;
 			break;
-		case 19: //mul
-			carMult = val;
+		case 19:
+			panOn = (bsInt16) val;
 			break;
-		case 20: //st
-			carEnvDef.SetStart(AmpValue(val));
+		case 20:
+			panSet = AmpValue(val);
+			panLft = panSet;
+			panRgt = panSet;
 			break;
-		case 21: //atk
-			carEnvDef.SetRate(0, FrqValue(val));
+		case 30: //mul
+			gen1Mult = val;
 			break;
-		case 22: //pk
-			carEnvDef.SetLevel(0, AmpValue(val));
+		case 31: //st
+			gen1EnvDef.SetStart(AmpValue(val));
 			break;
-		case 23: //dec
-			carEnvDef.SetRate(1, FrqValue(val));
+		case 32: //atk
+			gen1EnvDef.SetRate(0, FrqValue(val));
 			break;
-		case 24: //sus
-			carEnvDef.SetLevel(1, AmpValue(val));
+		case 33: //pk
+			gen1EnvDef.SetLevel(0, AmpValue(val));
 			break;
-		case 25: //rel
-			carEnvDef.SetRate(2, FrqValue(val));
+		case 34: //dec
+			gen1EnvDef.SetRate(1, FrqValue(val));
 			break;
-		case 26: //end
-			carEnvDef.SetLevel(2, AmpValue(val));
+		case 35: //sus
+			gen1EnvDef.SetLevel(1, AmpValue(val));
 			break;
-		case 27: //ty
+		case 36: //rel
+			gen1EnvDef.SetRate(2, FrqValue(val));
+			break;
+		case 37: //end
+			gen1EnvDef.SetLevel(2, AmpValue(val));
+			break;
+		case 38: //ty
 			segType = (EGSegType)(int)val;
-			carEnvDef.SetType(0, segType);
-			carEnvDef.SetType(1, segType);
-			carEnvDef.SetType(2, segType);
+			gen1EnvDef.SetType(0, segType);
+			gen1EnvDef.SetType(1, segType);
+			gen1EnvDef.SetType(2, segType);
 			break;
-		//mod1: 
-		case 32: //mul
-			m1Mult = val;
+		//gen2: 
+		case 40: //mul
+			gen2Mult = val;
 			break;
-		case 33: //st
-			m1EnvDef.SetStart(AmpValue(val));
+		case 41: //st
+			gen2EnvDef.SetStart(AmpValue(val));
 			break;
-		case 34: //atk
-			m1EnvDef.SetRate(0, FrqValue(val));
+		case 42: //atk
+			gen2EnvDef.SetRate(0, FrqValue(val));
 			break;
-		case 35: //pk
-			m1EnvDef.SetLevel(0, AmpValue(val));
+		case 43: //pk
+			gen2EnvDef.SetLevel(0, AmpValue(val));
 			break;
-		case 36: //dec
-			m1EnvDef.SetRate(1, FrqValue(val));
+		case 44: //dec
+			gen2EnvDef.SetRate(1, FrqValue(val));
 			break;
-		case 37: //sus
-			m1EnvDef.SetLevel(1, AmpValue(val));
+		case 45: //sus
+			gen2EnvDef.SetLevel(1, AmpValue(val));
 			break;
-		case 38: //rel
-			m1EnvDef.SetRate(2, FrqValue(val));
+		case 46: //rel
+			gen2EnvDef.SetRate(2, FrqValue(val));
 			break;
-		case 39: //end
-			m1EnvDef.SetLevel(2, AmpValue(val));
+		case 47: //end
+			gen2EnvDef.SetLevel(2, AmpValue(val));
 			break;
-		case 40: //ty
+		case 48: //ty
 			segType = (EGSegType)(int)val;
-			m1EnvDef.SetType(0, segType);
-			m1EnvDef.SetType(1, segType);
-			m1EnvDef.SetType(2, segType);
+			gen2EnvDef.SetType(0, segType);
+			gen2EnvDef.SetType(1, segType);
+			gen2EnvDef.SetType(2, segType);
 			break;
-		// mod2:
-		case 48: //mul
-			m2Mult = val;
+		// gen3:
+		case 50: //mul
+			gen3Mult = val;
 			break;
-		case 49: //st
-			m2EnvDef.SetStart(AmpValue(val));
+		case 51: //st
+			gen3EnvDef.SetStart(AmpValue(val));
 			break;
-		case 50: //atk
-			m2EnvDef.SetRate(0, FrqValue(val));
+		case 52: //atk
+			gen3EnvDef.SetRate(0, FrqValue(val));
 			break;
-		case 51: //pk
-			m2EnvDef.SetLevel(0, AmpValue(val));
+		case 53: //pk
+			gen3EnvDef.SetLevel(0, AmpValue(val));
 			break;
-		case 52: //dec
-			m2EnvDef.SetRate(1, FrqValue(val));
+		case 54: //dec
+			gen3EnvDef.SetRate(1, FrqValue(val));
 			break;
-		case 53: //sus
-			m2EnvDef.SetLevel(1, AmpValue(val));
+		case 55: //sus
+			gen3EnvDef.SetLevel(1, AmpValue(val));
 			break;
-		case 54: //rel
-			m2EnvDef.SetRate(2, FrqValue(val));
+		case 56: //rel
+			gen3EnvDef.SetRate(2, FrqValue(val));
 			break;
-		case 55: //end
-			m2EnvDef.SetLevel(2, AmpValue(val));
+		case 57: //end
+			gen3EnvDef.SetLevel(2, AmpValue(val));
 			break;
-		case 56: //ty
+		case 58: //ty
 			segType = (EGSegType)(int)val;
-			m2EnvDef.SetType(0, segType);
-			m2EnvDef.SetType(1, segType);
-			m2EnvDef.SetType(2, segType);
+			gen3EnvDef.SetType(0, segType);
+			gen3EnvDef.SetType(1, segType);
+			gen3EnvDef.SetType(2, segType);
 			break;
 		//nz: 
-		case 64: //mix
+		case 60: //mix
 			nzMix = val;
 			break;
-		case 65: //dly
+		case 61: //dly
 			nzDly = val;
 			break;
-		case 66: //st
+		case 62: //nz frq
+			nzFrqh = FrqValue(val);
+			break;
+		case 63: //osc frq
+			nzFrqo = FrqValue(val);
+			break;
+		case 64: //st
 			nzEnvDef.SetStart(AmpValue(val));
 			break;
-		case 67: //atk
+		case 65: //atk
 			nzEnvDef.SetRate(0, FrqValue(val));
 			break;
-		case 68: //pk
+		case 66: //pk
 			nzEnvDef.SetLevel(0, AmpValue(val));
 			break;
-		case 69: //dec
+		case 67: //dec
 			nzEnvDef.SetRate(1, FrqValue(val));
 			break;
-		case 70: //sus
+		case 68: //sus
 			nzEnvDef.SetLevel(1, AmpValue(val));
 			break;
-		case 71: //rel
+		case 69: //rel
 			nzEnvDef.SetRate(2, FrqValue(val));
 			break;
-		case 72: //end
+		case 70: //end
 			nzEnvDef.SetLevel(2, AmpValue(val));
 			break;
-		case 73: //ty
+		case 71: //ty
 			segType = (EGSegType)(int)val;
 			nzEnvDef.SetType(0, segType);
 			nzEnvDef.SetType(1, segType);
 			nzEnvDef.SetType(2, segType);
 			break;
-		//filt: 
-		case 80: //st
-			filtEnvDef.SetStart(AmpValue(val));
-			break;
-		case 81: //atk
-			filtEnvDef.SetRate(0, FrqValue(val));
-			break;
-		case 82: //pk
-			filtEnvDef.SetLevel(0, AmpValue(val));
-			break;
-		case 83: //dec
-			filtEnvDef.SetRate(1, FrqValue(val));
-			break;
-		case 84: //sus
-			filtEnvDef.SetLevel(1, AmpValue(val));
-			break;
-		case 85: //rel
-			filtEnvDef.SetRate(2, FrqValue(val));
-			break;
-		case 86: //end
-			filtEnvDef.SetLevel(2, AmpValue(val));
-			break;
-		case 87: //ty
-			segType = (EGSegType)(int)val;
-			filtEnvDef.SetType(0, segType);
-			filtEnvDef.SetType(1, segType);
-			filtEnvDef.SetType(2, segType);
-			break;
 		//dlyn: 
-		case 96: //mix
+		case 80: //mix
 			dlyMix = val;
 			break;
-		case 97: //dly
+		case 81: //dly
 			dlyTim = val;
 			break;
-		case 98: //dec
+		case 82: //dec
 			dlyDec = val;
 			break;
 		//lfo: 
-		case 112: //frq
+		case 90: //frq
 			lfoGen.SetFrequency(FrqValue(val));
 			break;
-		case 113: //wt
+		case 91: //wt
 			lfoGen.SetWavetable((int)val);
 			break;
-		case 114: //rt
+		case 92: //rt
 			lfoGen.SetAttack(FrqValue(val));
 			break;
-		case 115: //amp
+		case 93: //amp
 			lfoGen.SetLevel(AmpValue(val));
 			break;
 		default:
@@ -367,20 +374,17 @@ void FMSynth::SetParams(VarParamEvent *evt)
 
 void FMSynth::Stop()
 {
-	carEG.Release();
-	m1EG.Release();
-	m2EG.Release();
+	gen1EG.Release();
+	gen2EG.Release();
+	gen3EG.Release();
 	if (nzOn)
-	{
 		nzEG.Release();
-		filtEG.Release();
-	}
 }
 
 
 int FMSynth::IsFinished()
 {
-	if (carEG.IsFinished())
+	if (gen1EG.IsFinished())
 	{
 		if (!dlyOn || --dlySamps <= 0)
 			return 1;
@@ -391,63 +395,77 @@ int FMSynth::IsFinished()
 void FMSynth::Tick()
 {
 	AmpValue sigOut;
-	AmpValue carOut;
-	AmpValue m1Out;
-	AmpValue m2Out;
+	AmpValue gen1Out;
+	AmpValue gen2Out;
+	AmpValue gen3Out;
 	AmpValue nzOut;
 	AmpValue dlyOut;
 	AmpValue lfoOut;
-	AmpValue m1Mod;
-	AmpValue carMod;
+	AmpValue gen1Mod;
+	AmpValue gen2Mod;
+	AmpValue gen3Mod;
 
 	int lfoOn = lfoGen.On();
 	if (lfoOn)
 	{
 		lfoOut = lfoGen.Gen() * synthParams.frqTI;
-		m1Mod = lfoOut * m1Mult;
-		carMod = lfoOut;
+		gen3Mod = lfoOut * gen3Mult;
+		gen2Mod = lfoOut * gen2Mult;
+		gen1Mod = lfoOut * gen1Mult;
 	}
 	else
 	{
-		//lfoOut = 0;
-		m1Mod = 0;
-		carMod = 0;
+		gen3Mod = 0;
+		gen2Mod = 0;
+		gen1Mod = 0;
 	}
 
-	if (algorithm != ALG_STACK) 
+	gen1Out = gen1Osc.Gen() * gen1EG.Gen();
+	gen2Out = gen2Osc.Gen() * gen2EG.Gen();
+	gen3Out = gen3Osc.Gen() * gen3EG.Gen();
+	switch (algorithm)
 	{
-		if (lfoOn)
-			m2Osc.PhaseModWT(lfoOut * m2Mult);
-		m2Out = m2EG.Gen() * m2Osc.Gen();
-		if (algorithm != ALG_WYE)
-			m1Mod += m2Out;
-		if (algorithm != ALG_STACK2)
-			carMod += m2Out;
+	case ALG_STACK2:
+		gen2Mod += gen3Out;
+		// fallthrough
+	case ALG_STACK:
+		gen1Mod += gen2Out;
+		break;
+	case ALG_WYE:
+		gen1Mod += gen2Out + gen3Out;
+		break;
+	case ALG_DELTA:
+		gen1Mod += gen3Out;
+		gen2Mod += gen3Out;
+		gen1Out += gen2Out;
+		break;
 	}
-	m1Osc.PhaseModWT(m1Mod);
-	m1Out = m1Osc.Gen() * m1EG.Gen();
+	gen1Osc.PhaseModWT(gen1Mod);
+	gen2Osc.PhaseModWT(gen2Mod);
+	gen3Osc.PhaseModWT(gen3Mod);
 
-	carOsc.PhaseModWT(carMod + m1Out);
-	carOut = carOsc.Gen() * carEG.Gen();
-	sigOut = carOut * fmMix;
+	sigOut = gen1Out * fmMix;
 
 	if (nzOn) 
 	{
-		filt.Init(filtEG.Gen(), filtGain);
-		nzOut = filt.Sample(nz.Gen()) * nzEG.Gen();
+		nzOut = nzi.Gen() * nzo.Gen() * nzEG.Gen();
 		sigOut += nzOut * nzMix;
 	}
 	
 	if (dlyOn)
 	{
-		AmpValue dlyIn = carOut * fmDly;
+		AmpValue dlyIn = gen1Out * fmDly;
 		if (nzOn)
-			dlyIn += nzOut *+ nzDly;
+			dlyIn += nzOut * nzDly;
 		dlyOut = apd.Sample(dlyIn);
 		sigOut += dlyOut * dlyMix;
 	}
 
-	im->Output(chnl, sigOut * vol);
+	sigOut *= vol;
+	if (panOn)
+		im->Output2(chnl, sigOut * panLft, sigOut * panRgt);
+	else
+		im->Output(chnl, sigOut);
 }
 
 void FMSynth::Destroy()
@@ -457,9 +475,9 @@ void FMSynth::Destroy()
 
 void FMSynth::LoadEG(XmlSynthElem *elem, EnvDef& eg)
 {
-	double rt = 0;
-	double lvl = 0;
-	long typ = 0;
+	float rt = 0;
+	float lvl = 0;
+	short typ = 0;
 
 	elem->GetAttribute("st", lvl);
 	elem->GetAttribute("ty", typ);
@@ -477,14 +495,14 @@ void FMSynth::LoadEG(XmlSynthElem *elem, EnvDef& eg)
 
 int FMSynth::Load(XmlSynthElem *parent)
 {
-	double dval;
-	long ival;
+	float dval;
+	short ival;
 
 	XmlSynthElem *elem;
 	XmlSynthElem *next = parent->FirstChild();
 	while ((elem = next) != NULL)
 	{
-		if (elem->TagMatch("car"))
+		if (elem->TagMatch("fm"))
 		{
 			if (elem->GetAttribute("alg", ival) == 0)
 				algorithm = (bsInt16) ival;
@@ -492,21 +510,24 @@ int FMSynth::Load(XmlSynthElem *parent)
 				fmMix = dval;
 			if (elem->GetAttribute("dly", dval) == 0)
 				fmDly = dval;
-			if (elem->GetAttribute("mul", dval) == 0)
-				carMult = dval;
-			LoadEG(elem, carEnvDef);
 		}
-		else if (elem->TagMatch("mod1"))
+		if (elem->TagMatch("gen1"))
 		{
 			if (elem->GetAttribute("mul", dval) == 0)
-				m1Mult = dval;
-			LoadEG(elem, m1EnvDef);
+				gen1Mult = dval;
+			LoadEG(elem, gen1EnvDef);
 		}
-		else if (elem->TagMatch("mod2"))
+		else if (elem->TagMatch("gen2"))
 		{
 			if (elem->GetAttribute("mul", dval) == 0)
-				m2Mult = dval;
-			LoadEG(elem, m2EnvDef);
+				gen2Mult = dval;
+			LoadEG(elem, gen2EnvDef);
+		}
+		else if (elem->TagMatch("gen3"))
+		{
+			if (elem->GetAttribute("mul", dval) == 0)
+				gen3Mult = dval;
+			LoadEG(elem, gen3EnvDef);
 		}
 		else if (elem->TagMatch("nz"))
 		{
@@ -514,13 +535,11 @@ int FMSynth::Load(XmlSynthElem *parent)
 				nzMix = dval;
 			if (elem->GetAttribute("dly", dval) == 0)
 				nzDly = dval;
+			if (elem->GetAttribute("fr", dval) == 0)
+				nzFrqh = dval;
+			if (elem->GetAttribute("fo", dval) == 0)
+				nzFrqo = dval;
 			LoadEG(elem, nzEnvDef);
-		}
-		else if (elem->TagMatch("filt"))
-		{
-			if (elem->GetAttribute("fg", dval) == 0)
-				filtGain = dval;
-			LoadEG(elem, filtEnvDef);
 		}
 		else if (elem->TagMatch("dln"))
 		{
@@ -554,7 +573,7 @@ XmlSynthElem *FMSynth::SaveEG(XmlSynthElem *parent, char *tag, EnvDef& eg)
 		elem->SetAttribute("sus", eg.segs[1].level);
 		elem->SetAttribute("rel", eg.segs[2].rate);
 		elem->SetAttribute("end", eg.segs[2].level);
-		elem->SetAttribute("ty", (long) eg.segs[0].type);
+		elem->SetAttribute("ty", (short) eg.segs[0].type);
 	}
 	return elem;
 }
@@ -563,44 +582,47 @@ int FMSynth::Save(XmlSynthElem *parent)
 {
 	XmlSynthElem *elem;
 	
-	elem = SaveEG(parent, "car", carEnvDef);
+	elem = parent->AddChild("fm");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("mix", (double) fmMix);
-	elem->SetAttribute("alg", (long) algorithm);
-	elem->SetAttribute("mul", (double) carMult);
+	elem->SetAttribute("mix", fmMix);
+	elem->SetAttribute("alg", (short) algorithm);
+	elem->SetAttribute("dly", fmDly);
 	delete elem;
 
-	elem = SaveEG(parent, "mod1", m1EnvDef);
+	elem = SaveEG(parent, "gen1", gen1EnvDef);
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("mul", (double) m1Mult);
+	elem->SetAttribute("mul", gen1Mult);
 	delete elem;
 
-	elem = SaveEG(parent, "mod2", m2EnvDef);
+	elem = SaveEG(parent, "gen2", gen2EnvDef);
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("mul", (double) m2Mult);
+	elem->SetAttribute("mul", gen2Mult);
 	delete elem;
 
-	elem = SaveEG(parent, "nz", m2EnvDef);
+	elem = SaveEG(parent, "gen3", gen3EnvDef);
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("mix", (double) nzMix);
+	elem->SetAttribute("mul", gen3Mult);
 	delete elem;
 
-	elem = SaveEG(parent, "filt", m2EnvDef);
+	elem = SaveEG(parent, "nz", gen3EnvDef);
 	if (elem == NULL)
 		return -1;
-	//elem->SetAttribute("fg", (double) filtGain);
+	elem->SetAttribute("mix", nzMix);
+	elem->SetAttribute("dly", nzDly);
+	elem->SetAttribute("fr", nzFrqh);
+	elem->SetAttribute("fo", nzFrqo);
 	delete elem;
 
 	elem = parent->AddChild("dln");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("mix", (double) dlyMix);
-	elem->SetAttribute("dly", (double) dlyTim);
-	elem->SetAttribute("dec", (double) dlyDec);
+	elem->SetAttribute("mix", dlyMix);
+	elem->SetAttribute("dly", dlyTim);
+	elem->SetAttribute("dec", dlyDec);
 	delete elem;
 
 	elem = parent->AddChild("lfo");

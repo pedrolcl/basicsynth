@@ -38,7 +38,7 @@ public:
 		return P_VOLUME+13;
 	}
 
-	virtual void SetParam(bsInt16 n, bsInt16 id, float v)
+	virtual void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
 		{
@@ -82,7 +82,7 @@ public:
 			lfoAmp = v;
 			break;
 		default:
-			NoteEvent::SetParam(n, n, v);
+			NoteEvent::SetParam(id, v);
 			break;
 		}
 	}
@@ -135,7 +135,7 @@ public:
 		return P_VOLUME+15;
 	}
 
-	void SetParam(bsInt16 n, bsInt16 id, float v)
+	void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
 		{
@@ -146,7 +146,7 @@ public:
 			modMult = FrqValue(v);
 			break;
 		default:
-			ToneEvent::SetParam(n, id, v);
+			ToneEvent::SetParam(id, v);
 			break;
 		}
 	}

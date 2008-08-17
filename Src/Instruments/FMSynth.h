@@ -15,43 +15,48 @@
 class FMSynth : public Instrument
 {
 private:
-	GenWaveWT  carOsc;
-	EnvGenADSR carEG;
-	EnvDef     carEnvDef;
-	FrqValue   carMult;
+	GenWaveWT  gen1Osc;
+	EnvGenADSR gen1EG;
+	EnvDef     gen1EnvDef;
+	FrqValue   gen1Mult;
 	AmpValue   fmMix;
 	AmpValue   fmDly;
 	long algorithm;
 
-	GenWaveWT  m1Osc;
-	EnvGenADSR m1EG;
-	EnvDef     m1EnvDef;
-	FrqValue   m1Mult;
+	AmpValue   panSet;
+	AmpValue   panLft;
+	AmpValue   panRgt;
 
-	GenWaveWT  m2Osc;
-	EnvGenADSR m2EG;
-	EnvDef     m2EnvDef;
-	FrqValue   m2Mult;
+	GenWaveWT  gen2Osc;
+	EnvGenADSR gen2EG;
+	EnvDef     gen2EnvDef;
+	FrqValue   gen2Mult;
 
-	GenWaveNoise nz;
-	EnvGenADSR   nzEG;
-	EnvDef       nzEnvDef;
-	AmpValue     nzMix;
-	AmpValue     nzDly;
-	int nzOn;
+	GenWaveWT  gen3Osc;
+	EnvGenADSR gen3EG;
+	EnvDef     gen3EnvDef;
+	FrqValue   gen3Mult;
 
-	FilterLP   filt;
-	EnvGenADSR filtEG;
-	EnvDef     filtEnvDef;
-	AmpValue   filtGain;
-	
+	GenNoiseI  nzi;
+	GenWaveWT  nzo;
+	EnvGenADSR nzEG;
+	EnvDef     nzEnvDef;
+	FrqValue   nzFrqh;
+	FrqValue   nzFrqo;
+	AmpValue   nzMix;
+	AmpValue   nzDly;
+
 	AllPassDelay apd;
-	FrqValue     dlyTim;
-	FrqValue     dlyDec;
-	AmpValue     dlyMix;
+	FrqValue   dlyTim;
+	FrqValue   dlyDec;
+	AmpValue   dlyMix;
 	long dlySamps;
-	int dlyOn;
+
 	LFO lfoGen;
+
+	int panOn;
+	int nzOn;
+	int dlyOn;
 
 	int chnl;
 	FrqValue frq;

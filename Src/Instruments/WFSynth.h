@@ -13,7 +13,7 @@ public:
 	bsInt16 pa;
 
 	bsInt16 MaxParam() { return NoteEvent::MaxParam() + 5; }
-	void SetParam(bsInt16 n, bsInt16 id, float v);
+	void SetParam(bsInt16 id, float v);
 };
 
 class WFSynth : public Instrument

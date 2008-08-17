@@ -7,28 +7,33 @@
 
 #include "LFO.h"
 
-// MATGEN sets the size of the matrix. We can go up to 24 because 
-// we have 24 available bits in the toneFlags member. Eight is usually enough.
+// MATGEN sets the size of the matrix. We can go up to 16 oscillators because 
+// we have 16 available bits in the toneFlags member. Eight is usually enough.
 #define MATGEN     8
-#define TONE_ON      0x0001
-#define TONE_OUT     0x0002
-#define TONE_LFOIN   0x0004
-#define TONE_PBIN    0x0008
-#define TONE_FX1OUT  0x0010
-#define TONE_FX2OUT  0x0020
-#define TONE_FX3OUT  0x0040
-#define TONE_FX4OUT  0x0080
-#define TONE_MOD1IN  0x0100
-#define TONE_MOD2IN  0x0200
-#define TONE_MOD3IN  0x0400
-#define TONE_MOD4IN  0x0800
-#define TONE_MOD5IN  0x1000
-#define TONE_MOD6IN  0x2000
-#define TONE_MOD7IN  0x4000
-#define TONE_MOD8IN  0x8000
-// extend with bits 0x00010000 - 0x80000000
-#define TONE_MODANY  0xFFFFFF04
-#define TONE_OUTANY  0x000000F0
+#define TONE_OUT_BITS 0x0000FFFF
+#define TONE_ON      0x00000001
+#define TONE_OUT     0x00000002
+#define TONE_LFOIN   0x00000004
+#define TONE_PBIN    0x00000008
+#define TONE_FX1OUT  0x00000010
+#define TONE_FX2OUT  0x00000020
+#define TONE_FX3OUT  0x00000040
+#define TONE_FX4OUT  0x00000080
+//#define TONE_XXX   0x00007F00 <= available
+#define TONE_PAN     0x00008000
+#define TONE_OUTANY  0x000000F2
+
+#define TONE_MOD_BITS 0xFFFF0000
+#define TONE_MOD1IN  0x00010000
+#define TONE_MOD2IN  0x00020000
+#define TONE_MOD3IN  0x00040000
+#define TONE_MOD4IN  0x00080000
+#define TONE_MOD5IN  0x00100000
+#define TONE_MOD6IN  0x00200000
+#define TONE_MOD7IN  0x00400000
+#define TONE_MOD8IN  0x00800000
+//#define TONE_MODXX   0xFF000000 <= available
+#define TONE_MODANY  0x00FF0004
 
 class MatrixTone
 {
@@ -39,12 +44,16 @@ private:
 	AmpValue modLvl;   // Modulation in level
 	PhsAccum modRad;   // in radians
 	AmpValue lfoLvl;   // LFO input level
+	AmpValue pbLvl;    // Pitch Bend level
+	AmpValue panSet;   // Pan setting -1,+1
+	AmpValue panLft;   // Pan left 0-1
+	AmpValue panRgt;   // Pan right 0-1
 	AmpValue fx1Lvl;   // Fx1 send level
 	AmpValue fx2Lvl;   // Fx2 send level
 	AmpValue fx3Lvl;   // Fx3 send level
 	AmpValue fx4Lvl;   // fx4 send level
 	bsUint32 toneFlags;  // TONE_* bits
-	bsUint16 envIndex; 
+	bsUint16 envIndex; // envelope index 0-7
 
 public:
 	MatrixTone();
@@ -68,14 +77,12 @@ private:
 	int chnl;
 	FrqValue frq;
 	AmpValue vol;
-	MatrixTone gens[MATGEN];
-	EnvGenA3SR envs[MATGEN];    // envelope A,D1,D2,S,R
+	MatrixTone   gens[MATGEN];
+	EnvGenSegSus envs[MATGEN];    // envelope A,D1,D2,S,R
 	bsUint16 envUsed;
 
 	LFO lfoGen;
-	GenWave32 panOsc;
-	AmpValue  panFix;
-	
+
 	int lfoOn;
 	int panOn;
 	int fx1On;

@@ -50,10 +50,12 @@ int main(int argc, char *argv[])
 	theMix.SetChannels(4);
 	theMix.ChannelOn(0, true);
 	theMix.ChannelOn(1, true);
+	theMix.ChannelOn(2, true);
+	theMix.ChannelOn(3, true);
 	theMix.ChannelVolume(0, 0.7f);
 	theMix.ChannelVolume(1, 0.5f);
-	theMix.ChannelPan(0, panLin, 0.8f);
-	theMix.ChannelPan(1, panLin, -0.8f);
+	theMix.ChannelPan(0, panTrig, 0.8f);
+	theMix.ChannelPan(1, panTrig, -0.8f);
 
 	float dlTime = 0.3f;
 	long totalSamples = (long) ((duration * synthParams.sampleRate) + 0.5);
@@ -78,6 +80,7 @@ int main(int argc, char *argv[])
 		}
 		pitch += 2;
 		wv.SetFrequency(synthParams.GetFrequency(pitch));
+		wv.Reset();
 		eg.Reset();
 	}
 
@@ -89,7 +92,6 @@ int main(int argc, char *argv[])
 		wvf.Output2(lft, rgt);
 	}
 
-
 	duration = 0.25;
 	dlTime = 1.0;
 	dl.InitDLT(dlTime, 2);
@@ -98,16 +100,14 @@ int main(int argc, char *argv[])
 	wv.InitWT(synthParams.GetFrequency(60), WT_SAW);
 	eg.InitEG(1.0f, duration, 0.05f, 0.05f);
 
-	theMix.ChannelOn(2, true);
-	theMix.ChannelOn(3, true);
 	theMix.ChannelVolume(0, 0.5f);
 	theMix.ChannelVolume(1, 0.4f);
 	theMix.ChannelVolume(2, 0.3f);
 	theMix.ChannelVolume(3, 0.2f);
-	theMix.ChannelPan(0, panOff, 0.0f);
-	theMix.ChannelPan(1, panLin, -0.8f);
-	theMix.ChannelPan(2, panLin, 0.0f);
-	theMix.ChannelPan(3, panLin,  0.8f);
+	theMix.ChannelPan(0, panTrig, 0.0f);
+	theMix.ChannelPan(1, panTrig, -0.8f);
+	theMix.ChannelPan(2, panTrig, 0.0f);
+	theMix.ChannelPan(3, panTrig,  0.8f);
 
 	totalSamples = (long) ((duration * synthParams.sampleRate) + 0.5);
 	for (n = 0; n < totalSamples; n++)
@@ -147,12 +147,12 @@ int main(int argc, char *argv[])
 	theMix.ChannelOn(2, false);
 	theMix.ChannelOn(3, false);
 	theMix.ChannelVolume(0, 1);
-	theMix.ChannelPan(0, panLin, 0);
+	theMix.ChannelPan(0, panTrig, 0);
 	totalSamples = (long) ((duration * synthParams.sampleRate));
 	for (n = 0; n < totalSamples; n++)
 	{
 		AmpValue v2 = wvoffs.Gen();
-		theMix.ChannelPan(0, panLin, v2);
+		theMix.ChannelPan(0, panTrig, v2);
 		dlv.SetDelayT(0.05*(v2 + 1));
 		value = wv.Gen();
 		value = dlv.Sample(value);

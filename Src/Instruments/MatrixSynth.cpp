@@ -39,8 +39,11 @@ MatrixSynth::MatrixSynth()
 	fx2On = 0;
 	fx3On = 0;
 	fx4On = 0;
+	panOn = 0;
 	allFlags = 0;
 	envUsed = 0;
+	for (int n = 0; n < MATGEN; n++)
+		envs[n].SetSegs(4);
 }
 
 MatrixSynth::~MatrixSynth()
@@ -59,6 +62,7 @@ void MatrixSynth::Copy(MatrixSynth *tp)
 	fx2On = tp->fx2On;
 	fx3On = tp->fx3On;
 	fx4On = tp->fx4On;
+	panOn = tp->panOn;
 	allFlags = tp->allFlags;
 	envUsed = tp->envUsed;
 
@@ -90,8 +94,8 @@ void MatrixSynth::Start(SeqEvent *evt)
 		tSig++;
 	}
 	bsUint16 flgs = envUsed;
-	EnvGenA3SR *envPtr = envs;
-	EnvGenA3SR *envEnd = &envs[MATGEN];
+	EnvGenSegSus *envPtr = envs;
+	EnvGenSegSus *envEnd = &envs[MATGEN];
 	while (envPtr < envEnd)
 	{
 		if (flgs & 1)
@@ -105,6 +109,7 @@ void MatrixSynth::Start(SeqEvent *evt)
 	fx2On = (allFlags & TONE_FX2OUT) ? 1 : 0;
 	fx3On = (allFlags & TONE_FX3OUT) ? 1 : 0;
 	fx4On = (allFlags & TONE_FX4OUT) ? 1 : 0;
+	panOn = (allFlags & TONE_PAN) ? 1 : 0;
 	if (lfoOn)
 		lfoGen.Reset(0);
 }
@@ -133,65 +138,83 @@ void MatrixSynth::SetParams(VarParamEvent *evt)
 	int n = evt->numParam;
 	while (n-- > 0)
 	{
+		// id = type[2]|gn[4]|sn[2]|vn[6]
 		float val = *vp++;
 		bsInt16 idval = *id++;
 		int gn = (idval >> 8) & (MATGEN-1);
 		int vn = idval & 0x3F;
-		if (idval & 0x01000)
+		if (idval & 0x1000)
 		{
 			// oscillator
 			MatrixTone *sig = &gens[gn];
 			switch (vn)
 			{
-			case 1: // flags
-				sig->toneFlags = (bsUint32) val;
+			case 0: // output flags
+				sig->toneFlags = (sig->toneFlags & TONE_MOD_BITS) | (bsUint32) val;
+				break;
+			case 1: // modulator flags
+				sig->toneFlags = (sig->toneFlags & TONE_OUT_BITS) | (bsUint32) val;
 				break;
 			case 2:
 				sig->osc.SetWavetable((int)val);
 				break;
 			case 3:
-				sig->frqMult = (FrqValue) val;
+				sig->frqMult = FrqValue(val);
 				break;
 			case 4:
-				sig->modLvl = (AmpValue) val;
+				sig->modLvl = AmpValue(val);
 				break;
 			case 5:
-				sig->volLvl = (AmpValue) val;
+				sig->volLvl = AmpValue(val);
 				break;
 			case 6:
 				sig->envIndex = (bsUint16) val;
 				break;
 			case 7:
-				sig->fx1Lvl = (AmpValue) val;
+				sig->fx1Lvl = AmpValue(val);
 				break;
 			case 8:
-				sig->fx2Lvl = (AmpValue) val;
+				sig->fx2Lvl = AmpValue(val);
 				break;
 			case 9:
-				sig->fx3Lvl = (AmpValue) val;
+				sig->fx3Lvl = AmpValue(val);
 				break;
 			case 10:
-				sig->fx4Lvl = (AmpValue) val;
+				sig->fx4Lvl = AmpValue(val);
+				break;
+			case 11:
+				sig->panSet = AmpValue(val);
+				sig->panLft = (1 - sig->panSet) / 2;
+				sig->panRgt = (1 + sig->panSet) / 2;
+				break;
+			case 12:
+				sig->lfoLvl = AmpValue(val);
+				break;
+			case 13:
+				sig->pbLvl = AmpValue(val);
 				break;
 			}
 		}
 		else if (idval & 0x2000)
 		{
 			// envelope
-			EnvGenA3SR *env = &envs[gn];
+			EnvGenSegSus *env = &envs[gn];
 			int sn = (idval >> 6) & 0x3;
 			switch (vn)
 			{
-			case 11:
-				env->SetStart((AmpValue)val);
+			case 0:
+				env->SetStart(AmpValue(val));
 				break;
-			case 12:
-				env->SetRate(sn, (FrqValue)val);
+			case 1:
+				env->SetSuson((int)val);
 				break;
-			case 13:
-				env->SetLevel(sn, (AmpValue)val);
+			case 2:
+				env->SetRate(sn, FrqValue(val));
 				break;
-			case 14:
+			case 3:
+				env->SetLevel(sn, AmpValue(val));
+				break;
+			case 4:
 				env->SetType(sn, (EGSegType)(int)val);
 				break;
 			}
@@ -200,20 +223,17 @@ void MatrixSynth::SetParams(VarParamEvent *evt)
 		{
 			switch (vn)
 			{
-			case 16: // pan;
-				panFix = (AmpValue) val;
+			case 16:
+				lfoGen.SetFrequency(FrqValue(val));
 				break;
 			case 17:
-				lfoGen.SetFrequency((FrqValue)val);
-				break;
-			case 18:
 				lfoGen.SetWavetable((int) val);
 				break;
-			case 19:
-				lfoGen.SetAttack((FrqValue)val);
+			case 18:
+				lfoGen.SetAttack(FrqValue(val));
 				break;
-			case 20:
-				lfoGen.SetLevel((AmpValue)val);
+			case 19:
+				lfoGen.SetLevel(AmpValue(val));
 				break;
 			}
 		}
@@ -223,8 +243,8 @@ void MatrixSynth::SetParams(VarParamEvent *evt)
 void MatrixSynth::Stop()
 {
 	bsUint16 flg = envUsed;
-	EnvGenA3SR *envPtr = envs;
-	EnvGenA3SR *envEnd = &envs[MATGEN];
+	EnvGenSegSus *envPtr = envs;
+	EnvGenSegSus *envEnd = &envs[MATGEN];
 	while (envPtr < envEnd)
 	{
 		if (flg & 1)
@@ -238,6 +258,8 @@ void MatrixSynth::Tick()
 {
 	bsUint32 flgs;
 	AmpValue sigOut = 0;
+	AmpValue sigLft = 0;
+	AmpValue sigRgt = 0;
 	AmpValue lfoRad = 0;
 	AmpValue fx1Out = 0;
 	AmpValue fx2Out = 0;
@@ -248,8 +270,8 @@ void MatrixSynth::Tick()
 	MatrixTone *tMod;
 	MatrixTone *tSig;
 	MatrixTone *tEnd;
-	EnvGenA3SR *envPtr;
-	EnvGenA3SR *envEnd;
+	EnvGenSegSus *envPtr;
+	EnvGenSegSus *envEnd;
 	AmpValue egVal[MATGEN];
 	AmpValue *eg = egVal;
 	bsUint16 envFlgs;
@@ -280,20 +302,27 @@ void MatrixSynth::Tick()
 		flgs = tSig->toneFlags;
 		if (flgs  & TONE_ON)
 		{
-			AmpValue v = tSig->osc.Gen() * egVal[tSig->envIndex];
+			AmpValue sig = tSig->osc.Gen() * egVal[tSig->envIndex];
+			*out = sig;
 			if (flgs & TONE_OUT)
 			{
-				sigOut += v * tSig->volLvl;
+				sig *= tSig->volLvl;
+				if (flgs & TONE_PAN)
+				{
+					sigLft += sig * tSig->panLft;
+					sigRgt += sig * tSig->panRgt;
+				}
+				else
+					sigOut += sig;
 				if (flgs & TONE_FX1OUT)
-					fx1Out += v * tSig->fx1Lvl;
+					fx1Out += sig * tSig->fx1Lvl;
 				if (flgs & TONE_FX2OUT)
-					fx2Out += v * tSig->fx2Lvl;
+					fx2Out += sig * tSig->fx2Lvl;
 				if (flgs & TONE_FX3OUT)
-					fx3Out += v * tSig->fx3Lvl;
+					fx3Out += sig * tSig->fx3Lvl;
 				if (flgs & TONE_FX4OUT)
-					fx4Out += v * tSig->fx4Lvl;
+					fx4Out += sig * tSig->fx4Lvl;
 			}
-			*out = v;
 		}
 		else
 			*out = 0; // justin case...
@@ -336,16 +365,9 @@ void MatrixSynth::Tick()
 	if (fx4On)
 		im->FxSend(chnl, 3, fx4Out);
 
-	sigOut *= vol;
 	if (panOn)
-	{
-		AmpValue pan = panOsc.Gen();
-		AmpValue lft = 1 - pan;
-		AmpValue rgt = pan;
-		im->Output2(chnl, sigOut * lft, sigOut * rgt);
-	}
-	else
-		im->Output(chnl, sigOut);
+		im->Output2(chnl, sigLft * vol, sigRgt * vol);
+	im->Output(chnl, sigOut * vol);
 }
 
 int  MatrixSynth::IsFinished()
@@ -370,21 +392,21 @@ void MatrixSynth::Destroy()
 
 int MatrixSynth::LoadEnv(XmlSynthElem *elem)
 {
-	long en = -1;
+	short en = -1;
 	if (elem->GetAttribute("en", en) != 0)
 		return -1;
 	if (en < 0 || en >= MATGEN)
 		return -1;
 
-	long ival;
-	double dval;
+	short ival;
+	float dval;
 
 	dval = 0;
 	elem->GetAttribute("st", dval);
 	envs[en].SetStart(dval);
 
 	ival = 1;
-	elem->GetAttribute("so", ival);
+	elem->GetAttribute("sus", ival);
 	envs[en].SetSuson((int)ival);
 
 	XmlSynthElem *elemEG;
@@ -415,21 +437,21 @@ int MatrixSynth::LoadEnv(XmlSynthElem *elem)
 int MatrixSynth::SaveEnv(XmlSynthElem *elem, int en)
 {
 	int nsegs = envs[en].GetSegs();
-	elem->SetAttribute("en", (long) en);
-	elem->SetAttribute("st", (double)envs[en].GetStart());
-	elem->SetAttribute("so", (long)envs[en].GetSusOn());
+	elem->SetAttribute("en", (short) en);
+	elem->SetAttribute("st", envs[en].GetStart());
+	elem->SetAttribute("sus", (short)envs[en].GetSusOn());
 
 	XmlSynthElem *elemEG;
-	int sn;
+	short sn;
 	for (sn = 0; sn < nsegs; sn++)
 	{
 		elemEG = elem->AddChild("seg");
 		if (elemEG == NULL)
 			return -1;
-		elemEG->SetAttribute("sn", (long) sn);
-		elemEG->SetAttribute("rt",  (double)envs[en].GetRate(sn));
-		elemEG->SetAttribute("lv",  (double)envs[en].GetLevel(sn));
-		elemEG->SetAttribute("ty", (long) envs[en].GetType(sn));
+		elemEG->SetAttribute("sn", sn);
+		elemEG->SetAttribute("rt",  envs[en].GetRate(sn));
+		elemEG->SetAttribute("lv",  envs[en].GetLevel(sn));
+		elemEG->SetAttribute("ty", (short) envs[en].GetType(sn));
 		delete elem;
 	}
 
@@ -438,8 +460,8 @@ int MatrixSynth::SaveEnv(XmlSynthElem *elem, int en)
 
 int MatrixSynth::Load(XmlSynthElem *parent)
 {
-	double dval;
-	long ival;
+	float dval;
+	short ival;
 
 	XmlSynthElem *elem;
 	XmlSynthElem *next = parent->FirstChild();
@@ -451,8 +473,6 @@ int MatrixSynth::Load(XmlSynthElem *parent)
 				frq = FrqValue(dval);
 			if (elem->GetAttribute("vol", dval) == 0)
 				vol = AmpValue(dval);
-			if (elem->GetAttribute("pan", dval) == 0)
-				panFix = AmpValue(dval);
 		}
 		else if (elem->TagMatch("gen"))
 		{
@@ -481,8 +501,9 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 	XmlSynthElem *elem = parent->AddChild("mat");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("frq", (double) frq);
-	elem->SetAttribute("vol", (double) vol);
+	int err;
+	err = elem->SetAttribute("frq", frq);
+	err |= elem->SetAttribute("vol", vol);
 	delete elem;
 
 	for (long n = 0; n < MATGEN; n++)
@@ -490,7 +511,7 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 		elem = parent->AddChild("gen");
 		if (elem == NULL)
 			return -1;
-		elem->SetAttribute("gn", n);
+		err |= elem->SetAttribute("gn", n);
 		gens[n].Save(elem);
 		delete elem;
 	}
@@ -507,10 +528,10 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 	elem = parent->AddChild("lfo");
 	if (elem == NULL)
 		return -1;
-	lfoGen.Save(elem);
+	err |= lfoGen.Save(elem);
 	delete elem;
 
-	return 0;
+	return err;
 }
 
 /////////////////////////////////////////////////
@@ -526,6 +547,11 @@ MatrixTone::MatrixTone()
 	fx2Lvl = 0;
 	fx3Lvl = 0;
 	fx4Lvl = 0;
+	panSet = 0;
+	panLft = 0.5;
+	panRgt = 0.5;
+	lfoLvl = 0;
+	pbLvl = 0;
 	envIndex = 0;
 }
 
@@ -543,6 +569,11 @@ void MatrixTone::Copy(MatrixTone *tp)
 	fx1Lvl = tp->fx1Lvl;
 	fx2Lvl = tp->fx2Lvl;
 	fx3Lvl = tp->fx3Lvl;
+	lfoLvl = tp->lfoLvl;
+	pbLvl = tp->pbLvl;
+	panSet = tp->panSet;
+	panLft = tp->panLft;
+	panRgt = tp->panRgt;
 	osc.SetFrequency(tp->osc.GetFrequency());
 	osc.SetWavetable(tp->osc.GetWavetable());
 	envIndex = tp->envIndex;
@@ -571,40 +602,51 @@ inline void MatrixTone::PhaseModWT(PhsAccum phs)
 	osc.PhaseModWT(phs);
 }
 
-#define MAXBIT 16
-
 int MatrixTone::Load(XmlSynthElem *elem)
 {
-	double dval;
-	long ival;
+	float dval;
+	short ival;
 	toneFlags = 0;
-	char *bits = NULL;
-	if (elem->GetAttribute("flg", &bits) == 0)
-	{
-		char *bp = bits;
-		bsUint32 mask = 1;
-		for (int b = 0; b < MAXBIT && *bp; b++)
-		{
-			if (*bp == '1')
-				toneFlags |= mask;
-			mask <<= 1;
-			bp++;
-		}
-		delete bits;
-	}
 
-	if (elem->GetAttribute("frq", dval) == 0)
-		osc.SetFrequency((FrqValue) dval);
 	if (elem->GetAttribute("wt",  ival) == 0)
 		osc.SetWavetable(ival);
 	if (elem->GetAttribute("mul", dval) == 0)
 		frqMult = FrqValue(dval);
 	if (elem->GetAttribute("mnx", dval) == 0)
 		modLvl = AmpValue(dval);
+	char *bits = NULL;
+	if (elem->GetAttribute("out", &bits) == 0)
+	{
+		char *bp = bits;
+		bsUint32 mask = 1;
+		for (int b = 0; b < 16 && *bp; b++, bp++)
+		{
+			if (*bp == '1')
+				toneFlags |= mask;
+			mask <<= 1;
+		}
+		delete bits;
+	}
+
+	if (elem->GetAttribute("mod", &bits) == 0)
+	{
+		char *bp = bits;
+		bsUint32 mask = TONE_MOD1IN;
+		for (int b = 0; b < MATGEN && *bp; b++, bp++)
+		{
+			if (*bp == '1')
+				toneFlags |= mask;
+			mask <<= 1;
+		}
+		delete bits;
+	}
+
 	if (elem->GetAttribute("vol", dval) == 0)
 		volLvl = AmpValue(dval);
 	if (elem->GetAttribute("eg", ival) == 0)
 		envIndex = (bsUint16) ival;
+	if (elem->GetAttribute("lfo", dval) == 0)
+		lfoLvl = AmpValue(dval);
 	if (elem->GetAttribute("fx1", dval) == 0)
 		fx1Lvl = AmpValue(dval);
 	if (elem->GetAttribute("fx2", dval) == 0)
@@ -613,32 +655,51 @@ int MatrixTone::Load(XmlSynthElem *elem)
 		fx3Lvl = AmpValue(dval);
 	if (elem->GetAttribute("fx4", dval) == 0)
 		fx4Lvl = AmpValue(dval);
+	if (elem->GetAttribute("pan", dval) == 0)
+	{
+		panSet = AmpValue(dval);
+		panLft = (1 - panSet) / 2;
+		panRgt = (1 + panSet) / 2;
+	}
 
 	return 0;
 }
 
 int MatrixTone::Save(XmlSynthElem *elem)
 {
-	char bits[MAXBIT+1];
+	int err;
+	err  = elem->SetAttribute("wt",  (short) osc.GetWavetable());
+	err |= elem->SetAttribute("mul", frqMult);
+	err |= elem->SetAttribute("mnx", modLvl);
+	err |= elem->SetAttribute("eg",  (short) envIndex);
+	char bits[MATGEN+1];
 	bsUint32 mask = 1;
 	int b;
-	for (b = 0; b < MAXBIT; b++)
+	for (b = 0; b < 16; b++)
 	{
 		bits[b] = toneFlags & mask ? '1' : '0';
 		mask >>= 1;
 	}
 	bits[b] = 0;
-	elem->SetAttribute("flg", bits);
-	elem->SetAttribute("frq", (double) osc.GetFrequency());
-	elem->SetAttribute("wt",  (long) osc.GetWavetable());
-	elem->SetAttribute("mul", (double) frqMult);
-	elem->SetAttribute("mnx", (double) modLvl);
-	elem->SetAttribute("vol", (double) volLvl);
-	elem->SetAttribute("eg",  (long) envIndex);
-	elem->SetAttribute("fx1", (double) fx1Lvl);
-	elem->SetAttribute("fx2", (double) fx1Lvl);
-	elem->SetAttribute("fx3", (double) fx3Lvl);
-	elem->SetAttribute("fx4", (double) fx4Lvl);
+	err |= elem->SetAttribute("out", bits);
 
-	return 0;
+	mask = TONE_MOD1IN;
+	for (b = 0; b < MATGEN; b++)
+	{
+		bits[b] = toneFlags & mask ? '1' : '0';
+		mask >>= 1;
+	}
+	bits[b] = 0;
+	err |= elem->SetAttribute("mod", bits);
+
+	err |= elem->SetAttribute("vol", volLvl);
+	err |= elem->SetAttribute("fx1", fx1Lvl);
+	err |= elem->SetAttribute("fx2", fx1Lvl);
+	err |= elem->SetAttribute("fx3", fx3Lvl);
+	err |= elem->SetAttribute("fx4", fx4Lvl);
+	err |= elem->SetAttribute("pan", panSet);
+	err |= elem->SetAttribute("lfo", lfoLvl);
+	err |= elem->SetAttribute("pb", pbLvl);
+
+	return err;
 }
