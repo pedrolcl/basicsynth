@@ -11,8 +11,48 @@
 
 #define panOff 0
 #define panLin 1
-#define panLog 2
-#define panAtn 3
+#define panTrig 2
+#define panSqr 3
+
+class Panner
+{
+public:
+	AmpValue panlft;
+	AmpValue panrgt;
+
+	Panner()
+	{
+		panlft = 0.5;
+		panrgt = 0.5;
+	}
+
+	void Set(int pm, AmpValue p)
+	{
+		if (pm == panOff)
+		{
+			panlft = 0.5;
+			panrgt = 0.5;
+			return;
+		}
+		panlft = (1 - p) / 2;
+		panrgt = (1 + p) / 2;
+
+		if (pm == panTrig)
+		{
+			//panlft = sin(panlft * PI/2) * 0.707;
+			//panrgt = sin(panrgt * PI/2) * 0.707;
+			panlft = synthParams.sinquad[(int)(panlft * synthParams.sqNdx)];
+			panrgt = synthParams.sinquad[(int)(panrgt * synthParams.sqNdx)];
+		}
+		else if (pm == panSqr)
+		{
+			//panlft = sqrt(panlft) * 0.707;
+			//panrgt = sqrt(panrgt) * 0.707;
+			panlft = synthParams.sqrttbl[(int)(panlft * synthParams.sqNdx)];
+			panrgt = synthParams.sqrttbl[(int)(panrgt * synthParams.sqNdx)];
+		}
+	}
+};
 
 class MixChannel 
 {
@@ -21,8 +61,7 @@ private:
 	AmpValue right;
 	AmpValue volume;
 	AmpValue panset;
-	AmpValue panlft;
-	AmpValue panrgt;
+	Panner pan;
 	int   method;
 	int   on;
 
@@ -30,13 +69,11 @@ public:
 	MixChannel()
 	{
 		volume = 0.5;
-		panset = 0;
-		panlft = 1;
-		panrgt = 1;
-		method = 0;
 		on = false;
 		left = 0;
 		right = 0;
+		panset = 0;
+		method = 0;
 	}
 
 	void SetOn(int n)
@@ -61,42 +98,9 @@ public:
 
 	void SetPan(int pm, AmpValue p)
 	{
-		method = pm;
 		panset = p;
-		if (pm == panLin)
-		{
-			panlft = (1 - p) / 2;
-			panrgt = (1 + p) / 2;
-		}
-		else if (pm == panLog)
-		{
-			float r = (p + 45.0) * (twoPI / 360.0);
-			panlft = cos(r);
-			panrgt = sin(r);
-		}
-		else if (pm == panAtn)
-		{
-			if (p > 0)
-			{
-				panlft = 1 - p;
-				panrgt = 1;
-			}
-			else if (p < 0)
-			{
-				panlft = 1;
-				panrgt = 1 + p;
-			} 
-			else
-			{
-				panlft = 1;
-				panrgt = 1;
-			}
-		}
-		else
-		{
-			panlft = 1;
-			panrgt = 1;
-		}
+		method = pm;
+		pan.Set(pm, p);
 	}
 
 	AmpValue GetPan()
@@ -107,8 +111,8 @@ public:
 	void In(AmpValue val)
 	{
 		val *= volume;
-		left  += val * panlft;
-		right += val * panrgt;
+		left  += val * pan.panlft;
+		right += val * pan.panrgt;
 	}
 
 	void In2(AmpValue lft, AmpValue rgt)

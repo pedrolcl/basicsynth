@@ -1,7 +1,10 @@
 // Lex.cpp: implementation of the nlLex class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
+#include <BasicSynth.h>
 #include "NLConvert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -231,6 +234,8 @@ int nlLex::Next()
 			return T_COUNT;
 		break;
 	case 'D':
+		if (CompareToken(cTokbuf, "DOUBLE") == 0)
+			return T_DOUBLE;
 		if (CompareToken(cTokbuf, "DIM") == 0)
 			return T_DIM;
 		break;
@@ -250,6 +255,8 @@ int nlLex::Next()
 		break;
 	case 'I':
 		if (CompareToken(cTokbuf, "INSTR") == 0)
+			return T_INSTNUM;
+		if (CompareToken(cTokbuf, "INSTRUMENT") == 0)
 			return T_INSTNUM;
 		if (CompareToken(cTokbuf, "IN") == 0)
 			return T_IN;

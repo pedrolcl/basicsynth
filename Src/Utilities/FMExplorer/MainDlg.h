@@ -7,31 +7,31 @@
 struct FMInstrParam
 {
 	int algorithm;
-	AmpValue carStart;
-	FrqValue carAtk;
-	AmpValue carPk;
-	FrqValue carDec;
-	AmpValue carSus;
-	FrqValue carRel;
-	AmpValue carEnd;
+	AmpValue gen1Start;
+	FrqValue gen1Atk;
+	AmpValue gen1Pk;
+	FrqValue gen1Dec;
+	AmpValue gen1Sus;
+	FrqValue gen1Rel;
+	AmpValue gen1End;
 
-	FrqValue mod1Mult;
-	AmpValue mod1Start;
-	FrqValue mod1Atk;
-	AmpValue mod1Pk;
-	FrqValue mod1Dec;
-	AmpValue mod1Sus;
-	FrqValue mod1Rel;
-	AmpValue mod1End;
+	FrqValue gen2Mult;
+	AmpValue gen2Start;
+	FrqValue gen2Atk;
+	AmpValue gen2Pk;
+	FrqValue gen2Dec;
+	AmpValue gen2Sus;
+	FrqValue gen2Rel;
+	AmpValue gen2End;
 
-	FrqValue mod2Mult;
-	AmpValue mod2Start;
-	FrqValue mod2Atk;
-	AmpValue mod2Pk;
-	FrqValue mod2Dec;
-	AmpValue mod2Sus;
-	FrqValue mod2Rel;
-	AmpValue mod2End;
+	FrqValue gen3Mult;
+	AmpValue gen3Start;
+	FrqValue gen3Atk;
+	AmpValue gen3Pk;
+	FrqValue gen3Dec;
+	AmpValue gen3Sus;
+	FrqValue gen3Rel;
+	AmpValue gen3End;
 };
 
 class CMainDlg : public CDialogImpl<CMainDlg>, 
@@ -40,52 +40,52 @@ class CMainDlg : public CDialogImpl<CMainDlg>,
 	public CIdleHandler
 {
 private:
-	CTrackBarCtrl carFrq;
-	CTrackBarCtrl carAtk;
-	CTrackBarCtrl carVol;
-	CTrackBarCtrl carDec;
-	CTrackBarCtrl carSus;
-	CTrackBarCtrl carRel;
-	CEdit carFrqEd;
-	CEdit carAtkEd;
-	CEdit carVolEd;
-	CEdit carDecEd;
-	CEdit carSusEd;
-	CEdit carRelEd;
+	CTrackBarCtrl gen1Frq;
+	CTrackBarCtrl gen1Atk;
+	CTrackBarCtrl gen1Vol;
+	CTrackBarCtrl gen1Dec;
+	CTrackBarCtrl gen1Sus;
+	CTrackBarCtrl gen1Rel;
+	CEdit gen1FrqEd;
+	CEdit gen1AtkEd;
+	CEdit gen1VolEd;
+	CEdit gen1DecEd;
+	CEdit gen1SusEd;
+	CEdit gen1RelEd;
 
-	CTrackBarCtrl mod1Mul;
-	CTrackBarCtrl mod1Ndx;
-	CTrackBarCtrl mod1Atk;
-	CTrackBarCtrl mod1Pck;
-	CTrackBarCtrl mod1Dec;
-	CTrackBarCtrl mod1Sus;
-	CTrackBarCtrl mod1Rel;
-	CTrackBarCtrl mod1End;
-	CEdit mod1MulEd;
-	CEdit mod1NdxEd;
-	CEdit mod1AtkEd;
-	CEdit mod1PckEd;
-	CEdit mod1DecEd;
-	CEdit mod1SusEd;
-	CEdit mod1RelEd;
-	CEdit mod1EndEd;
+	CTrackBarCtrl gen2Mul;
+	CTrackBarCtrl gen2Ndx;
+	CTrackBarCtrl gen2Atk;
+	CTrackBarCtrl gen2Pck;
+	CTrackBarCtrl gen2Dec;
+	CTrackBarCtrl gen2Sus;
+	CTrackBarCtrl gen2Rel;
+	CTrackBarCtrl gen2End;
+	CEdit gen2MulEd;
+	CEdit gen2NdxEd;
+	CEdit gen2AtkEd;
+	CEdit gen2PckEd;
+	CEdit gen2DecEd;
+	CEdit gen2SusEd;
+	CEdit gen2RelEd;
+	CEdit gen2EndEd;
 
-	CTrackBarCtrl mod2Mul;
-	CTrackBarCtrl mod2Ndx;
-	CTrackBarCtrl mod2Atk;
-	CTrackBarCtrl mod2Pck;
-	CTrackBarCtrl mod2Dec;
-	CTrackBarCtrl mod2Sus;
-	CTrackBarCtrl mod2Rel;
-	CTrackBarCtrl mod2End;
-	CEdit mod2MulEd;
-	CEdit mod2NdxEd;
-	CEdit mod2AtkEd;
-	CEdit mod2PckEd;
-	CEdit mod2DecEd;
-	CEdit mod2SusEd;
-	CEdit mod2RelEd;
-	CEdit mod2EndEd;
+	CTrackBarCtrl gen3Mul;
+	CTrackBarCtrl gen3Ndx;
+	CTrackBarCtrl gen3Atk;
+	CTrackBarCtrl gen3Pck;
+	CTrackBarCtrl gen3Dec;
+	CTrackBarCtrl gen3Sus;
+	CTrackBarCtrl gen3Rel;
+	CTrackBarCtrl gen3End;
+	CEdit gen3MulEd;
+	CEdit gen3NdxEd;
+	CEdit gen3AtkEd;
+	CEdit gen3PckEd;
+	CEdit gen3DecEd;
+	CEdit gen3SusEd;
+	CEdit gen3RelEd;
+	CEdit gen3EndEd;
 
 	CEdit durValEd;
 	CEdit volValEd;
@@ -98,17 +98,19 @@ private:
 	CButton btnStop;
 
 	int algorithm;
+	double gen2Scale;
+	int gen2SlidRange;
 	// Fast oscillator (32-bit phase accumulator):
-	//GenWave32 carOsc;
-	//GenWave32 mod1Osc;
-	//GenWave32 mod2Osc;
+	//GenWave32 gen1Osc;
+	//GenWave32 gen2Osc;
+	//GenWave32 gen3Osc;
 	// Interpolating oscillator (slightly less noise):
-	GenWaveI carOsc;
-	GenWaveI mod1Osc;
-	GenWaveI mod2Osc;
-	EnvGenADSR carEG;
-	EnvGenADSR mod1EG;
-	EnvGenADSR mod2EG;
+	GenWaveI gen1Osc;
+	GenWaveI gen2Osc;
+	GenWaveI gen3Osc;
+	EnvGenADSR gen1EG;
+	EnvGenADSR gen2EG;
+	EnvGenADSR gen3EG;
 
 #ifdef USE_DIRECTSOUND
 	IDirectSound *dirSndObj;

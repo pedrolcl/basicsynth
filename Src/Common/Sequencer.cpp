@@ -73,7 +73,7 @@ bsInt32 Sequencer::Sequence(InstrManager& instMgr, bsInt32 startTime, bsInt32 en
 	tickCount = 0;
 	wrapCount = 0;
 	if (tickCB)
-		tickCB(0);
+		tickCB(0, tickArg);
 
 	int actCount;
 	int actWait;
@@ -195,7 +195,7 @@ bsInt32 Sequencer::Sequence(InstrManager& instMgr, bsInt32 startTime, bsInt32 en
 		{
 			if (++tickCount >= tickWrap)
 			{
-				tickCB(++wrapCount);
+				tickCB(++wrapCount, tickArg);
 				tickCount = 0;
 			}
 		}

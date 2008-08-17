@@ -74,9 +74,9 @@ public:
 	virtual int AllocParam(bsInt16 n) { return 0; }
 	virtual bsInt16 MaxParam() { return P_XTRA; }
 
-	virtual void SetParam(bsInt16 n, bsInt16 id, float v)
+	virtual void SetParam(bsInt16 id, float v)
 	{
-		switch (n)
+		switch (id)
 		{
 		case P_INUM:
 			inum = (bsInt16) v;
@@ -96,9 +96,9 @@ public:
 		}
 	}
 
-	virtual void SetParam(bsInt16 n, bsInt16 id, char *s)
+	virtual void SetParam(bsInt16 id, char *s)
 	{
-		SetParam(n, id, (float) atof(s));
+		SetParam(id, (float) atof(s));
 	}
 };
 
@@ -131,9 +131,9 @@ public:
 
 	virtual bsInt16 MaxParam() { return P_VOLUME; }
 
-	virtual void SetParam(bsInt16 n, bsInt16 id, float v)
+	virtual void SetParam(bsInt16 id, float v)
 	{
-		switch (n)
+		switch (id)
 		{
 		case P_PITCH:
 			pitch = (int) v;
@@ -146,7 +146,7 @@ public:
 			vol = (AmpValue) v;
 			break;
 		default:
-			SeqEvent::SetParam(n, n, v);
+			SeqEvent::SetParam(id, v);
 			break;
 		}
 	}
@@ -165,6 +165,7 @@ class VarParamEvent : public NoteEvent
 {
 public:
 	bsInt16 maxParam;
+	bsInt16 allParam;
 	bsInt16 numParam;
 	bsInt16 *idParam;
 	float *valParam;
@@ -172,6 +173,7 @@ public:
 	VarParamEvent()
 	{
 		maxParam = 0;
+		allParam = 0;
 		numParam = 0;
 		idParam  = 0;
 		valParam = 0;
@@ -179,7 +181,7 @@ public:
 
 	~VarParamEvent()
 	{
-		if (numParam > 0)
+		if (allParam > 0)
 		{
 			delete idParam;
 			delete valParam;
@@ -199,17 +201,17 @@ public:
 		}
 		if (idParam != NULL)
 		{
-			memcpy(ndx, idParam, numParam*sizeof(bsInt16));
+			memcpy(ndx, idParam, allParam*sizeof(bsInt16));
 			delete idParam;
 		}
 		if (valParam != NULL)
 		{
-			memcpy(val, valParam, numParam*sizeof(float));
+			memcpy(val, valParam, allParam*sizeof(float));
 			delete valParam;
 		}
 		idParam = ndx;
 		valParam = val;
-		numParam = n;
+		allParam = n;
 		return n;
 	}
 
@@ -218,20 +220,20 @@ public:
 		return NoteEvent::MaxParam() + maxParam;
 	}
 
-	void SetParam(bsInt16 n, bsInt16 id, float val)
+	void SetParam(bsInt16 id, float val)
 	{
-		int n2 = n - NoteEvent::MaxParam();
-		if (n2 < 0)
-			NoteEvent::SetParam(n, id, val);
-		else if (n2 < maxParam)
+		if (id <= NoteEvent::MaxParam())
+			NoteEvent::SetParam(id, val);
+		else if (id < maxParam)
 		{
-			if (n2 >= numParam)
+			if (numParam >= allParam)
 			{
-				if (AllocParam(numParam+5) == 0)
+				if (AllocParam(allParam+5) == 0)
 					return;
 			}
-			idParam[n2] = id;
-			valParam[n2] = val;
+			idParam[numParam] = id;
+			valParam[numParam] = val;
+			numParam++;
 		}
 	}
 };

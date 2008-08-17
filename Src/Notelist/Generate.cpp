@@ -1,7 +1,10 @@
 // Generate.cpp: implementation of the nlGenerate class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
+#include <BasicSynth.h>
 #include "NLConvert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -336,6 +339,8 @@ nlVoice::nlVoice()
 	articType = T_OFF;
 	articParam = 0;
 	transpose = 0;
+	doublex = 0;
+	doublev = 0.0;
 	instname = NULL;
 	loopCount = 0;
 }
@@ -733,6 +738,40 @@ nlScriptNode *nlTransposeNode::Exec()
 	return p;
 }
 
+nlScriptNode *nlDoubleNode::Exec()
+{
+	if (next == NULL)
+		return NULL;
+
+	nlScriptNode *p, *p2;
+	nlVoice *vp = genPtr->GetCurVoice();
+	if (next->GetToken() == T_OFF)
+	{
+		vp->doublex = 0;
+		vp->doublev = 0;
+		p = next->GetNext();
+	}
+	else
+	{
+		p = next->Exec();
+		if (vp)
+			next->GetValue(&vp->doublex);
+		if (p->GetToken() == T_COMMA)
+		{
+			p = p->GetNext();
+			p2 = p->Exec();
+			if (vp)
+			{
+				double val;
+				p->GetValue(&val);
+				vp->doublev = val / 100.0;
+			}
+			p = p2;
+		}
+	}
+	return p;
+}
+
 nlScriptNode *nlLoopNode::Exec()
 {
 	if (next == NULL)
@@ -1073,6 +1112,8 @@ nlScriptNode *nlNoteNode::Exec()
 				//	break;
 				}
 				pc->BeginNote(offsetDur, thisDur, thisVol, thisPit, numParms, pv->paramVal);
+				if (pv->doublex)
+					pc->BeginNote(offsetDur, thisDur, thisVol*pv->doublev, thisPit+pv->doublex, numParms, pv->paramVal);
 			}
 			else
 				pc->ContinueNote(offsetDur, thisVol, thisPit, numParms, pv->paramVal);

@@ -12,9 +12,14 @@
     <chnl cn="2" on="1" vol="0.5" pan="0.5"/>
     <chnl cn="3" on="1" vol="0.5" pan="-0.5"/>
   </mixer>
-  <libdir>C:\Documents and Settings\Dan Mitchell\My Documents\BasicSynth\Src\BSynth</libdir>
+  <libdir></libdir>
   <libfile name="TestInstr" desc="Test of instrument library">testinst.xml</libfile>
-  <instrLib></instrLib>
+  <instrLib>
+    <instr id="13" type="Tone" name="Pulse" desc="">
+      <osc frq="440.0" wt="4" />
+      <env st="0" atk="0.1" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
+    </instr>
+  </instrLib>
   <score name="Test">test.nl</score>
   <score name="Test2">test2.nl</score>
 </synthprj>

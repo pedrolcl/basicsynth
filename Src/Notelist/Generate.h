@@ -195,6 +195,8 @@ public:
 	long   articType;
 	long   articParam;
 	long   transpose;
+	long   doublex;
+	double doublev;
 	long   loopCount;
 	char   *instname;
 
@@ -454,6 +456,16 @@ public:
 	nlTransposeNode()
 	{
 		token = T_XPOSE;
+	}
+	virtual nlScriptNode *Exec();
+};
+
+class nlDoubleNode : public nlScriptNode
+{
+public:
+	nlDoubleNode()
+	{
+		token = T_DOUBLE;
 	}
 	virtual nlScriptNode *Exec();
 };

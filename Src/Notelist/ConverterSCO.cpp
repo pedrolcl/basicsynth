@@ -1,3 +1,7 @@
+#include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
+#include <BasicSynth.h>
 #include "NLConvert.h"
 #include "ConverterSCO.h"
 

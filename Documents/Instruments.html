@@ -1,0 +1,3916 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<title>BasicSynth Instruments</title>
+<style>
+<!--
+ /* Style Definitions */
+p.Indent, li.Indent, div.Indent
+	{margin:0in;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-indent:.2in;}
+p.Code, li.Code, div.Code
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-family:"Courier New";}
+span.CodeChar
+	{font-family:"Courier New";}
+p.NoIndent, li.NoIndent, div.NoIndent
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	text-align:justify;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=Section1>
+
+<h1><i>BasicSynth</i> Instruments</h1>
+
+<p class=NoIndent>The <i>BasicSynth</i> library includes a variety of pre-built
+instruments that can be included in a synthesis system or referenced in the <i>BSynth</i>
+program. Each instrument is defined by a single class in the Instruments
+library. All instrument classes inherit from the Instrument base class and thus
+have the same set of publicly accessible methods.</p>
+
+<p class=Indent>Instrument configuration may be made programmatically, or
+loaded from an XML file, allowing a single instrument to be setup for a wide
+variety of sounds. This document describes the <i>BasicSynth</i> instruments,
+the XML format, and the parameter numbers for each instrument property.</p>
+<p class=Indent>Instrument configurations are typically stored in an XML file containing multiple instrument 
+definitions. The root tag for the file is <i>instrLib</i> 
+with each instrument configuration contained within the <i>instr</i> tag.</p>
+<p class=Code>&nbsp;</p>
+<p class=Code>&lt;instrLib&gt;</p>
+<p class=Code>&nbsp;&nbsp;&lt;instr id=&quot;&quot; type=&quot;&quot; name=&quot;&quot; desc=&quot;&quot;&gt;</p>
+<p class=Code>&nbsp;&nbsp;&lt;/instr&gt;</p>
+<p class=Code>&lt;/instrLib&gt;</p>
+<p class=Code>&nbsp;</p>
+<p class=Indent>The <i>id</i> attribute is a unique number for the instrument and is used internally to locate
+instruments. However, the instrument manager will check the value and re-assign a unique number if needed. In general,
+it is better to locate instruments by name than by number unless you are sure all numbers are unique across all
+loaded libraries. The <i>type</i> attribute indicates the class used for the instrument and must match
+a name known to the instrument manager. The <i>name</i> attribute provides a name to locate the instrument. 
+The <i>desc</i> attribute is optional and for information only. The instrument loading code reads and
+stores the value in the instrument table entry.</p>
+<p class=Indent>The number and IDs for instrument parameters are specific to each instrument, but many 
+parameter types are common to all instruments. The range of values for common parameters are as follows:</p>
+<p class=Indent>&nbsp;</p>
+<p class=Indent>Frequency -- specified in Hz</p>
+<p class=Indent>Volume/Amplitude -- normalized to a linear amplitude range 0-1</p>
+<p class=Indent>Wavetable Index -- can reference any defined wavetable; pre-defined are 0=sin, 1=saw, 2=square, 3=triangle, 4=pulse</p>
+<p class=Indent>Envelope Rate -- in seconds</p>
+<p class=Indent>Envelope level -- usually 0-1, but may vary depending on application</p>
+<p class=Indent>Envelope type -- 1=linear, 2=exponential 3=log, 4=sustain</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Indent><a href="#_Tone_Instrument">Tone Instrument</a></p>
+
+<p class=Indent><a href="#_FM_Tone_Instrument">FM Tone Instrument</a></p>
+
+<p class=Indent><a href="#_FM_Synthesis_Instrument">FM Synthesis Instrument</a></p>
+
+<p class=Indent><a href="#_Additive_Synthesis_Instrument">Additive Synthesis
+Instrument</a></p>
+
+<p class=Indent><a href="#_Subtractive_Synthesis_Instrument">Subtractive
+Synthesis Instrument</a></p>
+
+<p class=Indent><a href="#_Wave_File_Playback">Wave File Playback Instrument</a></p>
+
+<p class=Indent><a href="#_Matrix_Synthesis_Instrument">Matrix Synthesis
+Instrument</a></p>
+
+<hr/><h2><a name="_Tone_Instrument"></a>Tone Instrument</h2>
+
+<p class=NoIndent>The <i>Tone</i> instrument
+contains a single oscillator, ADSR envelope generator and LFO generator. The
+waveform for the oscillator is selectable, providing for a variety of sounds.
+Although limited in timber, it is fast and very easy to configure.</p>
+
+<p class=Indent>The Tone instrument class is defined in <i>Src/Instruments/Tone.h</i>
+with the implementation in <i>Src/Instruments/Tone.cpp</i>. </p>
+
+<p class=NoIndent>The XML tags for the Tone instrument are as follows.</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;Tone&quot; name=&quot;&quot; desc=&quot;&quot;&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;osc frq=&quot;&quot; wt=&quot;&quot; vol=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;env st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot;
+dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot;
+ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;lfo frq=&quot;&quot; wt=&quot;&quot; atk=&quot;&quot; amp=&quot;&quot; /&gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+<p class=NoIndent>The following table shows the parameter ID numbers and the
+equivalent XML tag and attribute values for the <i>Tone</i> instrument. </p>
+
+<p class=Code>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Parameter</b></p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Tag</b></p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Attribute</b></p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Use</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>5</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>osc</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Initial frequency of the oscillator</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>6</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>vol</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Overall volume level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>16</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Wave table index</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>17</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>env</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>st</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Start level for envelope</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>18</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Attack rate in seconds</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>19</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>pk</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Peak amplitude level after attack</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>20</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>dec</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Decay time to sustain level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>21</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>sus</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Sustain level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>22</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>rel</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Release rate in seconds</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>23</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>end</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>End level
+  for envelope</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>24</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>ty</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  curve type</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>25</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>lfo</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  Frequency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>26</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Wave table
+  index</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>27</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  envelope attack time</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>28</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>amp</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO depth
+  (amplitude)</p>
+  </td>
+ </tr>
+</table>
+
+<hr/><h2><a name="_FM_Tone_Instrument"></a>FM Tone Instrument</h2>
+
+<p class=NoIndent>The <i>FMTone</i> instrument is
+similar to the <i>Tone</i> instrument, but uses a two-oscillator FM generator
+in place of the single oscillator. The waveform is not selectable and is always
+a sine wave. The carrier-modulator ratio and modulation index are set by two
+parameters.</p>
+
+<p class=Indent>The <i>FMTone</i> instrument class is defined in <i>Src/Instruments/Tone.h</i>
+with the implementation in <i>Src/Instruments/Tone.cpp</i>. </p>
+
+<p class=NoIndent>The XML tags for the <i>FMTone</i> instrument are as follows.</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;FMTone&quot; name=&quot;&quot; desc=&quot;&quot;&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;osc frq=&quot;&quot; vol=&quot;&quot; mnx=&quot;&quot; mul=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;env st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot;
+dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot;
+ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;lfo frq=&quot;&quot; wt=&quot;&quot; atk=&quot;&quot; amp=&quot;&quot; /&gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=NoIndent>The following table shows the parameter numbers and the
+equivalent XML tag and attribute values for the <i>FMTone</i> instrument. </p>
+
+<p class=Code>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Parameter</b></p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Tag</b></p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Attribute</b></p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Use</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>5</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>osc</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Initial frequency of the oscillator</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>6</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>vol</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Overall volume level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>17</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>env</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>st</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Start level for envelope</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>18</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Attack rate in seconds</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>19</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>pk</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Peak amplitude level after attack</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>20</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>dec</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Decay time to sustain level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>21</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>sus</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Sustain level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>22</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>rel</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Release rate in seconds</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>23</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>end</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>End level
+  for envelope</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>24</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>ty</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  curve type</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>25</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>lfo</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  Frequency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>26</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Wave table
+  index</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>27</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  envelope attack time</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>28</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>amp</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO depth
+  (amplitude)</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>32</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>osc</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>mnx</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Modulation
+  index</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>33</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>mul</p>
+  </td>
+  <td width=340 valign=top style='width:255.55pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Modulation
+  frequency multiplier</p>
+  </td>
+ </tr>
+</table>
+
+<hr/><h2><a name="_FM_Synthesis_Instrument"></a>FM Synthesis Instrument</h2>
+
+<p class=NoIndent>The <i>FMSynth</i> instrument incorporates two modulators and
+one carrier, each with a separate envelope. A filtered noise generator can be
+mixed with the FM signal to simulate noise transients in the sound. Both the FM
+signal and noise signal can be fed to an all-pass delay line to add resonance
+to the sound.</p>
+
+<p class=Indent>Either of the two modulators can be applied to the carrier. The
+second modulator can also be applied to the first modulator to produce a
+&quot;stack" configuration. The selection of modulation is made by setting the
+algorithm parameter to one of the following values:</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Indent>0 -- Modulator I applied to the carrier, modulator II not used</p>
+
+<p class=Indent>1 -- Modulator II applied to modulator I, modulator I applied to
+the carrier</p>
+
+<p class=Indent>3 -- Modulator I and II both applied to the carrier.</p>
+
+<p class=Indent>4 -- Modulator II applied to modulator I, modulator I and II
+both applied to the carrier,.</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Indent>The <i>FMSynth</i> instrument class is defined in the file <i>Src/Instruments/FMSynth.h</i>
+with the implementation in the <i>Src/Instruments/FMSynth.cpp</i> file.</p>
+
+<p class=NoIndent>The XML format for the instrument is shown below.</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;FMSynth&quot; name=&quot;&quot; desc=&quot;&quot; &gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;car mix=&quot;&quot; dly=&quot;&quot; alg=&quot;&quot;
+st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot;
+sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;mod1 mul=&quot;&quot; st=&quot;&quot; atk=&quot;&quot;
+pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot;
+end=&quot;&quot; ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;mod2 mul=&quot;&quot; st=&quot;&quot; atk=&quot;&quot;
+pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot;
+end=&quot;&quot; ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;nz mix=&quot;&quot; dly=&quot;&quot; st=&quot;&quot;
+atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot;
+rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;filt st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot;
+dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot;
+ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;dln mix=&quot;&quot; dly=&quot;&quot; dec=&quot;&quot;
+/&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot;
+amp=&quot;&quot; /&gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+<p class=NoIndent>The following table shows the parameter numbers and the
+equivalent XML tag and attribute values for the <i>FMSynth</i> instrument. </p>
+
+<p class=Code>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <thead>
+  <tr>
+   <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+   background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Parameter</b></p>
+   </td>
+   <td width=80 valign=top style='width:57.0pt;border:solid black 1.0pt;
+   border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Tag</b></p>
+   </td>
+   <td width=80 valign=top style='width:58.8pt;border:solid black 1.0pt;
+   border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Attribute</b></p>
+   </td>
+   <td width=340 valign=top style='width:256.15pt;border:solid black 1.0pt;
+   border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Use</b></p>
+   </td>
+  </tr>
+ </thead>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>16</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>car</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mix</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mix of FM
+  signal in output</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>17</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dly</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>FM signal
+  sent to delay line.</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>18</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>alg</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>FM
+  algorithm</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>19</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mul</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  frequency multiplier</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>20</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope start value</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>21</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope attack rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>22</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope attack level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>23</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope decay rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>24</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope sustain level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>25</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope release rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>26</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope final level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>27</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Carrier
+  envelope curve type</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>28</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pon</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Internal
+  panning on (1) or off (0)</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>29</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pan</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Panning
+  value</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>32</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mod1</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mul</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  frequency multiplier</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>33</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope start value</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>34</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope attack rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>35</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope attack level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>36</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope decay rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>37</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope sustain level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>38</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope release rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>39</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope final level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>40</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 1
+  envelope curve type</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>48</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mod2</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mul</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  frequency multiplier</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>49</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope start value</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>50</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope attack rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>51</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope attack level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>52</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope decay rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>53</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope sustain level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>54</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope release rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>55</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2
+  envelope final level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>56</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mod. 2 envelope
+  curve type</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>64</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>nz</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mix</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Mix of
+  noise signal in output</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>65</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dly</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  signal to delay line</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>66</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope starting value</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>67</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope attack rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>68</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope attack level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>69</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope decay rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>70</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise envelope
+  sustain level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>71</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope release rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>72</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope final level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>73</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Noise
+  envelope curve type</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>80</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>filt</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope start value</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>81</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope attack rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>82</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope attack&nbsp;&nbsp;level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>83</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope decay rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>84</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope sustain level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>85</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope release rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>86</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope final level</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>87</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Filter
+  envelope curve type</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>96</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dlyn</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mix</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Amount of
+  delay line output </p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>97</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dly</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Delay line
+  length in seconds</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>98</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Delay line
+  decay multiplier</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>112</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>lfo</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>frq</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  frequency</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>113</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>wt</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  wavetable index</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>114</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rt</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  envelope attack rate</p>
+  </td>
+ </tr>
+ <tr style='page-break-inside:avoid'>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>115</p>
+  </td>
+  <td width=80 valign=top style='width:57.0pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>amp</p>
+  </td>
+  <td width=340 valign=top style='width:256.15pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO level</p>
+  </td>
+ </tr>
+</table>
+
+<hr/><h2><a name="_Additive_Synthesis_Instrument"></a>Additive Synthesis Instrument</h2>
+
+<p class=NoIndent>The <i>AddSynth</i> instrument duplicates the tone generator
+of the Tone instrument and adds the resulting waveforms together. Each
+generator combines a wavetable oscillator and envelope generator. The number of
+generators is set by a parameter on the instrument and can be as large as
+needed. A single LFO generator is shared by all oscillators.</p>
+
+<p class=Indent>The waveform, frequency, and overall volume for each oscillator
+may be set individually. When waveforms are set to sine waves, this instrument
+implements a Fourier series and can be used to re-synthesize sounds from an
+analyzed sound. It is also possible to use complex waveforms and &quot;morph&quot;
+between the waveforms over time, implementing a wavetable synthesis system.</p>
+
+<p class=Indent>The envelope generators are variable multi-segment types
+allowing up to fifteen segments with or without sustain. Each segment is
+defined by a rate, ending level and curve type</p>
+
+<p class=Indent>The <i>AddSynth</i> instrument class is defined in <i>Src/Instruments/AddSynth.h</i>
+with the implementation in <i>Src/Instruments/AddSynth.cpp</i>. </p>
+
+<p class=Indent>Because of the variable number of oscillators and envelope
+generators, the XML format for the <i>AddSynth</i> instrument must implement a
+hierarchy of nodes with variable number of children at each level. The general
+structure is shown below.</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;AddSynth&quot; name=&quot;&quot; desc=&quot;&quot; &gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;part pn=&quot;0&quot; mul="1" &gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&nbsp;&nbsp;&lt;osc frq=&quot;440.0&quot; wt=&quot;0&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&nbsp;&nbsp;&lt;env segs=&quot;2&quot; st=&quot;0&quot;
+son=&quot;0&quot;&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;seg sn=&quot;0&quot; rt=&quot;0.05&quot;
+lvl=&quot;1.0&quot; ty=&quot;2&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;seg sn=&quot;1&quot; rt=&quot;0.25&quot;
+lvl=&quot;0.0&quot; ty=&quot;2&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/env&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;/part&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;lfo frq=&quot;&quot; wt=&quot;&quot; atk=&quot;&quot; amp=&quot;&quot; /&gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Indent>Because the number of values varies, parameter ID numbers must
+be calculated based on the partial and envelope segment. The parameter ID
+numbers are formed as a set of bit fields:</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Code>PN[6] | SN[4] | VAL[5]</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>PN = (partial number + 1) * 512</p>
+
+<p class=Code>SN = (segment number + 1)* 32</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Indent>This layout allows for 63 partials, 15 envelope segments per
+partial, and 32 parameter values for each partial or envelope. Values of 0 for
+PN and SN indicate a global instrument parameter index that is used to specify
+parameters that affect the entire instrument, <i>e.g.&nbsp;&nbsp;</i>fundamental pitch,
+master volume, LFO. </p>
+
+<p class=NoIndent>The following table shows the parameter numbers and the
+equivalent XML tag and attribute values for the <i>AddSynth </i>&nbsp;&nbsp;instrument. </p>
+
+<p class=Indent>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Parameter</b></p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Tag</b></p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Attribute</b></p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Use</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>*</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>part</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>pn</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Partial
+  number</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+0</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>mul</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Frequency
+  multiplier. The frequency of this partial is the base frequency of the
+  instrument multiplied by this value.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+1</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>osc</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Initial
+  frequency for this oscillator. This is optional since the frequency will be
+  recalculated based on the multiple.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+2</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Wave table
+  index.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>*</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>env</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>segs</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Number of
+  envelope segements.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+3</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>st</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Starting
+  value for the envelope, typically 0.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+4</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>son</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Sustain-on
+  flag, 1 or 0.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>*</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>seg</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>sn</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>segment
+  number</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+SN+5</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>rt</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>segment
+  rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+SN+6</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>lvl</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Level at
+  the end of the segment.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>PN+SN+7</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>ty</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Segment
+  curve type</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>16</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>lfo</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  Frequency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>17</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Wave table</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>18</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  envelope attack time</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>19</p>
+  </td>
+  <td width=79 valign=top style='width:58.95pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>amp</p>
+  </td>
+  <td width=339 valign=top style='width:254.2pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO depth</p>
+  </td>
+ </tr>
+</table>
+
+<hr/><h2><a name="_Subtractive_Synthesis_Instrument"></a>Subtractive Synthesis Instrument</h2>
+
+<p class=NoIndent>The SubSynth class defines an instrument that combines one
+oscillator, noise source, and low-pass filter. The center frequency of the
+filter is controlled with an envelope generator. The mixture of oscillator and
+noise fed to the filter is controlled by the mix parameter. An ADSR envelope
+shapes the overall amplitude of the filtered signal.</p>
+
+<p class=Indent>The <i>SubSynth</i> instrument class is defined in <i>Src/Instruments/SubSynth.h</i>
+with the implementation in <i>Src/Instruments/SubSynth.cpp</i>. </p>
+
+<p class=NoIndent>The XML format for the instrument is shown below.</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;SubSynth&quot; name=&quot;&quot; desc=&quot;&quot; &gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;osc frq=&quot;&quot; vol=&quot;&quot; mix=&quot;&quot;
+fg=&quot;&quot; wt=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;egs st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot;
+sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;egf st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot;
+dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot;
+ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot;
+amp=&quot;&quot; /&gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+<p class=NoIndent>The following table shows the parameter numbers and the
+equivalent XML tag and attribute values for the <i>SubSynth </i>&nbsp;&nbsp;instrument. </p>
+
+<p class=Code>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <thead>
+  <tr style='page-break-inside:avoid'>
+   <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+   background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Parameter</b></p>
+   </td>
+   <td width=80 valign=top style='width:56.85pt;border:solid black 1.0pt;
+   border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Tag</b></p>
+   </td>
+   <td width=80 valign=top style='width:58.8pt;border:solid black 1.0pt;
+   border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Attribute</b></p>
+   </td>
+   <td width=340 valign=top style='width:256.3pt;border:solid black 1.0pt;
+   border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+   <p><b>Use</b></p>
+   </td>
+  </tr>
+ </thead>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>5</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>osc</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Sets the initial frequency for the
+  oscillator. </p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>6</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>vol</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Sets the overall volume level.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>16</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>mix</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Sets the mixture of oscillator output
+  and noise output. A value of 1 is full oscillator; a value of 0 is full
+  noise.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>17</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>fg</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter gain</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>18</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Wave table index.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>19</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>egs</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope start value.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>20</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope attack rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>21</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope peak level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>22</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope decay rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>23</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope sustain level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>24</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope release level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>25</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope final level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>26</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Oscillator envelope curve type</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>32</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>egf</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>st</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope start value.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>33</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>atk</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope attack rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>34</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>pk</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope peak level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>35</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>dec</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope decay rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>36</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>sus</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope sustain level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>37</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>rel</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope release level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>38</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>end</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope final level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>39</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>ty</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>Filter envelope curve type</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>48</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>lfo</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>frq</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>LFO Frequency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>49</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>wt</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>LFO wavetable index</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>50</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>rt</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>LFO envelope attack rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=90 valign=top style='width:65.45pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p>51</p>
+  </td>
+  <td width=80 valign=top style='width:56.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>&nbsp;</p>
+  </td>
+  <td width=80 valign=top style='width:58.8pt;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p>amp</p>
+  </td>
+  <td width=340 valign=top style='width:256.3pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p>LFO level</p>
+  </td>
+ </tr>
+</table>
+
+<hr/><h2><a name="_Wave_File_Playback"></a>Wave File Playback Instrument</h2>
+
+<p class=NoIndent>The <i>WFSynth</i>&nbsp;&nbsp;instrument plays a wave file. The wave
+file can be played once or looped, and a simple AR envelope may be applied to
+the file for fade-in and fade-out. In order to efficiently manage multiple files, the instrument
+loads and maintains a cache of wave files. Each file is assigned an ID number.
+A <i>file </i>tag in the XML file causes a WAVE file to be loaded into the
+cache and identified with the given number. The <i>id</i> parameter on the instrument identifies
+which wave file should be used for playback and can be set dynamically as well as from the XML file. 
+Any file that is to be referenced during playback must be loaded through the XML file. However, all instances
+of this class share the same cache. Thus, the file can be loaded in any instrument definition in the library
+and referenced from any instance of the instrument.</p>
+
+<p class=NoIndent>The <i>WFSynth</i> class is defined in the file <i>Src/Instruments/WFSynth.h
+</i>with the implementation in <i>Src/Instruments/WFSynth.cpp</i>.</p>
+
+<p class=NoIndent>The XML format for the <i>WFSynth</i> instrument is shown below. 
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;WFSynth&quot; name=&quot;&quot; desc=&quot;&quot; &gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;wvf id=&quot;&quot; lp=&quot;0|1&quot; pa=&quot;0|1&quot;
+/&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;env ar=&quot;&quot; rr=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;file name=&quot;&quot; id=&quot;&quot; &gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+
+<p class=NoIndent>The following table shows the parameter numbers and the
+equivalent XML tag and attribute values for the <i>WFSynth</i> instrument. </p>
+
+<p class=Code>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Parameter</b></p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Tag</b></p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Attribute</b></p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Use</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>16</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>wvf</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>id</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ID of WAVE
+  file</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>17</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>lp</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Loop flag,<br>
+  0 = play once</p>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>1 = loop</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>18</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pa</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Play all
+  flag,<br>
+  0 = stop on Release </p>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>1 = play
+  to the end always</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>19</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>env</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ar</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Attack
+  rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>20</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rr</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Release
+  rate</p>
+  </td>
+ </tr>
+</table>
+
+<hr/><h2><a name="_Matrix_Synthesis_Instrument"></a>Matrix Synthesis Instrument</h2>
+
+<p class=NoIndent>The <i>MatrixSynth</i> instrument combines eight oscillators
+and eight envelope generators in a variable configuration, along with LFO and
+dynamic panning. </p>
+
+<p class=Indent>Any oscillator can be designated a signal output, a modulator,
+or both. Separate parameters determine the amplitude for signal output and
+modulation output. Oscillator signals are routed using a set of flags on each
+oscillator. The flags are defined as follows. </p>
+
+<p class=NoIndent>Bit 0&nbsp;&nbsp;- If set, the oscillator is on and output of the
+oscillator will be processed. If clear, the oscillator is skipped during sample
+generation.</p>
+
+<p class=NoIndent>Bit 1 -- If set, the oscillator output is multiplied by the
+volume level and added to the audio signal output.</p>
+
+<p class=NoIndent>Bit 2 -- If set, the LFO generator is applied to the
+oscillator.</p>
+
+<p class=NoIndent>Bit 3 -- If set, the Pitch Bend function is applied to the
+oscillator. (Not implemented in version 1.)</p>
+
+<p class=NoIndent>Bit 4 -- If set, the output of the oscillator is sent to
+effects unit 1</p>
+
+<p class=NoIndent>Bit 5 -- If set, the output of the oscillator is sent to
+effects unit 2</p>
+
+<p class=NoIndent>Bit 6 -- If set, the output of the oscillator is sent to
+effects unit 3</p>
+
+<p class=NoIndent>Bit 7 -- If set, the output of the oscillator is sent to
+effects unit 4</p>
+
+<p class=NoIndent>Bit 12 -- If set, internal panning is applied to the audio
+output.</p>
+
+<p class=NoIndent>Bit 16-23 -- These bits select modulator inputs. When set, a
+bit indicates that the output of the associated oscillator (0-8) should be
+applied to the frequency modulation input of the oscillator.</p>
+
+<p class=NoIndent>Bit 24-31 -- Currently unused; reserved for additional
+generators, up to 16 total.</p>
+
+<p class=NoIndent>This setup allows the <i>MatrixSynth</i> instrument to act as
+an eight operator FM instrument, an eight tone additive synthesis instrument,
+or any combination of the two.</p>
+
+<p class=Indent>The eight envelope generators each have three attack segments,
+sustain and release. Any envelope generator can be applied to any oscillator
+allowing multiple oscillators to be controlled with a single envelope
+generator, or, each with a separate envelope. </p>
+
+<p class=Indent>Each oscillator that is added as a signal output can be
+independently panned left or right. When internal panning is turned on, the
+output bypasses normal mixer panning and allows the spatial position of the
+sound to be dynamically controlled.</p>
+
+<p class=Indent>Four effects outputs are available for the instrument. Any
+amount of each output oscillator can be sent to one of these four outputs. This
+allows dynamic control over effects such as reverb and chorus. All or part of
+the instrument’s output can be processed as needed. These outputs must be
+managed by the instrument manager.</p>
+
+<p class=NoIndent>The XML format and parameter table for the <i>MatrixSynth</i>
+instrument are shown below. Each signal generator and envelope generator in the
+matrix is given a separate node in the tree. The <i>gen</i><i> </i>node
+contains attributes for the oscillators and associated values. The <i>env</i><i>
+</i>node contains attributes and child nodes for one envelope generator. Both <i>gen
+</i>and <i>env </i>may be duplicated up to eight times. The envelope segment
+nodes are duplicated four times with the segment number varying from 0 to 3
+representing attack, decay 1, decay 2, release. The level indicates the value
+at the end of the segment.</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>&lt;instr id=&quot;&quot; type=&quot;MatrixSynth&quot; name=&quot;&quot; desc=&quot;&quot; &gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;mat frq=&quot;&quot; vol=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;gen gn=&quot;&quot; out=&quot;&quot; mod=&quot;&quot; wt=&quot;&quot;
+mul=&quot;&quot; mnx=&quot;&quot; vol=&quot;&quot; eg=&quot;&quot; lfo=&quot;&quot; pan=&quot;&quot; fx1=&quot;&quot;
+fx2=&quot;&quot; fx3=&quot;&quot; fx4=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;env en=&quot;&quot; st=&quot;&quot; sus=&quot;&quot;&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;seg sn=&quot;&quot; rt=&quot;&quot; lv=&quot;&quot;
+ty=&quot;&quot; /&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;/env&gt;</p>
+
+<p class=Code>&nbsp;&nbsp;&lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot;
+amp=&quot;&quot; /&gt;</p>
+
+<p class=Code>&lt;/instr&gt;</p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Indent>The <i>out</i> attribute contains the generator output matrix
+flags. This is encoded as a text string of 1s and 0s from LSB to MSB going
+left-to-right. See the description of the bits 0-15 given above. </p>
+
+<p class=Indent>The <i>mod</i> attribute contains the modulator input matrix
+flags (bits 16-31 of the flags). This is encoded as a text string of 1s and 0s
+from LSB to MSB going left-to-right. Modulator 0 is the first bit, modulator 1
+the second, bit, etc. For example, a value of 0x13 would be &quot;11001000&quot; and
+would indicate generators 0, 1 and 4 are applied to the oscillator as
+modulation inputs.</p>
+
+<p class=Indent>Because of the large number of parameters, parameter IDs are calculated
+based on the oscillator, envelope and envelope segment number. The upper byte
+of the ID indicates the generator number. The lower byte indicates the value
+index. Since we have 8 oscillators and 8 envelope generators, three bits are
+needed to indicate the generator number. However, to allow for expansion to 16
+generators, we reserve four bits. Two bits are used to indicate the type,
+oscillator or envelope. A value of 0 for the type indicates a global value or
+one of the reserved event IDs. A value of 1 for the type indicates an
+oscillator, while a value of 2 indicates an envelope. </p>
+
+<p class=Indent>&nbsp;</p>
+
+<p class=Code>type[2] | gen[4] | seg[2] | val[6]</p>
+
+<p class=Code>&nbsp;</p>
+
+<p class=Code>GN = (oscillator * 256) + 4096</p>
+
+<p class=Code>EN = (envelope * 256) + 8192</p>
+
+<p class=Code>SN = (segment * 64)</p>
+
+<p class=Code>&nbsp;</p>
+
+<table  border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Parameter</b></p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Tag</b></p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Attribute</b></p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border:solid black 1.0pt;
+  border-left:none;background:gray;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Code><b>Use</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>5</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mat</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>frq</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Base
+  frequency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>6</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>vol</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Overall
+  volume</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>16</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>lfo</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>frq</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  Frequency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>17</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>wt</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO
+  wavetable</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>18</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rt</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO attack
+  rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>19</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>amp</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>*</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>gen</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>gn</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Oscillator
+  number</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+0</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>out</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Signal out
+  flags</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+1</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mod</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Modulator in flags</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+2</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>wt</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Wave table</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+3</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mul</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Frequency
+  multiplier</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+4</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>mnx</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Modulator
+  index level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+5</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>vol</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Signal
+  volume level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+6</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>eg</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  generator index</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+7</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>fx1</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Effects 1
+  out level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+8</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>fx2</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Effects 2
+  out level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+9</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>fx3</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Effects 3
+  out level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+10</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>fx4</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Effects 4
+  out level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+11</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>lfo</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>LFO In
+  level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>GN+12</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>pan</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Panning value</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>*</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>env</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>en</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  number</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>EN+0</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>st</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  start level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>EN+1</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sus</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Sustain
+  on/off</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>*</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>seg</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>sn</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  segment number</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>EN+SN+2</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>rt</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  segment rate</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>EN+SN+3</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>lv</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  segment level</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=86 valign=top style='width:64.85pt;border:solid black 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>EN+SN+4</p>
+  </td>
+  <td width=80 valign=top style='width:.8in;border-top:none;border-left:none;
+  border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>&nbsp;</p>
+  </td>
+  <td width=86 valign=top style='width:64.85pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>ty</p>
+  </td>
+  <td width=333 valign=top style='width:250.1pt;border-top:none;border-left:
+  none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=Indent align=left style='text-align:left;text-indent:0in'>Envelope
+  segment curve type</p>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+</body>
+
+</html>

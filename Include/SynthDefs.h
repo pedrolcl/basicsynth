@@ -43,6 +43,8 @@ typedef float FrqValue;
 #define PI 3.14159265358979
 #define twoPI 6.28318530717958
 
+#define PANTBLLEN 4096
+
 class SynthConfig
 {
 public:
@@ -55,6 +57,9 @@ public:
 	PhsAccum ftableLength;    // wave table length
 	bsInt32  itableLength;    // wave table length as integer, (slight optimization)
 	FrqValue tuning[128];     // table to convert pitch class*octave into frequency
+	AmpValue sinquad[PANTBLLEN]; // first quadrant of a sine wave
+	AmpValue sqrttbl[PANTBLLEN]; // square roots of 0-1
+	bsInt32  sqNdx;
 
 	SynthConfig()
 	{
@@ -63,15 +68,31 @@ public:
 		size_t sampleBits = (sizeof(SampleValue) * 8) - 1; // -1 because a sample is a signed value.
 		sampleScale = (AmpValue) ((1 << sampleBits) - 1);
 
+		int i;
 		// Equal tempered tuning system at A5=440 (Western standard)
 		// Middle C = C5 = index 60 (MIDI numbering)
 		double frq = 6.875 * pow(2.0, 0.25); // C0 = A(-1)*2^(3/12)
 		double two12 = pow(2.0, 1.0/12.0); // 2^(1/12) = 1.059463094...
-		for (int i = 0; i < 128; i++)
+		for (i = 0; i < 128; i++)
 		{
 			tuning[i] = (FrqValue) frq;
 			frq *= two12;
 			//printf("%d = %f\n", i, tuning[i]);
+		}
+
+		// lookup tables for panning with max amplitude of 0.707...
+		sqNdx = PANTBLLEN-1;
+		double scl = sqrt(2.0) / 2.0;
+		double phs = 0;
+		double phsInc = (PI/2) / PANTBLLEN;
+		double sqInc = 1.0 / PANTBLLEN;
+		double sq = 0.0;
+		for (i = 0; i < PANTBLLEN; i++)
+		{
+			sqrttbl[i] = sqrt(sq) * scl;
+			sinquad[i] = sin(phs) * scl;
+			phs += phsInc;
+			sq += sqInc;
 		}
 	}
 

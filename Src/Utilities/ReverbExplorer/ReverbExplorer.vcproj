@@ -335,7 +335,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../../Lib$(PlatformName)/Common.lib dsound.lib Winmm.lib"
+				AdditionalDependencies="../../../Lib$(PlatformName)/Common.lib dsound.lib Winmm.lib "
 				OutputFile="..\..\..\Bin$(PlatformName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libcmt.lib"
@@ -452,6 +452,38 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
 			<File
+				RelativePath=".\res\cclic.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\copy.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\disk.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\help.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\loop.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\play.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ramp.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\reverb.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\res\ReverbExplorer.ico"
 				>
 			</File>
@@ -459,7 +491,35 @@
 				RelativePath=".\ReverbExplorer.rc"
 				>
 			</File>
+			<File
+				RelativePath=".\res\saw.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\sin.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\square.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\stop.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\wvfile.ico"
+				>
+			</File>
 		</Filter>
+		<File
+			RelativePath=".\res\help.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\res\Schroeder.emf"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

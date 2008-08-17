@@ -41,10 +41,14 @@ public:
 	XmlSynthElem *NextSibling();
 	XmlSynthElem *AddChild(const char *childTag);
 	const char *TagName();
+	int GetAttribute(char *attrName, short& val);
 	int GetAttribute(char *attrName, long& val);
+	int GetAttribute(char *attrName, float& val);
 	int GetAttribute(char *attrName, double& val);
 	int GetAttribute(char *attrName, char **val);
+	int SetAttribute(char *attrName, short val);
 	int SetAttribute(char *attrName, long val);
+	int SetAttribute(char *attrName, float val);
 	int SetAttribute(char *attrName, double val);
 	int SetAttribute(char *attrName, const char *val);
 	int TagMatch(const char *tag);

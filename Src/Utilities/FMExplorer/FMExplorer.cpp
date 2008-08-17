@@ -1,6 +1,8 @@
-// FMExplorer.cpp : main source file for FMExplorer.exe
-//
-
+///////////////////////////////////////////////////////////
+// FM Explorer main module.
+// See MainDlg.cpp for details.
+// Copyright 2008,  Daniel R. Mitchell, All Rights Reserved
+////////////////////////////////////////////////////////////
 #include "stdafx.h"
 
 #include <atlframe.h>

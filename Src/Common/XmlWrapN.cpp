@@ -42,9 +42,21 @@ const char *XmlSynthElem::TagName()
 	return "";
 }
 
+int XmlSynthElem::GetAttribute(char *attrName, short& val)
+{
+	val = 0;
+	return -1;
+}
+
 int XmlSynthElem::GetAttribute(char *attrName, long& val)
 {
 	val = 0;
+	return -1;
+}
+
+int XmlSynthElem::GetAttribute(char *attrName, float& val)
+{
+	val = 0.0;
 	return -1;
 }
 
@@ -60,7 +72,17 @@ int XmlSynthElem::GetAttribute(char *attrName, char **val)
 	return -1;
 }
 
+int XmlSynthElem::SetAttribute(char *attrName, short val)
+{
+	return -1;
+}
+
 int XmlSynthElem::SetAttribute(char *attrName, long val)
+{
+	return -1;
+}
+
+int XmlSynthElem::SetAttribute(char *attrName, float val)
 {
 	return -1;
 }

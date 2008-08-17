@@ -79,6 +79,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Instruments", "..\Instrumen
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "..\Common\Common.vcproj", "{BB4A5654-F24B-476F-A7B3-0A5D129E9076}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example07c", "Example07c\Example07c.vcproj", "{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -216,6 +221,12 @@ Global
 		{BB4A5654-F24B-476F-A7B3-0A5D129E9076}.Release|Win32.Build.0 = Release|Win32
 		{BB4A5654-F24B-476F-A7B3-0A5D129E9076}.Release|x64.ActiveCfg = Release|x64
 		{BB4A5654-F24B-476F-A7B3-0A5D129E9076}.Release|x64.Build.0 = Release|x64
+		{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}.Debug|Win32.Build.0 = Debug|Win32
+		{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}.Debug|x64.ActiveCfg = Debug|Win32
+		{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}.Release|Win32.ActiveCfg = Release|Win32
+		{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}.Release|Win32.Build.0 = Release|Win32
+		{FA7E7C80-0B7B-4EC3-BD78-04FD38C80DF0}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

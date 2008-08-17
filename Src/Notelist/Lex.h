@@ -9,8 +9,6 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include <SynthFile.h>
-
 #ifndef EOF
 #define EOF (-1)
 #endif

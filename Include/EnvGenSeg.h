@@ -109,7 +109,7 @@ public:
 
 	virtual AmpValue Sample(AmpValue in)
 	{
-		return Gen();
+		return Gen() * in;
 	}
 
 	virtual AmpValue Gen()
@@ -365,6 +365,12 @@ struct EnvDef
 class EnvGenUnit : public GenUnit
 {
 public:
+	virtual AmpValue Gen() { return 0; }
+	virtual AmpValue Sample(AmpValue in)
+	{
+		return Gen() * in;
+	}
+
 	virtual void Release() { }
 	virtual void GetEnvDef(EnvDef *) { }
 	virtual void SetEnvDef(EnvDef *) { }
@@ -474,7 +480,7 @@ public:
 
 	int GetSegs() { return numSeg; }
 
-	void SetSegs(int count)
+	virtual void SetSegs(int count)
 	{
 		if (segRLT)
 		{
@@ -490,6 +496,13 @@ public:
 			numSeg = 1;
 		segRLT = new SegVals[numSeg];
 		segObj = new EnvSeg *[numSeg];
+		for (int n = 0; n < numSeg; n++)
+		{
+			segRLT[n].level = 0;
+			segRLT[n].rate = 0;
+			segRLT[n].type = linSeg;
+			segObj[n] = &egsLin;
+		}
 	}
 
 	inline void SetSuson(int on) { susOn = on; }
@@ -546,7 +559,6 @@ public:
 	{
 		if (initPhs >= 0)
 		{
-			seg = NULL;
 			index = 0;
 			lastVal = segStart;
 			NextSeg();
@@ -569,44 +581,107 @@ public:
 			index++;
 		}
 		else
-			seg = NULL;
-	}
-
-	virtual AmpValue Sample(AmpValue in)
-	{
-		return Gen();
+			seg = segObj[numSeg-1];
 	}
 
 	virtual AmpValue Gen()
 	{
-		if (seg != NULL)
-		{
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				NextSeg();
-		}
+		lastVal = seg->Gen();
+		if (seg->IsFinished())
+			NextSeg();
 		return lastVal;
 	}
 
 	virtual int IsFinished()
 	{
-		return seg == NULL || (index >= numSeg && seg->IsFinished());
+		return (index >= numSeg && seg->IsFinished());
 	}
 }; 
 
 ///////////////////////////////////////////////////////////
-// AR - attack, [sustain,] and release
+// Multi-attack, sustain, single release segments
 ///////////////////////////////////////////////////////////
-class EnvGenAR : public EnvGenSeg
+class EnvGenSegSus : public EnvGenSeg
 {
 protected:
 	int state;
+	int relSeg;
+
+public:
+	EnvGenSegSus()
+	{
+		state = 3;
+		relSeg = 0;
+	}
+
+	virtual void Reset(float initPhs = 0)
+	{
+		if (initPhs >= 0)
+		{
+			state = 0;
+			relSeg = numSeg - 1;
+			EnvGenSeg::Reset(initPhs);
+		}
+	}
+
+	virtual AmpValue Gen()
+	{
+		switch (state)
+		{
+		case 0:
+			lastVal = seg->Gen();
+			if (seg->IsFinished())
+			{
+				if (index == relSeg)
+					state = 1;
+				else
+					NextSeg();
+			}
+			break;
+		case 1:
+			if (!susOn)
+			{
+				NextSeg();
+				state = 2;
+				lastVal = seg->Gen();
+			}
+			break;
+		case 2:
+			lastVal = seg->Gen();
+			if (seg->IsFinished())
+				state = 3;
+			break;
+		}
+		return lastVal;
+	}
+
+	virtual void Release()
+	{
+		if (state < 2)
+		{
+			state = 2;
+			index = relSeg;
+			NextSeg();
+		}
+	}
+
+	virtual int IsFinished()
+	{
+		return state == 3;
+	}
+};
+
+///////////////////////////////////////////////////////////
+// AR - attack, [sustain,] and release
+///////////////////////////////////////////////////////////
+class EnvGenAR : public EnvGenSegSus
+{
+protected:
 
 public:
 	EnvGenAR()
 	{
 		susOn = 1;
-		state = 3;
 		EnvGenSeg::SetSegs(2);
 	}
 
@@ -629,72 +704,19 @@ public:
 		SetSegN(1, rr, 0, t);
 		Reset();
 	}
-
-	virtual void Reset(float initPhs = 0)
-	{
-		if (initPhs >= 0)
-			state = 0;
-		EnvGenSeg::Reset(initPhs);
-	}
-
-	virtual AmpValue Gen()
-	{
-		if (seg == NULL)
-			return lastVal;
-
-		switch (state)
-		{
-		case 0:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				state = 1;
-			break;
-		case 1:
-			lastVal = GetLevel(0);
-			if (!susOn)
-			{
-				NextSeg();
-				state = 2;
-			}
-			break;
-		case 2:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				state = 3;
-			break;
-		}
-		return lastVal;
-	}
-
-	virtual void Release()
-	{
-		if (state < 2)
-		{
-			state = 2;
-			index = 1;
-			NextSeg();
-		}
-	}
-
-	virtual int IsFinished()
-	{
-		return state == 3;
-	}
 };
 
 ///////////////////////////////////////////////////////////
 // ADSR - attack, decay, sustain, and release
 ///////////////////////////////////////////////////////////
-class EnvGenADSR : public EnvGenSeg
+class EnvGenADSR : public EnvGenSegSus
 {
 protected:
-	int state;
 
 public:
 	EnvGenADSR()
 	{
 		susOn = 1;
-		state = 3;
 		EnvGenSeg::SetSegs(3);
 	}
 
@@ -731,150 +753,12 @@ public:
 		SetSegN(2, rr, rl, t);
 		Reset();
 	}
-	
-	virtual void Reset(float initPhs = 0)
-	{
-		if (initPhs >= 0)
-			state = 0;
-		EnvGenSeg::Reset(initPhs);
-	}
-
-	virtual AmpValue Gen()
-	{
-		if (seg == 0)
-			return lastVal;
-
-		switch (state)
-		{
-		case 0:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-			{
-				NextSeg();
-				state = 1;
-			}
-			break;
-		case 1:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				state = 2;
-			break;
-		case 2:
-			lastVal = GetLevel(1);
-			if (!susOn)
-			{
-				state = 3;
-				NextSeg();
-			}
-			break;
-		case 3:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				state = 4;
-			break;
-		}
-		return lastVal;
-	}
-
-	virtual void Release()
-	{
-		if (state < 3)
-		{
-			index = 2;
-			state = 3;
-			NextSeg();
-		}
-	}
-
-	virtual int IsFinished()
-	{
-		return state == 4;
-	}
 };
 
 ///////////////////////////////////////////////////////////
-// A3SR - three attack segments, sustain, and release
+// Multi-attack, sustain, multi-decay segments
 ///////////////////////////////////////////////////////////
-
-class EnvGenA3SR : public EnvGenSeg
-{
-protected:
-	int state;
-
-public:
-	EnvGenA3SR()
-	{
-		state = 4;
-		susOn = 1;
-		EnvGenSeg::SetSegs(4);
-	}
-
-	virtual void Reset(float initPhs = 0)
-	{
-		if (initPhs >= 0)
-			state = 0;
-		EnvGenSeg::Reset(initPhs);
-	}
-
-	virtual AmpValue Gen()
-	{
-		if (!seg)
-			return lastVal;
-
-		switch (state)
-		{
-		case 0:
-		case 1:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-			{
-				NextSeg();
-				state++;
-			}
-			break;
-		case 2:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				state = 3;
-			break;
-		case 3:
-			lastVal = GetLevel(2);
-			if (!susOn)
-			{
-				NextSeg();
-				state = 4;
-			}
-			break;
-		case 4:
-			lastVal = seg->Gen();
-			if (seg->IsFinished())
-				state = 5;
-			break;
-		}
-		return lastVal;
-	}
-
-	virtual void Release()
-	{
-		if (state < 4)
-		{
-			state = 4;
-			index = 3;
-			NextSeg();
-		}
-	}
-
-	virtual int IsFinished()
-	{
-		return state == 5;
-	}
-};
-
-///////////////////////////////////////////////////////////
-// Variable multi-attack/decay segment envelope generator,
-// with sustain state.
-///////////////////////////////////////////////////////////
-class EnvGenSegSus : public EnvGenUnit
+class EnvGenMulSus : public EnvGenUnit
 {
 private:
 	EnvGenSeg atk;
@@ -885,20 +769,21 @@ private:
 	AmpValue segStart;
 
 public:
-	EnvGenSegSus()
+	EnvGenMulSus()
 	{
 		state = 0;
 		lastVal = 0;
 		segStart = 0;
 	}
 
-	virtual ~EnvGenSegSus()	{ }
-
 	virtual void Copy(EnvGenUnit *tp)
 	{
-		EnvGenSegSus *ap = (EnvGenSegSus *)tp;
+		EnvGenMulSus *ap = (EnvGenMulSus *)tp;
 		atk.Copy(&ap->atk);
 		dec.Copy(&ap->dec);
+		state = ap->state;
+		lastVal = ap->lastVal;
+		segStart = ap->segStart;
 	}
 
 	virtual void Init(int n, float *p)
@@ -957,7 +842,7 @@ public:
 
 	virtual AmpValue Sample(AmpValue in)
 	{
-		return Gen();
+		return Gen() * in;
 	}
 
 	virtual void Release()
@@ -1017,7 +902,7 @@ public:
 
 	virtual AmpValue Sample(AmpValue in)
 	{
-		return Gen();
+		return Gen() * in;
 	}
 
 	virtual AmpValue Gen()

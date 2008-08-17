@@ -149,7 +149,8 @@ int main(int argc, char *argv[])
 	// A3SR - lin, exp, log
 	/////////////////////////////////////////////////
 	totalSamples = (long) (synthParams.sampleRate * (duration - 0.3));
-	EnvGenA3SR a3sr;
+	EnvGenSegSus a3sr;
+	a3sr.SetSegs(4);
 	a3sr.SetStart(0);
 	a3sr.SetSuson(1);
 	for (i = 0; i < 3; i++)
@@ -178,7 +179,7 @@ int main(int argc, char *argv[])
 		wf.Output1(0.0);
 
 	/////////////////////////////////////////////////
-	// Multi-seg
+	// Multi-seg, no sustain
 	/////////////////////////////////////////////////
 	EnvGenSeg egseg;
 	egseg.SetStart(0);
@@ -200,9 +201,9 @@ int main(int argc, char *argv[])
 		wf.Output1(0.0);
 
 	/////////////////////////////////////////////////
-	// Multi-seg w/sustain 
+	// Multi-atk, multi-dec, w/sustain 
 	/////////////////////////////////////////////////
-	EnvGenSegSus egsegs;
+	EnvGenMulSus egsegs;
 	egsegs.SetStart(0);
 	egsegs.SetSegs(3, 2);
 	egsegs.SetAtkN(0, 0.1, 1.0, expSeg);

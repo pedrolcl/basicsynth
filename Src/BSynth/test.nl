@@ -2,7 +2,6 @@ tempo 4, 120
 
 ! attack in ms, release
 map "Pulse"  18=0.001, 22=(1/1000);
-map "SineWave" 18, 22
 
 maxparam 2;
 ! xxx

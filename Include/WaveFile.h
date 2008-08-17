@@ -13,6 +13,12 @@
 
 #include <SynthFile.h>
 
+#if BIG_ENDIAN
+extern SampleValue SwapSample(SampleValue x);
+#else
+#define SwapSample(x) x
+#endif
+
 #define CHUNK_SIZE 8
 #define CHUNK_ID   4
 
@@ -59,6 +65,8 @@ protected:
 	bsInt32 sampleOOR;
 	bsInt16 channels;
 	SampleValue *samples;
+	SampleValue *nxtSamp;
+	SampleValue *endSamp;
 	int   ownBuf;
 
 public:
@@ -69,7 +77,9 @@ public:
 		sampleNumber = 0;
 		sampleMax = 0;
 		sampleOOR = 0;
-		samples = NULL;
+		samples = 0;
+		nxtSamp = 0;
+		endSamp = 0;
 		ownBuf = 0;
 	}
 
@@ -98,6 +108,8 @@ public:
 		memset(samples, 0, length * sizeof(SampleValue));
 		sampleNumber = 0;
 		sampleTotal = 0;
+		nxtSamp = samples;
+		endSamp = samples + length;
 		ownBuf = 1;
 		return 0;
 	}
@@ -117,6 +129,8 @@ public:
 		sampleMax = length;
 		channels = ch;
 		samples = bp;
+		nxtSamp = samples;
+		endSamp = samples + length;
 		//ownBuf = 0;
 	}
 
@@ -124,9 +138,12 @@ public:
 	// without range checking or scaling.
 	void OutS(SampleValue value)
 	{
-		if (sampleNumber >= sampleMax)
+	//	if (sampleNumber >= sampleMax)
+	//		FlushOutput();
+	//	samples[sampleNumber++] = SwapSample(value);
+		if (nxtSamp >= endSamp)
 			FlushOutput();
-		samples[sampleNumber++] = value;
+		*nxtSamp++ = SwapSample(value);
 		sampleTotal++;
 	}
 
@@ -146,9 +163,12 @@ public:
 			value = -1.0;
 			sampleOOR++;
 		}
-		if (sampleNumber >= sampleMax)
+		//if (sampleNumber >= sampleMax)
+		//	FlushOutput();
+		//samples[sampleNumber++] = SwapSample((SampleValue) (value * synthParams.sampleScale));
+		if (nxtSamp >= endSamp)
 			FlushOutput();
-		samples[sampleNumber++] = (SampleValue) (value * synthParams.sampleScale);
+		*nxtSamp++ = SwapSample((SampleValue) (value * synthParams.sampleScale));
 		sampleTotal++;
 	}
 
@@ -178,7 +198,8 @@ public:
 	// derived classes must implement this
 	virtual int FlushOutput()
 	{
-		sampleNumber = 0;
+		nxtSamp = samples;
+		//sampleNumber = 0;
 		return 0;
 	}
 

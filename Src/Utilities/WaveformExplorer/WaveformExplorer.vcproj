@@ -165,7 +165,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../../Lib$(PlatformName)/CommonD.lib dsound.lib"
+				AdditionalDependencies="../../../Lib$(PlatformName)/CommonD.lib dsound.lib Winmm.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="true"
@@ -338,7 +338,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../../Lib$(PlatformName)/Common.lib dsound.lib"
+				AdditionalDependencies="../../../Lib$(PlatformName)/Common.lib dsound.lib Winmm.lib"
 				OutputFile="..\..\..\Bin$(PlatformName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libcmt.lib"
@@ -492,6 +492,10 @@
 			</File>
 			<File
 				RelativePath=".\res\play.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\pulse.ico"
 				>
 			</File>
 			<File

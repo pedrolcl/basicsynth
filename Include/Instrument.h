@@ -266,7 +266,7 @@ public:
 		InstrMapEntry *in = FindInstr(inum);
 		if (in)
 			return in->manufEvent(in->instrTemplate);
-		return NULL;
+		return new NoteEvent;
 	}
 
 	// Start is called by the sequencer when the sequence starts.

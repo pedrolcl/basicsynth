@@ -521,7 +521,7 @@ LRESULT CMainDlg::OnLoad(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 	GetDlgItemText(IDC_SIG_FILENAME, fileName, MAX_PATH);
 	if (fileName[0] == 0)
 		return 0;
-	if (wvIn.LoadWaveFile(fileName) == 0)
+	if (wvIn.LoadWaveFile(fileName, 1) == 0)
 	{
 		sigFile = 1;
 		CheckDlgButton(IDC_SIG_FILE, BST_CHECKED);

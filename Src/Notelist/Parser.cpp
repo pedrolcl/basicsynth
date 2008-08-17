@@ -1,7 +1,10 @@
 // Parser.cpp: implementation of the nlParser class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
+#include <BasicSynth.h>
 #include "NLConvert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -393,7 +396,8 @@ int nlParser::Instrument()
 	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: INSTRUMENT");
 	genPtr->AddNode(new nlInstnumNode);
-	theToken = lexPtr->Next();
+	return Param1("inst");
+/*	theToken = lexPtr->Next();
 	err = Expr();
 	if (err)
 	{
@@ -402,7 +406,7 @@ int nlParser::Instrument()
 	}
 	if (theToken == T_ENDSTMT)
 		theToken = lexPtr->Next();
-	return 0;
+	return 0;*/
 }
 
 int nlParser::Mixer()
@@ -439,6 +443,35 @@ int nlParser::Transpose()
 	cvtPtr->DebugNotify(2, "Parse: TRANSPOSE");
 	genPtr->AddNode(new nlTransposeNode);
 	return Param1("Transpose");
+}
+
+int nlParser::Double()
+{
+	cvtPtr->DebugNotify(2, "Parse: DOUBLE");
+	genPtr->AddNode(new nlDoubleNode);
+
+	theToken = lexPtr->Next();
+	if (theToken == T_OFF)
+	{
+		genPtr->AddNode(T_OFF, 0L);
+		theToken = lexPtr->Next();
+	}
+	else
+	{
+		if (Expr())
+			return Error("Missing transposition for DOUBLE", skiptoend);
+		if (theToken == T_COMMA)
+		{
+			theToken = lexPtr->Next();
+			genPtr->AddNode(T_COMMA, 0L);
+			if (Expr())
+				return Error("Missing volume for DOUBLE", skiptoend);
+		}
+	}
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return 0;
+
 }
 
 int nlParser::Notelist()
@@ -595,6 +628,9 @@ int nlParser::Note()
 
 	case T_XPOSE:
 		return Transpose();
+
+	case T_DOUBLE:
+		return Double();
 
 	case T_PLAY:
 		return Play();
@@ -921,7 +957,7 @@ int nlParser::Term()
 		if (Term())
 			return -1;
 		genPtr->AddNode(T_NEG, 0L);
-		break;
+		return 0;
 	case T_NUM:
 		genPtr->AddNode(T_NUM, atof(lexPtr->Tokbuf()));
 		break;

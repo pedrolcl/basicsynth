@@ -88,7 +88,7 @@ int SequenceFile::ParseMem(char *linbuf)
 			return -1;
 		inum = atoi(argbuf);
 		curmap = new SeqFileMap;
-		curmap ->inum = inum;
+		curmap->inum = inum;
 		if (map)
 			map->Insert(curmap);
 		else
@@ -160,7 +160,7 @@ int SequenceFile::ParseMem(char *linbuf)
 			else
 				mn = pn;
 			if (pn <= argmax)
-				evt->SetParam(pn, mn, argbuf);
+				evt->SetParam(mn, argbuf);
 		}
 		if (Comment(parg))
 			break;

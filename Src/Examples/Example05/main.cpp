@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	EnvGen eg;
 	eg.InitEG(0.707, duration, 0.1, 0.2);
 
-	GenWaveNoise nz;
+	GenNoise nz;
 	FilterLP lpf;
 	FilterHP hpf;
 	FilterBP bpf;

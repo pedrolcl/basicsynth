@@ -1,7 +1,10 @@
 // Converter.cpp: implementation of the nlConverter class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
+#include <BasicSynth.h>
 #include "NLConvert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -258,19 +261,21 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 
 	// Insert new event or alter the current note
 	SeqEvent *evt = mgr->ManufEvent(curVoice->instr);
+	if (evt == NULL)
+		return;
 	if (evtType == SEQEVT_START)
 		evtCount++;
 	evt->evid = evtCount;
 	evt->type = evtType;
-	evt->SetParam(P_INUM, P_INUM, (long) curVoice->instr);
-	evt->SetParam(P_CHNL, P_CHNL, (long) curVoice->chnl);
-	evt->SetParam(P_START, P_START, (float) start);
-	evt->SetParam(P_DUR, P_DUR, (float) dur);
+	evt->SetParam(P_INUM, (long) curVoice->instr);
+	evt->SetParam(P_CHNL, (long) curVoice->chnl);
+	evt->SetParam(P_START, (float) start);
+	evt->SetParam(P_DUR, (float) dur);
 	if (pit <= 120)
-		evt->SetParam(P_PITCH, P_PITCH, (long) pit + 12); // BasicSynth makes Middle C at 60, Notelist is at 48
+		evt->SetParam(P_PITCH, (long) pit + 12); // BasicSynth makes Middle C at 60, Notelist is at 48
 	else
-		evt->SetParam(P_FREQ, P_FREQ, (long) pit);
-	evt->SetParam(P_VOLUME, P_VOLUME, (float) (amp / 100.0));
+		evt->SetParam(P_FREQ, (long) pit);
+	evt->SetParam(P_VOLUME, (float) (amp / 100.0));
 
 	double val;
 	int pn, mn;
@@ -285,7 +290,7 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 		}
 		else
 			mn = px;
-		evt->SetParam(px, mn, (float) val);
+		evt->SetParam(mn, (float) val);
 	}
 
 	for ( ; pn < curVoice->cntParam; pn++, px++)
@@ -298,7 +303,7 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 		}
 		else
 			mn = px;
-		evt->SetParam(px, mn, (float) val);
+		evt->SetParam(mn, (float) val);
 	}
 
 	seq->AddEvent(evt);

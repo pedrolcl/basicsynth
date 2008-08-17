@@ -46,9 +46,10 @@ private:
 	SeqEvent *evtLast;
 	bool playing;
 	bsInt32 seqLength;
-	void (*tickCB)(bsInt32 count);
+	void (*tickCB)(bsInt32 count, Opaque arg);
 	bsInt32 tickCount;
 	bsInt32 tickWrap;
+	Opaque  tickArg;
 	bsInt32 wrapCount;
 
 public:
@@ -67,6 +68,7 @@ public:
 		tickCB = 0;
 		tickCount = 0;
 		tickWrap = 0;
+		tickArg = 0;
 		wrapCount = 0;
 	}
 
@@ -107,10 +109,11 @@ public:
 	// to manipulate either the instrument manager
 	// or sequencer other than possibly telling the
 	// sequencer to halt playback.
-	virtual void SetCB(void (*f)(bsInt32), bsInt32 wrap)
+	virtual void SetCB(void (*f)(bsInt32, Opaque), bsInt32 wrap, Opaque arg)
 	{
 		tickCB = f;
 		tickWrap = wrap;
+		tickArg = arg;
 	}
 
 

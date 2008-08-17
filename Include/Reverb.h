@@ -38,7 +38,7 @@ public:
 		AmpValue vlp = (out + prev) / 2;
 		prev = vlp;
 		*delayPos = (vin * atten) + vlp;
-		if (++delayPos > delayEnd)
+		if (++delayPos >= delayEnd)
 			delayPos = delayBuf;
 		return out;
 	}

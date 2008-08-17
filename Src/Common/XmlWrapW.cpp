@@ -92,6 +92,15 @@ const char *XmlSynthElem::TagName()
 	return nodeTag;
 }
 
+int XmlSynthElem::GetAttribute(char *attrName, short& val)
+{
+	long tmp;
+	int rv = GetAttribute(attrName, tmp);
+	if (rv == 0)
+		val = (short) tmp;
+	return rv;
+}
+
 int XmlSynthElem::GetAttribute(char *attrName, long& val)
 {
 	int rv = -1;
@@ -103,6 +112,25 @@ int XmlSynthElem::GetAttribute(char *attrName, long& val)
 		{
 			v.ChangeType(VT_I4);
 			val = v.lVal;
+			rv = 0;
+		}
+		else
+			val = 0;
+	}
+	return rv;
+}
+
+int XmlSynthElem::GetAttribute(char *attrName, float& val)
+{
+	int rv = -1;
+	if (pElem)
+	{
+		CComBSTR name(attrName);
+		CComVariant v;
+		if (pElem->getAttribute(name, &v) == S_OK)
+		{
+			v.ChangeType(VT_R4);
+			val = v.fltVal;
 			rv = 0;
 		}
 		else
@@ -149,7 +177,25 @@ int XmlSynthElem::GetAttribute(char *attrName, char **val)
 	return rv;
 }
 
+int XmlSynthElem::SetAttribute(char *attrName, short val)
+{
+	return SetAttribute(attrName, (long) val);
+}
+
 int XmlSynthElem::SetAttribute(char *attrName, long val)
+{
+	int rv = -1;
+	if (pElem)
+	{
+		CComBSTR name(attrName);
+		CComVariant v(val);
+		if (pElem->setAttribute(name, v) == S_OK)
+			rv = 0;
+	}
+	return rv;
+}
+
+int XmlSynthElem::SetAttribute(char *attrName, float val)
 {
 	int rv = -1;
 	if (pElem)

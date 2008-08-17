@@ -103,7 +103,7 @@ public:
 
 	virtual AmpValue Sample(AmpValue inval)
 	{
-		return Gen();
+		return Gen() * inval;
 	}
 
 	virtual AmpValue Gen()

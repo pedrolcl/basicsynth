@@ -666,9 +666,8 @@ int CMainDlg::Play(double frq, double dur, int loop)
 	samples = (SampleValue *) wh.lpData;
 #endif
 
-//	for (DWORD n = 0; n < totalSamples; n++)
 	DWORD n = 0;
-	while (!eg.IsFinished())
+	while (!eg.IsFinished() && n < totalSamples)
 	{
 		*samples++ = (SampleValue) (synthParams.sampleScale * wv.Gen() * eg.Gen());
 		n++;

@@ -88,6 +88,7 @@
 #define T_GEOP    370
 #define T_NEOP    371
 #define T_EQOP    372
+#define T_DOUBLE  373
 
 #define MAXPARAM 10
 #define MAXFGEN  10
@@ -97,26 +98,6 @@ class nlGenerate;
 class nlConverter;
 class nlVoice;
 class nlInstr;
-
-#ifdef WIN32
-#define _CRT_SECURE_NO_WARNINGS
-#define WINDOWS_LEAN_AND_MEAN
-//#include <Windows.h>
-#endif
-
-#include <stdlib.h>
-#include <ctype.h>
-#include <math.h>
-#include <SynthDefs.h>
-#include <SynthString.h>
-#include <Mixer.h>
-#include <WaveFile.h>
-#include <SynthList.h>
-#include <XmlWrap.h>
-#include <SeqEvent.h>
-#include <Instrument.h>
-#include <Sequencer.h>
-
 
 extern int CompareToken(const char *s1, const char *s2);
 extern char *StrMakeCopy(const char *);

@@ -101,78 +101,78 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 	UIAddChildWindowContainer(m_hWnd);
 
-	carFrq = GetDlgItem(IDC_CAR_FREQ);
-	carAtk = GetDlgItem(IDC_CAR_ATTACK);
-	carDec = GetDlgItem(IDC_CAR_DECAY);
-	carVol = GetDlgItem(IDC_CAR_VOLUME);
-	carSus = GetDlgItem(IDC_CAR_SUSTAIN);
-	carRel = GetDlgItem(IDC_CAR_RELEASE);
-	carFrqEd = GetDlgItem(IDC_CFRQ_EDIT);
-	carAtkEd = GetDlgItem(IDC_CATK_EDIT);
-	carDecEd = GetDlgItem(IDC_CDEC_EDIT);
-	carVolEd = GetDlgItem(IDC_CVOL_EDIT);
-	carSusEd = GetDlgItem(IDC_CSUS_EDIT);
-	carRelEd = GetDlgItem(IDC_CREL_EDIT);
+	gen1Frq = GetDlgItem(IDC_CAR_FREQ);
+	gen1Atk = GetDlgItem(IDC_CAR_ATTACK);
+	gen1Dec = GetDlgItem(IDC_CAR_DECAY);
+	gen1Vol = GetDlgItem(IDC_CAR_VOLUME);
+	gen1Sus = GetDlgItem(IDC_CAR_SUSTAIN);
+	gen1Rel = GetDlgItem(IDC_CAR_RELEASE);
+	gen1FrqEd = GetDlgItem(IDC_CFRQ_EDIT);
+	gen1AtkEd = GetDlgItem(IDC_CATK_EDIT);
+	gen1DecEd = GetDlgItem(IDC_CDEC_EDIT);
+	gen1VolEd = GetDlgItem(IDC_CVOL_EDIT);
+	gen1SusEd = GetDlgItem(IDC_CSUS_EDIT);
+	gen1RelEd = GetDlgItem(IDC_CREL_EDIT);
 
-	InitValue(carFrq, carFrqEd, 0, 120, 12);
-	PutSetting(carFrq, carFrqEd, 60.0, 1);
-	InitValue(carVol, carVolEd, 0, 100, 10);
-	InitValue(carSus, carSusEd, 0, 100, 10);
-	InitValue(carAtk, carAtkEd, 0, 4000, 400);
-	InitValue(carDec, carDecEd, 0, 4000, 400);
-	InitValue(carRel, carRelEd, 0, 4000, 400);
+	InitValue(gen1Frq, gen1FrqEd, 0, 120, 12);
+	PutSetting(gen1Frq, gen1FrqEd, 60.0, 1);
+	InitValue(gen1Vol, gen1VolEd, 0, 100, 10);
+	InitValue(gen1Sus, gen1SusEd, 0, 100, 10);
+	InitValue(gen1Atk, gen1AtkEd, 0, 4000, 400);
+	InitValue(gen1Dec, gen1DecEd, 0, 4000, 400);
+	InitValue(gen1Rel, gen1RelEd, 0, 4000, 400);
 
-	mod1Mul = GetDlgItem(IDC_MOD1_MULT);
-	mod1Ndx = GetDlgItem(IDC_MOD1_START);
-	mod1Atk = GetDlgItem(IDC_MOD1_ATTACK);
-	mod1Pck = GetDlgItem(IDC_MOD1_PEAK);
-	mod1Dec = GetDlgItem(IDC_MOD1_DECAY);
-	mod1Sus = GetDlgItem(IDC_MOD1_SUSTAIN);
-	mod1Rel = GetDlgItem(IDC_MOD1_RELEASE);
-	mod1End = GetDlgItem(IDC_MOD1_END);
-	mod1MulEd = GetDlgItem(IDC_M1M_EDIT);
-	mod1NdxEd = GetDlgItem(IDC_M1I_EDIT);
-	mod1AtkEd = GetDlgItem(IDC_M1A_EDIT);
-	mod1PckEd = GetDlgItem(IDC_M1P_EDIT);
-	mod1DecEd = GetDlgItem(IDC_M1D_EDIT);
-	mod1SusEd = GetDlgItem(IDC_M1S_EDIT);
-	mod1RelEd = GetDlgItem(IDC_M1R_EDIT);
-	mod1EndEd = GetDlgItem(IDC_M1E_EDIT);
+	gen2Mul = GetDlgItem(IDC_MOD1_MULT);
+	gen2Ndx = GetDlgItem(IDC_MOD1_START);
+	gen2Atk = GetDlgItem(IDC_MOD1_ATTACK);
+	gen2Pck = GetDlgItem(IDC_MOD1_PEAK);
+	gen2Dec = GetDlgItem(IDC_MOD1_DECAY);
+	gen2Sus = GetDlgItem(IDC_MOD1_SUSTAIN);
+	gen2Rel = GetDlgItem(IDC_MOD1_RELEASE);
+	gen2End = GetDlgItem(IDC_MOD1_END);
+	gen2MulEd = GetDlgItem(IDC_M1M_EDIT);
+	gen2NdxEd = GetDlgItem(IDC_M1I_EDIT);
+	gen2AtkEd = GetDlgItem(IDC_M1A_EDIT);
+	gen2PckEd = GetDlgItem(IDC_M1P_EDIT);
+	gen2DecEd = GetDlgItem(IDC_M1D_EDIT);
+	gen2SusEd = GetDlgItem(IDC_M1S_EDIT);
+	gen2RelEd = GetDlgItem(IDC_M1R_EDIT);
+	gen2EndEd = GetDlgItem(IDC_M1E_EDIT);
 
-	InitValue(mod1Mul, mod1MulEd, 0,  100,  10);
-	InitValue(mod1Ndx, mod1NdxEd, 0,  500,  50);
-	InitValue(mod1Pck, mod1PckEd, 0,  500,  50);
-	InitValue(mod1Sus, mod1SusEd, 0,  500,  50);
-	InitValue(mod1End, mod1EndEd, 0,  500,  50);
-	InitValue(mod1Atk, mod1AtkEd, 0, 4000, 400);
-	InitValue(mod1Dec, mod1DecEd, 0, 4000, 400);
-	InitValue(mod1Rel, mod1RelEd, 0, 4000, 400);
+	InitValue(gen2Mul, gen2MulEd, 0,  100,  10);
+	InitValue(gen2Ndx, gen2NdxEd, 0,  500,  50);
+	InitValue(gen2Pck, gen2PckEd, 0,  500,  50);
+	InitValue(gen2Sus, gen2SusEd, 0,  500,  50);
+	InitValue(gen2End, gen2EndEd, 0,  500,  50);
+	InitValue(gen2Atk, gen2AtkEd, 0, 4000, 400);
+	InitValue(gen2Dec, gen2DecEd, 0, 4000, 400);
+	InitValue(gen2Rel, gen2RelEd, 0, 4000, 400);
 
-	mod2Mul = GetDlgItem(IDC_MOD2_MULT);
-	mod2Ndx = GetDlgItem(IDC_MOD2_START);
-	mod2Atk = GetDlgItem(IDC_MOD2_ATTACK);
-	mod2Pck = GetDlgItem(IDC_MOD2_PEAK);
-	mod2Dec = GetDlgItem(IDC_MOD2_DECAY);
-	mod2Sus = GetDlgItem(IDC_MOD2_SUSTAIN);
-	mod2Rel = GetDlgItem(IDC_MOD2_RELEASE);
-	mod2End = GetDlgItem(IDC_MOD2_END);
-	mod2MulEd = GetDlgItem(IDC_M2M_EDIT);
-	mod2NdxEd = GetDlgItem(IDC_M2I_EDIT);
-	mod2AtkEd = GetDlgItem(IDC_M2A_EDIT);
-	mod2PckEd = GetDlgItem(IDC_M2P_EDIT);
-	mod2DecEd = GetDlgItem(IDC_M2D_EDIT);
-	mod2SusEd = GetDlgItem(IDC_M2S_EDIT);
-	mod2RelEd = GetDlgItem(IDC_M2R_EDIT);
-	mod2EndEd = GetDlgItem(IDC_M2E_EDIT);
+	gen3Mul = GetDlgItem(IDC_MOD2_MULT);
+	gen3Ndx = GetDlgItem(IDC_MOD2_START);
+	gen3Atk = GetDlgItem(IDC_MOD2_ATTACK);
+	gen3Pck = GetDlgItem(IDC_MOD2_PEAK);
+	gen3Dec = GetDlgItem(IDC_MOD2_DECAY);
+	gen3Sus = GetDlgItem(IDC_MOD2_SUSTAIN);
+	gen3Rel = GetDlgItem(IDC_MOD2_RELEASE);
+	gen3End = GetDlgItem(IDC_MOD2_END);
+	gen3MulEd = GetDlgItem(IDC_M2M_EDIT);
+	gen3NdxEd = GetDlgItem(IDC_M2I_EDIT);
+	gen3AtkEd = GetDlgItem(IDC_M2A_EDIT);
+	gen3PckEd = GetDlgItem(IDC_M2P_EDIT);
+	gen3DecEd = GetDlgItem(IDC_M2D_EDIT);
+	gen3SusEd = GetDlgItem(IDC_M2S_EDIT);
+	gen3RelEd = GetDlgItem(IDC_M2R_EDIT);
+	gen3EndEd = GetDlgItem(IDC_M2E_EDIT);
 
-	InitValue(mod2Mul, mod2MulEd, 0,  100,  10);
-	InitValue(mod2Ndx, mod2NdxEd, 0,  500,  50);
-	InitValue(mod2Pck, mod2PckEd, 0,  500,  50);
-	InitValue(mod2Sus, mod2SusEd, 0,  500,  50);
-	InitValue(mod2End, mod2EndEd, 0,  500,  50);
-	InitValue(mod2Atk, mod2AtkEd, 0, 4000, 400);
-	InitValue(mod2Dec, mod2DecEd, 0, 4000, 400);
-	InitValue(mod2Rel, mod2RelEd, 0, 4000, 400);
+	InitValue(gen3Mul, gen3MulEd, 0,  100,  10);
+	InitValue(gen3Ndx, gen3NdxEd, 0,  500,  50);
+	InitValue(gen3Pck, gen3PckEd, 0,  500,  50);
+	InitValue(gen3Sus, gen3SusEd, 0,  500,  50);
+	InitValue(gen3End, gen3EndEd, 0,  500,  50);
+	InitValue(gen3Atk, gen3AtkEd, 0, 4000, 400);
+	InitValue(gen3Dec, gen3DecEd, 0, 4000, 400);
+	InitValue(gen3Rel, gen3RelEd, 0, 4000, 400);
 
 	durValEd = GetDlgItem(IDC_DUR_EDIT);
 	durValEd.SetWindowText("1.0");
@@ -254,52 +254,52 @@ LRESULT CMainDlg::OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& b
 	if (code == TB_ENDTRACK || code == TB_THUMBTRACK)
 	{
 		HWND w = (HWND) lParam;
-		if (w == carFrq)
-			TrackValue(carFrq, carFrqEd, 1.0, 120);
-		else if (w == carVol)
-			TrackValue(carVol, carVolEd, 100.0, 100);
-		else if (w == carAtk)
-			TrackValue(carAtk, carAtkEd, 1000.0);
-		else if (w == carDec)
-			TrackValue(carDec, carDecEd, 1000.0);
-		else if (w == carSus)
-			TrackValue(carSus, carSusEd, 100.0, 100);
-		else if (w == carRel)
-			TrackValue(carRel, carRelEd, 1000.0);
+		if (w == gen1Frq)
+			TrackValue(gen1Frq, gen1FrqEd, 1.0, 120);
+		else if (w == gen1Vol)
+			TrackValue(gen1Vol, gen1VolEd, 100.0, 100);
+		else if (w == gen1Atk)
+			TrackValue(gen1Atk, gen1AtkEd, 1000.0);
+		else if (w == gen1Dec)
+			TrackValue(gen1Dec, gen1DecEd, 1000.0);
+		else if (w == gen1Sus)
+			TrackValue(gen1Sus, gen1SusEd, 100.0, 100);
+		else if (w == gen1Rel)
+			TrackValue(gen1Rel, gen1RelEd, 1000.0);
 
-		else if (w == mod1Mul)
-			TrackValue(mod1Mul, mod1MulEd, 10.0);
-		else if (w == mod1Ndx)
-			TrackValue(mod1Ndx, mod1NdxEd, 10.0, 500);
-		else if (w == mod1Atk)
-			TrackValue(mod1Atk, mod1AtkEd, 1000.0);
-		else if (w == mod1Pck)
-			TrackValue(mod1Pck, mod1PckEd, 10.0, 500);
-		else if (w == mod1Dec)
-			TrackValue(mod1Dec, mod1DecEd, 1000.0);
-		else if (w == mod1Sus)
-			TrackValue(mod1Sus, mod1SusEd, 10.0, 500);
-		else if (w == mod1Rel)
-			TrackValue(mod1Rel, mod1RelEd, 1000.0);
-		else if (w == mod1End)
-			TrackValue(mod1End, mod1EndEd, 10.0, 500);
+		else if (w == gen2Mul)
+			TrackValue(gen2Mul, gen2MulEd, 10.0);
+		else if (w == gen2Ndx)
+			TrackValue(gen2Ndx, gen2NdxEd, 10.0, 500);
+		else if (w == gen2Atk)
+			TrackValue(gen2Atk, gen2AtkEd, 1000.0);
+		else if (w == gen2Pck)
+			TrackValue(gen2Pck, gen2PckEd, 10.0, 500);
+		else if (w == gen2Dec)
+			TrackValue(gen2Dec, gen2DecEd, 1000.0);
+		else if (w == gen2Sus)
+			TrackValue(gen2Sus, gen2SusEd, 10.0, 500);
+		else if (w == gen2Rel)
+			TrackValue(gen2Rel, gen2RelEd, 1000.0);
+		else if (w == gen2End)
+			TrackValue(gen2End, gen2EndEd, 10.0, 500);
 
-		else if (w == mod2Mul)
-			TrackValue(mod2Mul, mod2MulEd, 10.0);
-		else if (w == mod2Ndx)
-			TrackValue(mod2Ndx, mod2NdxEd, 10.0, 500);
-		else if (w == mod2Atk)
-			TrackValue(mod2Atk, mod2AtkEd, 1000.0);
-		else if (w == mod2Pck)
-			TrackValue(mod2Pck, mod2PckEd, 10.0, 500);
-		else if (w == mod2Dec)
-			TrackValue(mod2Dec, mod2DecEd, 1000.0);
-		else if (w == mod2Sus)
-			TrackValue(mod2Sus, mod2SusEd, 10.0, 500);
-		else if (w == mod2Rel)
-			TrackValue(mod2Rel, mod2RelEd, 1000.0);
-		else if (w == mod2End)
-			TrackValue(mod2End, mod2EndEd, 10.0, 500);
+		else if (w == gen3Mul)
+			TrackValue(gen3Mul, gen3MulEd, 10.0);
+		else if (w == gen3Ndx)
+			TrackValue(gen3Ndx, gen3NdxEd, 10.0, 500);
+		else if (w == gen3Atk)
+			TrackValue(gen3Atk, gen3AtkEd, 1000.0);
+		else if (w == gen3Pck)
+			TrackValue(gen3Pck, gen3PckEd, 10.0, 500);
+		else if (w == gen3Dec)
+			TrackValue(gen3Dec, gen3DecEd, 1000.0);
+		else if (w == gen3Sus)
+			TrackValue(gen3Sus, gen3SusEd, 10.0, 500);
+		else if (w == gen3Rel)
+			TrackValue(gen3Rel, gen3RelEd, 1000.0);
+		else if (w == gen3End)
+			TrackValue(gen3End, gen3EndEd, 10.0, 500);
 	}
 	return 0;
 }
@@ -316,72 +316,72 @@ LRESULT CMainDlg::OnKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bH
 	switch (wID)
 	{
 	case IDC_CFRQ_EDIT:
-		UpdateValue(carFrq, carFrqEd, 1.0, 120);
+		UpdateValue(gen1Frq, gen1FrqEd, 1.0, 120);
 		break;
 	case IDC_CVOL_EDIT:
-		UpdateValue(carVol, carVolEd, 100.0, 100);
+		UpdateValue(gen1Vol, gen1VolEd, 100.0, 100);
 		break;
 	case IDC_CATK_EDIT:
-		UpdateValue(carAtk, carAtkEd, 1000.0);
+		UpdateValue(gen1Atk, gen1AtkEd, 1000.0);
 		break;
 	case IDC_CDEC_EDIT:
-		UpdateValue(carDec, carDecEd, 1000.0);
+		UpdateValue(gen1Dec, gen1DecEd, 1000.0);
 		break;
 	case IDC_CSUS_EDIT:
-		UpdateValue(carSus, carSusEd, 100.0, 100);
+		UpdateValue(gen1Sus, gen1SusEd, 100.0, 100);
 		break;
 	case IDC_CREL_EDIT:
-		UpdateValue(carRel, carRelEd, 1000.0);
+		UpdateValue(gen1Rel, gen1RelEd, 1000.0);
 		break;
 
 	case IDC_M1M_EDIT:
-		UpdateValue(mod1Mul, mod1MulEd, 10.0);
+		UpdateValue(gen2Mul, gen2MulEd, 10.0);
 		break;
 	case IDC_M1I_EDIT:
-		UpdateValue(mod1Ndx, mod1NdxEd, 10.0, 500);
+		UpdateValue(gen2Ndx, gen2NdxEd, 10.0, 500);
 		break;
 	case IDC_M1A_EDIT:
-		UpdateValue(mod1Atk, mod1AtkEd, 1000.0);
+		UpdateValue(gen2Atk, gen2AtkEd, 1000.0);
 		break;
 	case IDC_M1P_EDIT:
-		UpdateValue(mod1Pck, mod1PckEd, 10.0, 500);
+		UpdateValue(gen2Pck, gen2PckEd, 10.0, 500);
 		break;
 	case IDC_M1D_EDIT:
-		UpdateValue(mod1Dec, mod1DecEd, 1000.0);
+		UpdateValue(gen2Dec, gen2DecEd, 1000.0);
 		break;
 	case IDC_M1S_EDIT:
-		UpdateValue(mod1Sus, mod1SusEd, 10.0, 500);
+		UpdateValue(gen2Sus, gen2SusEd, 10.0, 500);
 		break;
 	case IDC_M1R_EDIT:
-		UpdateValue(mod1Rel, mod1RelEd, 1000.0);
+		UpdateValue(gen2Rel, gen2RelEd, 1000.0);
 		break;
 	case IDC_M1E_EDIT:
-		UpdateValue(mod1End, mod1EndEd, 10.0, 500);
+		UpdateValue(gen2End, gen2EndEd, 10.0, 500);
 		break;
 
 	case IDC_M2M_EDIT:
-		UpdateValue(mod2Mul, mod2MulEd, 10.0);
+		UpdateValue(gen3Mul, gen3MulEd, 10.0);
 		break;
 	case IDC_M2I_EDIT:
-		UpdateValue(mod2Ndx, mod2NdxEd, 10.0, 500);
+		UpdateValue(gen3Ndx, gen3NdxEd, 10.0, 500);
 		break;
 	case IDC_M2A_EDIT:
-		UpdateValue(mod2Atk, mod2AtkEd, 1000.0);
+		UpdateValue(gen3Atk, gen3AtkEd, 1000.0);
 		break;
 	case IDC_M2P_EDIT:
-		UpdateValue(mod2Pck, mod2PckEd, 10.0, 500);
+		UpdateValue(gen3Pck, gen3PckEd, 10.0, 500);
 		break;
 	case IDC_M2D_EDIT:
-		UpdateValue(mod2Dec, mod2DecEd, 1000.0);
+		UpdateValue(gen3Dec, gen3DecEd, 1000.0);
 		break;
 	case IDC_M2S_EDIT:
-		UpdateValue(mod2Sus, mod2SusEd, 10.0, 500);
+		UpdateValue(gen3Sus, gen3SusEd, 10.0, 500);
 		break;
 	case IDC_M2R_EDIT:
-		UpdateValue(mod2Rel, mod2RelEd, 1000.0);
+		UpdateValue(gen3Rel, gen3RelEd, 1000.0);
 		break;
 	case IDC_M2E_EDIT:
-		UpdateValue(mod2End, mod2EndEd, 10.0, 500);
+		UpdateValue(gen3End, gen3EndEd, 10.0, 500);
 		break;
 	}
 	return 0;
@@ -516,29 +516,29 @@ void CMainDlg::SetPreset(FMInstrParam *p)
 	}
 	CheckRadioButton(IDC_STACK, IDC_DELTA, btn);
 
-	PutSetting(carVol, carVolEd, p->carPk,  100.0, 100);
-	PutSetting(carAtk, carAtkEd, p->carAtk, 1000.0);
-	PutSetting(carDec, carDecEd, p->carDec, 1000.0);
-	PutSetting(carSus, carSusEd, p->carSus, 100.0, 100);
-	PutSetting(carRel, carRelEd, p->carRel, 1000.0);
+	PutSetting(gen1Vol, gen1VolEd, p->gen1Pk,  100.0, 100);
+	PutSetting(gen1Atk, gen1AtkEd, p->gen1Atk, 1000.0);
+	PutSetting(gen1Dec, gen1DecEd, p->gen1Dec, 1000.0);
+	PutSetting(gen1Sus, gen1SusEd, p->gen1Sus, 100.0, 100);
+	PutSetting(gen1Rel, gen1RelEd, p->gen1Rel, 1000.0);
 
-	PutSetting(mod1Mul, mod1MulEd, p->mod1Mult, 10.0);
-	PutSetting(mod1Ndx, mod1NdxEd, p->mod1Start, 10.0, 500);
-	PutSetting(mod1Atk, mod1AtkEd, p->mod1Atk, 1000.0);
-	PutSetting(mod1Pck, mod1PckEd, p->mod1Pk, 10.0, 500);
-	PutSetting(mod1Dec, mod1DecEd, p->mod1Dec, 1000.0);
-	PutSetting(mod1Sus, mod1SusEd, p->mod1Sus, 10.0, 500);
-	PutSetting(mod1Rel, mod1RelEd, p->mod1Rel, 1000.0);
-	PutSetting(mod1End, mod1EndEd, p->mod1End, 10.0, 500);
+	PutSetting(gen2Mul, gen2MulEd, p->gen2Mult, 10.0);
+	PutSetting(gen2Ndx, gen2NdxEd, p->gen2Start, 10.0, 500);
+	PutSetting(gen2Atk, gen2AtkEd, p->gen2Atk, 1000.0);
+	PutSetting(gen2Pck, gen2PckEd, p->gen2Pk, 10.0, 500);
+	PutSetting(gen2Dec, gen2DecEd, p->gen2Dec, 1000.0);
+	PutSetting(gen2Sus, gen2SusEd, p->gen2Sus, 10.0, 500);
+	PutSetting(gen2Rel, gen2RelEd, p->gen2Rel, 1000.0);
+	PutSetting(gen2End, gen2EndEd, p->gen2End, 10.0, 500);
 
-	PutSetting(mod2Mul, mod2MulEd, p->mod2Mult, 10.0);
-	PutSetting(mod2Ndx, mod2NdxEd, p->mod2Start, 10.0, 500);
-	PutSetting(mod2Atk, mod2AtkEd, p->mod2Atk, 1000.0);
-	PutSetting(mod2Pck, mod2PckEd, p->mod2Pk, 10.0, 500);
-	PutSetting(mod2Dec, mod2DecEd, p->mod2Dec, 1000.0);
-	PutSetting(mod2Sus, mod2SusEd, p->mod2Sus, 10.0, 500);
-	PutSetting(mod2Rel, mod2RelEd, p->mod2Rel, 1000.0);
-	PutSetting(mod2End, mod2EndEd, p->mod2End, 10.0, 500);
+	PutSetting(gen3Mul, gen3MulEd, p->gen3Mult, 10.0);
+	PutSetting(gen3Ndx, gen3NdxEd, p->gen3Start, 10.0, 500);
+	PutSetting(gen3Atk, gen3AtkEd, p->gen3Atk, 1000.0);
+	PutSetting(gen3Pck, gen3PckEd, p->gen3Pk, 10.0, 500);
+	PutSetting(gen3Dec, gen3DecEd, p->gen3Dec, 1000.0);
+	PutSetting(gen3Sus, gen3SusEd, p->gen3Sus, 10.0, 500);
+	PutSetting(gen3Rel, gen3RelEd, p->gen3Rel, 1000.0);
+	PutSetting(gen3End, gen3EndEd, p->gen3End, 10.0, 500);
 
 }
 
@@ -723,29 +723,29 @@ LRESULT CMainDlg::OnCopyClip(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, B
 	OpenClipboard();
 	EmptyClipboard();
 
-	FrqValue atk = GetSetting(carAtkEd);
-	AmpValue pk  = GetSetting(carVolEd);
-	FrqValue dec = GetSetting(carDecEd);
-	AmpValue sus = GetSetting(carSusEd);
-	FrqValue rel = GetSetting(carRelEd);
+	FrqValue atk = GetSetting(gen1AtkEd);
+	AmpValue pk  = GetSetting(gen1VolEd);
+	FrqValue dec = GetSetting(gen1DecEd);
+	AmpValue sus = GetSetting(gen1SusEd);
+	FrqValue rel = GetSetting(gen1RelEd);
 
-	FrqValue mul1 = GetSetting(mod1MulEd);
-	AmpValue amp1 = GetSetting(mod1NdxEd);
-	FrqValue atk1 = GetSetting(mod1AtkEd);
-	AmpValue pk1  = GetSetting(mod1PckEd);
-	FrqValue dec1 = GetSetting(mod1DecEd);
-	AmpValue sus1 = GetSetting(mod1SusEd);
-	FrqValue rel1 = GetSetting(mod1RelEd);
-	AmpValue end1 = GetSetting(mod1EndEd);
+	FrqValue mul1 = GetSetting(gen2MulEd);
+	AmpValue amp1 = GetSetting(gen2NdxEd);
+	FrqValue atk1 = GetSetting(gen2AtkEd);
+	AmpValue pk1  = GetSetting(gen2PckEd);
+	FrqValue dec1 = GetSetting(gen2DecEd);
+	AmpValue sus1 = GetSetting(gen2SusEd);
+	FrqValue rel1 = GetSetting(gen2RelEd);
+	AmpValue end1 = GetSetting(gen2EndEd);
 
-	FrqValue mul2 = GetSetting(mod2MulEd);
-	AmpValue amp2 = GetSetting(mod2NdxEd);
-	FrqValue atk2 = GetSetting(mod2AtkEd);
-	AmpValue pk2  = GetSetting(mod2PckEd);
-	FrqValue dec2 = GetSetting(mod2DecEd);
-	AmpValue sus2 = GetSetting(mod2SusEd);
-	FrqValue rel2 = GetSetting(mod2RelEd);
-	AmpValue end2 = GetSetting(mod2EndEd);
+	FrqValue mul2 = GetSetting(gen3MulEd);
+	AmpValue amp2 = GetSetting(gen3NdxEd);
+	FrqValue atk2 = GetSetting(gen3AtkEd);
+	AmpValue pk2  = GetSetting(gen3PckEd);
+	FrqValue dec2 = GetSetting(gen3DecEd);
+	AmpValue sus2 = GetSetting(gen3SusEd);
+	FrqValue rel2 = GetSetting(gen3RelEd);
+	AmpValue end2 = GetSetting(gen3EndEd);
 
 	char txt[1024];
 	sprintf(txt, "{ %4d, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f,\r\n%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f,\r\n%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f },\r\n",
@@ -791,7 +791,7 @@ AmpValue CMainDlg::CalcPhaseMod(AmpValue amp, FrqValue mult)
 {
 	amp = (amp * mult) * synthParams.frqTI;
 	AmpValue maxPhs = synthParams.ftableLength / 2;
-	if (algorithm == ALG_WYE || algorithm == ALG_DELTA)
+	if (algorithm == ALG_WYE)// || algorithm == ALG_DELTA)
 		maxPhs /= 2;
 	if (amp > maxPhs)
 		amp = maxPhs;
@@ -815,18 +815,18 @@ void CMainDlg::InitGen()
 	durTotal = GetSetting(durValEd);
 	volMaster = GetSetting(volValEd);
 	
-	pit = GetSetting(carFrqEd);
+	pit = GetSetting(gen1FrqEd);
 	frq = synthParams.GetFrequency(pit);
 	if (frq >= nyq)
 		frq = nyq;
 
-	amp = GetSetting(carVolEd);
-	atk = GetSetting(carAtkEd);
-	dec = GetSetting(carDecEd);
-	sus = GetSetting(carSusEd);
-	rel = GetSetting(carRelEd);
-	carEG.InitADSR(0, atk, amp, dec, sus, rel, 0, linSeg);
-	carOsc.InitWT(frq, WT_SIN);
+	amp = GetSetting(gen1VolEd);
+	atk = GetSetting(gen1AtkEd);
+	dec = GetSetting(gen1DecEd);
+	sus = GetSetting(gen1SusEd);
+	rel = GetSetting(gen1RelEd);
+	gen1EG.InitADSR(0, atk, amp, dec, sus, rel, 0, linSeg);
+	gen1Osc.InitWT(frq, WT_SIN);
 	if (durTotal < (rel+atk))
 	{
 		durTotal = atk + rel;
@@ -835,88 +835,76 @@ void CMainDlg::InitGen()
 	else
 		durAtkSus = durTotal - rel;
 
-	mul1 = GetSetting(mod1MulEd) * frq;
-	amp = GetSetting(mod1NdxEd);
-	atk = GetSetting(mod1AtkEd);
-	pk  = GetSetting(mod1PckEd);
-	dec = GetSetting(mod1DecEd);
-	sus = GetSetting(mod1SusEd);
-	rel = GetSetting(mod1RelEd);
-	end = GetSetting(mod1EndEd);
+	mul1 = GetSetting(gen2MulEd) * frq;
+	amp = GetSetting(gen2NdxEd);
+	atk = GetSetting(gen2AtkEd);
+	pk  = GetSetting(gen2PckEd);
+	dec = GetSetting(gen2DecEd);
+	sus = GetSetting(gen2SusEd);
+	rel = GetSetting(gen2RelEd);
+	end = GetSetting(gen2EndEd);
 
 	if (mul1 > nyq)
 		mul1 = nyq;
-	mod1Osc.InitWT(mul1, WT_SIN);
-	amp = CalcPhaseMod(amp, mul1);
-	pk  = CalcPhaseMod(pk, mul1);
-	sus = CalcPhaseMod(sus, mul1);
-	end = CalcPhaseMod(end, mul1);
-	mod1EG.InitADSR(amp, atk, pk, dec, sus, rel, end, linSeg); 
+	gen2Osc.InitWT(mul1, WT_SIN);
+	if (algorithm != ALG_DELTA)
+	{
+		amp = CalcPhaseMod(amp, mul1);
+		pk  = CalcPhaseMod(pk, mul1);
+		sus = CalcPhaseMod(sus, mul1);
+		end = CalcPhaseMod(end, mul1);
+	}
+	gen2EG.InitADSR(amp, atk, pk, dec, sus, rel, end, linSeg); 
 
-	mul2 = GetSetting(mod2MulEd) * frq;
-	amp = GetSetting(mod2NdxEd);
-	atk = GetSetting(mod2AtkEd);
-	pk  = GetSetting(mod2PckEd);
-	dec = GetSetting(mod2DecEd);
-	sus = GetSetting(mod2SusEd);
-	rel = GetSetting(mod2RelEd);
-	end = GetSetting(mod2EndEd);
+	mul2 = GetSetting(gen3MulEd) * frq;
+	amp = GetSetting(gen3NdxEd);
+	atk = GetSetting(gen3AtkEd);
+	pk  = GetSetting(gen3PckEd);
+	dec = GetSetting(gen3DecEd);
+	sus = GetSetting(gen3SusEd);
+	rel = GetSetting(gen3RelEd);
+	end = GetSetting(gen3EndEd);
 
 	if (mul2 > nyq)
 		mul2 = nyq;
-	mod2Osc.InitWT(mul2, WT_SIN);
+	gen3Osc.InitWT(mul2, WT_SIN);
 	amp = CalcPhaseMod(amp, mul2);
 	pk  = CalcPhaseMod(pk, mul2);
 	sus = CalcPhaseMod(sus, mul2);
 	end = CalcPhaseMod(end, mul2);
-	mod2EG.InitADSR(amp, atk, pk, dec, sus, rel, end, linSeg);
+	gen3EG.InitADSR(amp, atk, pk, dec, sus, rel, end, linSeg);
 }
 
 AmpValue CMainDlg::Generate()
 {
-/*	
-	This is easier to understand; the code below is tigher...
-	=================================================================
-	AmpValue v1;
-	AmpValue v2;
+	AmpValue gen1val = gen1EG.Gen() * gen1Osc.Gen();
+	AmpValue gen2val = gen2EG.Gen() * gen2Osc.Gen();
+	AmpValue gen3val = gen3EG.Gen() * gen3Osc.Gen();
 	switch (algorithm)
 	{
 	case ALG_STACK2:
-		mod1Osc.PhaseModWT(mod2EG.Gen() * mod2Osc.Gen());
+		gen2Osc.PhaseModWT(gen3val);
+		// FALLTHROUGH
 	case ALG_STACK:
-		carOsc.PhaseModWT(mod1EG.Gen() * mod1Osc.Gen());
+		gen1Osc.PhaseModWT(gen2val);
 		break;
 	case ALG_WYE:
-		carOsc.PhaseModWT((mod1EG.Gen() * mod1Osc.Gen()) + (mod2EG.Gen() * mod2Osc.Gen()));
+		gen1Osc.PhaseModWT(gen2val + gen3val);
 		break;
 	case ALG_DELTA:
-		v1 = mod2EG.Gen() * mod2Osc.Gen();
-		mod1Osc.PhaseModWT(v1);
-		v2 = mod1EG.Gen() * mod1Osc.Gen();
-		carOsc.PhaseModWT(v1 + v2);
+		gen2Osc.PhaseModWT(gen3val);
+		gen1Osc.PhaseModWT(gen3val);
+		gen1val += gen2val;
 		break;
 	}
-*/
-
-	AmpValue carMod = 0;
-	if (algorithm != ALG_STACK) 
-	{
-		AmpValue m2Out = mod2EG.Gen() * mod2Osc.Gen();
-		if (algorithm != ALG_WYE)
-			mod1Osc.PhaseModWT(m2Out);
-		if (algorithm != ALG_STACK2)
-			carMod = m2Out;
-	}
-	carMod += mod1Osc.Gen() * mod1EG.Gen();
-	carOsc.PhaseModWT(carMod);
-	return carEG.Gen() * carOsc.Gen() * volMaster;
+	return gen1val * volMaster;
 }
 
 void CMainDlg::NoteOff()
 {
-	carEG.Release();
-	mod1EG.Release();
-	mod2EG.Release();
+	gen1EG.Release();
+	gen2EG.Release();
+	gen3EG.Release();
 }
 
 int CMainDlg::PlayFM(int loop)
@@ -930,6 +918,16 @@ int CMainDlg::PlayFM(int loop)
     wf.wBitsPerSample = 16;
 	wf.cbSize = 0;
 
+	StopPlaying();
+
+	InitGen();
+
+	DWORD atkSusSamples = (DWORD) (durAtkSus * synthParams.sampleRate);
+	DWORD totalSamples = (DWORD) (durTotal * synthParams.sampleRate);
+	// add room for silence at end to minimize "click" when player turns off.
+	DWORD bufSize = totalSamples + (DWORD) (0.1 * synthParams.sampleRate);
+	SampleValue *samples;
+
 #ifdef USE_DIRECTSOUND
 	HRESULT hr;
 	if (dirSndObj == NULL)
@@ -942,34 +940,11 @@ int CMainDlg::PlayFM(int loop)
 			{
 				dirSndObj->Release();
 				dirSndObj = NULL;
+				MessageBox("Cannot open direct sound output", "Error", MB_OK|MB_ICONSTOP);
 				return -1;
 			}
 		}
 	}
-#else
-	MMRESULT res; 
-	if (woHandle == NULL)
-	{
-		res = waveOutOpen(&woHandle, WAVE_MAPPER, &wf, (DWORD) m_hWnd, 0, CALLBACK_WINDOW);
-		if (res != MMSYSERR_NOERROR)
-		{
-			MessageBox("Cannot open wave output", "Error", MB_OK|MB_ICONSTOP);
-			return -1;
-		}
-	}
-#endif
-
-	StopPlaying();
-
-	InitGen();
-
-	DWORD atkSusSamples = (DWORD) (durAtkSus * synthParams.sampleRate);
-	DWORD totalSamples = (DWORD) (durTotal * synthParams.sampleRate);
-	// add room for silence at end to minimize "click" when player turns off.
-	DWORD bufSize = totalSamples + (DWORD) (0.05 * synthParams.sampleRate);
-	SampleValue *samples;
-
-#ifdef USE_DIRECTSOUND
 	void *pAudio1 = NULL;
 	void *pAudio2 = NULL;
 	DWORD dwAudio1 = 0;
@@ -987,12 +962,32 @@ int CMainDlg::PlayFM(int loop)
 		return -1;
 	hr = dirSndBuf->Lock(0, bufSize, &pAudio1, &dwAudio1, NULL, NULL, DSBLOCK_ENTIREBUFFER);
 	if (hr != S_OK)
+	{
+		MessageBox("Cannot create direct sound buffer", "Error", MB_OK|MB_ICONSTOP);
 		return -1;
+	}
 	samples = (SampleValue *) pAudio1;
 #else
+	MMRESULT res; 
+	if (woHandle == NULL)
+	{
+		res = waveOutOpen(&woHandle, WAVE_MAPPER, &wf, (DWORD) m_hWnd, 0, CALLBACK_WINDOW);
+		if (res != MMSYSERR_NOERROR)
+		{
+			MessageBox("Cannot open wave output", "Error", MB_OK|MB_ICONSTOP);
+			return -1;
+		}
+	}
+
 	memset(&wh, 0, sizeof(wh));
 	wh.dwBufferLength = bufSize * sizeof(SampleValue);
 	wh.lpData = (LPSTR) malloc(wh.dwBufferLength);
+	if (wh.lpData == NULL)
+	{
+		MessageBox("Cannot create wave out buffer", "Error", MB_OK|MB_ICONSTOP);
+		return -1;
+	}
+
 	res = waveOutPrepareHeader(woHandle, &wh, sizeof(wh));
 	samples = (SampleValue *) wh.lpData;
 #endif
@@ -1001,7 +996,7 @@ int CMainDlg::PlayFM(int loop)
 	while (n++ < atkSusSamples)
 		*samples++ = (SampleValue) (Generate() * synthParams.sampleScale);
 	NoteOff();
-	while (!carEG.IsFinished() && n++ < bufSize)
+	while (!gen1EG.IsFinished() && n++ < bufSize)
 		*samples++ = (SampleValue) (Generate() * synthParams.sampleScale);
 	while (n++ < bufSize)
 		*samples++ = 0;

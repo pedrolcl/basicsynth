@@ -103,6 +103,7 @@ public:
 	int List();
 	int Volume();
 	int Transpose();
+	int Double();
 	int Expr();
 	int CatOp();
 	int LogOp();

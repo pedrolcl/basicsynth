@@ -78,7 +78,7 @@ public:
 	void Clear()
 	{
 		delayPos = delayBuf;
-		while (delayPos <= delayEnd)
+		while (delayPos < delayEnd)
 			*delayPos++ = 0;
 		delayPos = delayBuf;
 	}
@@ -89,18 +89,11 @@ public:
 		delayTime = dlyTm;
 		decayFactor = decay;
 		delayLen = (int) (delayTime * synthParams.sampleRate);
-		//printf("DelayLen = %d, %f\n", delayLen, delayTime * synthParams.sampleRate);
-		if (delayLen > 0)
-		{
-			delayBuf = new AmpValue[delayLen];
-			if (delayBuf != NULL)
-			{
-				delayEnd = delayBuf + (delayLen-1);
-				Clear();
-			}
-			else
-				delayLen = 0;
-		}
+		if (delayLen <= 0)
+			delayLen = 1;
+		delayBuf = new AmpValue[delayLen];
+		delayEnd = delayBuf + delayLen;
+		Clear();
 	}
 
 	AmpValue TapT(PhsAccum d)
@@ -124,7 +117,7 @@ public:
 	inline void SetIn(AmpValue inval)
 	{
 		*delayPos = inval;
-		if (++delayPos > delayEnd)
+		if (++delayPos >= delayEnd)
 			delayPos = delayBuf;
 	}
 
@@ -372,7 +365,7 @@ public:
 
 	void SetTap(int n, AmpValue dlyTm, AmpValue decay = 1)
 	{
-		long position = (int) (delayTime * synthParams.sampleRate);
+		long position = (int) (dlyTm * synthParams.sampleRate);
 		if (position < delayLen)
 		{
 			delayTaps[n] = delayBuf + (delayLen - position);
@@ -392,7 +385,7 @@ public:
 		AmpValue out = DelayLine::Sample(inval);
 		for (int  n = 0; n < numTaps; n++)
 		{
-			if (++(delayTaps[n]) > delayEnd)
+			if (++(delayTaps[n]) >= delayEnd)
 				delayTaps[n] = delayBuf;
 		}
 		return out;

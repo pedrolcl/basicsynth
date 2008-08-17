@@ -41,7 +41,7 @@ public:
 
 	virtual AmpValue Sample(AmpValue in)
 	{
-		return Gen();
+		return Gen() * in;
 	}
 
 	// store the Frequency, caller must Reset() to apply the new frequency

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////
 //
-// BasicSynth - GenWaveWT
+// BasicSynth - GenWaveX
 //
 // Various complex spectrum waveform generators using wavetables
 //
@@ -8,13 +8,12 @@
 // GenWaveFM - frequency modulation generator, one modulator
 // GenWaveAM - amplitude modulation generator
 // GenWaveRM - ring modulation generator
+// GenWaveNZ - pitched noise
 //
 // Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _GENWAVEX_H_
 #define _GENWAVEX_H_
-
-#include "GenWaveWT.h"
 
 // Incremental calculation of sum of waves - slower than precalc,
 // but BW limited and also useful for doubling, chorus effects, etc.
@@ -382,6 +381,46 @@ public:
 		return v;
 	}
 };
+
+///////////////////////////////////////////////////////////
+// Pitched noise - essentially, a ring modulation of a sine wave and noise
+// See: Computer Music, Dodge&Jerse, chapter 4.11b
+///////////////////////////////////////////////////////////
+class GenWaveNZ : public GenUnit
+{
+private:
+	GenWaveWT osc;
+	GenNoiseI nz;
+
+public:
+	virtual void Init(int n, float *values)
+	{
+		InitNZ(values[0], values[1], (int) values[2]);
+	}
+
+	virtual void InitNZ(FrqValue frequency, FrqValue nzfrq, int wtIndex)
+	{
+		osc.InitWT(frequency, wtIndex);
+		nz.Init(1, &nzfrq);
+	}
+
+	virtual void Reset(float initPhs = 0)
+	{
+		osc.Reset(initPhs);
+		nz.Reset(initPhs);
+	}
+
+	virtual AmpValue Sample(AmpValue in)
+	{
+		return Gen() * in;
+	}
+
+	virtual AmpValue Gen()
+	{
+		return osc.Gen() * nz.Gen();
+	}
+};
+
 
 #endif
 
