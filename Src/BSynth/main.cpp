@@ -54,8 +54,11 @@ public:
 	long wtSize;
 	long wtUser;
 	long mixChnl;
-	double mixVolLft;
-	double mixVolRgt;
+	long fxChnl;
+	float mixVolLft;
+	float mixVolRgt;
+	AmpValue tail;
+	AmpValue lead;
 
 	long outType;
 	long lastOOR;
@@ -99,6 +102,8 @@ public:
 		mixChnl = 0;
 		mixVolLft = 1.0;
 		mixVolRgt = 1.0;
+		lead = 0.0;
+		tail = 1.0;
 	}
 	~SynthProject()
 	{
@@ -156,6 +161,8 @@ public:
 			else if (child->TagMatch("out"))
 			{
 				child->GetAttribute("type", outType);
+				child->GetAttribute("ldin", lead);
+				child->GetAttribute("tail", tail);
 				child->GetContent(&outFile);
 			}
 			else if (child->TagMatch("wvdir"))
@@ -185,39 +192,101 @@ public:
 			}
 			else if (child->TagMatch("mixer"))
 			{
-				if (child->GetAttribute("chnls", mixChnl) == 0)
+				child->GetAttribute("chnls", mixChnl);
+				child->GetAttribute("fxunits", fxChnl);
+
+				if (mixChnl > 0)
 				{
 					mix.SetChannels(mixChnl);
+					mix.SetFxChannels(fxChnl);
 					child->GetAttribute("lft", mixVolLft);
 					child->GetAttribute("rgt", mixVolRgt);
 					mix.MasterVolume(mixVolLft, mixVolRgt);
-					if (mixChnl > 0)
+					XmlSynthElem *mixElem = child->FirstChild();
+					XmlSynthElem *fxElem;
+					while (mixElem)
 					{
-						XmlSynthElem *mixElem = child->FirstChild();
-						while (mixElem)
+						long cn;
+						long fxu;
+						long on;
+						float pan;
+						float vol;
+						if (mixElem->TagMatch("chnl"))
 						{
-							long cn;
-							long on;
-							double pan;
-							double vol;
-							if (mixElem->TagMatch("chnl"))
+							cn = -1;
+							mixElem->GetAttribute("cn", cn);
+							if (cn >= 0 && cn < mixChnl)
 							{
-								cn = -1;
-								mixElem->GetAttribute("cn", cn);
-								if (cn >= 0 && cn < mixChnl)
-								{
-									if (mixElem->GetAttribute("on", on) == 0)
-										mix.ChannelOn(cn, on);
-									if (mixElem->GetAttribute("vol", vol) == 0)
-										mix.ChannelVolume(cn, vol);
-									if (mixElem->GetAttribute("pan", pan) == 0)
-										mix.ChannelPan(cn, panTrig, pan);
-								}
+								if (mixElem->GetAttribute("on", on) == 0)
+									mix.ChannelOn(cn, on);
+								if (mixElem->GetAttribute("vol", vol) == 0)
+									mix.ChannelVolume(cn, vol);
+								if (mixElem->GetAttribute("pan", pan) == 0)
+									mix.ChannelPan(cn, panTrig, pan);
 							}
-							sib = mixElem->NextSibling();
-							delete mixElem;
-							mixElem = sib;
 						}
+						else if (mixElem->TagMatch("reverb"))
+						{
+							float rvt;
+							mixElem->GetAttribute("unit", fxu);
+							mixElem->GetAttribute("vol", vol);
+							mixElem->GetAttribute("rvt", rvt);
+							Reverb2 *rvb = new Reverb2;
+							rvb->InitReverb(1.0, FrqValue(rvt));
+							mix.FxInit(fxu, rvb, vol);
+							if (mixElem->GetAttribute("pan", pan) == 0)
+								mix.FxPan(fxu, panTrig, pan);
+							fxElem = mixElem->FirstChild();
+							while (fxElem)
+							{
+								if (fxElem->TagMatch("send"))
+								{
+									fxElem->GetAttribute("chnl", cn);
+									fxElem->GetAttribute("amt", vol);
+									mix.FxLevel(fxu, cn, vol);
+								}
+								sib = fxElem->NextSibling();
+								delete fxElem;
+								fxElem = sib;
+							}
+						}
+						else if (mixElem->TagMatch("flanger"))
+						{
+							float flngMix = 0.5;
+							float flngFb = 0.0;
+							float flngCenter = 0.005;
+							float flngDepth = 0.001;
+							float flngSweep = 0.15;
+							mixElem->GetAttribute("unit", cn);
+							mixElem->GetAttribute("lvl", vol);
+							mixElem->GetAttribute("mix", flngMix);
+							mixElem->GetAttribute("fb", flngMix);
+							mixElem->GetAttribute("cntr", flngCenter);
+							mixElem->GetAttribute("depth", flngDepth);
+							mixElem->GetAttribute("sweep", flngSweep);
+							Flanger *flng = new Flanger;
+							flng->InitFlanger(1.0, flngMix, flngFb, flngCenter, flngDepth, flngSweep);
+							mix.FxInit(fxu, flng, vol);
+							if (mixElem->GetAttribute("pan", pan) == 0)
+								mix.FxPan(cn, panTrig, pan);
+
+							fxElem = mixElem->FirstChild();
+							while (fxElem)
+							{
+								if (mixElem->TagMatch("send"))
+								{
+									mixElem->GetAttribute("chnl", cn);
+									mixElem->GetAttribute("amt", vol);
+									mix.FxLevel(fxu, cn, vol);
+								}
+								sib = fxElem->NextSibling();
+								delete fxElem;
+								fxElem = sib;
+							}
+						}
+						sib = mixElem->NextSibling();
+						delete mixElem;
+						mixElem = sib;
 					}
 				}
 			}
@@ -358,15 +427,26 @@ public:
 
 	int Generate()
 	{
+		AmpValue lv, rv;
+		long pad;
 		fprintf(stdout, "Generate sequence\n");
 		int errcnt = cvt.Generate();
 		if (errcnt == 0 && outFile)
 		{
 			fprintf(stdout, "Generate wavefile %s\n", outFile);
 			wvf.OpenWaveFile(outFile, 2);
+			pad = synthParams.isampleRate * lead;
+			while(pad-- > 0)
+				wvf.Output2(0.0, 0.0);
 			lastOOR = 0;
 			seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
 			int n = seq.Sequence(mgr);
+			pad = synthParams.isampleRate * tail;
+			while(pad-- > 0)
+			{
+				mix.Out(&lv, &rv);
+				wvf.Output2(lv, rv);
+			}
 			wvf.CloseWaveFile();
 			lastOOR = wvf.GetOOR() - lastOOR;
 			if (lastOOR > 0)
