@@ -6,6 +6,7 @@
 #define _MATRIXSYNTH_H_
 
 #include "LFO.h"
+#include "PitchBend.h"
 
 // MATGEN sets the size of the matrix. We can go up to 16 oscillators because 
 // we have 16 available bits in the toneFlags member. Eight is usually enough.
@@ -82,9 +83,11 @@ private:
 	bsUint16 envUsed;
 
 	LFO lfoGen;
+	PitchBend pbGen;
 
 	int lfoOn;
 	int panOn;
+	int pbOn;
 	int fx1On;
 	int fx2On;
 	int fx3On;

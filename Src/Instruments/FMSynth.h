@@ -6,6 +6,7 @@
 #define _FMSYNTH_H_
 
 #include "LFO.h"
+#include "PitchBend.h"
 
 #define ALG_STACK 1
 #define ALG_STACK2 2
@@ -53,10 +54,12 @@ private:
 	long dlySamps;
 
 	LFO lfoGen;
+	PitchBend pbGen;
 
 	int panOn;
 	int nzOn;
 	int dlyOn;
+	int pbOn;
 
 	int chnl;
 	FrqValue frq;

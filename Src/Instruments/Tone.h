@@ -6,12 +6,14 @@
 #define _TONE_H_
 
 #include "LFO.h"
+#include "PitchBend.h"
 
 class ToneEvent : public NoteEvent
 {
 public:
 	int waveTable;
 	int lfoWaveTable;
+	int pbOn;
 	AmpValue startLevel;
 	AmpValue atkLevel;
 	AmpValue susLevel;
@@ -23,6 +25,11 @@ public:
 	FrqValue lfoFreq;
 	FrqValue lfoAtkRate;
 	AmpValue lfoAmp;
+	FrqValue pbR1;
+	FrqValue pbR2;
+	FrqValue pbA1;
+	FrqValue pbA2;
+	FrqValue pbA3;
 
 	// no contsructor - init is done in ToneEventFactory,
 	// which should be the only function that instantiates
@@ -35,7 +42,7 @@ public:
 
 	virtual bsInt16 MaxParam()
 	{
-		return P_VOLUME+13;
+		return P_VOLUME+19;
 	}
 
 	virtual void SetParam(bsInt16 id, float v)
@@ -46,41 +53,60 @@ public:
 			waveTable = (int) v;
 			break;
 		case 17:
-			startLevel = v;
+			startLevel = AmpValue(v);
 			break;
 		case 18:
-			atkRate = v;
+			atkRate = FrqValue(v);
 			break;
 		case 19:
-			atkLevel = v;
+			atkLevel = AmpValue(v);
 			break;
 		case 20:
-			decRate = v;
+			decRate = FrqValue(v);
 			break;
 		case 21:
-			susLevel = v;
+			susLevel = AmpValue(v);
 			break;
 		case 22:
-			relRate = v;
+			relRate = FrqValue(v);
 			break;
 		case 23:
-			endLevel = v;
+			endLevel = AmpValue(v);
 			break;
 		case 24:
 			envType = (EGSegType) (int) v;
 			break;
 		case 25:
-			lfoFreq = v;
+			lfoFreq = FrqValue(v);
 			break;
 		case 26:
 			lfoWaveTable = (int) v;
 			break;
 		case 27:
-			lfoAtkRate = v;
+			lfoAtkRate = FrqValue(v);
 			break;
 		case 28:
-			lfoAmp = v;
+			lfoAmp = AmpValue(v);
 			break;
+		case 29:
+			pbOn = (int) v;
+			break;
+		case 30:
+			pbR1 = FrqValue(v);
+			break;
+		case 31:
+			pbR2 = FrqValue(v);
+			break;
+		case 32:
+			pbA1 = FrqValue(v);
+			break;
+		case 33:
+			pbA2 = FrqValue(v);
+			break;
+		case 34:
+			pbA3 = FrqValue(v);
+			break;
+
 		default:
 			NoteEvent::SetParam(id, v);
 			break;
@@ -92,10 +118,13 @@ class ToneInstr : public Instrument
 {
 private:
 	int chnl;
+	int pbOn;
+	int lfoOn;
 	AmpValue vol;
 	GenWaveWT osc;
 	EnvGenADSR env;
 	LFO lfoGen;
+	PitchBend pbGen;
 
 	InstrManager *im;
 
@@ -132,17 +161,17 @@ public:
 
 	virtual bsInt16 MaxParam()
 	{
-		return P_VOLUME+15;
+		return P_VOLUME+21;
 	}
 
 	void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
 		{
-		case 32:
+		case 35:
 			modIndex = AmpValue(v);
 			break;
-		case 33:
+		case 36:
 			modMult = FrqValue(v);
 			break;
 		default:
@@ -156,10 +185,13 @@ class ToneFM : public Instrument
 {
 private:
 	int chnl;
+	int lfoOn;
+	int pbOn;
 	AmpValue vol;
 	GenWaveFM osc;
 	EnvGenADSR env;
 	LFO lfoGen;
+	PitchBend pbGen;
 
 	InstrManager *im;
 

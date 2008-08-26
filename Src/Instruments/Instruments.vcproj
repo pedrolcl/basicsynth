@@ -311,6 +311,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PitchBend.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SubSynth.cpp"
 				>
 			</File>
@@ -350,6 +354,10 @@
 			</File>
 			<File
 				RelativePath=".\MatrixSynth.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PitchBend.h"
 				>
 			</File>
 			<File

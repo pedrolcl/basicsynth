@@ -35,6 +35,7 @@ MatrixSynth::MatrixSynth()
 	maxPhs = synthParams.ftableLength/2;
 	lfoOn = 0;
 	panOn = 0;
+	pbOn = 0;
 	fx1On = 0;
 	fx2On = 0;
 	fx3On = 0;
@@ -57,6 +58,7 @@ void MatrixSynth::Copy(MatrixSynth *tp)
 	vol = tp->vol;
 
 	lfoOn = tp->lfoOn;
+	pbOn  = tp->pbOn;
 	panOn = tp->panOn;
 	fx1On = tp->fx1On;
 	fx2On = tp->fx2On;
@@ -73,6 +75,7 @@ void MatrixSynth::Copy(MatrixSynth *tp)
 	}
 
 	lfoGen.Copy(&tp->lfoGen);
+	pbGen.Copy(&tp->pbGen);
 }
 
 void MatrixSynth::Start(SeqEvent *evt)
@@ -105,6 +108,7 @@ void MatrixSynth::Start(SeqEvent *evt)
 	}
 
 	lfoOn = (allFlags & TONE_LFOIN) ? 1 : 0;
+	pbOn  = (allFlags & TONE_PBIN) ? 1 : 0;
 	fx1On = (allFlags & TONE_FX1OUT) ? 1 : 0;
 	fx2On = (allFlags & TONE_FX2OUT) ? 1 : 0;
 	fx3On = (allFlags & TONE_FX3OUT) ? 1 : 0;
@@ -112,6 +116,8 @@ void MatrixSynth::Start(SeqEvent *evt)
 	panOn = (allFlags & TONE_PAN) ? 1 : 0;
 	if (lfoOn)
 		lfoGen.Reset(0);
+	if (pbOn)
+		pbGen.Reset(0);
 }
 
 void MatrixSynth::Param(SeqEvent *evt)
@@ -132,6 +138,7 @@ void MatrixSynth::SetParams(VarParamEvent *evt)
 	chnl = evt->chnl;
 	frq = evt->frq;
 	vol = evt->vol;
+	pbGen.SetFrequency(frq);
 
 	bsInt16 *id = evt->idParam;
 	float *vp = evt->valParam;
@@ -235,6 +242,21 @@ void MatrixSynth::SetParams(VarParamEvent *evt)
 			case 19:
 				lfoGen.SetLevel(AmpValue(val));
 				break;
+			case 20:
+				pbGen.SetRate(0, FrqValue(val));
+				break;
+			case 21:
+				pbGen.SetRate(1, FrqValue(val));
+				break;
+			case 22:
+				pbGen.SetAmount(0, FrqValue(val));
+				break;
+			case 23:
+				pbGen.SetAmount(1, FrqValue(val));
+				break;
+			case 24:
+				pbGen.SetAmount(2, FrqValue(val));
+				break;
 			}
 		}
 	}
@@ -261,6 +283,7 @@ void MatrixSynth::Tick()
 	AmpValue sigLft = 0;
 	AmpValue sigRgt = 0;
 	AmpValue lfoRad = 0;
+	AmpValue pbRad  = 0;
 	AmpValue fx1Out = 0;
 	AmpValue fx2Out = 0;
 	AmpValue fx3Out = 0;
@@ -278,6 +301,8 @@ void MatrixSynth::Tick()
 
 	if (lfoOn)
 		lfoRad = lfoGen.Gen() * synthParams.frqTI;
+	if (pbOn)
+		pbRad = pbGen.Gen() * synthParams.frqTI;
 
 	// Run the envelope generators
 	envFlgs = envUsed;
@@ -340,9 +365,11 @@ void MatrixSynth::Tick()
 			if (flgs & TONE_MODANY)
 			{
 				if (flgs & TONE_LFOIN)
-					phs = lfoRad;
+					phs = lfoRad * tSig->lfoLvl;
 				else
 					phs = 0;
+				if (flgs & TONE_PBIN)
+					phs += pbRad * tSig->pbLvl;
 				out = outVal;
 				mask = TONE_MOD1IN;
 				for (tMod = gens; tMod < tEnd; tMod++)
@@ -357,13 +384,13 @@ void MatrixSynth::Tick()
 		}
 	}
 	if (fx1On)
-		im->FxSend(chnl, 0, fx1Out);
+		im->FxSend(0, fx1Out);
 	if (fx2On)
-		im->FxSend(chnl, 1, fx2Out);
+		im->FxSend(1, fx2Out);
 	if (fx3On)
-		im->FxSend(chnl, 2, fx3Out);
+		im->FxSend(2, fx3Out);
 	if (fx4On)
-		im->FxSend(chnl, 3, fx4Out);
+		im->FxSend(3, fx4Out);
 
 	if (panOn)
 		im->Output2(chnl, sigLft * vol, sigRgt * vol);
@@ -490,6 +517,10 @@ int MatrixSynth::Load(XmlSynthElem *parent)
 		{
 			lfoGen.Load(elem);
 		}
+		else if (elem->TagMatch("pb"))
+		{
+			pbGen.Load(elem);
+		}
 		next = elem->NextSibling();
 		delete elem;
 	}
@@ -529,6 +560,12 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	err |= lfoGen.Save(elem);
+	delete elem;
+
+	elem = parent->AddChild("pb");
+	if (elem == NULL)
+		return -1;
+	err |= pbGen.Save(elem);
 	delete elem;
 
 	return err;

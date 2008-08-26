@@ -40,6 +40,7 @@ SubSynth::SubSynth()
 	sigMix = 1.0;
 	nzMix = 0.0;
 	nzOn = 0;
+	pbOn = 0;
 }
 
 SubSynth::~SubSynth()
@@ -59,6 +60,8 @@ void SubSynth::Copy(SubSynth *tp)
 	filt.Copy(&tp->filt);
 	lfoGen.Copy(&tp->lfoGen);
 	nzOn = nzMix > 0;
+	pbOn = tp->pbOn;
+	pbGen.Copy(&tp->pbGen);
 }
 
 void SubSynth::Start(SeqEvent *evt)
@@ -68,6 +71,8 @@ void SubSynth::Start(SeqEvent *evt)
 	envSig.Reset(0);
 	filt.Reset(0);
 	lfoGen.Reset(0);
+	if (pbOn)
+		pbGen.Reset(0);
 }
 
 void SubSynth::Param(SeqEvent *evt)
@@ -82,6 +87,7 @@ void SubSynth::SetParams(SubSynthEvent *evt)
 {
 	vol = evt->vol;
 	osc.SetFrequency(evt->frq);
+	pbGen.SetFrequency(evt->frq);
 	chnl = evt->chnl;
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
@@ -163,6 +169,24 @@ void SubSynth::SetParams(SubSynthEvent *evt)
 		case 51: //LFO level
 			lfoGen.SetLevel(AmpValue(val));
 			break;
+		case 52: // PB On
+			pbOn = (int) val;
+			break;
+		case 53:
+			pbGen.SetRate(0, FrqValue(val));
+			break;
+		case 54:
+			pbGen.SetRate(1, FrqValue(val));
+			break;
+		case 55:
+			pbGen.SetAmount(0, FrqValue(val));
+			break;
+		case 56:
+			pbGen.SetAmount(1, FrqValue(val));
+			break;
+		case 57:
+			pbGen.SetAmount(2, FrqValue(val));
+			break;
 		}
 	}
 }
@@ -178,6 +202,8 @@ void SubSynth::Tick()
 {
 	if (lfoGen.On())
 		osc.PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
+	if (pbOn)
+		osc.PhaseModWT(pbGen.Gen() * synthParams.frqTI);
 	AmpValue sigVal = osc.Gen();
 	if (nzOn)
 		sigVal = (sigVal * sigMix) + (nz.Gen() * nzMix);
@@ -256,6 +282,12 @@ int SubSynth::Load(XmlSynthElem *parent)
 		{
 			lfoGen.Load(elem);
 		}
+		else if (elem->TagMatch("pb"))
+		{
+			if (elem->GetAttribute("on", ival) == 0)
+				pbOn = (int) ival;
+			pbGen.Load(elem);
+		}
 		next = elem->NextSibling();
 		delete elem;
 	}
@@ -305,6 +337,12 @@ int SubSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	lfoGen.Save(parent);
+
+	elem = parent->AddChild("pb");
+	if (elem == NULL)
+		return -1;
+	elem->SetAttribute("on", (short) pbOn);
+	pbGen.Save(parent);
 
 	return 0;
 }

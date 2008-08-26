@@ -39,6 +39,12 @@ SeqEvent *ToneInstr::ToneEventFactory(Opaque tmplt)
 		te->relRate = ip->env.GetRelRt();
 		te->endLevel = ip->env.GetRelLvl();
 		ip->lfoGen.GetSettings(te->lfoFreq, te->lfoWaveTable, te->lfoAtkRate, te->lfoAmp);
+		te->pbOn = ip->pbOn;
+		te->pbR1 = ip->pbGen.GetRate(0);
+		te->pbR2 = ip->pbGen.GetRate(1);
+		te->pbA1 = ip->pbGen.GetAmount(0);
+		te->pbA2 = ip->pbGen.GetAmount(1);
+		te->pbA3 = ip->pbGen.GetAmount(2);
 	}
 	else
 	{
@@ -57,6 +63,12 @@ SeqEvent *ToneInstr::ToneEventFactory(Opaque tmplt)
 		te->lfoWaveTable = WT_SIN;
 		te->lfoAtkRate = 0.0;
 		te->lfoAmp = 0.0;
+		te->pbOn = 0;
+		te->pbR1 = 0;
+		te->pbR2 = 0;
+		te->pbA1 = 0;
+		te->pbA2 = 0;
+		te->pbA3 = 0;
 	}
 	return (SeqEvent*) te;
 }
@@ -66,6 +78,8 @@ ToneInstr::ToneInstr()
 	chnl = 0;
 	vol = 1.0;
 	im = NULL;
+	pbOn = 0;
+	lfoOn = 0;
 }
 
 ToneInstr::~ToneInstr()
@@ -78,7 +92,10 @@ void ToneInstr::Copy(ToneInstr *tp)
 	env.Copy(&tp->env);
 	osc.SetFrequency(tp->osc.GetFrequency());
 	osc.SetWavetable(tp->osc.GetWavetable());
+	lfoOn = tp->lfoOn;
 	lfoGen.Copy(&tp->lfoGen);
+	pbOn = tp->pbOn;
+	pbGen.Copy(&tp->pbGen);
 }
 
 void ToneInstr::Start(SeqEvent *evt)
@@ -86,8 +103,10 @@ void ToneInstr::Start(SeqEvent *evt)
 	chnl = evt->chnl;
 	SetParam((ToneEvent*)evt);
 	osc.Reset(0);
-	env.Reset(0);
-	lfoGen.Reset(0);
+	if (lfoOn)
+		lfoGen.Reset(0);
+	if (pbOn)
+		pbGen.Reset(0);
 }
 
 void ToneInstr::Param(SeqEvent *evt)
@@ -95,7 +114,10 @@ void ToneInstr::Param(SeqEvent *evt)
 	SetParam((ToneEvent*)evt);
 	osc.Reset(0);
 	env.Reset(0);
-	lfoGen.Reset(0);
+	if (lfoOn)
+		lfoGen.Reset(0);
+	if (pbOn)
+		pbGen.Reset(0);
 }
 
 void ToneInstr::SetParam(ToneEvent *te)
@@ -106,10 +128,23 @@ void ToneInstr::SetParam(ToneEvent *te)
 		         te->susLevel, te->relRate, te->endLevel, te->envType);
 	osc.SetFrequency(te->frq);
 	osc.SetWavetable(te->waveTable);
-	lfoGen.SetFrequency(te->lfoFreq);
-	lfoGen.SetWavetable(te->lfoWaveTable);
-	lfoGen.SetAttack(te->lfoAtkRate);
-	lfoGen.SetLevel(te->lfoAmp);
+	if (te->lfoAmp > 0)
+	{
+		lfoGen.SetFrequency(te->lfoFreq);
+		lfoGen.SetWavetable(te->lfoWaveTable);
+		lfoGen.SetAttack(te->lfoAtkRate);
+		lfoGen.SetLevel(te->lfoAmp);
+		lfoOn = lfoGen.On();
+	}
+	if ((pbOn = te->pbOn) != 0)
+	{
+		pbGen.SetFrequency(te->frq);
+		pbGen.SetAmount(0, te->pbA1);
+		pbGen.SetAmount(1, te->pbA2);
+		pbGen.SetAmount(2, te->pbA3);
+		pbGen.SetRate(0, te->pbR1);
+		pbGen.SetRate(1, te->pbR2);
+	}
 }
 
 void ToneInstr::Stop()
@@ -119,8 +154,10 @@ void ToneInstr::Stop()
 
 void ToneInstr::Tick()
 {
-	if (lfoGen.On())
+	if (lfoOn)
 		osc.PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
+	if (pbOn)
+		osc.PhaseModWT(pbGen.Gen() * synthParams.frqTI);
 	im->Output(chnl, vol * env.Gen() * osc.Gen());
 }
 
@@ -171,6 +208,13 @@ int ToneInstr::Load(XmlSynthElem *parent)
 		else if (elem->TagMatch("lfo"))
 		{
 			lfoGen.Load(elem);
+			lfoOn = lfoGen.On();
+		}
+		else if (elem->TagMatch("pb"))
+		{
+			if (elem->GetAttribute("on", ival) == 0)
+				pbOn = (int) ival;
+			pbGen.Load(elem);
 		}
 		next = elem->NextSibling();
 		delete elem;
@@ -207,6 +251,13 @@ int ToneInstr::Save(XmlSynthElem *parent)
 	lfoGen.Save(elem);
 	delete elem;
 
+	elem = parent->AddChild("pb");
+	if (elem == NULL)
+		return -1;
+	elem->SetAttribute("on", (short) pbOn);
+	pbGen.Save(elem);
+	delete elem;
+
 	return 0;
 }
 
@@ -236,6 +287,12 @@ SeqEvent *ToneFM::ToneFMEventFactory(Opaque tmplt)
 		te->relRate = ip->env.GetRelRt();
 		te->endLevel = ip->env.GetRelLvl();
 		ip->lfoGen.GetSettings(te->lfoFreq, te->lfoWaveTable, te->lfoAtkRate, te->lfoAmp);
+		te->pbOn = ip->pbOn;
+		te->pbR1 = ip->pbGen.GetRate(0);
+		te->pbR2 = ip->pbGen.GetRate(1);
+		te->pbA1 = ip->pbGen.GetAmount(0);
+		te->pbA2 = ip->pbGen.GetAmount(1);
+		te->pbA3 = ip->pbGen.GetAmount(2);
 	}
 	else
 	{
@@ -255,6 +312,12 @@ SeqEvent *ToneFM::ToneFMEventFactory(Opaque tmplt)
 		te->lfoWaveTable = WT_SIN;
 		te->lfoAtkRate = 0.0;
 		te->lfoAmp = 0.0;
+		te->pbOn = 0;
+		te->pbR1 = 0;
+		te->pbR2 = 0;
+		te->pbA1 = 0;
+		te->pbA2 = 0;
+		te->pbA3 = 0;
 	}
 	return (SeqEvent*) te;
 }
@@ -264,6 +327,8 @@ ToneFM::ToneFM()
 	chnl = 0;
 	vol = 1.0;
 	im = NULL;
+	pbOn = 0;
+	lfoOn = 0;
 }
 
 ToneFM::~ToneFM()
@@ -277,7 +342,10 @@ void ToneFM::Copy(ToneFM *tp)
 	osc.SetFrequency(tp->osc.GetFrequency());
 	osc.SetModIndex(tp->osc.GetModIndex());
 	osc.SetModMultiple(tp->osc.GetModMultiple());
+	tp->lfoOn = lfoOn;
 	lfoGen.Copy(&tp->lfoGen);
+	tp->pbOn = pbOn;
+	pbGen.Copy(&tp->pbGen);
 }
 
 void ToneFM::Start(SeqEvent *evt)
@@ -286,7 +354,10 @@ void ToneFM::Start(SeqEvent *evt)
 	SetParam((ToneFMEvent*)evt);
 	osc.Reset(0);
 	env.Reset(0);
-	lfoGen.Reset(0);
+	if (lfoOn)
+		lfoGen.Reset(0);
+	if (pbOn)
+		pbGen.Reset(0);
 }
 
 void ToneFM::Param(SeqEvent *evt)
@@ -294,7 +365,10 @@ void ToneFM::Param(SeqEvent *evt)
 	SetParam((ToneFMEvent*)evt);
 	osc.Reset(0);
 	env.Reset(0);
-	lfoGen.Reset(0);
+	if (lfoOn)
+		lfoGen.Reset(0);
+	if (pbOn)
+		pbGen.Reset(0);
 }
 
 void ToneFM::SetParam(ToneFMEvent *te)
@@ -311,6 +385,16 @@ void ToneFM::SetParam(ToneFMEvent *te)
 	lfoGen.SetWavetable(te->lfoWaveTable);
 	lfoGen.SetAttack(te->lfoAtkRate);
 	lfoGen.SetLevel(te->lfoAmp);
+	lfoOn = lfoGen.On();
+	if ((pbOn = te->pbOn) != 0)
+	{
+		pbGen.SetFrequency(te->frq);
+		pbGen.SetRate(0, te->pbR1);
+		pbGen.SetRate(1, te->pbR2);
+		pbGen.SetAmount(0, te->pbA1);
+		pbGen.SetAmount(1, te->pbA2);
+		pbGen.SetAmount(2, te->pbA3);
+	}
 }
 
 void ToneFM::Stop()
@@ -320,8 +404,10 @@ void ToneFM::Stop()
 
 void ToneFM::Tick()
 {
-	if (lfoGen.On())
+	if (lfoOn)
 		osc.PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
+	if (pbOn)
+		osc.PhaseModWT(pbGen.Gen() * synthParams.frqTI);
 	im->Output(chnl, vol * env.Gen() * osc.Gen());
 }
 
@@ -374,6 +460,12 @@ int ToneFM::Load(XmlSynthElem *parent)
 		{
 			lfoGen.Load(elem);
 		}
+		else if (elem->TagMatch("pb"))
+		{
+			if (elem->GetAttribute("on", ival) == 0)
+				pbOn = (int) ival;
+			pbGen.Load(elem);
+		}
 		next = elem->NextSibling();
 		delete elem;
 	}
@@ -408,6 +500,13 @@ int ToneFM::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	lfoGen.Save(elem);
+	delete elem;
+
+	elem = parent->AddChild("pb");
+	if (elem == NULL)
+		return -1;
+	elem->SetAttribute("on", (short) pbOn);
+	pbGen.Save(elem);
 	delete elem;
 
 	return 0;

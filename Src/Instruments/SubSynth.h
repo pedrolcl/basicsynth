@@ -7,11 +7,12 @@
 #define _SUBSYNTHINSTR_H_
 
 #include "LFO.h"
+#include "PitchBend.h"
 
 class SubSynthEvent : public VarParamEvent
 {
 public:
-	bsInt16 MaxParam() { return NoteEvent::MaxParam() + 22; }
+	bsInt16 MaxParam() { return 57; }
 };
 
 class SubSynth  : public Instrument
@@ -25,6 +26,7 @@ private:
 	//EnvGenADSR   envFlt;
 	DynFilterLP filt;
 	LFO lfoGen;
+	PitchBend pbGen;
 	AmpValue vol;
 	AmpValue sigMix;
 	AmpValue nzMix;
@@ -32,6 +34,7 @@ private:
 	float fltRes;
 	int chnl;
 	int nzOn;
+	int pbOn;
 	InstrManager *im;
 
 	void SetParams(SubSynthEvent *evt);

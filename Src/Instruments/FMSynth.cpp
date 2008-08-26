@@ -55,6 +55,7 @@ FMSynth::FMSynth()
 	dlyDec = 0.1;
 	dlySamps = 0;
 	panOn  = 0;
+	pbOn = 0;
 	panSet = 0.0;
 	panLft = 0.5;
 	panRgt = 0.5;
@@ -100,6 +101,7 @@ void FMSynth::Copy(FMSynth *ip)
 	dlyOn = ip->dlyOn;
 	
 	lfoGen.Copy(&ip->lfoGen);
+	pbGen.Copy(&ip->pbGen);
 
 	chnl = ip->chnl;
 	frq = ip->frq;
@@ -159,6 +161,11 @@ void FMSynth::Start(SeqEvent *evt)
 	if (dlyOn)
 		apd.InitDLR(dlyTim, dlyDec, 0.001);
 	lfoGen.Reset();
+	if (pbOn)
+	{
+		pbGen.SetFrequency(frq);
+		pbGen.Reset();
+	}
 }
 
 void FMSynth::Param(SeqEvent *evt)
@@ -366,6 +373,25 @@ void FMSynth::SetParams(VarParamEvent *evt)
 		case 93: //amp
 			lfoGen.SetLevel(AmpValue(val));
 			break;
+		// pitchbend
+		case 100:
+			pbOn = (int) val;
+			break;
+		case 101:
+			pbGen.SetRate(0, FrqValue(val));
+			break;
+		case 102:
+			pbGen.SetRate(1, FrqValue(val));
+			break;
+		case 103:
+			pbGen.SetAmount(0, FrqValue(val));
+			break;
+		case 104:
+			pbGen.SetAmount(1, FrqValue(val));
+			break;
+		case 105:
+			pbGen.SetAmount(2, FrqValue(val));
+			break;
 		default:
 			break;
 		}
@@ -409,6 +435,8 @@ void FMSynth::Tick()
 	if (lfoOn)
 	{
 		lfoOut = lfoGen.Gen() * synthParams.frqTI;
+		if (pbOn)
+			lfoOut += pbGen.Gen() * synthParams.frqTI;
 		gen3Mod = lfoOut * gen3Mult;
 		gen2Mod = lfoOut * gen2Mult;
 		gen1Mod = lfoOut * gen1Mult;
@@ -555,6 +583,12 @@ int FMSynth::Load(XmlSynthElem *parent)
 		{
 			lfoGen.Load(elem);
 		}
+		else if (elem->TagMatch("pb"))
+		{
+			if (elem->GetAttribute("on", ival) == 0)
+				pbOn = (int) ival;
+			pbGen.Load(elem);
+		}
 		next = elem->NextSibling();
 		delete elem;
 	}
@@ -629,6 +663,13 @@ int FMSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	lfoGen.Save(elem);
+	delete elem;
+
+	elem = parent->AddChild("pb");
+	if (elem == NULL)
+		return -1;
+	elem->SetAttribute("on", (short) pbOn);
+	pbGen.Save(elem);
 	delete elem;
 
 	return 0;
