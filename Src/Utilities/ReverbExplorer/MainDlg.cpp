@@ -154,10 +154,10 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	InitValue(rvbT3Del, rvbT3DelEd, 0, 2000, 200,  371, 0.0371);
 	InitValue(rvbT2Del, rvbT2DelEd, 0, 2000, 200,  411, 0.0411);
 	InitValue(rvbT1Del, rvbT1DelEd, 0, 2000, 200,  437, 0.0437);
-	InitValue(rvbA1Del, rvbA1DelEd, 0, 2000, 200,   50, 0.0050);
-	InitValue(rvbA1Rvt, rvbA1RvtEd, 0, 2000, 200,  968, 0.0968);
-	InitValue(rvbA2Del, rvbA2DelEd, 0, 2000, 200,   17, 0.0017);
-	InitValue(rvbA2Rvt, rvbA2RvtEd, 0, 2000, 200,  329, 0.0329);
+	InitValue(rvbA1Del, rvbA1DelEd, 0, 2000, 200,  968, 0.0968);
+	InitValue(rvbA1Rvt, rvbA1RvtEd, 0, 2000, 200,   50, 0.0050);
+	InitValue(rvbA2Del, rvbA2DelEd, 0, 2000, 200,  329, 0.0329);
+	InitValue(rvbA2Rvt, rvbA2RvtEd, 0, 2000, 200,   17, 0.0017);
 	InitValue(rvbRegen, rvbRegenEd, 0, 4000, 400, 1000, 1.0);
 	InitValue(rvbMix,   rvbMixEd,   0,  100,  10,   90, 0.1);
 
