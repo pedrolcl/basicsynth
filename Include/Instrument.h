@@ -296,9 +296,11 @@ public:
 		wvf->Output2(outLft, outRgt);
 	}
 
-	// Placeholder for output to effects units - to be done later
-	virtual void FxSend(int ch, int unit, AmpValue val)
+	// Direct output to effects units - this bypasses the
+	// normal input channel volume, pan, and fx send values
+	virtual void FxSend(int unit, AmpValue val)
 	{
+		mix->FxIn(unit, val);
 	}
 
 	// Outputa sample on the indicated channel

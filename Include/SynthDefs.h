@@ -80,7 +80,7 @@ public:
 			//printf("%d = %f\n", i, tuning[i]);
 		}
 
-		// lookup tables for panning with max amplitude of 0.707...
+		// lookup tables for non-linear panning
 		sqNdx = PANTBLLEN-1;
 		double scl = sqrt(2.0) / 2.0;
 		double phs = 0;

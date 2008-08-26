@@ -78,8 +78,16 @@ public:
 		dlr[1].InitDLR(0.0411, rt, 0.001);
 		dlr[2].InitDLR(0.0371, rt, 0.001);
 		dlr[3].InitDLR(0.0297, rt, 0.001);
-		ap[0].InitDLR(0.0050, 0.09683, 0.001);
-		ap[1].InitDLR(0.0017, 0.03292, 0.001);
+		ap[0].InitDLR(0.09683, 0.0050, 0.001);
+		ap[1].InitDLR(0.03292, 0.0017, 0.001);
+	}
+
+	void InitDelay(int n, FrqValue lt, FrqValue rt)
+	{
+		if (n >= 0 && n < 4)
+			dlr[n].InitDLR(lt, rt, 0.001);
+		else if (n >= 4 && n < 6)
+			ap[n-4].InitDLR(lt, rt, 0.001);
 	}
 
 	AmpValue Sample(AmpValue vin)
