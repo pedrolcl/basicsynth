@@ -23,6 +23,14 @@
   <instr id="14" type="ToneFM" name="FMFixed" desc="">
     <osc frq="440.0" mnx="2.0" mul="3.0" vol="1.0" />
     <env st="0" atk="0.1" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
+    <lfo frq="3.5" wt="1" dly="0.05" rt="0.01" amp="0" />
+    <pb on="0" r1="0" r2="0" a1="0" a2="0" a3="0" />
+  </instr>
+  <instr id="15" type="Tone" name="PulseBend" desc="">
+    <osc frq="440.0" wt="4" />
+    <env st="0" atk="0.1" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
+    <lfo frq="3.5" wt="1" dly="0.1" rt="0.1" amp="0" />
+    <pb on="1" r1="0.1" r2="0.15" a1="1" a2="0" a3="-0.2" />
   </instr>
   <instr id="4" type="AddSynth" parts="3" >
   <part pn="0"  mul="1">

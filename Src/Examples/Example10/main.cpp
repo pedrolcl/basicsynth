@@ -24,6 +24,7 @@ float startTime = 0;
 InstrManager inMgr;
 Sequencer seq;
 Mixer mix;
+Reverb2 rvrb;
 WaveFile wvf;
 
 
@@ -68,6 +69,11 @@ int main(int argc, char *argv[])
 	mix.ChannelOn(1, 1);
 	mix.ChannelVolume(0, 1.0);
 	mix.ChannelVolume(1, 1.0);
+	mix.SetFxChannels(1);
+	mix.FxInit(0, &rvrb, 0.1);
+	mix.FxLevel(0, 0, 0.2);
+	mix.FxLevel(0, 1, 0.2);
+	rvrb.InitReverb(1.0, 2.0);
 
 	inMgr.Init(&mix, &wvf);
 
@@ -116,6 +122,17 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	seq.Sequence(inMgr);
+
+	// drain the reverb...
+	AmpValue lv;
+	AmpValue rv;
+	long n = synthParams.isampleRate;
+	while (n-- > 0)
+	{
+		mix.Out(&lv, &rv);
+		wvf.Output2(lv, rv);
+	}
+
 	wvf.CloseWaveFile();
 
 	return 0;
