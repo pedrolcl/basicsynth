@@ -266,17 +266,17 @@ int main(int argc, char *argv[])
 	else
 	{
 		//               i ch start dur  pit wt amp  atk  rel [mul mi]
-		infile.ParseMem("1 0  0.00  0.25 60  2  1.00 0.08 0.1");
-		infile.ParseMem("1 0  0.25  0.25 62  2  1.00 0.07 0.1");
-		infile.ParseMem("1 0  0.50  0.25 64  2  1.00 0.06 0.1");
-		infile.ParseMem("1 0  0.75  0.25 65  2  1.00 0.05 0.1");
-		infile.ParseMem("1 0  1.00  1.00 67  2  1.00 0.04 0.1");
-		infile.ParseMem("1 0  2.00  1.00 60  2  1.00 0.10 0.1");
+		infile.ParseMem("1 0  0.00  0.25 48  2  1.00 0.08 0.1");
+		infile.ParseMem("1 0  0.25  0.25 50  2  1.00 0.07 0.1");
+		infile.ParseMem("1 0  0.50  0.25 52  2  1.00 0.06 0.1");
+		infile.ParseMem("1 0  0.75  0.25 53  2  1.00 0.05 0.1");
+		infile.ParseMem("1 0  1.00  1.00 55  2  1.00 0.04 0.1");
+		infile.ParseMem("1 0  2.00  1.00 48  2  1.00 0.10 0.1");
 		infile.ParseMem("=2 4 5 6 7 10"); // default rel and mul
-		infile.ParseMem("2 1  0.00  1.00 48  0  1.00 0.20 4");
-		infile.ParseMem("2 1  1.00  0.50 43  0  1.00 0.05 4.2");
-		infile.ParseMem("2 1  1.50  0.50 47  0  1.00 0.05 4.6");
-		infile.ParseMem("2 1  2.00  1.00 48  0  1.00 0.10 5");
+		infile.ParseMem("2 1  0.00  1.00 36  0  1.00 0.20 4");
+		infile.ParseMem("2 1  1.00  0.50 31  0  1.00 0.05 4.2");
+		infile.ParseMem("2 1  1.50  0.50 35  0  1.00 0.05 4.6");
+		infile.ParseMem("2 1  2.00  1.00 36  0  1.00 0.10 5");
 	}
 
 	seq.Sequence(im);

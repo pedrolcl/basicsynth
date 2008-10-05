@@ -1,118 +1,19 @@
-// Converter.cpp: implementation of the nlConverter class.
+//////////////////////////////////////////////////////////////////////
+// The converter class is the container for the interpreter. This is
+// the class that aggregates the lexer, parser, generator and other
+// relevant bits and pieces, and provides the interace to Notelist. 
+// Callers must provide a sequencer, instrument manager, and message
+// output class to the converter. After setup, call Convert and then
+// Generate. It is not wise to call Generate if Convert returns
+// a value > 0. The important stuff happens in MakeEvent.
 //
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
 #include <BasicSynth.h>
 #include "NLConvert.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-#ifdef NL_INCLUDE_JS
-
-JSBool nlPropertyGet(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
-{
-	nlConverter *cvtPtr = (nlConverter*) JS_GetPrivate(cx, obj);
-	if (cvtPtr != NULL)
-	{
-		if (JSVAL_IS_STRING(id))
-		{
-			char *prop = JS_GetStringBytes(JSVAL_TO_STRING(id));
-			if (strcmp(prop, "time") == 0)
-			{
-				// next note start time in seconds (floating point number)
-				cvtPtr->GetCurTime(vp);
-			}
-			else if (strcmp(prop, "pitch") == 0)
-			{
-				// current pitch index (integer 0 - 120)
-				cvtPtr->GetCurPitch(vp);
-			}
-			else if (strcmp(prop, "rhythm") == 0)
-			{
-				// current rhythm value (floating point number)
-				cvtPtr->GetCurRhythm(vp);
-			}
-			else if (strcmp(prop, "vol") == 0)
-			{
-				// current note volume level (integer 0 - 100)
-				cvtPtr->GetCurVol(vp);
-			}
-			else if (strcmp(prop, "params") == 0)
-			{
-				// params()	- array of parameter values (floating point numbers)
-				cvtPtr->GetCurParams(vp);
-			}
-		}
-	}
-
-	return JS_TRUE;
-}
-
-JSBool nlPropertySet(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
-{
-	nlConverter *cvtPtr = (nlConverter*) JS_GetPrivate(cx, obj);
-	if (cvtPtr != NULL)
-	{
-		if (JSVAL_IS_STRING(id))
-		{
-			char *prop = JS_GetStringBytes(JSVAL_TO_STRING(id));
-			if (strcmp(prop, "time") == 0)
-			{
-				// next note start time in seconds (floating point number)
-				cvtPtr->SetCurTime(vp);
-			}
-			else if (strcmp(prop, "pitch") == 0)
-			{
-				// current pitch index (integer 0 - 120)
-				cvtPtr->SetCurPitch(vp);
-			}
-			else if (strcmp(prop, "rhythm") == 0)
-			{
-				// current rhythm value (floating point number)
-				cvtPtr->SetCurRhythm(vp);
-			}
-			else if (strcmp(prop, "vol") == 0)
-			{
-				// current note volume level (integer 0 - 100)
-				cvtPtr->SetCurVol(vp);
-			}
-			else if (strcmp(prop, "params") == 0)
-			{
-				// params(16)	- array of parameter values (floating point numbers)
-			}
-		}
-	}
-
-	return JS_TRUE;
-}
-
-JSClass nljsClass =
-{
-	"Notelist",                // name;
-	JSCLASS_HAS_PRIVATE,       // flags
-	JS_PropertyStub,           // JSPropertyOp addProperty;
-	JS_PropertyStub,           // JSPropertyOp delProperty;
-	nlPropertyGet,             // JSPropertyOp getProperty;
-	nlPropertySet,             // JSPropertyOp setProperty;
-	JS_EnumerateStub,          // JSEnumerateOp enumerate;
-	JS_ResolveStub,            // JSResolveOp resolve;
-	JS_ConvertStub,            // JSConvertOp convert;
-	JS_FinalizeStub,           // JSFinalizeOp finalize;
-    /* Optionally non-null members start here. */
-	NULL,                      // JSGetObjectOps getObjectOps;
-	NULL,                      // JSCheckAccessOp checkAccess;
-	NULL,                      // JSNative call;
-	NULL,                      // JSNative construct;
-	NULL,                      // JSXDRObjectOp xdrObject;
-	NULL,                      // JSHasInstanceOp hasInstance;
-	NULL,                      // JSMarkOp mark;
-	NULL                       // JSReserveSlotsOp reserveSlots;
-};
-#endif
 
 nlConverter::nlConverter()
 {
@@ -124,39 +25,28 @@ nlConverter::nlConverter()
 	ownLexIn = 0;
 	mgr = NULL;
 	seq = NULL;
+	eng = NULL;
 	evtCount = 0;
 	sampleRate = 44100.0;
 	mapList = 0;
 	curMap = 0;
+	symbList = NULL;
 }
 
 nlConverter::~nlConverter()
 {
 	if (ownLexIn)
 		delete lexin;
-
-#ifdef NL_INCLUDE_JS
-	if (jsCTX)
-		JS_DestroyContext(jsCTX);
-
-	if (jsRT)
-		JS_DestroyRuntime(jsRT);
-#endif
+	nlSymbol *sym;
+	while ((sym = symbList) != NULL)
+	{
+		symbList = sym->next;
+		delete sym;
+	}
 }
 
 int nlConverter::Convert(const char *filename, nlLexIn *in)
 {
-#ifdef NL_INCLUDE_JS
-	// We might delay this until we encounter a script statement...
-	jsRT = JS_NewRuntime(4L * 1024L * 1024L);
-
-	jsCTX = JS_NewContext(jsRT, 8192);
-	
-	jsNotelist = JS_NewObject(jsCTX, &nljsClass, NULL, NULL);
-	JS_SetPrivate(jsCTX, jsNotelist, (void*)this);
-	JS_InitStandardClasses(jsCTX, jsNotelist);
-#endif
-
 	nlLex lexer;
 	if (in == NULL)
 	{
@@ -271,10 +161,7 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 	evt->SetParam(P_CHNL, (long) curVoice->chnl);
 	evt->SetParam(P_START, (float) start);
 	evt->SetParam(P_DUR, (float) dur);
-	if (pit <= 120)
-		evt->SetParam(P_PITCH, (long) pit + 12); // BasicSynth makes Middle C at 60, Notelist is at 48
-	else
-		evt->SetParam(P_FREQ, (long) pit);
+	evt->SetParam(P_PITCH, (long) pit);
 	evt->SetParam(P_VOLUME, (float) (amp / 100.0));
 
 	double val;
@@ -352,14 +239,32 @@ void nlConverter::SetParamMap(int inum, int pn, int mn, double scl)
 	mp->AddEntry(pn, mn, (float) scl);
 }
 
+nlSymbol *nlConverter::Lookup(char *name)
+{
+	nlSymbol *sym = symbList;
+	while (sym != NULL)
+	{
+		if (CompareToken(sym->name, name) == 0)
+			return sym;
+		sym = sym->next;
+	}
+	return NULL;
+}
+
+nlSymbol *nlConverter::AddSymbol(char *name)
+{
+	nlSymbol *sym = new nlSymbol(name);
+	sym->next = symbList;
+	symbList = sym;
+	return sym;
+}
+
 void nlConverter::Write(char *txt)
 {
 	// Output some information for the user and/or to an output file as appropriate
 	if (eout)
 		eout->OutputMessage(txt);
 }
-
-
 // it appears that strcmpi, strdup, itoa are "deprecated" (pffffttt...)
 
 int CompareToken(const char *s1, const char *s2)

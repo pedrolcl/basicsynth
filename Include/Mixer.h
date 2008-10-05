@@ -2,9 +2,11 @@
 //
 // BasicSynth - Mixer
 //
-// Mixer and Mixer channel with panning
+// The Mixer and associated classes implement a multi-channel
+// mixer with panning and effects send/recieve. The number of
+// input channels and effects processors is settable at run-time.
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _MIXER_H_
 #define _MIXER_H_
@@ -14,6 +16,12 @@
 #define panTrig 2
 #define panSqr 3
 
+///////////////////////////////////////////////////////////////
+// The Panner class calculates the left and right multipliers
+// based on pan method and pan value (-1,+1). Lookup tables are
+// used for non-linear panning methods so that dynamic panning
+// is efficient.
+///////////////////////////////////////////////////////////////
 class Panner
 {
 public:
@@ -26,7 +34,7 @@ public:
 		panrgt = 0.5;
 	}
 
-	void Set(int pm, AmpValue p)
+	void Set(int pm, AmpValue pv)
 	{
 		if (pm == panOff)
 		{
@@ -34,11 +42,11 @@ public:
 			panrgt = 0.5;
 			return;
 		}
-		panlft = (1 - p) / 2;
-		panrgt = (1 + p) / 2;
+		panlft = (1 - pv) / 2;
+		panrgt = (1 + pv) / 2;
 		// optional: range 0-1
-		// panlft = 1 - p;
-		// panrgt = p;
+		// panlft = 1 - pv;
+		// panrgt = pv;
 
 		if (pm == panTrig)
 		{
@@ -57,6 +65,22 @@ public:
 	}
 };
 
+///////////////////////////////////////////////////////////////
+// FxChannel represents one effects channel. The effects 
+// processor is typically reverb, flanger, chorus, etc., but
+// can in theory be any unit generator. For example, if the
+// fx member is set to a LFO, this would apply tremolo to all
+// inputs.
+// This class includes an array of "send" values representing
+// the amount of each input channel that is passed through the
+// effects processor. This allows multiple inputs to share the
+// same reverb (for example) but with a different level applied
+// to each channel.
+// The FxChannel also has a built-in panner so that it can be
+// directed to each output channel independently. I.E. we can
+// have one amount of reverb in the left output, and a different
+// amount in the right output.
+///////////////////////////////////////////////////////////////
 class FxChannel
 {
 public:
@@ -162,6 +186,14 @@ public:
 	}
 };
 
+///////////////////////////////////////////////////////////////
+// Mixer input channel class. This accumulates values for one
+// input and applies panning to the value. In addition, a mono
+// value is accumulated so that it can be passed through to
+// additional FX processors. The In2 method bypasses the mixer
+// panning and FX so that instruments can implement dynamic panning
+// reverb, etc, on a note-by-note basis.
+///////////////////////////////////////////////////////////////
 class MixChannel 
 {
 private:
@@ -255,7 +287,21 @@ public:
 	}
 };
 
-
+///////////////////////////////////////////////////////////////
+// The Mixer class combines multiple input channels into a
+// two channel output, applying panning and FX. The number of
+// input channels and number of Fx units can be set dynamically
+// but typically are set once at program initialization.
+// Master left/right values are applied to the sum of all input
+// channels.
+// The ChannelIn and Out methods are the main interface to the
+// mixer. Each signal generator should pass its output to the
+// appropriate input channel. When all generators have been
+// invoked for the current sample, the Out method is called to
+// get the final output samples. The Out method combines inputs
+// and applies Fx units, before applying the final master output
+// amp value. 
+///////////////////////////////////////////////////////////////
 class Mixer
 {
 private:

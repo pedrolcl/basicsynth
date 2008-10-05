@@ -1,7 +1,18 @@
 //////////////////////////////////////////////////////////////////
-// BasicSynth
+// BasicSynth Library
 //
-// Sequencer class
+// Sequencer class. The sequencer processes a list of time-ordered
+// events, allocating and invoking "instruments" as needed. The
+// implementation of instruments, signal generators, and sample
+// output is opaque to the sequencer. Consequently, the same
+// sequencer algorithm can be used for a variety of synthesizers.
+//
+// A real-time playback system can be modeled on this sequencer
+// as well. In that case, events would be recived dynamically
+// instead of stored in a time-ordered list, and the sequencer
+// would run continuously, processing events as they are received.
+// Sample rate synchronization would be controlled in the instrument
+// manager and/or output buffer objects.
 //
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////

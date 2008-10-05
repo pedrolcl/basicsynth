@@ -1,29 +1,10 @@
 
 ///////////////////////////////////////////////////////////
-// Sequence file parser 
+// BasicSynth - Sequence file parser 
 //
-// Each line in the file has the form:
-//   [+|-|&]inum start duration [parameters]
+// See SequenceFile.cpp for explanation
 //
-// The inum field is used to locate the event factory for the
-// instrument. Parameters are then passed to the event for
-// storage. The start and duration fields are defined by
-// the base class and must be present. All other parameters
-// are optional and defined by the instrument.
-//
-// The events do not need to be sorted by start time if
-// the caller invokes Sequencer::Sort() after the file
-// is loaded. If the caller knows the file is sorted, the
-// call to Sort can be skipped.
-//
-// Events can be read from a file, but can also be passed
-// directly to the ParseMem function as a character string.
-// This allows on-the-fly generation of a sequence for 
-// algorithmic composition, interactive music programs,
-// parsing directly from an editor buffer, etc.
-//
-// TODO: query the instrument for the number of parameters
-// so that we can report errors of too-few and too-many values.
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
 
 #ifndef _SEQUENCEFILE_H_

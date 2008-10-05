@@ -3,7 +3,7 @@
 //
 // Delay Lines III - Flanger/Chorus
 //
-// use: Example07b
+// use: Example07b [duration [pitch]]
 //
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,8 @@
 
 #include "SynthDefs.h"
 #include "WaveFile.h"
+#include "GenNoise.h"
+#include "GenWaveWT.h"
 #include "GenWaveX.h"
 #include "EnvGen.h"
 #include "Mixer.h"
@@ -36,10 +38,16 @@ int main(int argc, char *argv[])
 	InitSynthesizer();
 
 	long n;
-
-	FrqValue frequency = synthParams.GetFrequency(48);
+	int pitch = 48;
 	FrqValue duration = 2.75;
 	AmpValue value1, value2;
+
+	if (argc > 1)
+		duration = atof(argv[1]);
+	if (argc > 2)
+		pitch = atoi(argv[2]);
+
+	FrqValue frequency = synthParams.GetFrequency(pitch);
 
 	if (wvf.OpenWaveFile("example07b.wav", 2))
 	{

@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth instrument library load functions
+//
+// Copyright 2008, Daniel R. Mitchell
+//////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "LoadInstrLib.h"
@@ -23,17 +28,21 @@ int LoadInstrLib(InstrManager& mgr, const char *fname)
 
 int LoadInstrLib(InstrManager& mgr, XmlSynthElem *root)
 {
+	int err = 0;
 	XmlSynthElem *instr = root->FirstChild();
 	XmlSynthElem *next;
 	while (instr != NULL)
 	{
 		if (instr->TagMatch("instr"))
-			LoadInstr(mgr, instr);
+		{
+			if (LoadInstr(mgr, instr) == 0)
+				err++;
+		}
 		next = instr->NextSibling();
 		delete instr;
 		instr = next;
 	}
-	return 0;
+	return err;
 }
 
 InstrMapEntry *LoadInstr(InstrManager& mgr, XmlSynthElem *instr)

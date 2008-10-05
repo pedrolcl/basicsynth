@@ -4,9 +4,9 @@
 //
 // Global synthesizer definitions
 //
-// SynthConfig global parameters, and base class for Generators
+// SynthConfig global parameters and base class for Unit Generators
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _SYNTHDEFS_H_
 #define _SYNTHDEFS_H_
@@ -69,9 +69,9 @@ public:
 		sampleScale = (AmpValue) ((1 << sampleBits) - 1);
 
 		int i;
-		// Equal tempered tuning system at A5=440 (Western standard)
-		// Middle C = C5 = index 60 (MIDI numbering)
-		double frq = 6.875 * pow(2.0, 0.25); // C0 = A(-1)*2^(3/12)
+		// Equal tempered tuning system at A4=440 (Western standard)
+		// Middle C = C4 = index 48
+		double frq = 13.75 * pow(2.0, 0.25); // C1 = A0*2^(3/12) = 16.35159...
 		double two12 = pow(2.0, 1.0/12.0); // 2^(1/12) = 1.059463094...
 		for (i = 0; i < 128; i++)
 		{
@@ -115,7 +115,7 @@ public:
 
 // this global must be defined somewhere in the main code
 // the simplest way is to #include "SynthGlobal.cpp" and then
-// call InitSynth
+// call InitSynthesizer
 extern SynthConfig synthParams;
 extern int InitSynthesizer(bsInt32 sampleRate = 44100, bsInt32 wtLen = 16384, bsInt32 wtUsr = 0);
 
@@ -133,7 +133,7 @@ public:
 	}
 };
 
-// base class for oscillators and envelopes
+// A unit generator - base class for oscillators, envelopes, filters, etc.
 class GenUnit
 {
 public:

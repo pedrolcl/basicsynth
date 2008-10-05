@@ -103,7 +103,7 @@ public:
 		mixVolLft = 1.0;
 		mixVolRgt = 1.0;
 		lead = 0.0;
-		tail = 1.0;
+		tail = 0.1;
 	}
 	~SynthProject()
 	{
@@ -146,6 +146,7 @@ public:
 		// 1) global info
 		// 2) load instruments 
 		// 3) score files
+		int gotSynth = 0;
 		XmlSynthElem *child = root->FirstChild();
 		XmlSynthElem *sib;
 		while (child != NULL)
@@ -185,10 +186,65 @@ public:
 			}
 			else if (child->TagMatch("synth"))
 			{
+				gotSynth = 1;
 				child->GetAttribute("sr", sampleRate);
 				child->GetAttribute("wt", wtSize);
 				child->GetAttribute("usr", wtUser);
 				InitSynthesizer((bsInt32)sampleRate, (bsInt32)wtSize, (bsInt32)wtUser);
+				long wvNdx;
+				long wvParts;
+				long gibbs;
+				bsInt32 *mult;
+				double *amps;
+				double *phs;
+				XmlSynthElem *wvnode = child->FirstChild();
+				while (wvnode)
+				{
+					if (wvnode->TagMatch("wvtable"))
+					{
+						if (wvnode->GetAttribute("ndx", wvNdx)
+						 && wvnode->GetAttribute("parts", wvParts) && wvParts > 0)
+						{
+							if (!wvnode->GetAttribute("gibbs", gibbs))
+								gibbs = 0;
+							mult = new bsInt32[wvParts];
+							amps = new double[wvParts];
+							phs = new double[wvParts];
+							bsUint32 ptndx;
+							for (ptndx = 0; ptndx < wvParts; ptndx++)
+							{
+								mult[ptndx] = 0;
+								amps[ptndx] = 0.0;
+								phs[ptndx] = 0.0;
+							}
+							ptndx = 0;
+							XmlSynthElem *ptnode = wvnode->FirstChild();
+							while (ptnode && ptndx < wvParts)
+							{
+								if (ptnode->TagMatch("part"))
+								{
+									long m;
+									ptnode->GetAttribute("mul", m);
+									mult[ptndx] = m;
+									ptnode->GetAttribute("amp", amps[ptndx]);
+									ptnode->GetAttribute("phs", phs[ptndx]);
+									ptndx++;
+								}
+								sib = ptnode->NextSibling();
+								delete ptnode;
+								ptnode = sib;
+							}
+
+							wtSet.SetWaveTable(wvNdx, ptndx, mult, amps, phs, gibbs);
+							delete mult;
+							delete amps;
+							delete phs;
+						}
+					}
+					sib = wvnode->NextSibling();
+					delete wvnode;
+					wvnode = sib;
+				}
 			}
 			else if (child->TagMatch("mixer"))
 			{
@@ -241,7 +297,7 @@ public:
 							{
 								if (fxElem->TagMatch("send"))
 								{
-									fxElem->GetAttribute("chnl", cn);
+									fxElem->GetAttribute("cn", cn);
 									fxElem->GetAttribute("amt", vol);
 									mix.FxLevel(fxu, cn, vol);
 								}
@@ -294,6 +350,13 @@ public:
 			delete child;
 			child = sib;
 		}
+		if (!gotSynth)
+		{
+			fprintf(stderr, "The project does not contain a <synth> tag.\n");
+			delete root;
+			doc.Close();
+			return -1;
+		}
 		if (name)
 			fprintf(stdout, "%s\n", name);
 		if (title)
@@ -308,7 +371,7 @@ public:
 		child = root->FirstChild();
 		while (child != NULL)
 		{
-			if (child->TagMatch("libFile"))
+			if (child->TagMatch("libfile"))
 			{
 				fname = 0;
 				child->GetContent(&fname);
@@ -331,7 +394,7 @@ public:
 					delete fname;
 				}
 			}
-			else if (child->TagMatch("instrLib"))
+			else if (child->TagMatch("instrlib"))
 			{
 				if (LoadInstrLib(mgr, child))
 				{
@@ -344,7 +407,6 @@ public:
 			child = sib;
 		}
 
-		//cvt.SetDebugLevel(2);
 		cvt.SetErrorCallback(&err);
 		cvt.SetInstrManager(&mgr);
 		cvt.SetSequencer(&seq);
@@ -355,6 +417,9 @@ public:
 		{
 			if (child->TagMatch("score"))
 			{
+				long dbg = 0;
+				child->GetAttribute("dbg", dbg);
+				cvt.SetDebugLevel((int)dbg);
 				fname = 0;
 				child->GetContent(&fname);
 				if (fname)
@@ -388,13 +453,13 @@ public:
 						{
 							bsString ebuf;
 							seqFileLoad.GetError(ebuf);
-							fprintf(stderr, "Error load sequence %s\n%s\n", (const char*)fullPath, (const char*)ebuf);
+							fprintf(stderr, "Error loading sequence %s\n%s\n", (const char*)fullPath, (const char*)ebuf);
 							errcnt++;
 						}
 					}
 					else
 					{
-						fprintf(stderr, "Cannot find seq file: %s\n", (const char *)fullPath);
+						fprintf(stderr, "Cannot find sequence file: %s\n", (const char *)fullPath);
 						errcnt++;
 					}
 					delete fname;
@@ -435,14 +500,14 @@ public:
 		{
 			fprintf(stdout, "Generate wavefile %s\n", outFile);
 			wvf.OpenWaveFile(outFile, 2);
-			pad = synthParams.isampleRate * lead;
-			while(pad-- > 0)
+			pad = (long) (synthParams.isampleRate * lead);
+			while (pad-- > 0)
 				wvf.Output2(0.0, 0.0);
 			lastOOR = 0;
 			seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
 			int n = seq.Sequence(mgr);
-			pad = synthParams.isampleRate * tail;
-			while(pad-- > 0)
+			pad = (long) (synthParams.isampleRate * tail);
+			while (pad-- > 0)
 			{
 				mix.Out(&lv, &rv);
 				wvf.Output2(lv, rv);
@@ -467,7 +532,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "use: BSynth project\n");
+		fprintf(stderr, "use: BSynth project.xml\n");
 	}
 	else
 	{

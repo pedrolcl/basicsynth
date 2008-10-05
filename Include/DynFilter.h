@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////
 // BasicSynth - DynFilter
 //
-// These are combination Filter/Envelope Generators that 
-// are optimized for classic subtractive synthesis where
+// This is a combination Filter/Envelope Generators that 
+// is optimized for classic subtractive synthesis where
 // the filter cutoff frequency is constantly varied with
 // an envelope generator. 
 // The tangent is calculated with a lookup from a sin wave table
@@ -11,7 +11,7 @@
 // no audible difference. Coefficents are only calculated when
 // the table index value changes, saving additional time.
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
 #ifndef _DYNFILTER_H_
 #define _DYNFILTER_H_
@@ -40,7 +40,7 @@ public:
 	AmpValue Sample(AmpValue in)
 	{
 		int tndx = (int) (env.Gen() + 0.5);
-		if (tndx <= 0 || tndx >= cosOffs)
+		if (tndx < 0 || tndx >= cosOffs)
 			return in; // filter off or out of range
 		if (tndx != lastNdx)
 		{

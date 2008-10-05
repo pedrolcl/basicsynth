@@ -222,7 +222,7 @@ public:
 		GMInstrParam *pp = &parmsGM[patch];
 		algorithm = pp->algorithm;
 		vol = (AmpValue) vel / 127.0;
-		frq = synthParams.GetFrequency((int)key);
+		frq = synthParams.GetFrequency((int)key-12);
 		carOsc.InitWT(frq, WT_SIN);
 		FrqValue mul1 = frq * pp->mod1Mult;
 		FrqValue mul2 = frq * pp->mod2Mult;
@@ -334,7 +334,7 @@ public:
 
 	virtual void NoteOn(short key, short vel)
 	{
-		frq = synthParams.GetFrequency((int)key);
+		frq = synthParams.GetFrequency((int)key-12);
 		osc.InitWT(frq, WT_SQR);
 		AmpValue amp = (AmpValue) vel / 127.0;
 		env.InitADSR(0.0, 0.01, amp, 1.0, amp * 0.1, 0.05, 0.0, linSeg);
@@ -404,7 +404,7 @@ public:
 	virtual void NoteOn(short key, short vel)
 	{
 		flt.InitRes(200.0, 0.5, 0.5);
-		osc.InitWT(synthParams.GetFrequency(key), WT_SIN);
+		osc.InitWT(synthParams.GetFrequency(key-12), WT_SIN);
 		eg.InitADSR(0, 0.001, (AmpValue) vel / 127.0, 0.1, 0, 0.01, expSeg);
 	}
 	void NoteOff(short key, short vel)

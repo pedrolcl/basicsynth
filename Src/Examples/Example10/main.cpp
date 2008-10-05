@@ -46,7 +46,7 @@ void AddEvent(bsInt16 inum, int pit, float dur)
 
 void AddSequence(bsInt16 inum, float dur)
 {
-	for (int pit = 60; pit <= 65; pit++)
+	for (int pit = 48; pit <= 53; pit++)
 		AddEvent(inum, pit, dur);
 	startTime += 0.1;
 }
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 		{
 			InstrMapEntry *ent = LoadInstr(inMgr, inst);
 			if (strcmp(ent->GetType(), "WFSynth") == 0)
-				AddEvent(ent->inum, 60, 1.0);
+				AddEvent(ent->inum, 48, 1.0);
 			else
 				AddSequence(ent->inum, 0.25);
 		}

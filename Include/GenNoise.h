@@ -1,8 +1,6 @@
 ///////////////////////////////////////////////////////////////
 //
-// BasicSynth - GenWaveWT
-//
-// Noise generators
+// BasicSynth Noise generators
 //
 // GenNoise - white noise generator
 // GenNoiseH - sampled white noise
@@ -10,7 +8,7 @@
 // GenPink1 - pink-ish noise generator using FIR comb filter
 // GenPink2 - pink-ish noise generator using IIR comb filter
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _GENNOISE_H_
 #define _GENNOISE_H_
@@ -19,7 +17,7 @@
 class GenNoise : public GenUnit
 {
 public:
-	virtual void Init(int n, float *f) { }
+	virtual void Init(int n, float *v) { }
 	virtual void Reset(float initPhs = 0) { }
 
 	virtual AmpValue Sample(AmpValue in)
@@ -50,10 +48,10 @@ public:
 		lastVal = 0;
 	}
 
-	virtual void Init(int n, float *f)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
-			InitH(*f);
+			InitH(*v);
 	}
 
 	void InitH(FrqValue f)
@@ -101,9 +99,10 @@ public:
 		incrVal = 0;
 	}
 
-	virtual void Init(int n, float *f)
+	virtual void Init(int n, float *v)
 	{
-		InitH(*f);
+		if (n > 0)
+			InitH(FrqValue(*v));
 	}
 
 	void InitH(FrqValue f)

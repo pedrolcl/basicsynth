@@ -10,7 +10,7 @@
 // GenWaveSqr32 - square wave generator, integers
 // GenWaveTri - triangle wave generator
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _GENWAVE_H_
 #define _GENWAVE_H_
@@ -32,11 +32,11 @@ public:
 	}
 
 	// Fo
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
-			SetFrequency((FrqValue)p[0]);
-		Reset();
+			SetFrequency(FrqValue(*v));
+		Reset(0);
 	}
 
 	virtual AmpValue Sample(AmpValue in)
@@ -226,13 +226,13 @@ public:
 	}
 
 	// Fo, Duty%
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
-			SetFrequency(p[0]);
+			SetFrequency(FrqValue(v[0]));
 			if (n > 1)
-				SetDutyCycle(p[1]);
+				SetDutyCycle(v[1]);
 		}
 		Reset();
 	}
@@ -306,13 +306,13 @@ public:
 	}
 
 	// Fo, Duty%
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
-			SetFrequency((FrqValue)p[0]);
+			SetFrequency(FrqValue(v[0]));
 			if (n > 1)
-				SetDutyCycle(p[1]);
+				SetDutyCycle(v[1]);
 		}
 		Reset();
 	}
@@ -381,11 +381,11 @@ public:
 		frq = f;
 	}
 
-	void Init(int n, float *f)
+	void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
-			SetFrequency(f[0]);
+			SetFrequency(FrqValue(v[0]));
 			Reset(0);
 		}
 	}

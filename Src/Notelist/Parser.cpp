@@ -1,5 +1,13 @@
-// Parser.cpp: implementation of the nlParser class.
+//////////////////////////////////////////////////////////////////////
+// Implementation of the nlParser class. This is a recursive descent
+// parser. It receives input tokes from an nlLex object and adds the
+// appropriate nodes to the generator object.
 //
+// Error recovery is primitive, usually we just scan to the next EOS.
+// Error messages are formatted inline to avoid dragging in the whole
+// of sprintf().
+//
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
 #include <ctype.h>
@@ -7,13 +15,11 @@
 #include <BasicSynth.h>
 #include "NLConvert.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
 static int skiptoend[] = { T_ENDSTMT, T_END, -1 };
 
-
+//////////////////////////////////////////////////////////////////////
+// Print a message about invalid token. (used for debuggin scripts)
+//////////////////////////////////////////////////////////////////////
 void nlParser::InvalidToken()
 {
 	if (cvtPtr->GetDebugLevel() > 0)
@@ -35,6 +41,7 @@ nlParser::nlParser()
 {
 	genPtr = NULL;
 	lexPtr = NULL;
+	cvtPtr = NULL;
 	errFatal = 0;
 	theToken = 0;
 	errCount = 0;
@@ -49,15 +56,13 @@ nlParser::~nlParser()
 	delete filename;
 }
 
-int nlParser::Parse()
-{
-	theToken = lexPtr->Next();
-	while (theToken != T_ENDOF && !errFatal)
-	{
-		Statement();
-	}
-	return errCount;
-}
+//////////////////////////////////////////////////////////////////////
+// Common syntax error printout. We send error messages out through
+// the Converter which should have an error reporting object set.
+// The skiplist argument indicates how much of the input we should
+// skip. This is an array of token IDs terminated with -1. See SkipTo
+// below.
+//////////////////////////////////////////////////////////////////////
 
 int nlParser::Error(char *s, int *skiplist)
 {
@@ -135,34 +140,70 @@ int nlParser::SkipBlock()
 	return 0;
 }
 
+int nlParser::Parse()
+{
+	if (lexPtr == NULL 
+	 || genPtr == NULL 
+	 || cvtPtr == NULL)
+	{
+		// you screwed up!
+		return -1;
+	}
+
+	Score();
+	genPtr->AddNode(T_ENDOF, 0L);
+	return errCount;
+}
+
+// score = statement*
+int nlParser::Score()
+{
+	theToken = lexPtr->Next();
+	while (theToken != T_ENDOF && !errFatal)
+		Statement();
+	return errCount;
+}
+
+// statement = include | system | script | write
+//           | version | tempo | middlec | initfn
+//           | maxparam | map | sequence | voice
+//           | var
 int nlParser::Statement()
 {
 	switch (theToken)
 	{
-	case T_VOICE:
-		return Voice();
-	case T_TEMPO:
-		return Tempo();
-	case T_WRITE:
-		return Write();
-	case T_SEQ:
-		return Sequence();
 	case T_INC:
 		return Include();
+	case T_SYSTEM:
+		return System();
+	case T_SCRIPT:
+		return Script();
+	case T_WRITE:
+		return Write();
+	case T_VER:
+		return Version();
+	case T_TEMPO:
+		return Tempo();
+	case T_MIDC:
+		return MiddleC();
 	case T_INIT:
 		return InitFn();
 	case T_MIX:
-		return MixBlock();
-	case T_MIDC:
-		return MiddleC();
+		return Mix();
 	case T_MAP:
 		return Map();
-	/*case T_ART:
-		return Artic();*/
-	case T_VER:
-		return Version();
 	case T_MAXPARAM:
 		return MaxParam();
+	case T_SET:
+		return Set();
+
+	case T_VOICE:
+		return Voice();
+	case T_SEQ:
+		return Sequence();
+
+	case T_DECLARE:
+		return Declare();
 	}
 	InvalidToken();
 	Error("Invalid Statement.", 0);
@@ -170,102 +211,169 @@ int nlParser::Statement()
 	return -1;
 }
 
+// include ::= 'include' strlit ';'
+int nlParser::Include()
+{
+	int err = 0;
+	nlLexIn *lexPtrSave = lexPtr->GetLexIn();
+	nlLexFileIn *innlLex;
+
+	char *fnameSave = filename;
+
+	theToken = lexPtr->Next();
+	if (theToken == T_STRLIT)
+	{
+		filename = StrMakeCopy(lexPtr->Tokbuf());
+		innlLex = new nlLexFileIn(filename);
+		if (innlLex == NULL || !innlLex->Open())
+			err = Error("Cannot open include file", 0);
+		else
+		{
+			lexPtr->SetLexIn(innlLex);
+			Score();
+			lexPtr->SetLexIn(lexPtrSave);
+		}
+		delete innlLex;
+		delete filename;
+		filename = fnameSave;
+
+		theToken = lexPtr->Next();
+	}
+	else
+		err = Error("Missing include file name", skiptoend);
+
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+
+	return err;
+}
+
+// system = 'system' strlit ';'
+int nlParser::System()
+{
+	int err = 0;
+	theToken = lexPtr->Next();
+	if (theToken == T_STRLIT)
+	{
+		if (system(lexPtr->Tokbuf()) == -1)
+			err = Error("Cannot exec", 0);
+		theToken = lexPtr->Next();
+	}
+	else
+		err = Error("Missing exec command", skiptoend);
+
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+
+	return err;
+}
+
+// script ::= 'script' strlit ';'
+int nlParser::Script()
+{
+	int err = 0;
+	theToken = lexPtr->Next();
+	if (theToken == T_STRLIT)
+	{
+		nlScriptEngine *eng = cvtPtr->GetScriptEngine();
+		if (eng != NULL)
+			err = eng->LoadScript(lexPtr->Tokbuf());
+		else
+			err = Error("No script engine was specified.", 0);
+		theToken = lexPtr->Next();
+	}
+	else
+		err = Error("Missing script name", skiptoend);
+
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+
+	return err;
+}
+
+// write = 'write' expr ';'
+int nlParser::Write()
+{
+	cvtPtr->DebugNotify(2, "Parse: WRITE");
+	genPtr->AddNode(new nlWriteNode);
+	return Param1("Write");
+}
+
+// declare = 'var' VAR (, VAR)* ';'
+int nlParser::Declare()
+{
+	int err = 0;
+	cvtPtr->DebugNotify(2, "Parse: VAR");
+	nlSymbol *symb;
+	theToken = lexPtr->Next();
+	while (theToken == T_VAR)
+	{
+		symb = cvtPtr->Lookup(lexPtr->Tokbuf());
+		if (symb != NULL)
+			err = Error("Symbol redefined", skiptoend);
+		else
+			symb = cvtPtr->AddSymbol(lexPtr->Tokbuf());
+		theToken = lexPtr->Next();
+		if (theToken == T_COMMA)
+			theToken = lexPtr->Next();
+	}
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return err;
+}
+
+// set = 'set' VAR '=' expr ';'
+int nlParser::Set()
+{
+	int err = 0;
+	cvtPtr->DebugNotify(2, "Parse: SET");
+	theToken = lexPtr->Next();
+	if (theToken == T_VAR)
+	{
+		nlSymbol *symb = cvtPtr->Lookup(lexPtr->Tokbuf());
+		if (symb != NULL)
+		{
+			nlSetNode *sp = new nlSetNode;
+			sp->SetSymbol(symb);
+			genPtr->AddNode(sp);
+			theToken = lexPtr->Next();
+			if (theToken == T_EQ)
+				theToken = lexPtr->Next();
+			err = Expr();
+		}
+		else
+			err = Error("Undefined variable", skiptoend);
+	}
+	else
+		err = Error("Expected variable name", skiptoend);
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return err;
+}
+
+// version = 'version' numstr ';'
+// numstr = number | strlit
 int nlParser::Version()
 {
+	int err = 0;
 	theToken = lexPtr->Next();
 	if (theToken == T_NUM || theToken == T_STRLIT)
 	{
 		nlVersion = atof(lexPtr->Tokbuf());
-		genPtr->nlVersion = nlVersion;
+		genPtr->SetVersion(nlVersion);
 		theToken = lexPtr->Next();
 	}
 	else
-		return Error("Missing or invalid value for VERSION", skiptoend);
-
+		err = Error("Missing or invalid value for VERSION", skiptoend);
 	if (theToken == T_ENDSTMT)
 		theToken = lexPtr->Next();
-	return 0;
+	return err;
 }
 
-int nlParser::Include()
-{
-	nlLexIn *lexPtrSave = lexPtr->GetLexIn();
-	nlLexFileIn *innlLex;
-
-	char *fnameSave = filename;
-
-	theToken = lexPtr->Next();
-	if (theToken != T_STRLIT)
-	{
-		Error("Missing include file name", 0);
-		return -1;
-	}
-
-	filename = StrMakeCopy(lexPtr->Tokbuf());
-	innlLex = new nlLexFileIn(filename);
-	if (innlLex == NULL || innlLex->Open())
-	{
-		Error("Cannot open include file", 0);
-		return -1;
-	}
-
-	lexPtr->SetLexIn(lexPtrSave);
-	theToken = lexPtr->Next();
-	while (theToken != T_ENDOF && !errFatal)
-		Statement();
-	lexPtr->SetLexIn(lexPtrSave);
-	delete innlLex;
-
-	delete filename;
-	filename = fnameSave;
-	theToken = lexPtr->Next();
-	if (theToken = T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return 0;
-}
-
-int nlParser::IncludeNotes()
-{
-	nlLexIn *lexPtrSave = lexPtr->GetLexIn();
-	nlLexFileIn *innlLex;
-
-	char *fnameSave = filename;
-
-	theToken = lexPtr->Next();
-	if (theToken != T_STRLIT)
-	{
-		Error("Missing include file name", 0);
-		return -1;
-	}
-
-	filename = StrMakeCopy(lexPtr->Tokbuf());
-	innlLex = new nlLexFileIn(filename);
-	if (innlLex == NULL || innlLex->Open())
-	{
-		Error("Cannot open include file", 0);
-		return -1;
-	}
-
-	lexPtr->SetLexIn(innlLex);
-	theToken = lexPtr->Next();
-	while (theToken != T_ENDOF && !errFatal)
-		Note();
-	lexPtr->SetLexIn(lexPtrSave);
-	delete innlLex;
-
-	delete filename;
-	filename = fnameSave;
-	theToken = lexPtr->Next();
-	if (theToken = T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return 0;
-}
-
-
+// common method for parsing a single parameter: expr ';'
 int nlParser::Param1(char *whererr)
 {
+	int err;
 	char msg[80];
 	if (cvtPtr->GetDebugLevel() >= 2)
 	{
@@ -276,50 +384,177 @@ int nlParser::Param1(char *whererr)
 	}
 
 	theToken = lexPtr->Next();
-	if (Expr())
+	if ((err = Expr()) != 0)
 	{
 		static char errmsg[] = "Missing or invalid value for ";
 		strcpy(msg, errmsg);
 		strcat(msg, whererr);
 		Error(msg, skiptoend);
 		genPtr->AddNode(T_NUM, 0L);
-		return -1;
 	}
 	if (theToken == T_ENDSTMT)
 		theToken = lexPtr->Next();
-	return 0;
+	return err;
 }
-
-int nlParser::Voice()
+// middlec = 'middlec' num ';'
+int nlParser::MiddleC()
 {
-	cvtPtr->DebugNotify(2, "Parse: VOICE");
-	genPtr->AddNode(new nlVoiceNode);
-	if (Param1("Voice") != 0)
-		return -1;
-	return Notelist();
+	int err = 0;
+	theToken = lexPtr->Next();
+	if (theToken == T_NUM)
+	{
+		octMiddleC = atoi(lexPtr->Tokbuf());
+		theToken = lexPtr->Next();
+	}
+	else
+		err = Error("Invalid value for MIDDLEC", skiptoend);
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return err;
 }
 
+// tempo = 'tempo' expr ',' expr ';'
 int nlParser::Tempo()
 {
 	cvtPtr->DebugNotify(2, "Parse: TEMPO");
 	int err;
 	genPtr->AddNode(new nlTempoNode);
 	theToken = lexPtr->Next();
-	err = Expr();
-	if (err == 0)
+	if ((err = Expr()) == 0)
 	{
 		if (theToken == T_COMMA)
+		{
 			theToken = lexPtr->Next();
-		err = Expr();
-		if (theToken == T_ENDSTMT)
-			theToken = lexPtr->Next();
+			err = Expr();
+		}
+		else
+			err = -1;
 	}
 	if (err)
 		Error("Missing value(s) for TEMPO", skiptoend);
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
 	return err;
 }
 
-// TIME n ;
+// For future use...
+int nlParser::Mix()
+{
+	return Error("Mix not implemented", skiptoend);
+}
+
+// maxparam = 'maxparam' expr ';'
+int nlParser::MaxParam()
+{
+	cvtPtr->DebugNotify(2, "Parse: MAXPARAM");
+	genPtr->AddNode(new nlMaxParamNode);
+	return Param1("Maxparam");
+}
+
+
+// map = 'map' id mapval (',' mapval)* ';'
+// mapval = expr ('=' expr)?
+// id = NUMBER | STRING
+int nlParser::Map()
+{
+	int err = 0;
+
+	nlMapNode *mapNode = new nlMapNode;
+	genPtr->AddNode(mapNode);
+
+	theToken = lexPtr->Next();
+	// instrument by name or number
+	if (theToken == T_STRLIT)
+		genPtr->AddNode(T_STRLIT, lexPtr->Tokbuf());
+	else if (theToken == T_NUM)
+		genPtr->AddNode(T_NUM, atol(lexPtr->Tokbuf()));
+	else
+		err = Error("Expected instrument id", skiptoend);
+	if (err == 0)
+	{
+		theToken = lexPtr->Next();
+		long paramCount = 0;
+		while (theToken != EOF)
+		{
+			if (Expr())
+			{
+				err = Error("Invalid parameter number", skiptoend);
+				break;
+			}
+			paramCount++;
+			if (theToken == T_COL)
+			{
+				genPtr->AddNode(T_COL, 0L);
+				theToken = lexPtr->Next();
+				if (Expr())
+				{
+					err = Error("Invalid scale value", skiptoend);
+					break;
+				}
+			}
+			if (theToken == T_COMMA)
+			{
+				genPtr->AddNode(T_COMMA, 0L);
+				theToken = lexPtr->Next();
+			}
+			else
+				break;
+		}
+		mapNode->SetValue(paramCount);
+	}
+
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+
+	return err;
+}
+
+// sequence = 'seq' id notelist
+// id = NUMBER | STRLIT
+int nlParser::Sequence()
+{
+	static int skiptok[] = { T_BEGIN, T_END, -1 };
+	cvtPtr->DebugNotify(2, "Parse: SEQ");
+	nlSequence *seq;
+	theToken = lexPtr->Next();
+	if (theToken == T_STRLIT)
+		seq = genPtr->AddSequence(lexPtr->Tokbuf());
+	else if (theToken == T_NUM)
+		seq = genPtr->AddSequence(atoi(lexPtr->Tokbuf()));
+	else
+	{
+		Error("Missing name for sequence", skiptok);
+		SkipBlock();
+		return -1;
+	}
+
+	nlSequence *sav = genPtr->SetCurSeq(seq);
+	theToken = lexPtr->Next();
+	int err = Notelist();
+	genPtr->SetCurSeq(sav);
+	return err;
+}
+
+// voice = 'voice' NUMBER notelist
+int nlParser::Voice()
+{
+	cvtPtr->DebugNotify(2, "Parse: VOICE");
+	theToken = lexPtr->Next();
+	if (theToken != T_NUM)
+	{
+		Error("Missing or invalid voice number", 0);
+		errFatal = -1;
+		return -1;
+	}
+
+	genPtr->AddNode(new nlVoiceNode);
+	genPtr->AddNode(T_NUM, atol(lexPtr->Tokbuf()));
+	theToken = lexPtr->Next();
+	return Notelist();
+}
+
+
+// time = 'time' expr ';'
 int nlParser::Time()
 {
 	cvtPtr->DebugNotify(2, "Parse: TIME");
@@ -327,6 +562,7 @@ int nlParser::Time()
 	return Param1("Time");
 }
 
+// mark = 'mark' expr ';'
 int nlParser::Mark()
 {
 	cvtPtr->DebugNotify(2, "Parse: MARK");
@@ -334,6 +570,7 @@ int nlParser::Mark()
 	return Param1("Mark");
 }
 
+// sync = 'sync' expr ';'
 int nlParser::Sync()
 {
 	cvtPtr->DebugNotify(2, "Parse: SYNC");
@@ -341,14 +578,20 @@ int nlParser::Sync()
 	return Param1("Sync");
 }
 
-// INIT n {LINE|EXP|LOG|RAND} start , end , steps ;
+// initfn = 'init' num fntype expr ',' expr ',' expr ';'
+// fntype = 'line' | 'exp' | 'log' | 'rand'
 int nlParser::InitFn()
 {
 	cvtPtr->DebugNotify(2, "Parse: INIT");
 	genPtr->AddNode(new nlInitFnNode);
 	theToken = lexPtr->Next();
 	if (theToken != T_NUM)
-		return Error("Expected function number for INIT", skiptoend);
+	{
+		Error("Expected function number for INIT", skiptoend);
+		if (theToken == T_ENDSTMT)
+			theToken = lexPtr->Next();
+	}
+
 	long fn = atol(lexPtr->Tokbuf());
 
 	theToken = lexPtr->Next();
@@ -362,6 +605,8 @@ int nlParser::InitFn()
 		break;
 	default:
 		Error("Invalid function type for INIT, use {line|exp|log|rand}", skiptoend);
+		if (theToken == T_ENDSTMT)
+			theToken = lexPtr->Next();
 		return -1;
 	}
 
@@ -380,57 +625,36 @@ int nlParser::InitFn()
 	theToken = lexPtr->Next();
 	if (Expr())
 		goto badparam;
-	if (theToken != T_ENDSTMT)
-		goto badparam;
 
-	genPtr->AddNode(T_ENDSTMT, 0L);
-	theToken = lexPtr->Next();
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
 	return 0;
 
 badparam:
-	return Error("Invalid parameters for INIT", skiptoend);
+	Error("Invalid parameters for INIT", skiptoend);
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return -1;
 }
 
+// instrument = 'instr' expr ';'
 int nlParser::Instrument()
 {
 	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: INSTRUMENT");
 	genPtr->AddNode(new nlInstnumNode);
 	return Param1("inst");
-/*	theToken = lexPtr->Next();
-	err = Expr();
-	if (err)
-	{
-		Error("Missing or invalid value for INST", skiptoend);
-		return -1;
-	}
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return 0;*/
 }
 
-int nlParser::Mixer()
+// chnl = 'channel' expr ';'
+int nlParser::Channel()
 {
-	cvtPtr->DebugNotify(2, "Parse: MIXER");
-	genPtr->AddNode(new nlMixNode);
-	return Param1("Mixer");
+	cvtPtr->DebugNotify(2, "Parse: CHANNEL");
+	genPtr->AddNode(new nlChnlNode);
+	return Param1("Channel");
 }
 
-int nlParser::MaxParam()
-{
-	cvtPtr->DebugNotify(2, "Parse: MAXPARAM");
-	genPtr->AddNode(new nlMaxParamNode);
-	return Param1("Maxparam");
-}
-
-int nlParser::MixBlock()
-{
-	cvtPtr->DebugNotify(2, "Parse: MIXER (block)");
-//	genPtr->AddNode(new nlMixBlock);
-//	return Param1("MixBlock");
-	return -1;
-}
-
+// volume = 'vol' expr ';'
 int nlParser::Volume()
 {
 	cvtPtr->DebugNotify(2, "Parse: VOLUME");
@@ -438,6 +662,7 @@ int nlParser::Volume()
 	return Param1("Volume");
 }
 
+// transpose = 'transpose' expr ';'
 int nlParser::Transpose()
 {
 	cvtPtr->DebugNotify(2, "Parse: TRANSPOSE");
@@ -445,8 +670,11 @@ int nlParser::Transpose()
 	return Param1("Transpose");
 }
 
+// double = 'double' dblparam ';'
+// dblparam = 'OFF' | expr | expr ',' expr
 int nlParser::Double()
 {
+	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: DOUBLE");
 	genPtr->AddNode(new nlDoubleNode);
 
@@ -459,21 +687,32 @@ int nlParser::Double()
 	else
 	{
 		if (Expr())
-			return Error("Missing transposition for DOUBLE", skiptoend);
-		if (theToken == T_COMMA)
+			err = Error("Missing transposition for DOUBLE", skiptoend);
+		else
 		{
-			theToken = lexPtr->Next();
-			genPtr->AddNode(T_COMMA, 0L);
-			if (Expr())
-				return Error("Missing volume for DOUBLE", skiptoend);
+			if (theToken == T_COMMA)
+			{
+				genPtr->AddNode(T_COMMA, 0L);
+				theToken = lexPtr->Next();
+				if (Expr())
+					err = Error("Missing volume for DOUBLE", skiptoend);
+			}
 		}
 	}
 	if (theToken == T_ENDSTMT)
 		theToken = lexPtr->Next();
-	return 0;
-
+	return err;
 }
 
+// call = 'call' expr ';'
+int nlParser::Call()
+{
+	cvtPtr->DebugNotify(2, "Parse: CALL");
+	genPtr->AddNode(new nlCallNode);
+	return Param1("Call");
+}
+
+// notelist = 'begin' note* 'end' | note 
 int nlParser::Notelist()
 {
 	cvtPtr->DebugNotify(2, "Parse: NOTELIST");
@@ -489,7 +728,7 @@ int nlParser::Notelist()
 				theToken = lexPtr->Next();
 				break;
 			}
-			Note();
+			err = Note();
 		}
 		genPtr->AddNode(T_END, 0L);
 		return 0;
@@ -497,55 +736,44 @@ int nlParser::Notelist()
 	return Note();
 }
 
-int nlParser::Sequence()
-{
-	static int skiptok[] = { T_BEGIN, T_END, -1 };
-	cvtPtr->DebugNotify(2, "Parse: SEQ");
-	theToken = lexPtr->Next();
-	if (theToken != T_STRLIT)
-	{
-		Error("Missing name for sequence", skiptok);
-		SkipBlock();
-		return -1;
-	}
-
-	nlSequence *pNew = genPtr->AddSequence(lexPtr->Tokbuf());
-	nlSequence *pOld = genPtr->SetCurSeq(pNew);
-	theToken = lexPtr->Next();
-	int err = Notelist();
-	genPtr->SetCurSeq(pOld);
-	if (err == 0)
-		return 0;
-	if (theToken != T_END)
-		SkipBlock();
-	return -1;
-}
-
+// artic = 'artic' arttype ';'
+// arttype = 'fixed' artexpr
+//         | 'pcnt' artexpr
+//         | 'add' artexpr
+//         | 'off'
+// artexpr = 'param' | expr
 int nlParser::Artic()
 {
 	cvtPtr->DebugNotify(2, "Parse: ARTIC");
 
+	int err = 0;
+	int hasExpr = 1;
 	theToken = lexPtr->Next();
 	switch (theToken)
 	{
 	case T_FIXED:
 	case T_PCNT:
 	case T_ADD:
+		break;
 	case T_OFF:
+		hasExpr = 0;
 		break;
 	default:
-		return Error("Invalid argument to ARTIC", skiptoend);
+		Error("Invalid argument to ARTIC", skiptoend);
+		if (theToken == T_ENDSTMT)
+			theToken = lexPtr->Next();
+		return -1;
 	}
 	nlScriptNode *p = genPtr->AddNode(new nlArticNode);
 	p->SetValue((long)theToken);
-	if (nlVersion < 3.0)
-		return 0;
 
-	int err = 0;
 	theToken = lexPtr->Next();
-	if (theToken == T_COMMA)
+	if (nlVersion < 3.0)
+		genPtr->AddNode(T_PARAM, 0L);
+	else if (hasExpr)
 	{
-		theToken = lexPtr->Next();
+		if (theToken == T_COMMA) // backward compatibility
+			theToken = lexPtr->Next();
 		if (theToken == T_PARAM)
 		{
 			genPtr->AddNode(T_PARAM, 0L);
@@ -553,8 +781,8 @@ int nlParser::Artic()
 		}
 		else
 		{
-			genPtr->AddNode(T_COMMA, 0L);
-			err = Expr();
+			if (Expr())
+				err = Error("Invalid parameter to ARTIC", skiptoend);
 		}
 	}
 	if (theToken == T_ENDSTMT)
@@ -562,93 +790,100 @@ int nlParser::Artic()
 	return err;
 }
 
+// note = include | system | script | write
+//      | tempo | middlec | maxparam | map
+//      | inst | vol | chnl | time | mark | sync 
+//      | transpose | double | play | initfn
+//      | artic | param | loop | sus | tie
+//      | notespec | ';'
+// sus = 'sus' notespec
+// tie = 'tie' notespec
+// notespec = valgroup (',' valgroup)* ';'
+// valgroup = '{' exprs '}' | '[' exprs ']' | expr
+// exprs = expr (',' expr)*
 int nlParser::Note()
 {
 	cvtPtr->DebugNotify(2, "Parse: NOTE");
 
+	int err = 0;
 	int bSus = 0;
 	int bAdd = 0;
 
 	switch (theToken)
 	{
-	case T_TEMPO:
-		return Tempo();
-
-	case T_TIME:
-		return Time();
-
-	case T_MARK:
-		return Mark();
-
-	case T_SYNC:
-		return Sync();
-
+	case T_INC:
+		return Include();
+	case T_SYSTEM:
+		return System();
+	case T_SCRIPT:
+		return Script();
 	case T_WRITE:
 		return Write();
+	case T_VER:
+		return Version();
+	case T_TEMPO:
+		return Tempo();
+	case T_MIDC:
+		return MiddleC();
+	case T_MAP:
+		return Map();
+	case T_MAXPARAM:
+		return MaxParam();
+	case T_DECLARE:
+		return Declare();
+	case T_SET:
+		return Set();
 
 	case T_INSTNUM:
 		return Instrument();
-
+	case T_VOL:
+		return Volume();
 	case T_CHNL:
-	case T_MIX:
-		return Mixer();
-
-	case T_CRESC:
-	case T_DIM:
-		return Crescendo();
-	
-	case T_ACCEL:
-	case T_RIT:
-		return Accelerando();
-	
-	case T_REP:
-		return Repeat();
-
+		return Channel();
+	case T_CALL:
+		return Call();
+	case T_TIME:
+		return Time();
+	case T_MARK:
+		return Mark();
+	case T_SYNC:
+		return Sync();
+	case T_PLAY:
+		return Play();
+	case T_XPOSE:
+		return Transpose();
+	case T_DOUBLE:
+		return Double();
+	case T_ART:
+		return Artic();
+	case T_PARAM:
+		return Param();
+	case T_INIT:
+		return InitFn();
 	case T_LOOP:
 		return Loop();
+	case T_IF:
+		return IfStmt();
+	case T_WHILE:
+		return WhileStmt();
 
-	case T_ENDSTMT:		/* null statement */
+	case T_NOTE:
+		// syntactic sugar...
 		theToken = lexPtr->Next();
-		return 0;
-
-	case T_SUBOP:
+		break;
 	case T_SUS:
 		bSus = 1;
 		theToken = lexPtr->Next();
 		break;
-
 	case T_TIE:
-	case T_ADDOP:
 		bAdd = 1;
 		theToken = lexPtr->Next();
 		break;
 
-	case T_VOL:
-		return Volume();
-
-	case T_XPOSE:
-		return Transpose();
-
-	case T_DOUBLE:
-		return Double();
-
-	case T_PLAY:
-		return Play();
-
-	case T_INC:
-		return IncludeNotes();
-
-	case T_INIT:
-		return InitFn();
-
-	case T_ART:
-		return Artic();
-
-	case T_PARAM:
-		return NoteParam();
-
-	case T_MAP:
-		return Map();
+	case T_ENDSTMT:
+		// null statement
+		theToken = lexPtr->Next();
+		return 0;
 	}
 
 	nlNoteNode *pNote = new nlNoteNode;
@@ -656,159 +891,175 @@ int nlParser::Note()
 	pNote->SetAdd(bAdd);
 	genPtr->AddNode(pNote);
 
-	if (List()) // rhythm
+	if (Valgroup())
+		err = Error("Invalid note", skiptoend);
+	else
 	{
-		Error("Invalid note", skiptoend);
-		return -1;
-	}
-
-	while (theToken == T_COMMA)
-	{
-		genPtr->AddNode(T_COMMA, 0L);
-		theToken = lexPtr->Next();
-		if (List())
+		while (theToken == T_COMMA)
 		{
-			Error("Invalid parameter list", skiptoend);
-			return -1;
+			genPtr->AddNode(T_COMMA, 0L);
+			theToken = lexPtr->Next();
+			if (Valgroup())
+			{	
+				err = Error("Invalid parameter list", skiptoend);
+				break;
+			}
 		}
 	}
-
-	if (theToken != T_ENDSTMT)
-		Error("Missing end of statement added.", 0);
-
 	genPtr->AddNode(T_ENDSTMT, 0L);
-	theToken = lexPtr->Next();
-	return 0;
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return err;
 }
 
-int nlParser::NoteParam()
+// param = 'param' expr ',' expr ';'
+int nlParser::Param()
 {
+	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: PARAM [n,v]");
 
 	nlParamNode *pnode = new nlParamNode;
 	genPtr->AddNode(pnode);
 
 	theToken = lexPtr->Next();
-
 	if (Expr() != 0)
-		return Error("Missing paramter number.", skiptoend);
+		err = Error("Missing or invalid paramter number.", skiptoend);
+	else
+	{
+		if (theToken == T_COMMA)
+		{
+			theToken = lexPtr->Next();
+			err = Expr();
+		}
+		else
+			err = -1;
+		if (err)
+			Error("Missing or invalid parameter value.", skiptoend);
+	}
 
-	if (theToken == T_COMMA)
+	if (theToken == T_ENDSTMT)
 		theToken = lexPtr->Next();
-	if (Expr() != 0)
-		return Error("Missing parameter value.", skiptoend);
 
-	return 0;
+	return err;
 }
 
+// play = 'play' expr ';'
 int nlParser::Play()
 {
 	cvtPtr->DebugNotify(2, "Parse: PLAY");
-	theToken = lexPtr->Next();
-	if (theToken != T_STRLIT)
-		return Error("Missing name of sequence.", 0);
-
-	nlPlayNode *p = new nlPlayNode(lexPtr->Tokbuf());
-	genPtr->AddNode(p);
-
-	theToken = lexPtr->Next();
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return 0;
+	genPtr->AddNode(new nlPlayNode);
+	return Param1("Play");
 }
 
-int nlParser::Crescendo()
-{
-	return Error("Crescendo not implemented", 0);
-}
-
-int nlParser::Accelerando()
-{
-	return Error("Accelerando not implemented", 0);
-}
-
-int nlParser::Integral()
-{
-	if (theToken == T_FROM)
-	{
-		cvtPtr->DebugNotify(2, "Parse: FROM");
-
-		genPtr->AddNode(T_FROM, 0L);
-		theToken = lexPtr->Next();
-		if (Expr())
-		{
-			Error("Missing expression for 'FROM'", skiptoend);
-			return -1;
-		}
-	}
-
-	if (theToken == T_TO)
-	{
-		cvtPtr->DebugNotify(2, "Parse: TO");
-
-		genPtr->AddNode(T_TO, 0L);
-		theToken = lexPtr->Next();
-		if (Expr())
-		{
-			Error("Missing expression for 'TO'", skiptoend);
-			return -1;
-		}
-	}
-
-	if (theToken != T_IN)
-	{
-		cvtPtr->DebugNotify(2, "Parse: IN");
-
-		genPtr->AddNode(T_IN, 0L);
-		theToken = lexPtr->Next();
-		if (Expr())
-		{
-			Error("Missing expression for 'IN'", skiptoend);
-			return -1;
-		}
-	}
-
-	if (theToken != T_ENDSTMT)
-		Error("Missing end of statement added.", 0);
-
-	genPtr->AddNode(T_ENDSTMT, 0L);
-	theToken = lexPtr->Next();
-
-	return 0;
-}
-
-int nlParser::Repeat()
-{
-	return Error("Repeat not implemented", 0);
-}
-
+// loop = 'loop' '(' expr ')' notelist
+// Notice that the parentheses around 'expr' are treated
+// as optional. This allows backward compatibility with
+// an earlier version of Notelist that did not require them.
+// However, without the parentheses, there is a conflict
+// in the formal grammar in the case of something like:
+//     loop 5 -(5);
+// As a practical matter the negation op would likely never
+// be seen on the first value of a note statement.
 int nlParser::Loop()
 {
+	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: LOOP");
 
-	genPtr->AddNode(new nlLoopNode);
-	theToken = lexPtr->Next();
-	if (Expr())
-		Error("Invalid or missing loop count", 0);
-	return Notelist();
-}
+	nlLoopNode *lnode = new nlLoopNode;
+	genPtr->AddNode(lnode);
 
-int nlParser::Write()
-{
-	cvtPtr->DebugNotify(2, "Parse: WRITE");
-	theToken = lexPtr->Next();
-	if (theToken != T_STRLIT)
-		return Error("Missing text for WRITE", skiptoend);
+	nlSequence *lseq = new nlSequence;
+	lnode->SetSequence(lseq);
 
-	nlWriteNode *p = new nlWriteNode;
-	p->SetValue(lexPtr->Tokbuf());
-	genPtr->AddNode(p);
-	if ((theToken = lexPtr->Next()) == T_ENDSTMT)
+	theToken = lexPtr->Next();
+	if (theToken == T_OPAREN)
 		theToken = lexPtr->Next();
-	return 0;
+	err = Expr();
+	if (theToken == T_CPAREN)
+		theToken = lexPtr->Next();
+	if (err == 0)
+	{
+		nlSequence *sav = genPtr->SetCurSeq(lseq);
+		err = Notelist();
+		genPtr->AddNode(T_ENDOF, 0L);
+		genPtr->SetCurSeq(sav);
+	}
+	else
+		Error("Invalid or missing loop count", 0);
+	return err;
 }
 
-int nlParser::List()
+// ifstmt = 'if' expr 'then' notelist ('else' notelist)?
+int nlParser::IfStmt()
+{
+	int err = 0;
+	cvtPtr->DebugNotify(2, "Parse: IF...THEN...ELSE");
+
+	nlIfNode *in = new nlIfNode;
+	genPtr->AddNode(in);
+
+	nlSequence *iseq = new nlSequence;
+	nlSequence *eseq = new nlSequence;
+	in->SetIfSequence(iseq);
+	in->SetElseSequence(eseq);
+
+	theToken = lexPtr->Next();
+	err = Expr();
+	if (theToken == T_THEN)
+		theToken = lexPtr->Next();
+	if (!err)
+	{
+		nlSequence *sav = genPtr->SetCurSeq(iseq);
+		err = Notelist();
+		genPtr->AddNode(T_ENDOF, 0L);
+		if (theToken == T_ELSE)
+		{
+			theToken = lexPtr->Next();
+			genPtr->SetCurSeq(eseq);
+			err = Notelist();
+			genPtr->AddNode(T_ENDOF, 0L);
+		}
+		genPtr->SetCurSeq(sav);
+	}
+	else
+		err = Error("Invalid IF condition", 0);
+
+	return err;
+}
+
+// whilestmt = 'while' expr 'do' notelist 
+int nlParser::WhileStmt()
+{
+	int err = 0;
+	cvtPtr->DebugNotify(2, "Parse: WHILE");
+
+	nlWhileNode *wn = new nlWhileNode;
+	genPtr->AddNode(wn);
+
+	nlSequence *wseq = new nlSequence;
+	wn->SetSequence(wseq);
+
+	theToken = lexPtr->Next();
+	err = Expr();
+	if (theToken == T_DO)
+		theToken = lexPtr->Next();
+	if (err == 0)
+	{
+		nlSequence *sav = genPtr->SetCurSeq(wseq);
+		err = Notelist();
+		genPtr->AddNode(T_ENDOF, 0L);
+		genPtr->SetCurSeq(sav);
+	}
+	else
+		err = Error("Invalid WHILE condition", 0);
+
+	return err;
+}
+
+
+// valgroup = '{' exprs '}' | '[' exprs ']' | expr
+// exprs    = exprs (',' expr)*
+int nlParser::Valgroup()
 {
 	cvtPtr->DebugNotify(2, "Parse: {list}");
 	int nEndTok = 0;
@@ -826,9 +1077,9 @@ int nlParser::List()
 		{
 			if ((err = Expr()) != 0)
 			{
-				static int skiptok[4] = { T_ENDOF, T_ENDSTMT, T_END, -1 };
-				skiptok[0] = nEndTok;
-				SkipTo(skiptok);
+				static int tolist[] = { 0, T_ENDSTMT, T_END, -1 };
+				tolist[0] = nEndTok;
+				SkipTo(tolist);
 				break;
 			}
 			if (theToken == T_COMMA)
@@ -849,80 +1100,70 @@ int nlParser::List()
 	return err;
 }
 
+//  entry point for expression...
 int nlParser::Expr()
 {
 	cvtPtr->DebugNotify(3, "Parse: <expr>");
 	genPtr->AddNode(new nlExprNode);
-	return CatOp();
+	return Catenate();
 }
 
-int nlParser::CatOp()
+// catenate = logical ('#' logical)*
+int nlParser::Catenate()
 {
 	int nSavTok;
-	if (LogOp())
+	if (Logical())
 		return -1;
 	while (theToken == T_CATOP)
 	{
-		cvtPtr->DebugNotify(3, "Parse: CATOP");
+		cvtPtr->DebugNotify(3, "Parse: CATENATE");
 		nSavTok = theToken;
 		theToken = lexPtr->Next();
-		if (LogOp())
+		if (Logical())
 			return -1;
 		genPtr->AddNode(nSavTok, 0L);
 	}
 	return 0;
 }
 
-int nlParser::LogOp()
+// logical = relaton (logop relation)*
+// logop = '&' | '|'
+int nlParser::Logical()
 {
 	int nSavTok;
-	if (AddOp())
+	if (Relation())
+		return -1;
+	while (theToken == T_AND
+		|| theToken == T_OR)
+	{
+		cvtPtr->DebugNotify(3, "Parse: LOGICAL");
+		nSavTok = theToken;
+		theToken = lexPtr->Next();
+		if (Relation())
+			return -1;
+		genPtr->AddNode(nSavTok, 0L);
+	}
+	return 0;
+}
+
+// relation = term (relop term)*
+// relop = '<' | '<=' | '>' | '>=' | '<>' | '=' | '=='
+int nlParser::Relation()
+{
+	int nSavTok;
+	if (Term())
 		return -1;
 	while (theToken == T_LTOP
 	    || theToken == T_LEOP
 		|| theToken == T_GTOP
 		|| theToken == T_GEOP
 		|| theToken == T_NEOP
+		|| theToken == T_EQ
 		|| theToken == T_EQOP)
 	{
-		cvtPtr->DebugNotify(3, "Parse: LOGOP");
-		nSavTok = theToken;
-		theToken = lexPtr->Next();
-		if (AddOp())
-			return -1;
-		genPtr->AddNode(nSavTok, 0L);
-	}
-	return 0;
-}
-
-int nlParser::AddOp()
-{
-	int nSavTok;
-	if (MulOp())
-		return -1;
-	while (theToken == T_ADDOP 
-		|| theToken == T_SUBOP)
-	{
-		cvtPtr->DebugNotify(3, "Parse: ADDOP");
-		nSavTok = theToken;
-		theToken = lexPtr->Next();
-		if (MulOp())
-			return -1;
-		genPtr->AddNode(nSavTok, 0L);
-	}
-	return 0;
-}
-
-int nlParser::MulOp()
-{
-	int nSavTok;
-	if (Term())
-		return -1;
-	while (theToken == T_MULOP 
-		|| theToken == T_DIVOP 
-		|| theToken == T_EXPOP)
-	{
-		cvtPtr->DebugNotify(3, "Parse: MULOP");
+		if (theToken == T_EQ)
+			theToken = T_EQOP;
+		cvtPtr->DebugNotify(3, "Parse: RELATION");
 		nSavTok = theToken;
 		theToken = lexPtr->Next();
 		if (Term())
@@ -932,17 +1173,64 @@ int nlParser::MulOp()
 	return 0;
 }
 
+// term = factor (addop factor)*
+// addop = '+' | '-'
 int nlParser::Term()
+{
+	int nSavTok;
+	if (Factor())
+		return -1;
+	while (theToken == T_ADDOP 
+		|| theToken == T_SUBOP)
+	{
+		cvtPtr->DebugNotify(3, "Parse: Term");
+		nSavTok = theToken;
+		theToken = lexPtr->Next();
+		if (Factor())
+			return -1;
+		genPtr->AddNode(nSavTok, 0L);
+	}
+	return 0;
+}
+
+// factor = value (mulop value)*
+// mulop = '*' | '/' | '^'
+int nlParser::Factor()
+{
+	int nSavTok;
+	if (Value())
+		return -1;
+	while (theToken == T_MULOP 
+		|| theToken == T_DIVOP 
+		|| theToken == T_EXPOP)
+	{
+		cvtPtr->DebugNotify(3, "Parse: FACTOR");
+		nSavTok = theToken;
+		theToken = lexPtr->Next();
+		if (Value())
+			return -1;
+		genPtr->AddNode(nSavTok, 0L);
+	}
+	return 0;
+}
+
+// value = '(' expr ')' | num | strlit | pitch | dur | 'rand' | fngen | unop value
+//       | 'count' | 'time' | 'pitch' | 'duration' | 'vol'
+// fngen ::= fn '(' expr ',' expr ')'
+// unop ::= '-' | 'eval' | '~' | 'not'
+int nlParser::Value()
 {
 	nlDurNode *pdur;
 	double d;
+	nlSymbol *symb;
 	int dot;
+	int sav;
 
 	switch (theToken)
 	{
 	case T_OPAREN:
 		theToken = lexPtr->Next();
-		if (AddOp())
+		if (Catenate()) // slight optmization, don't start a new Expr node
 			return -1;
 		if (theToken != T_CPAREN)
 		{
@@ -950,13 +1238,17 @@ int nlParser::Term()
 			return Error("Missing close parenthesis", 0);
 		}
 		break;
-	case T_CPAREN:
-		break;
-	case T_SUBOP:
+	case T_SUBOP: // unary - -> negate
 		theToken = lexPtr->Next();
-		if (Term())
+		if (Value())
 			return -1;
 		genPtr->AddNode(T_NEG, 0L);
+		return 0;
+	case T_NOT:
+		theToken = lexPtr->Next();
+		if (Value())
+			return -1;
+		genPtr->AddNode(T_NOT, 0L);
 		return 0;
 	case T_NUM:
 		genPtr->AddNode(T_NUM, atof(lexPtr->Tokbuf()));
@@ -975,11 +1267,15 @@ int nlParser::Term()
 		genPtr->AddNode(T_STRLIT, lexPtr->Tokbuf());
 		break;
 	case T_COUNT:
-		genPtr->AddNode(T_COUNT, 0L);
+	case T_CURPIT:
+	case T_CURDUR:
+	case T_CURVOL:
+	case T_CURTIME:
+		genPtr->AddNode(theToken, 0L);
 		break;
 	case T_FGEN:
 	case T_RAND:
-		genPtr->AddNode(theToken, 0L);
+		sav = theToken;
 		theToken = lexPtr->Next();
 		if (theToken == T_OPAREN)
 		{
@@ -991,7 +1287,25 @@ int nlParser::Term()
 			genPtr->AddNode(T_NUM, 0L);
 			genPtr->AddNode(T_NUM, 1L);
 		}
+		genPtr->AddNode(sav, 0L);
 		break;
+	case T_EVAL:
+		theToken = lexPtr->Next();
+		if (Value())
+			return -1;
+		genPtr->AddNode(T_EVAL, 0L);
+		break;
+	case T_VAR:
+		symb = cvtPtr->Lookup(lexPtr->Tokbuf());
+		if (symb != NULL)
+		{
+			nlVarNode *sp = new nlVarNode;
+			sp->SetSymbol(symb);
+			genPtr->AddNode(sp);
+			break;
+		}
+		return -1;
+
 	default:
 		return -1;
 	}
@@ -1011,7 +1325,8 @@ int nlParser::FnArgs(int nMax)
 			break;
 		if (nMax <= 0)
 			return Error("Too many arguments to function", skiplist);
-		if (Expr())
+		//if (Expr())
+		if (Catenate())
 			return Error("Invalid function argument", skiplist);
 		if (--nMax > 0)
 		{
@@ -1030,73 +1345,6 @@ int nlParser::FnArgs(int nMax)
 	return 0;
 }
 
-int nlParser::MiddleC()
-{
-	int neg = 1;
-	theToken = lexPtr->Next();
-	if (theToken == T_SUBOP)
-	{
-		neg = -1;
-		theToken = lexPtr->Next();
-	}
-	if (theToken != T_NUM)
-		return Error("Missing value for MIDDLEC", skiptoend);
-
-	octMiddleC = atoi(lexPtr->Tokbuf()) * neg;
-
-	theToken = lexPtr->Next();
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return 0;
-}
-
-int nlParser::Map()
-{
-	nlMapNode *mapNode = new nlMapNode;
-	genPtr->AddNode(mapNode);
-
-	theToken = lexPtr->Next();
-	if (theToken == T_STRLIT)
-	{
-		// instrument by name
-		genPtr->AddNode(T_STRLIT, lexPtr->Tokbuf());
-	}
-	else if (theToken == T_NUM)
-	{
-		// instrument by number
-		genPtr->AddNode(T_NUM, atol(lexPtr->Tokbuf()));
-	}
-	else
-		return Error("Expected instrument name or number", skiptoend);
-
-	theToken = lexPtr->Next();
-	long paramCount = 0;
-	while (theToken != EOF)
-	{
-		if (Expr())
-			return Error("Expected map value", skiptoend);
-		paramCount++;
-		if (theToken == T_EQ)
-		{
-			genPtr->AddNode(T_EQ, 0L);
-			theToken = lexPtr->Next();
-			if (Expr())
-				return Error("Missing scale value", skiptoend);
-		}
-		if (theToken == T_COMMA)
-		{
-			genPtr->AddNode(T_COMMA, 0L);
-			theToken = lexPtr->Next();
-		}
-		else
-			break;
-	}
-	mapNode->SetValue(paramCount);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return 0;
-}
 
 long nlParser::PitVal(char *pStr)
 {

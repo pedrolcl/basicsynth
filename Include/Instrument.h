@@ -3,7 +3,7 @@
 //
 // Instrument and Instrument manager classes.
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
 #ifndef _INSTRDEF_
 #define _INSTRDEF_
@@ -36,8 +36,6 @@ class InstrManager; // forward reference for type defs below
 //         an XML file
 // Save  - called to save the instrument configuration to
 //         an XML file
-// GetEditProperties - TBD
-// SetEditProperties - TBD
 ///////////////////////////////////////////////////////////
 class Instrument
 {
@@ -71,8 +69,8 @@ typedef SeqEvent   *(*EventFactory)(Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
 // InstrMapEntry class is used by the instrument manager
-// to manage one type of instrument, or an instantiation
-// of an instrument. 
+// to manage one type of instrument, and, a specific 
+// configuration of an instrument. 
 ///////////////////////////////////////////////////////////
 
 class InstrMapEntry : public SynthList<InstrMapEntry>
@@ -288,7 +286,8 @@ public:
 	// to the output buffer. Notice that this only supports 
 	// two-channel output. However, the buffer can be set for
 	// single channel and merge the two outputs together. For
-	// more that two channels, derive a class from this one.
+	// more that two channels, derive a class from this one
+	// and override Tick.
 	virtual void Tick()
 	{
 		AmpValue outLft, outRgt;
@@ -303,7 +302,7 @@ public:
 		mix->FxIn(unit, val);
 	}
 
-	// Outputa sample on the indicated channel
+	// Output a sample on the indicated channel
 	virtual void Output(int ch, AmpValue val)
 	{
 		mix->ChannelIn(ch, val);

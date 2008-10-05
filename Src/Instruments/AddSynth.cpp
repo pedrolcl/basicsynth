@@ -1,8 +1,14 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth - Additive Synthesis instrument
+// BasicSynth - Additive Synthesis instrument 
 //
-// Maintains an array of "tone generators" and sums the outputs
+// See _BasicSynth_ Chapter 20 for a full explanation
 //
+// Maintains an array of "tone generators" and sums the outputs.
+// Each tone generator consists of a wavetable oscillator and envelope
+// generator. A single LFO generator applies optional vibrato to
+// all tone generators.
+//
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"

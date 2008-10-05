@@ -1,4 +1,6 @@
 ///////////////////////////////////////////////////////////
+// BasicSynth Sequencer events
+//
 // SeqEvent - sequencer event base class.
 // NoteEvent - instrument event base class
 // VarParamEvent - variable parameters class
@@ -18,6 +20,7 @@
 // are the same. For variable number of parameters, the index and ID
 // will usually be different.
 //
+// Copyright 2008, Daniel R. Mitchell
 ////////////////////////////////////////////////////////////
 #ifndef _SEQEVENT_H
 #define _SEQEVENT_H
@@ -96,6 +99,8 @@ public:
 		}
 	}
 
+	// Set parameter from a string. This is a convenience
+	// for sequencer file readers...
 	virtual void SetParam(bsInt16 id, char *s)
 	{
 		SetParam(id, (float) atof(s));
@@ -103,7 +108,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// THe NoteEvent structure adds pitch, frequency and volume
+// The NoteEvent structure adds pitch, frequency and volume
 // to the pre-defined event parameters. Instruments that 
 // are to be used with Notelist should derive their events
 // from the NoteEvent class instead of SeqEvent.
@@ -124,8 +129,8 @@ public:
 
 	NoteEvent()
 	{
-		pitch = 67;
-		frq = 440.0;
+		pitch = 0;
+		frq = 0.0;
 		vol = 1.0;
 	}
 
@@ -140,10 +145,10 @@ public:
 			frq = synthParams.GetFrequency(pitch);
 			break;
 		case P_FREQ:
-			frq = (FrqValue) v;
+			frq = FrqValue(v);
 			break;
 		case P_VOLUME:
-			vol = (AmpValue) v;
+			vol = AmpValue(v);
 			break;
 		default:
 			SeqEvent::SetParam(id, v);
@@ -217,7 +222,7 @@ public:
 
 	virtual bsInt16 MaxParam() 
 	{ 
-		return NoteEvent::MaxParam() + maxParam;
+		return maxParam;
 	}
 
 	void SetParam(bsInt16 id, float val)

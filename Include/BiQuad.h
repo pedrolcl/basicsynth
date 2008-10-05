@@ -27,11 +27,9 @@ public:
 	AmpValue dlyOut1;
 	AmpValue dlyOut2;
 	FrqValue cutoff;
-	int off;
 
 	BiQuadFilter()
 	{
-		off = 1;
 		cutoff = 0;
 		gain = 0;
 		ampIn0 = 0;
@@ -47,7 +45,6 @@ public:
 
 	virtual void Copy(BiQuadFilter *filt)
 	{
-		filt->off = off;
 		filt->cutoff = cutoff;
 		filt->gain = gain;
 		filt->ampIn0 = ampIn0;
@@ -61,17 +58,16 @@ public:
 		filt->dlyOut2 = dlyOut2;
 	}
 
-	virtual void  Init(int n, float *p)
+	virtual void  Init(int n, float *v)
 	{
 		if (n > 1)
-			Init((FrqValue) p[0], (AmpValue) p[1]);
+			Init((FrqValue) v[0], (AmpValue) v[1]);
 		else if (n > 0)
-			Init((FrqValue) p[0], 1);
+			Init((FrqValue) v[0], 1);
 	}
 
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
-		off = cu == 0;
 		cutoff = cu;
 		gain = g;
 	}
@@ -86,9 +82,6 @@ public:
 
 	virtual AmpValue Sample(AmpValue vin)
 	{
-		if (off)
-			return vin;
-
 		// Direct Form I
 		AmpValue out = (ampIn0 * vin) + (ampIn1 * dlyIn1) + (ampIn2 * dlyIn2)
 		             - (ampOut1 * dlyOut1) - (ampOut2 * dlyOut2);
@@ -113,8 +106,6 @@ public:
 	{
 		FrqValue old = cutoff;
 		BiQuadFilter::Init(cu, g);
-		if (cutoff == 0.0)
-			return;
 
 		if (old != cutoff)
 		{
@@ -139,8 +130,6 @@ public:
 	{
 		FrqValue old = cutoff;
 		BiQuadFilter::Init(cu, g);
-		if (cutoff == 0.0)
-			return;
 
 		if (old != cutoff)
 		{
@@ -172,8 +161,6 @@ public:
 	{
 		FrqValue old = cutoff;
 		BiQuadFilter::Init(cu, g);
-		if (cutoff == 0.0)
-			return;
 
 		if (old != cutoff || bw != B)
 		{
@@ -216,8 +203,6 @@ public:
 	{
 		FrqValue old = cutoff;
 		BiQuadFilter::Init(cu, g);
-		if (cutoff == 0.0)
-			return;
 
 		if (old != cutoff || res != r)
 		{

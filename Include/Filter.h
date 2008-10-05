@@ -1,26 +1,27 @@
 ///////////////////////////////////////////////////////////
-// Filter.h
-//
 // BasicSynth filter classes #1
 // This file includes classes for:
 //  FilterFIR - 1st order (one-zero) FIR filter
 //  FilterIIR - 1st order (one-pole) IIR filter
+//  FilterIIR2 - one-pole, two-zero filter
 //  FilterFIRn - n-order FIR filter using convolution
 //  FilterAVGn - n-delay running average filter
+//
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
 #ifndef _FILTER_H_
 #define _FILTER_H_
 
 
 ///////////////////////////////////////////////////////////
-// One-zero filter: y[n] = a * x[n] + b * x[n-1]
+// One-zero filter: y[n] = b * x[n] + a * x[n-1]
 ///////////////////////////////////////////////////////////
 class FilterFIR : public GenUnit
 {
 protected:
 	AmpValue delay;  // one sample delay
-	AmpValue inAmp;  // input coefficient (a)
-	AmpValue dlyAmp; // delay coefficient (b)
+	AmpValue inAmp;  // input coefficient (b)
+	AmpValue dlyAmp; // delay coefficient (a)
 public:
 	FilterFIR()
 	{
@@ -29,10 +30,11 @@ public:
 		dlyAmp = 0;
 	}
 
-	void Init(int n, float *f)
+	// ampin, ampdly
+	void Init(int n, float *v)
 	{
 		if (n > 1)
-			InitFilter(f[0], f[1]);
+			InitFilter(AmpValue(v[0]), AmpValue(v[1]));
 	}
 
 	void Reset(float initPhs = 0)
@@ -55,14 +57,14 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// One-pole filter: y[n] = a * x[n] + b * y[n-1]
+// One-pole filter: y[n] = b * x[n] - a * y[n-1]
 ///////////////////////////////////////////////////////////
 class FilterIIR : public GenUnit
 {
 protected:
 	AmpValue delay;  // one sample delay
-	AmpValue inAmp;  // input coefficient (a)
-	AmpValue dlyAmp; // delay coefficient (b)
+	AmpValue inAmp;  // input coefficient (b)
+	AmpValue dlyAmp; // delay coefficient (a)
 public:
 	FilterIIR()
 	{
@@ -72,10 +74,10 @@ public:
 	}
 
 	// inAmp dlyAmp
-	void Init(int n, float *f)
+	void Init(int n, float *v)
 	{
 		if (n > 1)
-			InitFilter(f[0], f[1]);
+			InitFilter(AmpValue(v[0]), AmpValue(v[1]));
 	}
 
 	void Reset(float initPhs = 0)
@@ -89,13 +91,93 @@ public:
 		dlyAmp = out;
 	}
 
+	void CalcCoef(FrqValue fc, int hp = 0)
+	{
+		double x = exp(-twoPI * (fc/synthParams.sampleRate));
+		if (hp)
+		{
+			inAmp = x;
+			dlyAmp = AmpValue(1.0 - x);
+		}
+		else
+		{
+			inAmp = AmpValue(1.0 - x);
+			dlyAmp = AmpValue(-x);
+		}
+	}
+
 	AmpValue Sample(AmpValue val)
 	{
-		return delay = (val * inAmp) + (delay * dlyAmp);
+		return delay = (val * inAmp) - (delay * dlyAmp);
 	}
 };
 
-//
+///////////////////////////////////////////////////////////
+// One-pole, two-zero filter: y[n] = a0 * x[n] + a1 * x[n-1] + b1 * y[n-1]
+///////////////////////////////////////////////////////////
+class FilterIIR2 : public GenUnit
+{
+protected:
+	AmpValue delayY;  // one sample delay
+	AmpValue delayX;
+	AmpValue inAmp0; // a0
+	AmpValue inAmp1; // a1
+	AmpValue dlyAmp; // b1
+public:
+	FilterIIR2()
+	{
+		delayX = 0;
+		delayY = 0;
+		inAmp0 = 0;
+		inAmp1 = 0;
+		dlyAmp = 0;
+	}
+
+	// inAmp dlyAmp
+	void Init(int n, float *v)
+	{
+		if (n > 2)
+			InitFilter(AmpValue(v[0]), AmpValue(v[1]), AmpValue(v[2]));
+	}
+
+	void Reset(float initPhs = 0)
+	{
+		delayX = 0;
+		delayY = 0;
+	}
+
+	void InitFilter(AmpValue in0, AmpValue in1, AmpValue out)
+	{
+		inAmp0 = in0;
+		inAmp1 = in1;
+		dlyAmp = out;
+	}
+
+	void CalcCoef(FrqValue fc, int hp = 0)
+	{
+		double x = exp(-twoPI * (fc/synthParams.sampleRate));
+		if (hp)
+		{
+			inAmp0 = AmpValue((1.0 + x) / 2.0);
+			inAmp1 = -inAmp0;
+		}
+		else
+		{
+			inAmp0 = 1.0 - x;
+			inAmp1 = 0.0;
+		}
+		dlyAmp = AmpValue(x);
+	}
+
+	AmpValue Sample(AmpValue val)
+	{
+		delayY = (val * inAmp0) + (inAmp1 * delayX) + (delayY * dlyAmp);
+		delayX = val;
+		return delayY;
+
+	}
+};
+
 ///////////////////////////////////////////////////////////
 // FIR impulse response filter:
 //   y[n] = h[0] * x[0] + h[1] * x[n-1] ... + h[m] * x[n-m]
@@ -120,10 +202,7 @@ public:
 		delete imp;
 	}
 
-	// Initialization:
-	//  n -> number of impulses
-	//  h -> array of impluse values
-	void Init(int n, float *h)
+	void AllocImpResp(int n)
 	{
 		if (val)
 		{
@@ -138,13 +217,93 @@ public:
 
 		if ((length = n) > 0)
 		{
-			val = new AmpValue[n];
-			imp = new AmpValue[n];
-			for (int i = 0; i < n; i++)
-			{
-				val[i] = 0;
-				imp[i] = (AmpValue) h[i];
-			}
+			val = new AmpValue[length];
+			imp = new AmpValue[length];
+		}
+	}
+
+	// Initialization:
+	//  n -> number of impulses
+	//  v -> array of impluse values
+	void Init(int n, float *v)
+	{
+		AllocImpResp(n);
+		for (int i = 0; i < n; i++)
+		{
+			val[i] = 0;
+			if (v)
+				imp[i] = AmpValue(v[i]);
+			else
+				imp[i] = 0;
+		}
+	}
+
+	void SetCoef(float *v)
+	{
+		for (int i = 0; i < length; i++)
+			imp[i] = AmpValue(v[i]);
+	}
+	
+	// calculate coefficients for a LP/HP filter
+	// using windowed sinc (Hamming window)
+	void CalcCoef(FrqValue fc, int hp = 0)
+	{
+		if (!(length & 1))
+			return;
+		int n2 = length/2;
+		int ndx1 = n2 + 1;
+		int ndx2 = n2 - 1;
+		double g = 1.0;
+		int k;
+		/**** Direct calculation ****
+		double w1 = fc * synthParams.frqRad;
+		double w2 = 1.0;
+		double w3 = twoPI / (double) (length-1);
+		double phs1 = w1;
+		double phs2 = w2;
+		double phs3 = w3;
+		double v;
+		for (k = 0; k < n2; k++)
+		{
+			v = (sin(phs1) / phs2) * (0.54 + (0.46 * cos(phs3)));
+			g += v + v;
+			imp[ndx1++] = AmpValue(v);
+			imp[ndx2--] = AmpValue(v);
+			phs1 += w1;
+			phs2 += w2;
+			phs3 += w3;
+		}
+		***************/
+		/***** Table lookup *********/
+		PhsAccum ti1 = fc * synthParams.frqTI;
+		PhsAccum ti2 = synthParams.ftableLength / (PhsAccum) (length - 1);
+		PhsAccum tph1 = ti1;
+		PhsAccum tph2 = ti2 + (synthParams.ftableLength / 4);
+		AmpValue divInc = 1.0; // or PI
+		AmpValue div = divInc;
+		AmpValue v;
+		for (k = 0; k < n2; k++)
+		{
+			v = (wtSet.wavSin[(int)(tph1+0.5)] / div) * (0.54 + (0.46 * wtSet.wavSin[(int)(tph2+0.5)]));
+			g += v + v;
+			imp[ndx1++] = v;
+			imp[ndx2--] = v;
+			if ((tph1 += ti1) >= synthParams.ftableLength)
+				tph1 -= synthParams.ftableLength;
+			if ((tph2 += ti2) >= synthParams.ftableLength)
+				tph2 -= synthParams.ftableLength;
+			div += divInc;
+		}
+		/*************************/
+		imp[n2] = 1.0;
+
+		// normalize filter gain for unity at DC
+		// and optionally convert to high-pass
+		for (k = 0; k < length; k++)
+		{
+			imp[k] /= g;
+			if (hp && (k & 1))
+				imp[k] = -imp[k];
 		}
 	}
 
@@ -161,6 +320,7 @@ public:
 	{
 		AmpValue out = imp[0] * inval;
 		/*
+		int n;
 		for (n = length-1; n > 0; n--)
 		{
 			val[n] = val[n-1];
@@ -182,7 +342,6 @@ public:
 			} while (vp > val);
 		}
 		*vp = inval;
-		
 		return out;
 	}
 };
@@ -209,10 +368,10 @@ public:
 		delete prev;
 	}
 
-	void  Init(int n, float *f)
+	void  Init(int n, float *v)
 	{
 		if (n > 0)
-			InitFilter((int)f[0]);
+			InitFilter((int)v[0]);
 	}
 
 	void Reset(float initPhs = 0)

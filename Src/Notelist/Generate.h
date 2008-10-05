@@ -1,15 +1,16 @@
-// Generate.h: interface for the nlGenerate class.
+//////////////////////////////////////////////////////////////////////
+// Generate.h: definition of sequence generation classes.
 //
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_GENERATE_H_)
 #define _GENERATE_H_
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-class nlIntegratorData
+// nlFunctionData holds values for a built-in function
+class nlFunctionData
 {
 public:
 	double beginVal;
@@ -31,7 +32,7 @@ public:
 // a = end - start
 // c = start
 
-	nlIntegratorData()
+	nlFunctionData()
 	{
 		beginVal = 0;
 		endVal = 1;
@@ -71,6 +72,8 @@ enum vType
 	vtReal
 };
 
+// variant value class - can store string, integer or real
+// and provides automatic type conversion.
 class nlVarValue
 {
 public:
@@ -96,11 +99,31 @@ public:
 	virtual void SetValue(char *p);
 	virtual void SetValue(long n);
 	virtual void SetValue(double d);
+	virtual void SetValue(nlVarValue *v);
 	virtual void GetValue(char **p);
 	virtual void GetValue(long *n);
 	virtual void GetValue(double *d);
-	virtual void CopyValue(nlVarValue *p);
-	virtual int  Compare(nlVarValue *p);
+	virtual void CopyValue(nlVarValue *v);
+	virtual int  Compare(nlVarValue *v);
+};
+
+class nlSymbol : public nlVarValue
+{
+public:
+	char *name;
+	nlSymbol *next;
+
+	nlSymbol()
+	{
+		name = NULL;
+	}
+	nlSymbol(char *n)
+	{
+		if (n)
+			name = StrMakeCopy(n);
+		else
+			name = NULL;
+	}
 };
 
 struct nlSyncMark
@@ -110,64 +133,81 @@ struct nlSyncMark
 	nlSyncMark *next;
 };
 
-class nlScriptNode;
-
 class nlNoteData
 {
 public:
-	long nAlloc;
-	long nCount;
-	long nIndex;
-	int nSimul;
-	nlVarValue *pValues;
-	//char *name;
+	long alloc;
+	long count;
+	long index;
+	int simul;
+	nlVarValue *values;
 
 	nlNoteData()
 	{
-		nAlloc = 0;
-		nCount = 0;
-		nIndex = 0;
-		nSimul = 0;
-		pValues = NULL;
+		alloc = 0;
+		count = 0;
+		index = 0;
+		simul = 0;
+		values = NULL;
 	}
 
 	virtual ~nlNoteData()
 	{
-		for (long n = 0; n < nAlloc; n++)
-			pValues[n].ClearValue();
+		for (long n = 0; n < alloc; n++)
+			values[n].ClearValue();
 
-		delete[] pValues;
+		delete[] values;
 	}
 
 	void InitSingle(long n)
 	{
-		nSimul = 0;
-		nCount = 1;
-		nIndex = 0;
-		if (nAlloc == 0)
+		simul = 0;
+		count = 1;
+		index = 0;
+		if (alloc == 0)
 		{
-			pValues = new nlVarValue[1];
-			nAlloc = 1;
+			values = new nlVarValue[1];
+			alloc = 1;
 		}
-		pValues->SetValue(n);
+		values->SetValue(n);
 	}
 
 	void InitSingle(double n)
 	{
-		nSimul = 0;
-		nCount = 1;
-		nIndex = 0;
-		if (nAlloc == 0)
+		simul = 0;
+		count = 1;
+		index = 0;
+		if (alloc == 0)
 		{
-			pValues = new nlVarValue[1];
-			nAlloc = 1;
+			values = new nlVarValue[1];
+			alloc = 1;
 		}
-		pValues->SetValue(n);
+		values->SetValue(n);
 	}
 
 	nlScriptNode *Exec(nlScriptNode *p);
 	int GetNextValue(double *d);
 	int GetNextValue(long *n);
+};
+
+class nlSequence
+{
+	nlVarValue id;
+	nlScriptNode *head;
+	nlScriptNode *tail;
+	nlSequence *next;
+
+	void Init();
+
+public:
+	nlSequence();
+	nlSequence(char *name);
+	nlSequence(int n);
+	~nlSequence();
+	void Play();
+	void Append(nlSequence **list);
+	nlScriptNode *AddNode(nlScriptNode *seq);
+	nlSequence *FindSequence(nlVarValue *find);
 };
 
 class nlVoice
@@ -215,7 +255,7 @@ public:
 		}
 	}
 
-	void SetMaxParam(int n)
+	void SetMaxParam(long n)
 	{
 		if (n < 0)
 			return;
@@ -240,7 +280,6 @@ public:
 	}
 };
 
-
 class nlScriptNode : public nlVarValue
 {
 protected:
@@ -249,10 +288,20 @@ protected:
 	nlGenerate *genPtr;
 
 public:
-	nlScriptNode();
-	virtual ~nlScriptNode();
+	nlScriptNode()
+	{
+		token = -1;
+		next = NULL;
+		genPtr = NULL;
+	}
+	virtual ~nlScriptNode()
+	{
+	}
 
-	virtual void SetGen(nlGenerate *p) { genPtr = p; };
+	virtual void SetGen(nlGenerate *p)
+	{ 
+		genPtr = p; 
+	}
 
 	virtual nlScriptNode *Exec()
 	{
@@ -278,7 +327,6 @@ public:
 	{
 		return next;
 	}
-
 };
 
 class nlVoiceNode : public nlScriptNode
@@ -353,12 +401,12 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
-class nlMixNode : public nlScriptNode
+class nlChnlNode : public nlScriptNode
 {
 public:
-	nlMixNode()
+	nlChnlNode()
 	{
-		token = T_MIX;
+		token = T_CHNL;
 	}
 	virtual nlScriptNode *Exec();
 };
@@ -367,23 +415,23 @@ public:
 class nlNoteNode : public nlScriptNode
 {
 private:
-	int    bSus;
-	int    bAdd;
+	int    sus;
+	int    add;
 
 public:
 	nlNoteNode()
 	{
-		bSus = 0;
-		bAdd = 0;
+		sus = 0;
+		add = 0;
 		token = T_NOTE;
 	}
 	void SetSus(int n)
 	{
-		bSus = n;
+		sus = n;
 	}
 	void SetAdd(int n)
 	{
-		bAdd = n;
+		add = n;
 	}
 
 	virtual nlScriptNode *Exec();
@@ -420,12 +468,63 @@ public:
 	}
 };
 
+class nlIfNode : public nlScriptNode
+{
+private:
+	nlSequence *ifPart;
+	nlSequence *elPart;
+public:
+	nlIfNode()
+	{
+		token = T_IF;
+		ifPart = NULL;
+		elPart = NULL;
+	}
+	virtual ~nlIfNode();
+	void SetIfSequence(nlSequence *p)
+	{
+		ifPart = p;
+	}
+	void SetElseSequence(nlSequence *p)
+	{
+		elPart = p;
+	}
+	virtual nlScriptNode* Exec();
+};
+
+class nlWhileNode : public nlScriptNode
+{
+private:
+	nlSequence *wseq;
+public:
+	nlWhileNode()
+	{
+		token = T_WHILE;
+		wseq = NULL;
+	}
+	virtual ~nlWhileNode();
+	void SetSequence(nlSequence *p)
+	{
+		wseq = p;
+	}
+
+	virtual nlScriptNode* Exec();
+};
+
 class nlLoopNode : public nlScriptNode
 {
+private:
+	nlSequence *lseq;
 public:
 	nlLoopNode()
 	{
+		lseq = NULL;
 		token = T_LOOP;
+	}
+	virtual ~nlLoopNode();
+	void SetSequence(nlSequence *p)
+	{
+		lseq = p;
 	}
 	virtual nlScriptNode *Exec();
 };
@@ -472,14 +571,9 @@ public:
 
 class nlPlayNode : public nlScriptNode
 {
-private:
-	char *name;
-
 public:
-	nlPlayNode(char *p)
+	nlPlayNode()
 	{
-		name = new char[strlen(p)+1];
-		strcpy(name, p);
 		token = T_PLAY;
 	}
 	virtual nlScriptNode *Exec();
@@ -535,23 +629,53 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
-
-class nlSequence
+class nlCallNode : public nlScriptNode
 {
-	char *name;
-	nlScriptNode *iHead;
-	nlScriptNode *iTail;
-	nlScriptNode *iCur;
-
-	nlSequence *pNext;
-
 public:
-	nlSequence(char *name);
-	~nlSequence();
-	void Play();
-	void Append(nlSequence **pList);
-	nlScriptNode *AddNode(nlScriptNode *p);
-	nlSequence *FindSequence(char *pfind);
+	nlCallNode()
+	{
+		token = T_CALL;
+	}
+	virtual nlScriptNode *Exec();
+};
+
+
+class nlSetNode : public nlScriptNode
+{
+private:
+	nlSymbol *symb;
+public:
+	nlSetNode()
+	{
+		token = T_SET;
+		symb = NULL;
+	}
+
+	void SetSymbol(nlSymbol *s)
+	{
+		symb = s;
+	}
+
+	virtual nlScriptNode *Exec();
+};
+
+class nlVarNode : public nlScriptNode
+{
+private:
+	nlSymbol *symb;
+public:
+	nlVarNode()
+	{
+		token = T_VAR;
+		symb = NULL;
+	}
+
+	void SetSymbol(nlSymbol *s)
+	{
+		symb = s;
+	}
+
+	virtual nlScriptNode *Exec();
 };
 
 class nlGenerate  
@@ -561,7 +685,7 @@ private:
 	nlConverter *cvtPtr;
 	nlVoice *curVoice;
 	nlVoice *voiceList;
-	nlSequence *pMain;
+	nlSequence *mainSeq;
 
 	nlVarValue *vStack;
 	nlVarValue *spEnd;
@@ -569,6 +693,9 @@ private:
 	nlSyncMark *synclist;
 
 	long maxParam;
+	double beat;
+	double secBeat;
+	double nlVersion;
 
 	void Clear();
 
@@ -584,25 +711,39 @@ public:
 
 	void SyncTo(nlVarValue *v);
 	void MarkTo(nlVarValue *v);
-	void SetMaxParam(long n);
 
-	double nlVersion;
-	double beat;
-	double secBeat;
-	nlIntegratorData *iFnGen[MAXFGEN];
+	void SetMaxParam(long n) { maxParam = n; }
+	long GetMaxParam() { return maxParam; }
+	void SetVersion(double v) { nlVersion = v; }
+	double GetVersion() { return nlVersion; }
 
-	nlSequence *FindSequence(char *name);
+	void SetTempo(double b, double t)
+	{
+		beat = b;
+		secBeat = t;
+	}
+
+	double ConvertRhythm(double d)
+	{
+		return beat / d * secBeat;
+	}
+
+	nlFunctionData *iFnGen[MAXFGEN];
+
+	nlSequence *FindSequence(nlVarValue *id);
 	void Reset();
 	int Run();
 	void InitStack();
 	void PushStack(long n);
 	void PushStack(double d);
 	void PushStack(char *s);
+	void PushStack(nlVarValue *v);
 	void PopStack(long *n);
 	void PopStack(double *d);
 	void PopStack(char **s);
 	void PopStack(nlVarValue *v);
-	nlSequence *AddSequence(char *name);
+	nlSequence *AddSequence(char *id);
+	nlSequence *AddSequence(int id);
 	nlSequence *SetCurSeq(nlSequence *p);
 	nlScriptNode *AddNode(nlScriptNode *pn);
 	nlScriptNode *AddNode(int token, char *text);

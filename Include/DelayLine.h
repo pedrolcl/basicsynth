@@ -10,7 +10,7 @@
 // 4 - AllPassDelay, delay line with all pass decay value
 // 5 - DelayLineT, multi-tap delay line
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _DELAYLINE_H_
 #define _DELAYLINE_H_
@@ -64,10 +64,11 @@ public:
 		dec = decayFactor;
 	}
 
-	virtual void Init(int n, float *p)
+	// dlytm, decay
+	virtual void Init(int n, float *v)
 	{
 		if (n > 1)
-			InitDL(p[0], p[1]);
+			InitDL(v[0], v[1]);
 	}
 
 	virtual void Reset(float initPhs = 0)
@@ -265,10 +266,11 @@ public:
 		apg = 0;
 	}
 
-	void Init(int n, float *f)
+	// dlyTm, decay
+	void Init(int n, float *v)
 	{
 		if (n > 1)
-			InitDL(f[0], f[1]);
+			InitDL(v[0], v[1]);
 	}
 
 	void Reset(float initPhs = 0)
@@ -332,17 +334,18 @@ public:
 		numTaps = 0;
 	}
 
-	void Init(int n, float *p)
+	// dlytm, taps, [tapn]*
+	void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
 			int taps = 0;
 			if (n > 1)
-				taps = (int) p[1];
-			InitDLT(p[0], taps);
+				taps = (int) v[1];
+			InitDLT(v[0], taps);
 			int i, t;
 			for (i = 2, t = 0; i < n && t < taps; i++, t++)
-				SetTap(t, p[i]);
+				SetTap(t, v[i]);
 		}
 	}
 

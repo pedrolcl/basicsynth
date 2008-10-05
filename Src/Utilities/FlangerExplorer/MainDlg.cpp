@@ -110,7 +110,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	btnStyle.SetIcon(hIcon);
 
 	pitchEd = GetDlgItem(IDC_PITCH_ED);
-	pitchEd.SetWindowText("60");
+	pitchEd.SetWindowText("48");
 
 	sigVol = GetDlgItem(IDC_VOLUME);
 	sigAtk = GetDlgItem(IDC_ATTACK);

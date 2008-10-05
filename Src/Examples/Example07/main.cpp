@@ -5,7 +5,7 @@
 //  1 - echo .3s later
 //  2 - two taps to produce three echos, .3s apart
 //
-// use: Example07
+// use: Example07 [duration [pitch]]
 //
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,13 @@ int main(int argc, char *argv[])
 	long numSounds = 3;
 	long n;
 
-	int pitch = 60;
+	int pitch = 48;
 	FrqValue duration = 0.5;
+	if (argc > 1)
+		duration = atof(argv[1]);
+	if (argc > 2)
+		pitch = atoi(argv[2]);
+
 	AmpValue value;
 	AmpValue lft, rgt;
 
@@ -97,7 +102,7 @@ int main(int argc, char *argv[])
 	dl.InitDLT(dlTime, 2);
 	dl.SetTap(0, 0.25f);
 	dl.SetTap(1, 0.6f);
-	wv.InitWT(synthParams.GetFrequency(60), WT_SAW);
+	wv.InitWT(synthParams.GetFrequency(pitch), WT_SAW);
 	eg.InitEG(1.0f, duration, 0.05f, 0.05f);
 
 	theMix.ChannelVolume(0, 0.5f);

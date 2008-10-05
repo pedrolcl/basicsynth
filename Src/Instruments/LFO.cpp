@@ -1,13 +1,18 @@
-// LFO.cpp: implementation of the LFO class.
+//////////////////////////////////////////////////////////////////////
+// BasicSynth LFO: Low Frequency Oscillator
 //
+// Used for vibrato and similar effects. By default this uses the
+// fast GenWave32 oscillator and introduces minimal additional
+// calculation to the instrument when applied to the PhaseModWT input
+// of other oscillators.
+// A one-segment attack envelope is built-in to the LFO unit to allow
+// for delayed onset of vibrato.
+//
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "LFO.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 LFO::LFO()
 {

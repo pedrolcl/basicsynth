@@ -9,17 +9,13 @@
 // GenWave32 - wavetable generator w/ fast 32-bit fixed point index
 // GenWave64 - wavetable generator w/ fast 64-bit fixed point index
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _GENWAVET_H_
 #define _GENWAVET_H_
 
 #include "WaveTable.h"
 #include "GenWave.h"
-
-/////////////////////////////////////////////////////
-// WAVE TABLE Oscillators
-////////////////////////////////////////////////////
 
 // Generic wavetable based generator (oscillator)
 class GenWaveWT : public GenWave
@@ -109,13 +105,13 @@ public:
 	}
 
 	// Fo WT
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
-			SetFrequency((FrqValue)p[0]);
+			SetFrequency(FrqValue(v[0]));
 			if (n > 1)
-				SetWavetable((int)p[1]);
+				SetWavetable((int)v[1]);
 		}
 		Reset();
 	}
@@ -200,7 +196,7 @@ public:
 
 	virtual AmpValue Gen()
 	{
-		AmpValue v= waveTable[(i32Index + 0x8000) >> 16];
+		AmpValue v = waveTable[(i32Index + 0x8000) >> 16];
 		i32Index = (i32Index + i32IndexIncr) & i32IndexMask;
 		return v; 
 	}

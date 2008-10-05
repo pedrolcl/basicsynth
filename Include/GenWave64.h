@@ -1,5 +1,11 @@
-// Fast wavetable generator using Q24.40 index
+///////////////////////////////////////////////////////////////
+//
+// BasicSynth - Fast wavetable generator using Q24.40 index
 // Very precise phase increment if you have 64-bit data type.
+//
+// Copyright 2008, Daniel R. Mitchell
+///////////////////////////////////////////////////////////////
+
 #ifndef _GENWAVE64_H_
 #define _GENWAVE64_H_
 
@@ -12,7 +18,7 @@
 typedef long long int64;
 #endif
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #define round64 0x8000000000
 typedef __int64 int64;
 #endif

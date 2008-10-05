@@ -237,7 +237,7 @@ int XmlSynthElem::SetAttribute(char *attrName, const char *val)
 int XmlSynthElem::TagMatch(const char *tag)
 {
 	if (nodeTag != NULL)
-		return _stricmp(nodeTag, tag) == 0;
+		return strcmp(nodeTag, tag) == 0;
 	return tag == NULL;
 }
 
@@ -349,6 +349,11 @@ XmlSynthElem *XmlSynthDoc::Open(char *fname)
 			CComPtr<IXMLDOMElement> xmlroot;
 			pDoc->get_documentElement(&xmlroot);
 			rootElem->SetNode(xmlroot);
+		}
+		else
+		{
+			delete rootElem;
+			rootElem = NULL;
 		}
 	}
 	return rootElem;

@@ -1,3 +1,15 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth WaveFile playback instrument
+//
+// See _BasicSynth_ Chapter 23 for a full explanation
+//
+// This instrument plays a wave file. The sound is loaded into
+// a cache and can be shared by multiple instrument instances.
+// The sound can be played once or looped, and a simple AR 
+// envelope can be applied to fade in/out.
+//
+// Copyright 2008, Daniel R. Mitchell
+//////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "WFSynth.h"

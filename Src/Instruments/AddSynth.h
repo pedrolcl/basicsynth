@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
-// Additive Synthesis instrument
+// BasicSynth Additive Synthesis instrument
 //
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_ADDSYNTH_H_)
@@ -11,6 +12,7 @@
 struct AddSynthPart
 {
 	GenWaveWT osc;
+	//GenWaveI osc; <-- if you prefer interpolation
 	EnvGenSegSus env;
 	FrqValue  mul; // frequency multiplier
 

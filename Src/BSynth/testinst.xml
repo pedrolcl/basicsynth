@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<instrLib>
+<instrlib>
  <lib name="Basic" desc="Basic instrument library" />
  <instr id="4" type="AddSynth" name="Flut" parts="3" >
   <part pn="0"  mul="1">
@@ -43,4 +43,4 @@
   </env>
   <lfo frq="3.5" wt="0" dly="0" rt="0.0" amp="1.2" />
  </instr>
-</instrLib>
+</instrlib>

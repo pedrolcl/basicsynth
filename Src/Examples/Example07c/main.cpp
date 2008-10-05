@@ -17,6 +17,7 @@
 
 #include "SynthDefs.h"
 #include "WaveFile.h"
+#include "WaveTable.h"
 #include "EnvGen.h"
 #include "DelayLine.h"
 #include "Filter.h"
@@ -51,11 +52,12 @@ int main(int argc, char *argv[])
 	//lp.InitFilter(0.5, 0.45);
 	eg.InitEG(1.0, duration, 0.0, 0.01);
 
-	int pitch[] = { 36, 40, 43, 48, 52, 55, 60, 64, 67, 72 };
+	int pitch[] = { 24, 28, 31, 36, 40, 43, 48, 52, 55, 60, 64, 67, 72 };
+	int npitch = sizeof(pitch) / sizeof(int);
 
 	long totalSamples = (long) (duration * synthParams.sampleRate);
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < npitch; i++)
 	{
 		freq = synthParams.GetFrequency(pitch[i]);
 		// Note: the dlTime is slightly inaccurate since delay length

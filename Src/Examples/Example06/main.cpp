@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 	theMix.MasterVolume(1.0, 1.0);
 	theMix.ChannelOn(0, true);
 	theMix.ChannelVolume(0, 0.8);
+
 	AmpValue lftOut;
 	AmpValue rgtOut;
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
 	int pm;
 
 	eg1.InitEG(1.0, duration, 0.1, 0.1);
-	wv1.InitWT(synthParams.GetFrequency(60), WT_USR(0));
+	wv1.InitWT(synthParams.GetFrequency(48), WT_USR(0));
 
 	EnvSegLin pan;
 
@@ -82,11 +83,11 @@ int main(int argc, char *argv[])
 	long numSounds = 5;
 
 	// make a little scale...
-	frequency[0] = synthParams.GetFrequency(60);
-	frequency[1] = synthParams.GetFrequency(62);
-	frequency[2] = synthParams.GetFrequency(64);
-	frequency[3] = synthParams.GetFrequency(65);
-	frequency[4] = synthParams.GetFrequency(67);
+	frequency[0] = synthParams.GetFrequency(48);
+	frequency[1] = synthParams.GetFrequency(50);
+	frequency[2] = synthParams.GetFrequency(52);
+	frequency[3] = synthParams.GetFrequency(53);
+	frequency[4] = synthParams.GetFrequency(55);
 	// linear
 	for (snd = 0; snd < numSounds; snd++)
 	{

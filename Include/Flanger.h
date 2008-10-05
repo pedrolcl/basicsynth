@@ -1,14 +1,12 @@
 /////////////////////////////////////////////////////////////////////
 //
-// Flanger.h
-//
 // BasicSynth Flanger/Chorus unit. Uses a variable tap delay line
 // to modulate the delay. Allows feedback to provide for allpass filtering. 
 //
 // See: Jon Dattorro, "Effect Design", Journal of the Audio Engineering
 //      Society, Vol 45, No. 10, 1997 October, p. 764
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////////
 #ifndef _FLANGER_H_
 #define _FLANGER_H_
@@ -60,10 +58,10 @@ public:
 		sweep = wv.GetFrequency();
 	}
 
-	void Init(int n, float *p)
+	void Init(int n, float *v)
 	{
 		if (n >= 5)
-			InitFlanger(p[0], p[1], p[2], p[3], p[4], p[5]);
+			InitFlanger(AmpValue(v[0]), AmpValue(v[1]), AmpValue(v[2]), FrqValue(v[3]), FrqValue(v[4]), FrqValue(v[5]));
 	}
 
 	void Reset(float initPhs = 0)

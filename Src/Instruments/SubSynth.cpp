@@ -1,5 +1,7 @@
 //////////////////////////////////////////////////////////////////////
-// Subtractive Synthesis Instrument implementation
+// BasicSynth Subtractive synthesis instrument
+//
+// See _BasicSynth_ Chapter 21 for a full explanation
 //
 // This instrument contains an Oscillator, Noise source, low-pass filter,
 // and envelope generators for amplitude and filter frequency.
@@ -7,14 +9,13 @@
 // The implementation uses the DynFilterLP which combines the filter
 // and envelope generator. To use another filter, un-comment the
 // code for envFilt and select the appropriate type of filter for filt.
+//
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "SubSynth.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 Instrument *SubSynth::SubSynthFactory(InstrManager *m, Opaque tmplt)
 {
 	SubSynth *ip = new SubSynth;

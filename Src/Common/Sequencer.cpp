@@ -18,36 +18,37 @@
 #include <Instrument.h>
 #include <Sequencer.h>
 
-// Add the event to the sequence. The caller is responsible for setting
-// valid values for inum, start, duration, type and eventid.
+// Add the event to the sequence sorted by start time.
+// The caller is responsible for setting valid values 
+// for inum, start, duration, type and eventid.
 void Sequencer::AddEvent(SeqEvent *evt)
 {
+	if (evt == 0)
+		return;
+
 	//printf("Add Event %d at time %d\n", evt->evid, evt->start);
 	if (evtLast == NULL)
 		evtLast = evtHead;
-	if (evt)
+	SeqEvent *inspt;
+	if (evt->start >= evtLast->start)
 	{
-		SeqEvent *inspt;
-		if (evt->start >= evtLast->start)
+		do
 		{
-			do
-			{
-				inspt = evtLast;
-				evtLast = evtLast->next;
-			} while (evt->start >= evtLast->start);
-			inspt->Insert(evt);
-			evtLast = evt;
-		}
-		else
+			inspt = evtLast;
+			evtLast = evtLast->next;
+		} while (evt->start >= evtLast->start);
+		inspt->Insert(evt);
+		evtLast = evt;
+	}
+	else
+	{
+		do
 		{
-			do
-			{
-				inspt = evtLast;
-				evtLast = evtLast->prev;
-			} while (evt->start < evtLast->start);
-			evtLast->Insert(evt);
-			evtLast = evt;
-		}
+			inspt = evtLast;
+			evtLast = evtLast->prev;
+		} while (evt->start < evtLast->start);
+		evtLast->Insert(evt);
+		evtLast = evt;
 	}
 	bsInt32 e = evt->start + evt->duration;
 	if (e >= seqLength)
@@ -153,12 +154,12 @@ bsInt32 Sequencer::Sequence(InstrManager& instMgr, bsInt32 startTime, bsInt32 en
 				break;
 		}
 		// Cycle all active events (Tick)
+		// This is "IT" - where we actually generate samples...
 		actCount = 0;
 		actWait = 0;
 		act = actHead->next;
 		while (act != actTail)
 		{
-			// This is "IT" - where we actually generate samples...
 			if (act->ison)
 			{
 				if (act->count-- == 0)

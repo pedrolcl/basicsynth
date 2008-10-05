@@ -7,7 +7,7 @@
 //	2 - low-pass filtered resonator
 //  3 - Schroeder style reverb
 //
-// use: Example07a
+// use: Example07a [duration [pitch]]
 //
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,14 @@ int main(int argc, char *argv[])
 
 	long n; // sample counter
 
-	FrqValue middleC = synthParams.GetFrequency(60);
+	int pitch = 48;
 	FrqValue duration = 0.5;
+	if (argc > 1)
+		duration = atof(argv[1]);
+	if (argc > 2)
+		pitch = atoi(argv[2]);
+
+	FrqValue middleC = synthParams.GetFrequency(pitch);
 	AmpValue v1, v2;
 
 	GenWaveI wv;

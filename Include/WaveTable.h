@@ -13,7 +13,7 @@
 //       performance. If you fail to call Init(), things will
 //       crash very quickly...
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _WAVETABLE_H_
 #define _WAVETABLE_H_
@@ -82,10 +82,9 @@ public:
 	}
 
 	// Initialize the default wavetables. 
-	// This method initializes the default wave tables (WT_SIN, WT_SAW, WT_SQR, WT_TRI).
-	// Init is redundant since we could repeatedly call SetWaveTable, but this is slightly
-	// faster in that it can do all default tables in one pass.
-	// The NUM_PARTS constant is set to allow oscillator frequencies up to 2 octaves above middle C.
+	// This method initializes the default wave tables.
+	// The NUM_PARTS constant is set to allow oscillator frequencies 
+	// up to 2 octaves above middle C.
 	// Higher pitches will produce alias frequencies.
 	// For higher partials, or higher pitches, use GenWaveSum
 	void Init(bsInt32 wtUsr = 0)

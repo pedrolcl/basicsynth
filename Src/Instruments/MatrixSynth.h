@@ -1,5 +1,7 @@
-// MatrixSynth.h: interface for the MatrixSynth class.
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Matrix Synthesis instrument
 //
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_MATRIXSYNTH_H_)
@@ -34,7 +36,7 @@
 #define TONE_MOD7IN  0x00400000
 #define TONE_MOD8IN  0x00800000
 //#define TONE_MODXX   0xFF000000 <= available
-#define TONE_MODANY  0x00FF0004
+#define TONE_MODANY  0x00FF000C
 
 class MatrixTone
 {
@@ -43,7 +45,7 @@ private:
 	FrqValue frqMult;  // Frequency multiplier
 	AmpValue volLvl;   // Signal out level
 	AmpValue modLvl;   // Modulation in level
-	PhsAccum modRad;   // in radians
+	PhsAccum modRad;   // ...in radians
 	AmpValue lfoLvl;   // LFO input level
 	AmpValue pbLvl;    // Pitch Bend level
 	AmpValue panSet;   // Pan setting -1,+1

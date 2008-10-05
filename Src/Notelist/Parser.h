@@ -1,13 +1,13 @@
-// Parser.h: interface for the nlParser class.
+//////////////////////////////////////////////////////////////////////
+// Definition of the notelist nlParser class.
 //
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_PARSER_H_)
 #define _PARSER_H_
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 class nlParser
 {
@@ -71,49 +71,54 @@ public:
 		octMiddleC = n;
 	}
 
-	int Parse();
-	int Version();
-	int Include();
-	int IncludeNotes();
-	int Statement();
 	int Param1(char *where);
 	int Error(char *s, int *skiplist);
 	int SkipTo(int *skiplist);
 	int SkipBlock();
+
+	int Parse();
+	int Score();
+	int Statement();
+	int Version();
+	int System();
+	int Script();
+	int Include();
+	int Declare();
+	int Set();
 	int Voice();
-	int MixBlock();
+	int Mix();
 	int Tempo();
-	int Time();
+	int MiddleC();
+	int MaxParam();
+	int Map();
 	int Mark();
 	int Sync();
 	int Write();
 	int Sequence();
-	int Instrument();
-	int Mixer();
-	int MaxParam();
 	int Notelist();
+	int Time();
+	int Artic();
+	int Instrument();
+	int Channel();
 	int Note();
-	int NoteParam();
+	int Param();
 	int Play();
-	int Crescendo();
-	int Accelerando();
-	int Integral();
-	int Repeat();;
 	int Loop();
-	int List();
+	int IfStmt();
+	int WhileStmt();
+	int Valgroup();
 	int Volume();
 	int Transpose();
 	int Double();
+	int Call();
 	int Expr();
-	int CatOp();
-	int LogOp();
-	int AddOp();
-	int MulOp();
+	int Catenate();
+	int Logical();
+	int Relation();
 	int Term();
+	int Factor();
+	int Value();
 	int InitFn();
-	int Artic();
-	int MiddleC();
-	int Map();
 	long PitVal(char *pStr);
 	double DurVal(char *pStr, int& dot);
 	int FnArgs(int nMax = 0);

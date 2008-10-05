@@ -138,7 +138,7 @@ void InitLine(long dx, long dy, int dir)
 int main(int argc, char *argv[])
 {
 	InitSynthesizer();
-	int pitch = 60; // Middle C
+	int pitch = 48; // Middle C
 	FrqValue duration = 1;
 	long volume = (long) synthParams.sampleScale;
 

@@ -146,7 +146,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	UIAddChildWindowContainer(m_hWnd);
 
 	pitchEd = GetDlgItem(IDC_PITCH);
-	pitchEd.SetWindowText("60");
+	pitchEd.SetWindowText("48");
 
 	for (int ndx = 0; ndx < WFI_MAXPART; ndx++)
 	{
@@ -227,10 +227,7 @@ double CMainDlg::GetFrequency()
 	valstr[0] = 0;
 	pitchEd.GetWindowText(valstr, 40);
 	int pit = atoi(valstr);
-	double frq = 220.0;
-	if (pit != 56)
-		frq *= pow(2, (double) (pit - 57) / 12.0);
-	return frq;
+	return synthParams.GetFrequency(pit);
 }
 
 LRESULT CMainDlg::OnPlay(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

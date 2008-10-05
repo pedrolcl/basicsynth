@@ -6,7 +6,7 @@
 // the needs of the synthesizer and make direct OS API
 // calls to eliminate stdio library overhead.
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////
 
 #ifndef _SYNTHFILE_H_

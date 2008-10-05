@@ -112,7 +112,7 @@ void Silence(FrqValue duration)
 
 int main(int argc, char *argv[])
 {
-	int pitch = 60;  // middle C
+	int pitch = 48;  // middle C
 	FrqValue duration = 1.0;
 	AmpValue lfoAmp = 10;
 	bsInt32 tl = 16384;

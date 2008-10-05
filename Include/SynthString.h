@@ -3,6 +3,8 @@
 //
 // This is not a very clever or extensive string class,
 // but it does all that BasicSynth needs.
+//
+// Copyright 2008, Daniel R. Mitchell
 ////////////////////////////////////////////////////////
 #ifndef _SYNTHSTRING_
 #define _SYNTHSTRING_

@@ -10,7 +10,7 @@
 // GenWaveRM - ring modulation generator
 // GenWaveNZ - pitched noise
 //
-// Daniel R. Mitchell
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _GENWAVEX_H_
 #define _GENWAVEX_H_
@@ -51,13 +51,13 @@ public:
 	}
 
 	// Fo, WT, n, {part,amp}*n, Gibbs
-	void Init(int n, float *p)
+	void Init(int n, float *v)
 	{
 		if (n > 2)
 		{
-			AllocParts((int)p[2]);
+			AllocParts((int)v[2]);
 			int n2 = n - 3;
-			float *p2 = p + 3;
+			float *p2 = v + 3;
 			for (int i = 0; i < numPart && n2 >= 2; i++)
 			{
 				SetPart(i, p2[0], p2[1]);
@@ -67,7 +67,7 @@ public:
 			if (n2 > 0)
 				gibbs = (int) p2[0];
 		}
-		GenWaveWT::Init(n, p);
+		GenWaveWT::Init(n, v);
 	}
 
 	void InitParts(int n, float *m, float *a, int g = 0)
@@ -98,8 +98,8 @@ public:
 	void SetPart(int n, float mul, float amp, float phs = 0)
 	{
 		SumPart *pp = &parts[n];
-		pp->amp = (AmpValue)amp;
-		pp->mul = (PhsAccum)mul;
+		pp->amp = AmpValue(amp);
+		pp->mul = PhsAccum(mul);
 		pp->incr = 0;
 		pp->phase = phs;
 		if (n > maxPart)
@@ -206,7 +206,7 @@ public:
 // FM (PM) Generator
 // Any WT class has a modulator input. This special class has the
 // modulator oscillator built in for convienence.
-// The Modulate() method still works, and can be used for LFO.
+// The Modulate() method also works, and can be used for LFO.
 class GenWaveFM : public GenWaveWT
 {
 private:
@@ -227,15 +227,10 @@ public:
 	}
 
 	// Fc, WT, H, I
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
-		if (n > 2)
-		{
-			modMult = (PhsAccum)p[2];
-			if (n > 3)
-				indexOfMod = (PhsAccum)p[3];
-		}
-		GenWave::Init(n, p);
+		if (n > 3)
+			InitFM(FrqValue(v[0]), FrqValue(v[2]), AmpValue(v[3]), (int) v[1]);
 	}
 
 	virtual void InitFM(FrqValue frequency, FrqValue mult, AmpValue mi, int wtIndex)
@@ -324,15 +319,10 @@ public:
 	}
 
 	// Fc, WT, Fm, Am
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
-		if (n > 2)
-		{
-			modFrq = (PhsAccum)p[2];
-			if (n > 3)
-				modAmp = (PhsAccum)p[3];
-		}
-		GenWave::Init(n, p);
+		if (n > 3)
+			InitAM(FrqValue(v[0]), FrqValue(v[2]), FrqValue(v[3]), (int) v[1]);
 	}
 
 	virtual void InitAM(FrqValue frequency, FrqValue mfrq, AmpValue mamp, int wtIndex)
@@ -393,9 +383,11 @@ private:
 	GenNoiseI nz;
 
 public:
-	virtual void Init(int n, float *values)
+	// Fo WT Fn
+	virtual void Init(int n, float *v)
 	{
-		InitNZ(values[0], values[1], (int) values[2]);
+		if (n > 2)
+			InitNZ(FrqValue(v[0]), FrqValue(v[2]), (int) v[1]);
 	}
 
 	virtual void InitNZ(FrqValue frequency, FrqValue nzfrq, int wtIndex)

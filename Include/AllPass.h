@@ -11,22 +11,22 @@
 class AllPassFilter : public GenUnit
 {
 private:
-	AmpValue gain;
+	AmpValue amp;
 	AmpValue prevX;
 	AmpValue prevY;
 
 public:
 	AllPassFilter()
 	{
-		gain = 0.5;
+		amp = 0;
 		prevX = 0;
 		prevY = 0;
 	}
 
-	void Init(int n, float *p)
+	void Init(int n, float *v)
 	{
 		if (n > 0)
-			InitAP(p[0]);
+			InitAP(v[0]);
 	}
 
 	void Reset(float initPhs = 0)
@@ -37,20 +37,20 @@ public:
 
 	void InitAP(float d)
 	{
-		gain = (1.0 - d) / (1.0 + d);
+		amp = (1.0 - d) / (1.0 + d);
 	}
 
 	AmpValue Sample(AmpValue val)
 	{
 		AmpValue out;
-		out = (gain * val) + prevX - (gain * prevY);
+		out = (amp * val) + prevX - (amp * prevY);
 		prevX = val;
 		prevY = out;
 		return out;
-		// Direct Form II
+		// Alternate:
 		//out = prevY;
-		//prevY =  val - (prevY * gain);
-		//return out + (prevY * gain);
+		//prevY = val - (prevY * amp);
+		//return out + (prevY * amp);
 	}
 };
 

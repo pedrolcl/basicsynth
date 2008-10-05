@@ -51,10 +51,11 @@ public:
 		return susSeg;
 	}
 
-	virtual void Init(int n, float *p)
+	// rate, start, end
+	virtual void Init(int n, float *v)
 	{
 		if (n >= 3)
-			InitSeg(p[0], p[1], p[2]);
+			InitSeg(FrqValue(v[0]), AmpValue(v[1]), AmpValue(v[2]));
 	}
 
 	inline void SetStart(AmpValue s) { start = s; }
@@ -362,6 +363,9 @@ struct EnvDef
 	}
 };
 
+///////////////////////////////////////////////////////////
+// Interface definition for multi-segment envelope generators
+///////////////////////////////////////////////////////////
 class EnvGenUnit : public GenUnit
 {
 public:
@@ -445,19 +449,19 @@ public:
 	}
 
 	// n -> number of segments
-	// p -> array of rate, level, type tuples
+	// v -> array of rate, level, type tuples
 	//      L0,{R1,L1.T1}..{Rn,Ln,Tn}
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
-			segStart = *p++;
+			segStart = *v++;
 			n--;
 			SetSegs(n/3);
 			for (int i = 0; i < numSeg; i++)
 			{
-				SetSegN(i, p[0], p[1], (EGSegType) (int) p[2]);
-				p += 3;
+				SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2]);
+				v += 3;
 			}
 		}
 		Reset();
@@ -568,7 +572,7 @@ public:
 	virtual void Release()
 	{
 		// NOOP for the base class...
-		// derived classes must control the sustain state.
+		// derived classes should transition to release state
 	}
 
 	virtual void NextSeg()
@@ -786,28 +790,28 @@ public:
 		segStart = ap->segStart;
 	}
 
-	virtual void Init(int n, float *p)
+	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 		{
-			AmpValue start = *p++;
+			AmpValue start = *v++;
 			atk.SetStart(start);
-			int atksegs = (int) *p++;
-			int decsegs = (int) *p++;
+			int atksegs = (int) *v++;
+			int decsegs = (int) *v++;
 			SetSegs(atksegs, decsegs);
 			n += 3;
 			int i;
 			for (i = 0; i < atksegs; i++)
 			{
-				atk.SetSegN(i, FrqValue(p[0]), AmpValue(p[1]), (EGSegType) (int) p[2]);
-				p += 3;
-				start = p[1];
+				atk.SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2]);
+				v += 3;
+				start = v[1];
 			}
 			dec.SetStart(start);
 			for (i = 0; i < decsegs; i++)
 			{
-				dec.SetSegN(i, p[0], p[1], (EGSegType) (int) p[2]);
-				p += 3;
+				dec.SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2]);
+				v += 3;
 			}
 		}
 		Reset();
@@ -880,6 +884,13 @@ public:
 	}
 };
 
+///////////////////////////////////////////////////////////
+// Table lookup envelope generator. The entire envelope
+// is calculated once and stored in a lookup table. 
+// This is more efficient when the envelope rarely changes.
+// Note that this derives directly from GenUnit and does
+// not include the Release method of EnvGenUnit. 
+///////////////////////////////////////////////////////////
 class EnvGenTable : public GenUnit
 {
 private:
@@ -909,7 +920,7 @@ public:
 	{
 		if (index < count)
 			return egTable[index++];
-		return egTable[count-1];
+		return egTable[count];
 	}
 
 	virtual int IsFinished()
@@ -917,20 +928,23 @@ public:
 		return index >= count;
 	}
 
-	virtual void Init(int n, float *f)
+	// segs, start, [rate, level]*
+	virtual void Init(int n, float *v)
 	{
 		if (n >= 2)
 		{
-			int segs = (int) *f++;
-			AmpValue start = AmpValue(*f++);
+			int segs = (int) *v++;
+			if (segs < 1)
+				segs = 1;
+			AmpValue start = AmpValue(*v++);
 			FrqValue *rts  = new FrqValue[segs];
 			AmpValue *amps = new AmpValue[segs];
 			n -= 2;
 			int i = 0;
 			while (n >= 2)
 			{
-				rts[i]  = FrqValue(*f++);
-				amps[i] = AmpValue(*f++);
+				rts[i]  = FrqValue(*v++);
+				amps[i] = AmpValue(*v++);
 				n -= 2;
 				i++;
 			}
@@ -963,7 +977,7 @@ public:
 			dcount += rt[segn];
 
 		count = (long) ((synthParams.sampleRate * dcount) + 0.5);
-		egTable = new AmpValue[count];
+		egTable = new AmpValue[count+1];
 
 		FrqValue ndxf = 0;
 		AmpValue vbeg = start;
@@ -1008,7 +1022,7 @@ public:
 			vbeg = vend;
 		}
 		index = (int)ndxf;
-		while (index < count)
+		while (index <= count)
 			egTable[index++] = vend;
 
 		index = 0;

@@ -115,7 +115,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	gen1RelEd = GetDlgItem(IDC_CREL_EDIT);
 
 	InitValue(gen1Frq, gen1FrqEd, 0, 120, 12);
-	PutSetting(gen1Frq, gen1FrqEd, 60.0, 1);
+	PutSetting(gen1Frq, gen1FrqEd, 48.0, 1, 120);
 	InitValue(gen1Vol, gen1VolEd, 0, 100, 10);
 	InitValue(gen1Sus, gen1SusEd, 0, 100, 10);
 	InitValue(gen1Atk, gen1AtkEd, 0, 4000, 400);

@@ -1,4 +1,19 @@
-
+/////////////////////////////////////////////////////
+// BasicSynth XML Wrapper class definitions
+//
+// These classes provide a portable abstraction over the XML DOM.
+//
+// define USE_MSXML to use the MS Windows msxml dll
+// define USE_LIBXML to use the libxml2 library
+// define neither to create a dummy XML class
+// 
+// Compile the appropriate .cpp file as well:
+//  XmlWrapW.cpp - MSXML
+//  XmlWrapU.cpp - Libxml2
+//  XmlWrapN.cpp - no XML support
+//
+// Copyright 2008, Daniel R. Mitchell
+/////////////////////////////////////////////////////
 #if !defined(_XMLWRAP_H_)
 #define _XMLWRAP_H
 

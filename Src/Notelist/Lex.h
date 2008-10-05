@@ -1,13 +1,18 @@
-// Lex.h: interface for the nlLex class.
+//////////////////////////////////////////////////////////////////////
+// Definition of the lexical scanner classes
 //
+// nlLexIn is the pure-virtual base class for stream input
+// nlLexFileIn provides support for reading from a file
+// nlLexFileMem provides support for reading from a memory buffer
+// nlLex is the lexical scanner
+//
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_LEX_H_)
 #define _LEX_H_
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #ifndef EOF
 #define EOF (-1)
@@ -42,7 +47,7 @@ public:
 
 	virtual int Getc()
 	{
-		char ch;
+		int ch;
 		if (savch != -1)
 		{
 			ch = savch;
@@ -50,7 +55,8 @@ public:
 		}
 		else
 		{
-			if (input.FileRead(&ch, 1) != 1)
+			ch = input.ReadCh();
+			if (ch == -1)
 				return EOF;
 		}
 		return ch;
@@ -76,15 +82,15 @@ public:
 class nlLexFileMem : public nlLexIn
 {
 private:
-	char *current;
-	char *start;
-	char *end;
+	unsigned char *current;
+	unsigned char *start;
+	unsigned char *end;
 	int  savch;
 public:
 	nlLexFileMem(const char *p, size_t n)
 	{
 		savch = -1;
-		start = (char *)p;
+		start = (unsigned char *)p;
 		current = start;
 		end = start + n;
 	}
@@ -108,18 +114,18 @@ public:
 
 	virtual int Getc()
 	{
-		int c;
+		int ch;
 		if (savch != -1)
 		{
-			c = savch;
+			ch = savch;
 			savch = -1;
-			return c;
+			return ch;
 		}
 		if (current < end)
-			c = (int) *current++;
-		else
-			c = EOF;
-		return c;
+		{
+			return ((int) *current++) & 0xFF;
+		}
+		return EOF;
 	}
 
 	virtual int Look()
@@ -134,6 +140,8 @@ public:
 	virtual void Ungetc(int ch)
 	{
 		savch = ch;
+		if (ch < 0)
+			OutputDebugString("HEY");
 	}
 };
 
@@ -158,7 +166,7 @@ public:
 
 	inline char *Tokbuf()
 	{
-		return cTokbuf;
+		return (char*)cTokbuf;
 	}
 
 	inline int Lineno()

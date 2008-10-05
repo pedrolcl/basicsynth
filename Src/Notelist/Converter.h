@@ -1,19 +1,16 @@
 //////////////////////////////////////////////////////////////////////
-// Notelist.h
-// Converter.h: interface for the nlConverter class.
-// This is the base class that implements output to the BasicSynth
-// sequencer (Text files). For other synthesizers, derive a class and override
-// the various Begin* and End* methods.
+// This is the base class that provides an interface to the script
+// conversion modules and implements output to the BasicSynth sequencer. 
 //
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_CONVERTER_H_)
 #define _CONVERTER_H_
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
+// prototype for the error and debug output callbacks
 class nlErrOut
 {
 public:
@@ -31,6 +28,7 @@ public:
 	}
 };
 
+// nlParamMap holds a set of parameter mappings for an instrument
 class nlParamMap : public SynthList<nlParamMap>
 {
 public:
@@ -109,6 +107,10 @@ public:
 	}
 };
 
+// the convert class. 
+// Invoke Convert() to parse the input file then Generate() to produce the sequence.
+// Convert() may be called multiple times to process more than one input file
+// for the same sequence.
 class nlConverter  
 {
 protected:
@@ -123,18 +125,14 @@ protected:
 
 	Sequencer *seq;
 	InstrManager *mgr;
+	nlScriptEngine *eng;
 
+	nlSymbol *symbList;
 	nlGenerate gen;
 	nlParser parser;
 
 	double sampleRate;
 	long evtCount;
-
-#ifdef NL_INCLUDE_JS
-	JSRuntime *jsRT;
-	JSContext *jsCTX;
-	JSObject  *jsNotelist;
-#endif
 
 	void MakeEvent(int evtType, double start, double dur, double vol, double pit, int pcount, double *params);
 
@@ -147,7 +145,7 @@ public:
 	void SetMaxError(int n) { maxError = n; }
 	int GetMaxError() { return maxError; }
 
-	virtual int Convert(const char *filename, nlLexIn *in);
+	virtual int Convert(const char *filename, nlLexIn *in = 0);
 	virtual int Generate();
 	virtual void Reset();
 
@@ -171,6 +169,20 @@ public:
 		sampleRate = sr;
 	}
 
+	void SetScriptEngine(nlScriptEngine *ep)
+	{
+		if ((eng = ep) != NULL)
+		{
+			eng->SetConverter(this);
+			eng->SetGenerater(&gen);
+		}
+	}
+
+	nlScriptEngine *GetScriptEngine()
+	{ 
+		return eng;
+	}
+
 	virtual void DebugNotify(int n, char *s)
 	{
 		if (debugLevel >= n && eout)
@@ -179,10 +191,12 @@ public:
 
 	virtual void ShowError(char *s)
 	{
-		DebugNotify(1, s);
 		if (eout)
 			eout->OutputError(s);
 	}
+
+	nlSymbol *Lookup(char *name);
+	nlSymbol *AddSymbol(char *name);
 
 	virtual int  FindInstrNum(char *name);
 	virtual void SetParamMap(int in, int pn, int mn, double sc);
@@ -196,88 +210,6 @@ public:
 	virtual void ContinueNote(double start, double vol, double pit, int pcount, double *params);
 	virtual void Write(char *txt);
 
-#ifdef NL_INCLUDE_JS
-	// support for JavaScript
-	void GetCurTime(jsval *vp)
-	{
-		double d = 0.0;
-		if (curVoice != NULL)
-			d = curVoice->curTime;
-		JS_NewDoubleValue(jsCTX, d, vp);
-	}
-
-	void GetCurPitch(jsval *vp)
-	{
-		double d = 48.0;
-		if (curVoice != NULL)
-			d = (double) curVoice->lastPit;
-		JS_NewDoubleValue(jsCTX, d, vp);
-	}
-
-	void GetCurVol(jsval *vp)
-	{
-		double d = 100;
-		if (curVoice != NULL)
-			d = curVoice->lastVol;
-		JS_NewDoubleValue(jsCTX, d, vp);
-	}
-
-	void GetCurRhythm(jsval *vp)
-	{
-		double d = 0;
-		if (curVoice != NULL)
-			d = curVoice->lastDur;
-		JS_NewDoubleValue(jsCTX, d, vp);
-	}
-
-	void GetCurParams(jsval *vp)
-	{
-		JSObject *obj = JS_NewArrayObject(jsCTX, 0, NULL);
-		jsval parm;
-		for (int i = 0; i < 16; i++)
-		{
-			JS_NewDoubleValue(jsCTX, curVoice->lastParam[i], &parm);
-			JS_SetElement(jsCTX, obj, i, &parm);
-		}
-		*vp = OBJECT_TO_JSVAL(obj);
-	}
-
-	void SetCurTime(jsval *vp)
-	{
-		if (curVoice)
-			JS_ValueToNumber(jsCTX, *vp, &curVoice->curTime);
-	}
-
-	void SetCurPitch(jsval *vp)
-	{
-		if (curVoice)
-			JS_ValueToNumber(jsCTX, *vp, &curVoice->lastPit);
-	}
-
-	void SetCurVol(jsval *vp)
-	{
-		if (curVoice)
-			JS_ValueToNumber(jsCTX, *vp, &curVoice->lastVol);
-	}
-
-	void SetCurRhythm(jsval *vp)
-	{
-		if (curVoice)
-			JS_ValueToNumber(jsCTX, *vp, &curVoice->lastDur);
-	}
-
-	void SetVolMul(jsval *vp)
-	{
-		if (curVoice)
-			JS_ValueToNumber(jsCTX, *vp, &curVoice->volMul);
-	}
-//	long   instr;
-//	long   chnl;
-//	long   articType;
-//	long   articParam;
-//	long   transpose;
-//	long   loopCount;
-#endif
 };
 
 #endif

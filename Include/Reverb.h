@@ -1,9 +1,18 @@
+///////////////////////////////////////////////////////////////
+// BasicSynth Reverb classes
+//
+// Reverb1 - Single resonator with LP filter
+// Reverb2 - Schroeder type reverb unit
+//
+// Copyright 2008, Daniel R. Mitchell
+///////////////////////////////////////////////////////////////
+
 #ifndef _REVERB_H_
 #define _REVERB_H_
 
 #include "DelayLine.h"
 
-// Single resonator with one-pole LP filter added to feedback
+// Single resonator with LP filter in the feedback loop
 class Reverb1 : public DelayLineR
 {
 private:
@@ -16,10 +25,11 @@ public:
 		prev = 0.0;
 	}
 
-	void Init(int n, float *p)
+	// atten, LT, RT
+	void Init(int n, float *v)
 	{
-		if (n >= 3)
-			InitReverb(p[0], p[1], p[2]);
+		if (n > 2)
+			InitReverb(AmpValue(v[0]), FrqValue(v[1]), FrqValue(v[2]));
 	}
 
 	// a = input attenuation
@@ -44,7 +54,7 @@ public:
 	}
 };
 
-// Schroeder reverb - four comb filters + two allpass filters
+// Schroeder reverb - four parallel comb filters + two series allpass filters
 class Reverb2 : public GenUnit
 {
 private:
@@ -54,23 +64,31 @@ private:
 public:
 	Reverb2()
 	{
-		atten = 1.0f;
+		atten = 1.0;
 	}
 
-	void Init(int n, float *p)
+	// atten, RT
+	void Init(int n, float *v)
 	{
 		if (n > 1)
-			InitReverb(p[0], p[1]);
+			InitReverb(AmpValue(v[0]), FrqValue(v[1]));
 	}
 
 	void Reset(float initPhs = 0)
 	{
-		for (int i = 0; i < 4; i++)
-			dlr[0].Reset(initPhs);
+		dlr[0].Reset(initPhs);
+		dlr[1].Reset(initPhs);
+		dlr[2].Reset(initPhs);
+		dlr[3].Reset(initPhs);
 		ap[0].Reset(initPhs);
 		ap[1].Reset(initPhs);
 	}
 
+	// InitReverb sets the typical LT values for a Scroeder unit.
+	// The RT value is 1-2 seconds typical.
+	// The attenuation value controls how much of the signal
+	// will be sent through the reverb. Usually it is set to
+	// 1.0, but can be lowered if the reverb distorts.
 	void InitReverb(AmpValue a, FrqValue rt)
 	{
 		atten = a;
@@ -82,6 +100,9 @@ public:
 		ap[1].InitDLR(0.03292, 0.0017, 0.001);
 	}
 
+	// Set the LT and RT values individually
+	// The first four index values (0-3) are the comb
+	// filters while index 4-5 are the allpass units.
 	void InitDelay(int n, FrqValue lt, FrqValue rt)
 	{
 		if (n >= 0 && n < 4)

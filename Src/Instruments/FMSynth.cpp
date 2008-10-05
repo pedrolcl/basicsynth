@@ -1,13 +1,25 @@
-// FMSynth.cpp: implementation of the FMSynth class.
+//////////////////////////////////////////////////////////////////////
+// BasicSynth FM Synthesis instrument
 //
+// See _BasicSynth_ Chapter 22 for a full explanation
+//
+// The FM Synth instrument implements a three oscillator FM synthesis
+// method. The "algorithms" include:
+//   - one modulator, one carrier stack
+//   - two modulator, one carrier stack
+//   - two modulator, one carrier "Y"
+//   - one modulator, two carrier "Delta"
+// LFO and pitch bend can be optionally applied to the signal
+// A noise generator can be summed with the FM signal
+// to produce noisy transient sounds.
+// A delay line is available to add resonance.
+// Panning can be done internally rather than through the mixer
+// 
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "FMSynth.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 Instrument *FMSynth::FMSynthFactory(InstrManager *m, Opaque tmplt)
 {

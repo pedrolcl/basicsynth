@@ -31,7 +31,7 @@
 
 int main(int argc, char *argv[])
 {
-	int pitch = 60;  // Middle C
+	int pitch = 48;  // Middle C
 	FrqValue duration = 1.0;
 	AmpValue peakAmp = 1.0;
 	AmpValue volume = 0.0;

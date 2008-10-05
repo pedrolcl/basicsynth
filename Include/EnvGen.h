@@ -48,10 +48,11 @@ public:
 		duration = 0;
 	}
 
-	virtual void Init(int n, float *f)
+	// peak, duration, attackTm, decayTm
+	virtual void Init(int n, float *v)
 	{
 		if (n >= 4)
-			InitEG((AmpValue)f[0], f[1], f[2], f[3]);
+			InitEG(AmpValue(v[0]), FrqValue(v[1]), FrqValue(v[2]), FrqValue(v[3]));
 	}
 
 	virtual void InitEG(AmpValue peak, FrqValue dur, FrqValue atk, FrqValue dec)
@@ -64,7 +65,11 @@ public:
 		if (totalSamples < 3)
 			totalSamples = 3;
 		attackTime = (bsUint32) (attack * synthParams.sampleRate);
+		if (attackTime < 1)
+			attackTime = 1;
 		decayTime  = (bsUint32) (decay * synthParams.sampleRate);
+		if (decayTime < 1)
+			decayTime = 1;
 		while ((attackTime + decayTime) >= totalSamples)
 		{
 			if (attackTime > 1)
@@ -115,7 +120,7 @@ public:
 		else if (index == attackTime)
 			volume = peakAmp;
 		else if (index == decayStart)
-			envInc = -volume / (AmpValue) decayTime;
+			envInc = -volume / AmpValue(decayTime);
 		index++;
 		return volume;
 	}
@@ -153,7 +158,7 @@ public:
 		{
 			if (index < decayStart)
 			{
-				expFactor = (AmpValue) pow((1+expMin)/expMin, (AmpValue)1.0 / (AmpValue) attackTime);
+				expFactor = (AmpValue) pow((1+expMin)/expMin, (AmpValue)1.0 / (AmpValue)attackTime);
 				if (index > 0)
 					expCurrent = expMin * pow(expFactor, (AmpValue) index);
 				else
@@ -161,7 +166,6 @@ public:
 			}
 			else
 			{
-				expCurrent = 1 + expMin;
 				expFactor = (AmpValue) pow(expMin/(1+expMin), (AmpValue)1.0 / (AmpValue) decayTime);
 				if (index > decayStart)
 					expCurrent = (1+expMin) * pow(expFactor, (AmpValue) (index - decayStart));

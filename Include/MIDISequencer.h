@@ -2,7 +2,12 @@
 // BasicSynth Library
 //
 // MIDI Sequencer Classes
+//
+// This is intended as a prototype/example class. A complete
+// implementation needs more sophisticated processing of CC#s
+// as well as SMPTE, standard MIDI instruments, etc.
 // 
+// Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////
 #ifndef _MIDISEQUENCE_H_
 #define _MIDISEQUENCE_H_

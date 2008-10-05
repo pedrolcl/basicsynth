@@ -2,19 +2,31 @@
 //
 // BasicSynth - Wave file output
 //
-// This is a simple wave file output class.
+// WaveOutBuf provides a base class for sample output. Samples are
+// stored in a buffer until the buffer is filled, at which time
+// a flush routine is called. For file output, the flush routine
+// dumps the samples to disk and resets the buffer. For a live
+// playback system, a derived class should send the filled buffer
+// to the DAC.
 //
-// N.B. This code does not do canonicalization for big-endian processor.
+// WaveFile manages output to a WAV file. This uses a simplified model
+// of the WAV file where only one chunk is output. That chunk
+// is the sample data and is always PCM, 1 or 2 channel.
 //
-// Daniel R. Mitchell
+// WaveFileIn reads a WAV file into a buffer, converting samples
+// to the internal data format (i.e. AmpValue).
+//
+// Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
 #ifndef _WAVEFILE_H_
 #define _WAVEFILE_H_
 
 #include <SynthFile.h>
 
-#if BIG_ENDIAN
+#ifdef BS_BIG_ENDIAN
 extern SampleValue SwapSample(SampleValue x);
+extern bsInt16 Swap16(bsInt16 x);
+extern bsInt32 Swap32(bsInt32 x);
 #else
 #define SwapSample(x) x
 #endif
@@ -131,7 +143,6 @@ public:
 		samples = bp;
 		nxtSamp = samples;
 		endSamp = samples + length;
-		//ownBuf = 0;
 	}
 
 	// Put value directly into buffer
@@ -246,6 +257,7 @@ public:
 
 #define SMPL_BUFSIZE 8192
 
+// wav file reader
 class WaveFileIn
 {
 private:

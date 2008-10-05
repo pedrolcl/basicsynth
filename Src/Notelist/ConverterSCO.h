@@ -1,3 +1,4 @@
+// Copyright 2008, Daniel R. Mitchell
 #include <stdio.h>
 #include "Converter.h"
 

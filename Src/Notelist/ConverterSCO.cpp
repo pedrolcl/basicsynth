@@ -34,6 +34,7 @@ void nlConverterSCO::BeginNotelist()
 			fprintf(stderr, "Cannot open file: %s\n", sconame);
 		}
 	}
+	nlConverter::BeginNotelist();
 }
 
 void nlConverterSCO::EndNotelist()
@@ -42,17 +43,19 @@ void nlConverterSCO::EndNotelist()
 	if (fpOutput != stdout)
 		fclose(fpOutput);
 	fpOutput = NULL;
+	nlConverter::EndNotelist();
 }
 
 void nlConverterSCO::BeginVoice(nlVoice *vp)
 {
 	fprintf(fpOutput, "; BeginVoice %d\n", vp->voiceNum);
-	curVoice = vp;
+	nlConverter::BeginVoice(vp);
 }
 
 void nlConverterSCO::EndVoice(nlVoice *vp)
 {
-	curVoice = NULL;
+	fprintf(fpOutput, "; EndVoice %d\n", vp->voiceNum);
+	nlConverter::EndVoice(vp);
 }
 
 void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit, int pcount, double *params)
@@ -87,6 +90,7 @@ void nlConverterSCO::Write(char *txt)
 {
 	fputs(txt, fpOutput);
 	fputc('\n', fpOutput);
+	nlConvert::Write(txt);
 }
 
 char *nlConverterSCO::SetExtension(char *name, char *ext)

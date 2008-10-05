@@ -5,6 +5,7 @@ LoadInstrLib.o \
 AddSynth.o \
 FMSynth.o \
 LFO.o \
+PitchBend.o \
 MatrixSynth.o \
 SubSynth.o \
 Tone.o \
@@ -25,6 +26,8 @@ AddSynth.cpp: AddSynth.h Includes.h
 FMSynth.cpp: FMSynth.h Includes.h
 
 LFO.cpp: LFO.h Includes.h
+
+PitchBend.cpp: PitchBend.h Includes.h
 
 MatrixSynth.cpp: MatrixSynth.h Includes.h
 

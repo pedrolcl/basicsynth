@@ -1,17 +1,24 @@
-// Tone.cpp: implementation of the Tone classses.
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Tone instruments
+//
+// See _BasciSynth_ Chapter 19 and 22 for a full explanation
 //
 // ToneInst - selectable waveform
 // ToneFM - fixed modulation index
-// ToneAM - fixed modulation index (TBD)
 //
+// These instruments provide simple, fast tone generators. Although
+// limited in variabilty, they are still quite useful for many
+// synthesized sounds. These include a signal generator, envelope
+// generator, LFO and Pitch bend. The ToneInstr uses a single
+// wavetable oscillator. The ToneFM uses a two oscillator FM
+// generator. (Although not implemented, a ToneAM instrument could
+// be added easily by modeling the class on the ToneFM instrument.)
+//
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "Tone.h"
-
-//////////////////////////////////////////////////////////////////////
-// 
-//////////////////////////////////////////////////////////////////////
 
 Instrument *ToneInstr::ToneFactory(InstrManager *m, Opaque tmplt)
 {

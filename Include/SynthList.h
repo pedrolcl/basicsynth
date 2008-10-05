@@ -1,12 +1,18 @@
+/////////////////////////////////////////////////////
+// BasicSynth double-linked list class
+//
+// N.B. This is NOT a general purpose linked list class.
+// This is low-overhead, fast and simple, which is what 
+// the synthesizer needs. :)
+//
+// Copyright 2008, Daniel R. Mitchell
+/////////////////////////////////////////////////////
 #ifndef _SYNTHLIST_
 #define _SYNTHLIST_
 
-// double-linked list base class
-// N.B. --- This is NOT a general purpose linked list class..
 // The Insert/InsertBefore methods take the NEW node that
 // should be added to the list...
 // you CANNOT do: newNode->Insert(oldNode) !!!!
-// This is FAST and simple, which is what the sequencer needs. :)
 template<class T> class SynthList
 {
 public:

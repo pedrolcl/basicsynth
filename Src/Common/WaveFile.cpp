@@ -3,8 +3,6 @@
 //
 // WaveFile output functions
 //
-// TODO: Wave file output only works for little endian machines!
-//
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////
 #include <stdlib.h>
@@ -45,6 +43,7 @@ void WaveFile::SetupWH()
 
 // Open wave output file, 
 // fname is file name, channels number of outputs
+// This is only designed for chnls = 1 or 2
 int WaveFile::OpenWaveFile(char *fname, int chnls)
 {
 	wfp.FileClose();
@@ -72,7 +71,7 @@ int WaveFile::OpenWaveFile(char *fname, int chnls)
 	return 0;
 }
 
-// Flush remaining output and close file
+// Flush remaining output, update header, and close file
 int WaveFile::CloseWaveFile()
 {
 	FlushOutput();
@@ -84,6 +83,7 @@ int WaveFile::CloseWaveFile()
 
 	int err = 0;
 	wfp.FileRewind();
+	// TODO: swap bytes in the header
 	if (wfp.FileWrite(&wh, sizeof(wh)) != sizeof(wh))
 		err = -1;
 	wfp.FileClose();
@@ -117,7 +117,7 @@ int WaveFile::FlushOutput()
 // Also, this code only sums the first two channels found in the file.
 // For some multi-channel formats, it would be possible to merge
 // all channels, but for most, it makes no sense.
-#if BIG_ENDIAN
+#ifdef BS_BIG_ENDIAN
 SampleValue SwapSample(SampleValue x)
 {
 	return ((x>>8)&0xFF)|((x&0xFF)<< 8); 
@@ -246,7 +246,6 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 
 	bsInt16 *in16 = new bsInt16[fmt.align/2];
 	AmpValue *sp = samples;
-	//AmpValue scale = (AmpValue) ((1L << (fmt.bits - 1)) - 1);
 	AmpValue peak = 0;
 	AmpValue val = 0;
 	long count;
@@ -258,11 +257,11 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 				*sp++ = 0;
 			break;
 		}
-		val = SwapSample(AmpValue(in16[0]));
+		val = (AmpValue) SwapSample(in16[0]);
 		if (fmt.channels > 1)
-			val += SwapSample(AmpValue(in16[1]));
+			val += (AmpValue) SwapSample(in16[1]);
 		*sp++ = val;
-		val = abs(val);
+		val = fabs(val);
 		if (val > peak)
 			peak = val;
 	}

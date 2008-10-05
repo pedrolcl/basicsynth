@@ -1,13 +1,21 @@
-// MatrixSynth.cpp: implementation of the MatrixSynth class.
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Matrix Synthesis instrument
 //
+// See _BasicSynth_ Chapter 24 for a full description
+//
+// The Matrix synth instrument combines 8 oscillators with 8 envelope
+// generators in a configurable matrix. Any oscillator can function as
+// a signal output and/or modulator. Separate amplitude scaling is
+// configured for signal and modulation levels. Any envelope generator
+// can be applied to any number of oscillators. Single LFO and pitch bend are
+// built-in as well and can be applied individually to each oscillator.
+// 
+// Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
 #include "MatrixSynth.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 Instrument *MatrixSynth::MatrixSynthFactory(InstrManager *m, Opaque tmplt)
 {
 	MatrixSynth *ip = new MatrixSynth;
