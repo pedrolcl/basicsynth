@@ -45,17 +45,17 @@ public:
 
 	virtual void Copy(BiQuadFilter *filt)
 	{
-		filt->cutoff = cutoff;
-		filt->gain = gain;
-		filt->ampIn0 = ampIn0;
-		filt->ampIn1 = ampIn1;
-		filt->ampIn2 = ampIn2;
-		filt->ampOut1 = ampOut1;
-		filt->ampOut2 = ampOut2;
-		filt->dlyIn1 = dlyIn1;
-		filt->dlyIn2 = dlyIn2;
-		filt->dlyOut1 = dlyOut1;
-		filt->dlyOut2 = dlyOut2;
+		cutoff = filt->cutoff;
+		gain = filt->gain;
+		ampIn0 = filt->ampIn0;
+		ampIn1 = filt->ampIn1;
+		ampIn2 = filt->ampIn2;
+		ampOut1 = filt->ampOut1;
+		ampOut2 = filt->ampOut2;
+		dlyIn1 = filt->dlyIn1;
+		dlyIn2 = filt->dlyIn2;
+		dlyOut1 = filt->dlyOut1;
+		dlyOut2 = filt->dlyOut2;
 	}
 
 	virtual void  Init(int n, float *v)

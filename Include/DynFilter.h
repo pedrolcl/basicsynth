@@ -79,16 +79,16 @@ public:
 	EGSegType GetType() { return env.GetType(); }
 
 	void InitFilter(AmpValue st, FrqValue ar, AmpValue al, FrqValue dr, 
-	                AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = linSeg)
+	                AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = linSeg, AmpValue fg = 1.0)
 	{
-		// force filter on...
-		BiQuadFilter::Init(100, 1);
+		BiQuadFilter::Init(0, fg);
 		env.InitADSR(st*frqTI, ar, al*frqTI, dr, sl*frqTI, rr, rl*frqTI, t);
 		Reset(0);
 	}
 
 	void Copy(DynFilterLP *fp)
 	{
+		BiQuadFilter::Copy(fp);
 		env.Copy(&fp->env);
 	}
 
