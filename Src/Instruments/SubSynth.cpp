@@ -240,7 +240,7 @@ int SubSynth::Load(XmlSynthElem *parent)
 			elem->GetAttribute("fg",  dvals[3]);
 			elem->GetAttribute("wt", ival);
 			osc.InitWT(FrqValue(dvals[0]), (int)ival);
-			vol = AmpValue(dvals[0]);
+			vol = AmpValue(dvals[1]);
 			sigMix = dvals[2];
 			nzMix  = 1.0 - sigMix;
 			nzOn = nzMix > 0;
@@ -277,7 +277,7 @@ int SubSynth::Load(XmlSynthElem *parent)
 				FrqValue(dvals[1]), AmpValue(dvals[2]),
 				FrqValue(dvals[3]), AmpValue(dvals[4]),
 				FrqValue(dvals[5]), AmpValue(dvals[6]),
-				(EGSegType)ival);
+				(EGSegType)ival, fltGain);
 		}
 		else if (elem->TagMatch("lfo"))
 		{
