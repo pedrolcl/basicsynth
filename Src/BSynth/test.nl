@@ -73,7 +73,7 @@ begin
 	vol 100;
 	channel 3;
 	sync "a";
-	loop 2
+	repeat 2
 	begin
 		C3, %1, 100, 1, 20;
 		G2, %4*3, 100, 100, 200;

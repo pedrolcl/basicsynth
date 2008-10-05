@@ -187,7 +187,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine=""
+				CommandLine="copy test.nl $(TargetDir)&#x0D;&#x0A;copy test.nl2  $(TargetDir)&#x0D;&#x0A;copy testinst.xml $(TargetDir)&#x0D;&#x0A;copy testprj.xml  $(TargetDir)&#x0D;&#x0A;copy jig.nl  $(TargetDir)&#x0D;&#x0A;copy jig.xml  $(TargetDir)"
+				Outputs="$(TargetDir)/test.nl"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -402,6 +403,14 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\jig.nl"
+			>
+		</File>
+		<File
+			RelativePath=".\jig.xml"
+			>
+		</File>
 		<File
 			RelativePath=".\test.nl"
 			>

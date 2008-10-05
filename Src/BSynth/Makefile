@@ -3,7 +3,7 @@ include ../BasicSynth.cfg
 $(BSBIN)/BSynth: main.cpp $(CMNLIB) $(NLLIB) $(INSTLIB)
 	$(CPP) -lxml2 -lm -I../Notelist $(CPPFLAGS) -o $@ main.cpp \
 		$(NLLIB) $(INSTLIB) $(CMNLIB)
-	-cp testinst.xml testprj.xml testprj.wav test.nl test2.nl $(BSBIN)
+	-cp testinst.xml testprj.xml testprj.wav test.nl test2.nl jig.nl jig.xml $(BSBIN)
 
 BSynth: $(BSBIN)/BSynth
 
