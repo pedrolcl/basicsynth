@@ -370,6 +370,8 @@ int nlLex::Next()
 			return T_PIT;
 		if (CompareToken(cTokbuf, "RAND") == 0)
 			return T_RAND;
+		if (CompareToken(cTokbuf, "REPEAT") == 0)
+			return T_LOOP;
 		break;
 	case 'S':
 		if (CompareToken(cTokbuf, "SUS") == 0)
