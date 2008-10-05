@@ -19,6 +19,8 @@
 
 #pragma warning(disable : 4996)
 
+//#define ADD_REVERB 1
+
 long evidcount = 1;
 float startTime = 0;
 InstrManager inMgr;
@@ -69,11 +71,13 @@ int main(int argc, char *argv[])
 	mix.ChannelOn(1, 1);
 	mix.ChannelVolume(0, 1.0);
 	mix.ChannelVolume(1, 1.0);
+#ifdef ADD_REVERB
 	mix.SetFxChannels(1);
 	mix.FxInit(0, &rvrb, 0.1);
 	mix.FxLevel(0, 0, 0.2);
 	mix.FxLevel(0, 1, 0.2);
 	rvrb.InitReverb(1.0, 2.0);
+#endif
 
 	inMgr.Init(&mix, &wvf);
 
@@ -123,6 +127,7 @@ int main(int argc, char *argv[])
 	}
 	seq.Sequence(inMgr);
 
+#ifdef ADD_REVERB
 	// drain the reverb...
 	AmpValue lv;
 	AmpValue rv;
@@ -132,6 +137,7 @@ int main(int argc, char *argv[])
 		mix.Out(&lv, &rv);
 		wvf.Output2(lv, rv);
 	}
+#endif
 
 	wvf.CloseWaveFile();
 
