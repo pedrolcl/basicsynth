@@ -123,7 +123,7 @@ public:
 		}
 		if (current < end)
 		{
-			return ((int) *current++) & 0xFF;
+			return (int) *current++;
 		}
 		return EOF;
 	}
@@ -140,8 +140,6 @@ public:
 	virtual void Ungetc(int ch)
 	{
 		savch = ch;
-		if (ch < 0)
-			OutputDebugString("HEY");
 	}
 };
 
@@ -164,9 +162,9 @@ public:
 	void Close();
 	int Next();
 
-	inline char *Tokbuf()
+	inline const char *Tokbuf()
 	{
-		return (char*)cTokbuf;
+		return cTokbuf;
 	}
 
 	inline int Lineno()

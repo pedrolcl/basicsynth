@@ -119,8 +119,8 @@ public:
 	int Factor();
 	int Value();
 	int InitFn();
-	long PitVal(char *pStr);
-	double DurVal(char *pStr, int& dot);
+	long PitVal(const char *pStr);
+	double DurVal(const char *pStr, int& dot);
 	int FnArgs(int nMax = 0);
 };
 

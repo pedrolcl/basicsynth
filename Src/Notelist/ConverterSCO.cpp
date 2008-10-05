@@ -90,7 +90,7 @@ void nlConverterSCO::Write(char *txt)
 {
 	fputs(txt, fpOutput);
 	fputc('\n', fpOutput);
-	nlConvert::Write(txt);
+	nlConverter::Write(txt);
 }
 
 char *nlConverterSCO::SetExtension(char *name, char *ext)

@@ -148,7 +148,7 @@ void nlGenerate::PushStack(double d)
 		spCur++;
 }
 
-void nlGenerate::PushStack(char *s)
+void nlGenerate::PushStack(const char *s)
 {
 	spCur->SetValue(s);
 	if (spCur < spEnd)
@@ -190,7 +190,7 @@ void nlGenerate::PopStack(char **s)
 	spCur->GetValue(s);
 }
 
-nlSequence *nlGenerate::AddSequence(char *id)
+nlSequence *nlGenerate::AddSequence(const char *id)
 {
 	nlSequence *pseq = new nlSequence(id);
 	pseq->Append(&mainSeq);
@@ -226,7 +226,7 @@ nlScriptNode *nlGenerate::AddNode(nlScriptNode *node)
 	return curSeq->AddNode(node);
 }
 
-nlScriptNode *nlGenerate::AddNode(int token, char *text)
+nlScriptNode *nlGenerate::AddNode(int token, const char *text)
 {
 	nlScriptNode *p = new nlScriptNode;
 	p->SetToken(token);
@@ -308,7 +308,7 @@ void nlGenerate::MarkTo(nlVarValue *v)
 // named sequence, or a branch from another node in the
 // main sequence (i.e. LOOP, IF...THEN or WHILE).
 ///////////////////////////////////////////////////////////
-nlSequence::nlSequence(char *n)
+nlSequence::nlSequence(const char *n)
 {
 	if (n)
 		id.SetValue(n);
@@ -435,7 +435,7 @@ void nlVarValue::ClearValue()
 	vt = vtNull;
 }
 
-void nlVarValue::SetValue(char *p)
+void nlVarValue::SetValue(const char *p)
 {
 	ClearValue();
 	vt = vtText;

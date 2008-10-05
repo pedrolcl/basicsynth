@@ -233,7 +233,7 @@ public:
 	}
 
 	// Find instrument by name
-	virtual InstrMapEntry *FindInstr(char *iname)
+	virtual InstrMapEntry *FindInstr(const char *iname)
 	{
 		InstrMapEntry *in;
 		for (in = instList; in != NULL; in = in->next)

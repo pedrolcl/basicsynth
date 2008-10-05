@@ -1346,7 +1346,7 @@ int nlParser::FnArgs(int nMax)
 }
 
 
-long nlParser::PitVal(char *pStr)
+long nlParser::PitVal(const char *pStr)
 {
 	//                        A   B  C  D  E  F  G 
 	static long ltrpch[8] = { 9, 11, 0, 2, 4, 5, 7 };
@@ -1384,7 +1384,7 @@ long nlParser::PitVal(char *pStr)
 	return pch + ((lastOct + octMiddleC) * 12);
 }
 
-double nlParser::DurVal(char *pStr, int& dot)
+double nlParser::DurVal(const char *pStr, int& dot)
 {
 	double dur = 0.0;
 	int c = toupper(*pStr);

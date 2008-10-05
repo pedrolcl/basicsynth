@@ -15,15 +15,15 @@ class nlErrOut
 {
 public:
 
-	virtual void OutputDebug(char *s)
+	virtual void OutputDebug(const char *s)
 	{
 	}
 
-	virtual void OutputError(char *s)
+	virtual void OutputError(const char *s)
 	{
 	}
 
-	virtual void OutputMessage(char *s)
+	virtual void OutputMessage(const char *s)
 	{
 	}
 };
@@ -183,22 +183,22 @@ public:
 		return eng;
 	}
 
-	virtual void DebugNotify(int n, char *s)
+	virtual void DebugNotify(int n, const char *s)
 	{
 		if (debugLevel >= n && eout)
 			eout->OutputDebug(s);
 	}
 
-	virtual void ShowError(char *s)
+	virtual void ShowError(const char *s)
 	{
 		if (eout)
 			eout->OutputError(s);
 	}
 
-	nlSymbol *Lookup(char *name);
-	nlSymbol *AddSymbol(char *name);
+	nlSymbol *Lookup(const char *name);
+	nlSymbol *AddSymbol(const char *name);
 
-	virtual int  FindInstrNum(char *name);
+	virtual int  FindInstrNum(const char *name);
 	virtual void SetParamMap(int in, int pn, int mn, double sc);
 	virtual void BeginNotelist();
 	virtual void EndNotelist();

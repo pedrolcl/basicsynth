@@ -96,7 +96,7 @@ public:
 	}
 	virtual void ClearValue();
 	virtual void ChangeType(vType vnew);
-	virtual void SetValue(char *p);
+	virtual void SetValue(const char *p);
 	virtual void SetValue(long n);
 	virtual void SetValue(double d);
 	virtual void SetValue(nlVarValue *v);
@@ -117,7 +117,7 @@ public:
 	{
 		name = NULL;
 	}
-	nlSymbol(char *n)
+	nlSymbol(const char *n)
 	{
 		if (n)
 			name = StrMakeCopy(n);
@@ -201,7 +201,7 @@ class nlSequence
 
 public:
 	nlSequence();
-	nlSequence(char *name);
+	nlSequence(const char *name);
 	nlSequence(int n);
 	~nlSequence();
 	void Play();
@@ -736,17 +736,17 @@ public:
 	void InitStack();
 	void PushStack(long n);
 	void PushStack(double d);
-	void PushStack(char *s);
+	void PushStack(const char *s);
 	void PushStack(nlVarValue *v);
 	void PopStack(long *n);
 	void PopStack(double *d);
 	void PopStack(char **s);
 	void PopStack(nlVarValue *v);
-	nlSequence *AddSequence(char *id);
+	nlSequence *AddSequence(const char *id);
 	nlSequence *AddSequence(int id);
 	nlSequence *SetCurSeq(nlSequence *p);
 	nlScriptNode *AddNode(nlScriptNode *pn);
-	nlScriptNode *AddNode(int token, char *text);
+	nlScriptNode *AddNode(int token, const char *text);
 	nlScriptNode *AddNode(int token, long val);
 	nlScriptNode *AddNode(int token, short v1, short v2);
 	nlScriptNode *AddNode(int token, double val);

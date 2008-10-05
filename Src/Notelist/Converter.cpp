@@ -204,7 +204,7 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 	}
 }
 
-int nlConverter::FindInstrNum(char *name)
+int nlConverter::FindInstrNum(const char *name)
 {
 	if (name == NULL || *name == 0)
 		return -1;
@@ -239,7 +239,7 @@ void nlConverter::SetParamMap(int inum, int pn, int mn, double scl)
 	mp->AddEntry(pn, mn, (float) scl);
 }
 
-nlSymbol *nlConverter::Lookup(char *name)
+nlSymbol *nlConverter::Lookup(const char *name)
 {
 	nlSymbol *sym = symbList;
 	while (sym != NULL)
@@ -251,7 +251,7 @@ nlSymbol *nlConverter::Lookup(char *name)
 	return NULL;
 }
 
-nlSymbol *nlConverter::AddSymbol(char *name)
+nlSymbol *nlConverter::AddSymbol(const char *name)
 {
 	nlSymbol *sym = new nlSymbol(name);
 	sym->next = symbList;

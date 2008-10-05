@@ -9,19 +9,19 @@ class BSynthError : public nlErrOut
 {
 public:
 
-	virtual void OutputDebug(char *s)
+	virtual void OutputDebug(const char *s)
 	{
 		fputs(s, stderr);
 		fputc('\n', stderr);
 	}
 
-	virtual void OutputError(char *s)
+	virtual void OutputError(const char *s)
 	{
 		fputs(s, stderr);
 		fputc('\n', stderr);
 	}
 
-	virtual void OutputMessage(char *s)
+	virtual void OutputMessage(const char *s)
 	{
 		fputs(s, stdout);
 		fputc('\n', stdout);

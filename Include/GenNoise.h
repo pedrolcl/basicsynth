@@ -114,7 +114,7 @@ public:
 
 	virtual void Reset(float initPhs = 0)
 	{
-		hcount = synthParams.sampleRate / freq;
+		hcount = (bsInt32) (synthParams.sampleRate / freq);
 		if (hcount < 1)
 			hcount = 1;
 		count = 0;

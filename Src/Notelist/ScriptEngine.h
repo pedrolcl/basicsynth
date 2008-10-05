@@ -13,9 +13,9 @@ class nlScriptEngine
 public:
 	virtual void SetConverter(nlConverter *cp) = 0;
 	virtual void SetGenerater(nlGenerate *gp) = 0;
-	virtual int LoadScript(char *script) = 0;
-	virtual int CallScript(char *call) = 0;
-	virtual int EvalScript(char *script, nlVarValue& out) = 0;
+	virtual int LoadScript(const char *script) = 0;
+	virtual int CallScript(const char *call) = 0;
+	virtual int EvalScript(const char *script, nlVarValue& out) = 0;
 };
 
 #endif
