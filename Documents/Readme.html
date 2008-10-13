@@ -2,7 +2,6 @@
 
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-<meta name=Generator content="Microsoft Word 11 (filtered)">
 <title>BasicSynth Synthesis Library</title>
 
 <style>
@@ -10,25 +9,25 @@
 h1
 	{margin-right:0in;
 	margin-left:0in;
-	font-size:24.0pt;
 	font-family:"Times New Roman";
 	font-weight:bold;}
 h2
 	{margin-right:0in;
 	margin-left:0in;
-	font-size:18.0pt;
 	font-family:"Times New Roman";
 	font-weight:bold;}
 h3
 	{margin-right:0in;
 	margin-left:0in;
-	font-size:16.0pt;
 	font-family:"Times New Roman";
 	font-weight:bold;}
 p
 	{margin-right:0in;
 	margin-left:0.25in;
-	font-size:14.0pt;
+	font-family:"Times New Roman";}
+li
+	{margin-right:0in;
+	margin-left:0.4in;
 	font-family:"Times New Roman";}
 -->
 </style>
@@ -61,7 +60,7 @@ and examples to use the library.</p>
 <p>This directory contains source, binaries and documents for <em>BasicSynth</em>.
 The structure is shown in the following diagram.</p>
 
-<p><img border=0 src=Structure.jpg></p>
+<p><img border=0 src=structure.jpg></p>
 
 <table border=1 cellpadding=0>
  <thead align=center>
@@ -172,17 +171,24 @@ The structure is shown in the following diagram.</p>
 </table>
 
 <p>To build your own synthesis program with <em>BasicSynth</em> you need at a
-minimum the Include files and the Common library (Lib/Common*.*). The Include
+minimum the Include files and the Common library (<em>Lib/Common.lib</em>). The Include
 directory and the Common library provide the sound generation, wave file and
-sequencer code.</p>
+sequencer code. The header file <em>BasicSynth.h</em> includes all of the library.</p>
 
 <p>If you want to use the <em>BasicSynth</em> instruments collection in your
-program, you must also include the header files from the Src/Instruments
-directory and link the Lib/Instruments.* library.</p>
+program, you must also include the header file <em>Src/Instruments/Instruments.h</em> and link 
+the <em>Lib/Instruments.lib</em> library.</p>
 
 <p>To include the Notelist score processor, you must include the header file
-NLConvert.h from the Src/Notelist directory and link the Lib/Notelist.*
+<em>NLConvert.h</em> from the <em>Src/Notelist</em> directory and link the <em>Lib/Notelist.lib</em>
 library.</p>
+
+<p>Note: Libraries on Linux have the <em>.a</em> extension instead of <em>.lib</em></p>
+<p>Reference documentation on the libraries is conatined in the <em>Documents</em> directory.</p>
+
+<p><a href="Library.html">Common Library</a><br/>
+<a href="Instruments.html">Instruments Library</a><br/>
+<a href="Notelist.html">Notelist score language</a></p>
 
 <h3>Building on MS-Windows</h3>
 
@@ -191,44 +197,29 @@ want to do. All solution files are for Visual Studio 2008 (i.e. version 9). If
 you have a different version of the compiler, you will have to reproduce the
 project and/or solution files.</p>
 
-<p>To build just the libraries, use the solution files in Src/Common,
+<p>To build just the libraries, use the solution files in <em>Src/Common</em>,
 Src/Instruments, and Src/Notelist directories.</p>
 
-<p>To build the Example programs, use the solution file in Src/Examples. This
+<p>To build the Example programs, use the solution file in <em>Src/Examples</em>. This
 builds all the example programs and libraries.</p>
 
-<p>To build the &quot;Explorer&quot; utilities, use the solution file in
-Src/Utilities.</p>
+<p>To build the utilities, use the solution file in <em>Src/Utilities</em>.</p>
 
-<p>To build the stand-alone command line synthesizer, build the project in
-Src/BSynth.</p>
+<p>To build the stand-alone command line synthesizer, build the project in <em>Src/BSynth</em>.</p>
 
 <p>Each project provides four targets:</p>
 
-<p style='margin-left:.5in;text-indent:-.25in'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Release
-Win32 - 32-bit version without debug info.</p>
+<ol>
+<li>Release Win32 - 32-bit version without debug info.</li>
+<li>Debug Win32 - 32-bit version with debugging.</li>
+<li>Release x64 - 64-bit version without debug info.</li>
+<li>Debug x64 - 64-bit version with debug info.</p>
+</ol>
 
-<p style='margin-left:.5in;text-indent:-.25in'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Debug
-Win32 - 32-bit version with debugging.</p>
-
-<p style='margin-left:.5in;text-indent:-.25in'>3.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Release
-x64 - 64-bit version without debug info.</p>
-
-<p style='margin-left:.5in;text-indent:-.25in'>4.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span>Debug x64
-- 64-bit version with debug info.</p>
-
-<p>Output of the 32-bit release version is in Bin and Lib. The 64-bit version
-produces output in Bin64 and Lib64</p>
-
-<div align=center style='text-align:center'>
+<p>Output of the 32-bit release version is in Bin and Lib.
+ The 64-bit version produces output in Bin64 and Lib64</p>
 
 <hr size=2 width="100%" align=center>
-
-</div>
 
 <h3>Building on Linux</h3>
 

@@ -1,24 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
 
 <head>
-<meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<meta name=Generator content="Microsoft Word 11 (filtered)">
 <title>BasicSynth Library</title>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<meta name="author" content="Daniel Mitchell">
+<meta name="keywords" content="synthesizers, electronic music, music notation">
+</head>
 
 <style>
 <!--
  /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-family:"Times New Roman";}
-h1
+h1, h2, h3
 	{margin-right:0in;
 	margin-left:0in;
-	font-family:"Times New Roman";}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
+	font-family:"Arial";}
 p.noindent, li.noindent, div.noindent
 	{margin-top:.25in;
 	margin-right:0in;
@@ -38,18 +34,12 @@ p.code, li.code, div.code
 	margin-bottom:.0001pt;
 	font-family:"Courier New";}
 p.codevariable, li.codevariable, div.codevariable
-	{margin:0in;
-	margin-bottom:.0001pt;
-	text-align:justify;
-	text-indent:.2in;
-	font-family:"Times New Roman";
-	font-style:italic;}
+	{font-style:italic;}
 p.classheading, li.classheading, div.classheading
 	{margin-top:12.0pt;
 	margin-right:0in;
 	margin-bottom:3.0pt;
 	margin-left:0in;
-	page-break-after:avoid;
 	font-family:Arial;
 	font-weight:bold;
 	font-style:italic;}
@@ -77,21 +67,12 @@ span.methodchar
 	font-style:italic;}
 span.codechar
 	{font-family:"Courier New";}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
 -->
 </style>
 
 </head>
 
-<body lang=EN-US link="#000000" vlink=purple>
-
-<div class=Section1>
-
-<div style='margin-left:.2in;margin-right:.2in'>
+<body style="padding: 15px 40px 15px 30px;" lang="en-us">
 
 <h1>BasicSynth Sound Generation Library</h1>
 
@@ -106,42 +87,35 @@ functions. Longer functions, and those that are not time critical, are located
 in the <span class=codevariablechar>Src/Common</span> directory and compiled
 into the Common library as object modules.</p>
 
-<p class=indent>The library classes are divided into the following groups.</p>
+<p class=noindent>The library classes are divided into the following groups.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_General"><u><span
-style='color:blue'>General</span></u></a></span></p>
+<p class=indent><a href="#_General">General</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_File_I/O"><u><span
-style='color:blue'>File I/O</span></u></a></span></p>
+<p class=indent><a href="#_File_I/O">File I/O</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Oscillators"><u><span
-style='color:blue'>Oscillators</span></u></a></span></p>
+<p class=indent><a href="#_Oscillators">Oscillators</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Noise_Generators"><u><span
-style='color:blue'>Noise Generators</span></u></a></span></p>
+<p class=indent><a href="#_Noise_Generators">Noise Generators</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Envelope_Generators"><u><span
-style='color:blue'>Envelope Generators</span></u></a></span></p>
+<p class=indent><a href="#_Envelope_Generators">Envelope Generators</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Filters"><u><span
-style='color:blue'>Filters</span></u></a></span></p>
+<p class=indent><a href="#_Filters">Filters</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Delay_Lines"><u><span
-style='color:blue'>Delay Lines</span></u></a></span></p>
+<p class=indent><a href="#_Delay_Lines">Delay Lines</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Mixing_and_Effects"><u><span
-style='color:blue'>Mixing and Effects</span></u></a></span></p>
+<p class=indent><a href="#_Mixing_and_Effects">Mixing and Effects</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Sequencing_"><u><span
-style='color:blue'>Sequencing</span></u></a></span></p>
+<p class=indent><a href="#_Sequencing_">Sequencing</a></p>
 
-<p class=indent>&nbsp;</p>
+<p class=noindent><i>Note:</i> This document is for quick reference and is generally kept up to date
+as additions and corrections are made to the source code. 
+However, changes to the source code will not always be reflected in this document immediately.</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841356"></a><a name="_General"></a>General</h2>
+<h2><a name="_General">General</a></h2>
 
 </div>
 
@@ -150,27 +124,21 @@ settings, wave table management, and base classes.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_SynthConfig"><u><span
-style='color:blue'>SynthConfig</span></u></a></span></p>
+<p class=indent><a href="#_SynthConfig">SynthConfig</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_WaveTableSet"><u><span
-style='color:blue'>WaveTableSet</span></u></a></span></p>
+<p class=indent><a href="#_WaveTableSet">WaveTableSet</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_GenUnit"><u><span
-style='color:blue'>GenUnit</span></u></a></span></p>
+<p class=indent><a href="#_GenUnit">GenUnit</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Synthesizer_Initialization"><u><span
-style='color:blue'>Synthesizer Initialization</span></u></a></span></p>
+<p class=indent><a href="#_Synthesizer_Initialization">Synthesizer Initialization</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_bsString"><u><span
-style='color:blue'>bsString</span></u></a></span></p>
+<p class=indent><a href="#_bsString">bsString</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_SynthList"><u><span
-style='color:blue'>SynthList</span></u></a></span></p>
+<p class=indent><a href="#_SynthList">SynthList</a></p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent>In addition to global classes, several types are defined for
+<p class=noindent>In addition to global classes, several types are defined for
 convenience and are used throughout the library. Some of these types can be
 redefined to trade-off performance against precision. For example, the <span
 class=codevariablechar>AmpValue</span> and <span class=codevariablechar>FrqValue</span>
@@ -212,7 +180,7 @@ phase</p>
 <p class=code>typedef float FrqValue;&nbsp;&nbsp;&nbsp; // frequency or time
 value</p>
 
-<h3><a name="_Ref204841580"></a><a name="_SynthConfig"></a>SynthConfig</h3>
+<h3><a name="_SynthConfig"></a>SynthConfig</h3>
 
 <p class=noindent>The <span class=codevariablechar>SynthConfig</span> class
 holds global information for the synthesizer. This includes sample rate, wave
@@ -270,7 +238,7 @@ tuning value array directly if desired. The tuning table is calculated
 automatically in the constructor but can be overwritten in order to implement a
 different tuning system.</p>
 
-<h3><a name="_Ref204841585"></a><a name="_WaveTableSet"></a>WaveTableSet</h3>
+<h3><a name="_WaveTableSet"></a>WaveTableSet</h3>
 
 <p class=noindent>The <span class=codevariablechar>WaveTableSet</span> class
 holds a set of wave tables shared by all oscillators. There is one pre-defined
@@ -331,10 +299,10 @@ in the <span class=codevariablechar>WaveTable.h</span> file.</p>
 
 <p class=indent>The first five wavetables (WT_SIN -- WT_PLS) are calculated as a
 sum of sines and can be used safely for audio oscillators up to about 2kHz base
-frequency. Above that frequency alias foldover will occur. The tables with &quot;L&quot;
+frequency. Above that frequency alias foldover will occur. The tables with &lsquo;L&rsquo;
 designation are calculated directly and thus not bandwidth limited. These are
 intended for use with LFO oscillators where a straight-line waveform is needed.
-The tables with &quot;P&quot; designation are positive-only values and can be used for
+The tables with &lsquo;P&rsquo; designation are positive-only values and can be used for
 various amplitude and indexing functions where a negative value would be inappropriate
 (<i>e.g</i>. as a lookup value for another table). All wavetables have a peak
 amplitude of [-1,1] except for the positive-only tables, which have a peak
@@ -371,7 +339,7 @@ class=codevariablechar>DestroyTables</span> directly. Obviously, this should be
 used carefully. Any oscillators that are holding references to the wavetables
 must be reset afterwords.</p>
 
-<h3><a name="_Ref204841589"></a><a name="_GenUnit"></a>GenUnit</h3>
+<h3><a name="_GenUnit"></a>GenUnit</h3>
 
 <p class=noindent><span class=codevariablechar>GenUnit</span> is the base class
 for all other classes that generate or process samples. Derived classes must
@@ -437,12 +405,12 @@ in the <span class=codevariablechar>out</span> buffer.</p>
 
 <p class=noindent><span class=codevariablechar>IsFinished</span> is called to
 determine when a generator has produced all the valid sample values it can
-produce. Oscillators are always considered &quot;finished&quot; and always return true.
+produce. Oscillators are always considered finished and always return true.
 Envelope generators return true when the end of the envelope cycle is reached.
 Other generator units return true or false based on their individual
 requirements, but for the most part, should always return true.</p>
 
-<h3><a name="_Ref204841593"></a><a name="_Synthesizer_Initialization"></a>Synthesizer
+<h3><a name="_Synthesizer_Initialization"></a>Synthesizer
 Initialization</h3>
 
 <p class=noindent>Both <span class=codevariablechar>synthParams</span> and <span
@@ -585,9 +553,9 @@ argument (pnew) as the immediate predecessor node to the object.</p>
 <p class=noindent>The <span class=codechar>Remove</span> method removes the
 object from the list.</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841378"></a><a name="_File_I/O"></a>File I/O</h2>
+<h2><a name="_File_I/O"></a>File I/O</h2>
 
 </div>
 
@@ -600,30 +568,23 @@ Windows.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_FileWriteUnBuf"><u><span
-style='color:blue'>FileWriteUnBuf</span></u></a></span></p>
+<p class=indent><a href="#_FileWriteUnBuf">FileWriteUnBuf</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_FileReadBuf"><u><span
-style='color:blue'>FileReadBuf</span></u></a></span></p>
+<p class=indent><a href="#_FileReadBuf">FileReadBuf</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_SynthFileExists"><u><span
-style='color:blue'>SynthFileExists</span></u></a></span></p>
+<p class=indent><a href="#_SynthFileExists">SynthFileExists</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_WaveOutBuf"><u><span
-style='color:blue'>WaveOutBuf</span></u></a></span></p>
+<p class=indent><a href="#_WaveOutBuf">WaveOutBuf</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_WaveFile"><u><span
-style='color:blue'>WaveFile</span></u></a></span></p>
+<p class=indent><a href="#_WaveFile">WaveFile</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_WaveFileIn"><u><span
-style='color:blue'>WaveFileIn</span></u></a></span></p>
+<p class=indent><a href="#_WaveFileIn">WaveFileIn</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_XML_Wrapper"><u><span
-style='color:blue'>XML Wrapper</span></u></a></span></p>
+<p class=indent><a href="#_XML_Wrapper">XML Wrapper</a></p>
 
 <p class=indent>&nbsp;</p>
 
-<h3><a name="_Ref204841631"></a><a name="_FileWriteUnBuf"></a>FileWriteUnBuf</h3>
+<h3><a name="_FileWriteUnBuf"></a>FileWriteUnBuf</h3>
 
 <p class=noindent>The <span class=codevariablechar>FileWriteUnBuf</span> class
 provides un-buffered file output. It is expected that the caller is managing a
@@ -663,7 +624,7 @@ moves the position of the file to the absolute position indicated by the
 argument <i>pos. </i>Relative positioning is not supported. The return value is
 the new position of the file or -1 if the operation failed.</p>
 
-<h3><a name="_Ref204841637"></a><a name="_FileReadBuf"></a>FileReadBuf</h3>
+<h3><a name="_FileReadBuf"></a>FileReadBuf</h3>
 
 <p class=noindent>The <span class=codevariablechar>FileReadBuf</span> class
 provides buffered file input. The size of the buffer can be set by the caller. If
@@ -723,7 +684,7 @@ not discard the input buffer. The object must be destroyed to release the
 memory. This allows a new file open on the same object with the existing buffer
 reused.</p>
 
-<h3><a name="_Ref204841687"></a><a name="_SynthFileExists"></a>SynthFileExists</h3>
+<h3><a name="_SynthFileExists"></a>SynthFileExists</h3>
 
 <p class=methodheading>Function:</p>
 
@@ -732,7 +693,7 @@ reused.</p>
 <p class=noindent>This function tests for the existence of a file. The return
 value is true of the file exists and is a regular file, false otherwise.</p>
 
-<h3><a name="_Ref204841697"></a><a name="_WaveOutBuf"></a>WaveOutBuf</h3>
+<h3><a name="_WaveOutBuf"></a>WaveOutBuf</h3>
 
 <p class=noindent>The <span class=codevariablechar>WaveOutBuf</span> class
 provides buffered sample output. In itself, it does not produce I/O, but only
@@ -770,7 +731,7 @@ output.</p>
 
 <p class=noindent>The <span class=codevariablechar>GetBuf</span> method returns
 a pointer to the output buffer. Although not explicitly declared as such, it
-should be treated as &quot;<span class=codevariablechar>const</span>&quot; and not
+should be treated as <span class=codevariablechar>const</span> and not
 deleted or modified unless the caller has allocated and passed the buffer to
 the object using <span class=codevariablechar>SetBuf</span>. </p>
 
@@ -835,7 +796,7 @@ only reset to zero in the constructor. If the caller needs to know how many
 samples are out of range on a per-block basis, it must keep track of the last
 OOR value.</p>
 
-<h3><a name="_Ref204841710"></a><a name="_WaveFile"></a>WaveFile</h3>
+<h3><a name="_WaveFile"></a>WaveFile</h3>
 
 <p class=noindent>The <span class=codevariablechar>WaveFile</span> class
 provides output to a standard WAV file in PCM format. Note that the <span
@@ -873,7 +834,7 @@ be one or two. Other formats are not supported.</p>
 flushes any remaining output, updates the file header to the final file size,
 and then closes the wave file.</p>
 
-<h3><a name="_Ref204841720"></a><a name="_WaveFileIn"></a>WaveFileIn</h3>
+<h3><a name="_WaveFileIn"></a>WaveFileIn</h3>
 
 <p class=noindent>The <span class=codevariablechar>WaveFileIn</span> class
 loads a standard PCM WAV file into memory. This class can only read files with
@@ -925,7 +886,7 @@ file is loaded it is converted from the PCM sample format into the internal
 sample format for the synthesizer. Multiple channel files are combined into one
 channel and amplitude is normalized to a range of [-1,+1] </p>
 
-<h3><a name="_Ref204841735"></a><a name="_XML_Wrapper"></a>XML Wrapper</h3>
+<h3><a name="_XML_Wrapper"></a>XML Wrapper</h3>
 
 <p class=noindent>XML files are used to store configuration information, such
 as the default setting for instruments. The Common library provides the support
@@ -1050,7 +1011,7 @@ These two methods are used in combination to walk the node tree.</p>
 a new node as a child of the current node. </p>
 
 <p class=noindent>The <span class=codevariablechar>TagName</span> method
-returns a pointer to the node&quot;s tag. This is typically used to compare the tag
+returns a pointer to the node&rsquo;s tag. This is typically used to compare the tag
 name to a known name. The <span class=codevariablechar>TagMatch</span> method
 can be used also. It returns true if the argument matches the name of the node.</p>
 
@@ -1072,9 +1033,9 @@ and must be released by the caller.</p>
 <p class=noindent>The <span class=codevariablechar>SetContent</span> method
 replaces the content of the node with the character string pointed to by data.</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841395"></a><a name="_Oscillators"></a>Oscillators</h2>
+<h2><a name="_Oscillators"></a>Oscillators</h2>
 
 </div>
 
@@ -1085,27 +1046,27 @@ greatest precision but are often limited in their application.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><a href="#_GenWave"><u><span style='color:blue'>GenWave</span></u></a></p>
+<p class=indent><a href="#_GenWave">GenWave</a></p>
 
-<p class=indent><a href="#_GenWaveSaw"><u><span style='color:blue'>GenWaveSaw</span></u></a></p>
+<p class=indent><a href="#_GenWaveSaw">GenWaveSaw</a></p>
 
-<p class=indent><a href="#_GenWaveTri"><u><span style='color:blue'>GenWaveTri</span></u></a></p>
+<p class=indent><a href="#_GenWaveTri">GenWaveTri</a></p>
 
-<p class=indent><a href="#_GenWaveSqr"><u><span style='color:blue'>GenWaveSqr</span></u></a></p>
+<p class=indent><a href="#_GenWaveSqr">GenWaveSqr</a></p>
 
-<p class=indent><a href="#_GenWaveWT"><u><span style='color:blue'>GenWaveWT</span></u></a></p>
+<p class=indent><a href="#_GenWaveWT">GenWaveWT</a></p>
 
-<p class=indent><a href="#_GenWave32"><u><span style='color:blue'>GenWave32</span></u></a></p>
+<p class=indent><a href="#_GenWave32">GenWave32</a></p>
 
-<p class=indent><a href="#_GenWaveSum"><u><span style='color:blue'>GenWaveSum</span></u></a></p>
+<p class=indent><a href="#_GenWaveSum">GenWaveSum</a></p>
 
-<p class=indent><a href="#_GenWaveFM"><u><span style='color:blue'>GenWaveFM</span></u></a></p>
+<p class=indent><a href="#_GenWaveFM">GenWaveFM</a></p>
 
-<p class=indent><a href="#_GenWaveAM"><u><span style='color:blue'>GenWaveAM</span></u></a></p>
+<p class=indent><a href="#_GenWaveAM">GenWaveAM</a></p>
 
-<p class=indent><a href="#_GenWaveRM"><u><span style='color:blue'>GenWaveRM</span></u></a></p>
+<p class=indent><a href="#_GenWaveRM">GenWaveRM</a></p>
 
-<h3><a name="_Ref204843980"></a><a name="_GenWave"></a>GenWave</h3>
+<h3><a name="_GenWave"></a>GenWave</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWave</span> class
 produces a sine wave by directly calling the <span class=codevariablechar>sin</span>
@@ -1161,7 +1122,7 @@ in order to apply the change.</p>
 to return the next sample. The <i>Sample</i> method is implemented by calling <span
 class=codevariablechar>Gen</span> and may be used also.</p>
 
-<h3><a name="_Ref204848661"></a><a name="_GenWaveSaw"></a>GenWaveSaw</h3>
+<h3><a name="_GenWaveSaw"></a>GenWaveSaw</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveSaw</span> class
 produces a sawtooth (ramp) wave by incrementally calculating the amplitude from
@@ -1177,9 +1138,9 @@ class=codevariablechar>Gen</span> methods. </p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See GenWave above.)</p>
+<p class=method>(See <a href="#_GenWave">GenWave</a>)</p>
 
-<h3><a name="_Ref204848680"></a><a name="_GenWaveTri"></a>GenWaveTri</h3>
+<h3><a name="_GenWaveTri"></a>GenWaveTri</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveTri</span> class
 produces a triangle wave by incrementally calculating the amplitude from the phase
@@ -1195,9 +1156,9 @@ class=codevariablechar>Gen</span> methods. </p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See GenWave above.)</p>
+<p class=method>(See <a href="#_GenWave">GenWave</a> above.)</p>
 
-<h3><a name="_Ref204848684"></a><a name="_GenWaveSqr"></a>GenWaveSqr</h3>
+<h3><a name="_GenWaveSqr"></a>GenWaveSqr</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveSqr</span> and <span
 class=codevariablechar>GenWaveSqr32</span> classes produce a square wave by
@@ -1235,8 +1196,8 @@ discards frequency steps less than one sample.</p>
 <p class=noindent>The <span class=codevariablechar>SetDutyCycle</span> method
 sets the percentage of the period the waveform is on or off. A duty cycle of
 50% produces a true square wave with the amplitude at maximum for half the
-cycle and minimum for half the cycle. Smaller values produce shorter &quot;on&quot; times
-while larger values (up to 100) produce longer &quot;on&quot; times. The value of <span
+cycle and minimum for half the cycle. Smaller values produce shorter on times
+while larger values (up to 100) produce longer on times. The value of <span
 class=codevariablechar>duty</span> should be greater than 0 and less than 100.</p>
 
 <p class=noindent>The <span class=codevariablechar>SetMinMax</span> method sets
@@ -1252,7 +1213,7 @@ Calling this method is equivalent to calling <span class=codevariablechar>SetFre
 and <span class=codevariablechar>SetDutyCycle</span> followed by <span
 class=codevariablechar>Reset</span>.</p>
 
-<h3><a name="_Ref204845605"></a><a name="_GenWaveWT"></a>GenWaveWT</h3>
+<h3><a name="_GenWaveWT"></a>GenWaveWT</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveWT</span> class, and
 classes derived from it, provide wavetable lookup oscillators. These are the
@@ -1321,7 +1282,7 @@ effective. <span class=codevariablechar>PhaseModWT</span> produces an immediate
 change in the oscillator phase increment and it is not necessary to call <span
 class=codevariablechar>Reset</span> in order to apply the change.</p>
 
-<h3><a name="_Ref204848687"></a><a name="_GenWaveI"></a>GenWaveI</h3>
+<h3><a name="_GenWaveI"></a>GenWaveI</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveI</span> class
 implements a wavetable oscillator with linear interpolation between samples.
@@ -1336,7 +1297,7 @@ slightly more calculation time.</p>
 
 <p class=method>See GenWaveWT and GenWave</p>
 
-<h3><a name="_Ref204848688"></a><a name="_Ref204849704"></a><a name="_GenWave32"></a>GenWave32</h3>
+<h3><a name="_GenWave32"></a>GenWave32</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWave32</span> class
 implements a wavetable oscillator using a 32-bit fixed point phase calculation.
@@ -1407,7 +1368,7 @@ methods by passing the values for multiple and amplitude as arrays. The <i>n </i
 specifies the number of partials. The <i>g </i>argument sets the Gibbs
 calculation on or off.</p>
 
-<h3><a name="_Ref204848691"></a><a name="_GenWaveFM"></a>GenWaveFM</h3>
+<h3><a name="_GenWaveFM"></a>GenWaveFM</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveFM</span> class
 implements a one carrier, one modulator, FM synthesis generator. The <span
@@ -1430,7 +1391,7 @@ than two independent oscillators.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See GenWaveWT and GenWave)</p>
+<p class=method>(See <a href="#_GenWave">GenWave</a> and <a href="#_GenWaveWT">GenWaveWT</a>.)</p>
 
 <p class=method>void SetModIndex(AmpValue iom)</p>
 
@@ -1468,7 +1429,7 @@ class=codevariablechar>SetModMultiple</span>, <span class=codevariablechar>SetMo
 <span class=codevariablechar>SetWavetable</span> and <span
 class=codevariablechar>Reset</span> into one method.</p>
 
-<h3><a name="_Ref204847844"></a><a name="_GenWaveAM"></a>GenWaveAM</h3>
+<h3><a name="_GenWaveAM"></a>GenWaveAM</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveAM</span> class
 implements an amplitude modulation generator using one carrier and one
@@ -1480,7 +1441,7 @@ modulator.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See GenWaveWT and GenWave)</p>
+<p class=method>(See <a href="_GenWaveWT">GenWaveWT</a> and <a href="_GenWave">GenWave</a>)</p>
 
 <p class=method>void InitAM(FrqValue frequency,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FrqValue mfrq, <br>
@@ -1491,7 +1452,7 @@ modulator.</p>
 the carrier and modulator frequencies and the modulator amplitude along with
 the wavetable.</p>
 
-<h3><a name="_Ref204848694"></a><a name="_GenWaveRM"></a>GenWaveRM</h3>
+<h3><a name="_GenWaveRM"></a>GenWaveRM</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenWaveRM</span> class
 implements a ring modulation generator using one carrier and one modulator. It
@@ -1506,10 +1467,11 @@ modulation (two-quadrant multiply).</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See GenWaveAM, GenWaveWT and GenWave)</p>
+<p class=method>(See <a href="#_GenWaveAM">GenWaveAM</a>,<a href="#_GenWaveWT">GenWaveWT</a> and <a href="#_GenWave">GenWave</a>)</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
-<h2><a name="_Ref204849714"></a><a name="_Noise_Generators"></a>Noise Generators</h2>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
+<h2><a name="_Noise_Generators"></a>Noise Generators</h2>
+</div>
 
 <h3><a name="_GenNoise"></a>GenNoise</h3>
 
@@ -1524,7 +1486,7 @@ class=codevariablechar>Init</span>, <span class=codevariablechar>Reset</span>, <
 class=codevariablechar>Sample</span> methods. <span class=codevariablechar>GenNoisePink1</span>
 and <span class=codevariablechar>GenNoisePink2</span> add a one-pole and one-zero
 filter, respectively, to <span class=codevariablechar>GenWaveNoise</span> to
-produce &quot;pinkish&quot; noise.</p>
+produce &lsquo;pinkish&rsquo; noise.</p>
 
 <p class=methodheading>File:</p>
 
@@ -1540,7 +1502,7 @@ one sample generated using a random number generator.</p>
 <h3><a name="_GenNoiseH"></a>GenNoiseH</h3>
 
 <p class=noindent>The <span class=codevariablechar>GenNoiseH</span> class
-produces &quot;held&quot; white noise. The frequency argument to the init function
+produces &ldquo;held&rdquo; white noise. The frequency argument to the init function
 indicates the frequency at which random values are generated. Lower values for
 the frequency effectively remove high frequencies from the output. It inherits
 from <span class=codevariablechar>GenNoise</span> and overrides the <span
@@ -1590,10 +1552,9 @@ array as the frequency at which to produce random values.</p>
 <p class=noindent>The <span class=codevariablechar>Gen</span> method returns
 one sample generated using a random number generator.</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841411"></a><a name="_Envelope_Generators"></a>Envelope
-Generators</h2>
+<h2><a name="_Envelope_Generators"></a>Envelope Generators</h2>
 
 </div>
 
@@ -1613,29 +1574,29 @@ envelope is complete, false otherwise.</p>
 
 <p class=indent><i>&nbsp;</i></p>
 
-<p class=indent><a href="#_EnvGen"><u><span style='color:blue'>EnvGen</span></u></a></p>
+<p class=indent><a href="#_EnvGen">EnvGen</a></p>
 
-<p class=indent><a href="#_EnvGenExp"><u><span style='color:blue'>EnvGenExp</span></u></a></p>
+<p class=indent><a href="#_EnvGenExp">EnvGenExp</a></p>
 
-<p class=indent><a href="#_EnvGenLog"><u><span style='color:blue'>EnvGenLog</span></u></a></p>
+<p class=indent><a href="#_EnvGenLog">EnvGenLog</a></p>
 
-<p class=indent><a href="#_EnvSeg"><u><span style='color:blue'>EnvSeg</span></u></a></p>
+<p class=indent><a href="#_EnvSeg">EnvSeg</a></p>
 
-<p class=indent><a href="#_EnvDef"><u><span style='color:blue'>EnvDef</span></u></a></p>
+<p class=indent><a href="#_EnvDef">EnvDef</a></p>
 
-<p class=indent><a href="#_EnvGenUnit"><u><span style='color:blue'>EnvGenUnit</span></u></a></p>
+<p class=indent><a href="#_EnvGenUnit">EnvGenUnit</a></p>
 
-<p class=indent><a href="#_EnvGenSeg"><u><span style='color:blue'>EnvGenSeg</span></u></a></p>
+<p class=indent><a href="#_EnvGenSeg">EnvGenSeg</a></p>
 
-<p class=indent><a href="#_EnvGenAR"><u><span style='color:blue'>EnvGenAR</span></u></a></p>
+<p class=indent><a href="#_EnvGenAR">EnvGenAR</a></p>
 
-<p class=indent><a href="#_EnvGenADSR"><u><span style='color:blue'>EnvGenADSR</span></u></a></p>
+<p class=indent><a href="#_EnvGenADSR">EnvGenADSR</a></p>
 
-<p class=indent><a href="#_EnvGenA3SR"><u><span style='color:blue'>EnvGenA3SR</span></u></a></p>
+<p class=indent><a href="#_EnvGenA3SR">EnvGenA3SR</a></p>
 
-<p class=indent><a href="#_EnvGenSegSus"><u><span style='color:blue'>EnvGenSegSus</span></u></a></p>
+<p class=indent><a href="#_EnvGenSegSus">EnvGenSegSus</a></p>
 
-<p class=indent><a href="#_EnvGenTable"><u><span style='color:blue'>EnvGenTable</span></u></a></p>
+<p class=indent><a href="#_EnvGenTable">EnvGenTable</a></p>
 
 <h3><a name="_EnvGen"></a>EnvGen</h3>
 
@@ -1677,7 +1638,7 @@ class=codevariablechar>EnvGen</span>.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGen"><u><span style='color:blue'>EnvGen</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGen">EnvGen</a>)</p>
 
 <p class=method>void SetBias(AmpValue b)</p>
 
@@ -1707,8 +1668,7 @@ class=codevariablechar>EnvGenExp</span>.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGen"><u><span style='color:blue'>EnvGen</span></u></a>
-and <a href="#_EnvGenExp"><u><span style='color:blue'>EnvGenExp</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGen">EnvGen</a> and <a href="#_EnvGenExp">EnvGenExp</a>)</p>
 
 <h3><a name="_EnvSeg"></a>EnvSeg</h3>
 
@@ -1718,7 +1678,7 @@ is defined by a starting value, rate and ending level value. The rate is
 specified in seconds. Each class generates a series of values with each value
 in the series returned on successive calls to the <span class=codevariablechar>Gen</span>
 method. <span class=codevariablechar>EnvSeg</span> is the base class for the
-other classes and implements a &quot;sustain&quot; segment by always returning its start
+other classes and implements a sustain segment by always returning its start
 value. <span class=codevariablechar>EnvSegLin</span> produces a linear series, <span
 class=codevariablechar>EnvSegExp</span> an exponential series, and <span
 class=codevariablechar>EnvSegLog</span> a logarithmic series.</p>
@@ -1819,7 +1779,7 @@ subsequent calls.</p>
 <p class=noindent><span class=codevariablechar>SetBias</span> sets the bias for
 the <span class=codevariablechar>EnvSegExp</span> and <span
 class=codevariablechar>EnvSegLog</span> classes. See the explanation under the <a
-href="#_EnvGenExp"><u><span style='color:blue'>EnvGenExp</span></u></a> class
+href="#_EnvGenExp">EnvGenExp</a> class
 for how the bias is used.</p>
 
 <h3><a name="_EnvDef"></a>EnvDef</h3>
@@ -1906,8 +1866,7 @@ nth rate and level pairs that define an envelope segment. The rate (<span
 class=codevariablechar>rt</span>) is specified in seconds. The level value (<span
 class=codevariablechar>lv</span>) specifies the end value for the segment. The
 type (<span class=codevariablechar>ty</span>) is one of the enumerated types
-for an envelope segment. (See <span class=codevariablechar>EnvSeg</span> for
-the allowed values.)</p>
+for an envelope segment. (See <span class=codevariablechar><a href="#_EnvSeg">EnvSeg</a></span> for the allowed values.)</p>
 
 <p class=noindent>The <span class=codevariablechar>Get</span> method is the
 counterpart to the <span class=codevariablechar>Set</span> method. It retrieves
@@ -1985,7 +1944,7 @@ last segment at that point.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGenUnit"><u><span style='color:blue'>EnvGenUnit</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGenUnit">EnvGenUnit</a>)</p>
 
 <p class=method>void SetStart(AmpValue st)</p>
 
@@ -2019,8 +1978,8 @@ initialization method to the base class methods.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGenUnit"><u><span style='color:blue'>EnvGenUnit</span></u></a>
-and <a href="#_EnvGenSeg"><u><span style='color:blue'>EnvGenSeg</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGenUnit">EnvGenUnit</a>
+and <a href="#_EnvGenSeg">EnvGenSeg</a>)</p>
 
 <p class=method>void InitAR(FrqValue ar, AmpValue sl, FrqValue rr,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;int son,
@@ -2048,8 +2007,8 @@ initialization method to the base class methods.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGenUnit"><u><span style='color:blue'>EnvGenUnit</span></u></a>
-and <a href="#_EnvGenSeg"><u><span style='color:blue'>EnvGenSeg</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGenUnit">EnvGenUnit</a>
+and <a href="#_EnvGenSeg">EnvGenSeg</a>)</p>
 
 <p class=method>void InitADSR(AmpValue st, <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2105,8 +2064,8 @@ by supplying two attack segments. </p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGenUnit"><u><span style='color:blue'>EnvGenUnit</span></u></a>
-and <a href="#_EnvGenSeg"><u><span style='color:blue'>EnvGenSeg</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGenUnit">EnvGenUnit</a>
+and <a href="#_EnvGenSeg">EnvGenSeg</a>)</p>
 
 <h3><a name="_EnvGenSegSus"></a>EnvGenSegSus</h3>
 
@@ -2125,7 +2084,7 @@ processing the decay segments.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_EnvGenUnit"><u><span style='color:blue'>EnvGenUnit</span></u></a>)</p>
+<p class=method>(See <a href="#_EnvGenUnit">EnvGenUnit</a>)</p>
 
 <p class=method>void SetSegs(int atks, int decs)</p>
 
@@ -2196,9 +2155,9 @@ class=codevariablechar>amp</span> arrays must be of <span
 class=codevariablechar>segs</span> length. The <span class=codevariablechar>typ</span>
 array can be NULL, in which case all segments use linear interpolation.</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841425"></a><a name="_Filters"></a>Filters</h2>
+<h2><a name="_Filters"></a>Filters</h2>
 
 </div>
 
@@ -2208,27 +2167,27 @@ class. Other filters implement averaging and convolution.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><a href="#_AllPassFilter"><u><span style='color:blue'>AllPassFilter</span></u></a></p>
+<p class=indent><a href="#_AllPassFilter">AllPassFilter</a></p>
 
-<p class=indent><a href="#_BiQuadFilter"><u><span style='color:blue'>BiQuadFilter</span></u></a></p>
+<p class=indent><a href="#_BiQuadFilter">BiQuadFilter</a></p>
 
-<p class=indent><a href="#_FilterLP"><u><span style='color:blue'>FilterLP</span></u></a></p>
+<p class=indent><a href="#_FilterLP">FilterLP</a></p>
 
-<p class=indent><a href="#_FilterHP"><u><span style='color:blue'>FilterHP</span></u></a></p>
+<p class=indent><a href="#_FilterHP">FilterHP</a></p>
 
-<p class=indent><a href="#_FIlterBP"><u><span style='color:blue'>FIlterBP</span></u></a></p>
+<p class=indent><a href="#_FIlterBP">FIlterBP</a></p>
 
-<p class=indent><a href="#_Reson"><u><span style='color:blue'>Reson</span></u></a></p>
+<p class=indent><a href="#_Reson">Reson</a></p>
 
-<p class=indent><a href="#_DynFilterLP"><u><span style='color:blue'>DynFilterLP</span></u></a></p>
+<p class=indent><a href="#_DynFilterLP">DynFilterLP</a></p>
 
-<p class=indent><a href="#_FilterFIR"><u><span style='color:blue'>FilterFIR</span></u></a></p>
+<p class=indent><a href="#_FilterFIR">FilterFIR</a></p>
 
-<p class=indent><a href="#_FilterIIR"><u><span style='color:blue'>FilterIIR</span></u></a></p>
+<p class=indent><a href="#_FilterIIR">FilterIIR</a></p>
 
-<p class=indent><a href="#_FilterFIRn"><u><span style='color:blue'>FilterFIRn</span></u></a></p>
+<p class=indent><a href="#_FilterFIRn">FilterFIRn</a></p>
 
-<p class=indent><a href="#_FilterAvgN"><u><span style='color:blue'>FilterAvgN</span></u></a></p>
+<p class=indent><a href="#_FilterAvgN">FilterAvgN</a></p>
 
 <h3><a name="_AllPassFilter"></a>AllPassFilter</h3>
 
@@ -2254,7 +2213,7 @@ the feedback and feedforward coefficient (<i>g</i>) using the argument <i>d</i>:
 
 <p class=code>&nbsp;</p>
 
-<p class=code>g = (1 – d) / (1 + d)</p>
+<p class=code>g = (1 - d) / (1 + d)</p>
 
 <h3><a name="_BiQuadFilter"></a>BiQuadFilter</h3>
 
@@ -2311,7 +2270,7 @@ implement the calculation of coefficients for a second order low-pass filter.</p
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_BiQuadFilter"><u><span style='color:blue'>BiQuadFilter</span></u></a>)</p>
+<p class=method>(See <a href="#_BiQuadFilter">BiQuadFilter</a>)</p>
 
 <h3><a name="_FilterHP"></a>FilterHP</h3>
 
@@ -2326,7 +2285,7 @@ implement the calculation of coefficients for a second order high-pass filter.</
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_BiQuadFilter"><u><span style='color:blue'>BiQuadFilter</span></u></a>)</p>
+<p class=method>(See <a href="#_BiQuadFilter">BiQuadFilter</a>)</p>
 
 <h3><a name="_FIlterBP"></a>FIlterBP</h3>
 
@@ -2341,7 +2300,7 @@ implement the calculation of coefficients for a second order band-pass filter.</
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_BiQuadFilter"><u><span style='color:blue'>BiQuadFilter</span></u></a>)</p>
+<p class=method>(See <a href="#_BiQuadFilter">BiQuadFilter</a>)</p>
 
 <p class=method>void Init(FrqValue cu, AmpValue g, float B)</p>
 
@@ -2362,7 +2321,7 @@ implement the calculation of coefficients for a constant gain resonator.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_BiQuadFilter"><u><span style='color:blue'>BiQuadFilter</span></u></a>)</p>
+<p class=method>(See <a href="#_BiQuadFilter">BiQuadFilter</a>)</p>
 
 <p class=method>void InitRes(FrqValue cu, AmpValue g, float r)</p>
 
@@ -2392,24 +2351,23 @@ audible effect is the same as the true low-pass filter.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_BiQuadFilter"><u><span style='color:blue'>BiQuadFilter</span></u></a>)</p>
+<p class=method>(See <a href="#_BiQuadFilter">BiQuadFilter</a>)</p>
 
 <p class=method>void InitFilter(AmpValue st, <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 FrqValue ar, AmpValue al,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 FrqValue dr, AmpValue sl,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 FrqValue rr, AmpValue rl,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 EGSegType t = linSeg)</p>
 
 <p class=noindent>The <span class=codevariablechar>InitFilter</span> method
 sets the values for the internal envelope generator. The arguments are the same
 as for an ADSR envelope generator, except that the levels should be set to
 frequency value rather than amplitude value ranges. The methods to get and set
-each value individually are also implemented. (See <a href="#_EnvGenADSR"><u><span
-style='color:blue'>EnvGenADSR</span></u></a>).</p>
+each value individually are also implemented. (See <a href="#_EnvGenADSR">EnvGenADSR</a>).</p>
 
 <h3><a name="_FilterFIR"></a>FilterFIR</h3>
 
@@ -2449,9 +2407,16 @@ implements a one-pole filter of the form:</p>
 
 <p class=method>void InitFilter(AmpValue in, AmpValue out)</p>
 
+<p class=method>void CalcCoef(FrqValue fc, int hp = 0)</p>
+
 <p class=noindent>The <span class=codevariablechar>InitFilter</span> method
 sets the coefficients for input (<span class=codevariablechar>in</span>) and
 delayed samples (<span class=codevariablechar>out</span>).</p>
+
+<p class=noindent>The <span class=codevariablechar>CalcCoef</span> method
+calculates the coefficients for the cutoff frequency specified by <i>fc</i>.
+If the <i>hp</i> argument is true, the coefficients are calculated for high-pass,
+otherwise for low-pass.</p>
 
 <h3><a name="_FilterFIRn"></a>FilterFIRn</h3>
 
@@ -2470,9 +2435,32 @@ implements an impulse response filter of the form:</p>
 
 <p class=method>void Init(int n, float *h)</p>
 
+<p class=method>void AllocImpResp(int n)</p>
+
+<p class=method>void SetCoef(float *v)</p>
+
+<p class=method>void CalcCoef(FrqValue fc, int hp = 0)</p>
+
 <p class=noindent>The <span class=codevariablechar>Init</span> method sets the
 impulse response coefficients. The <i>n </i>argument specifies the number of
 elements in the impulse response array <i>h.</i></p>
+
+<p class=noindent>The <span class=codevariablechar>AllocImpResp</span> method allocates
+space for the impulse response coefficients. The <i>n </i>argument specifies the number of
+elements in the impulse response array.</p>
+
+<p class=noindent>The <span class=codevariablechar>SetCoef</span> method sets the
+impulse response coefficients to the values contained in the argument <i>v</i>. The
+size of the <i>v</i> array must match the size set previously with 
+<span class=codevariablechar>Init</span> or <span class=codevariablechar>AllocImpResp.</span></p>
+
+<p class=noindent>The <span class=codevariablechar>CalcCoef</span> method calculates
+the impulse response coefficients for the cutoff frequency specified in <i>fc</i>. The
+size of the <i>v</i> array must match the size set previously with 
+<span class=codevariablechar>Init</span> or <span class=codevariablechar>AllocImpResp.</span>
+The length of the impulse response should be set to an odd number.
+If the <i>hp</i> argument is true, the coefficients are calculated for high-pass,
+otherwise for low-pass.</p>
 
 <h3><a name="_FilterAvgN"></a>FilterAvgN</h3>
 
@@ -2494,9 +2482,9 @@ implements a running average filter of the form:</p>
 <p class=noindent>The <span class=codevariablechar>InitFilter</span> method
 sets number of samples to average (<i>n</i>).</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841440"></a><a name="_Delay_Lines"></a>Delay Lines</h2>
+<h2><a name="_Delay_Lines"></a>Delay Lines</h2>
 
 </div>
 
@@ -2507,20 +2495,15 @@ multi-sample delays.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_DelayLine"><u><span
-style='color:blue'>DelayLine</span></u></a></span></p>
+<p class=indent><a href="#_DelayLine">DelayLine</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_DelayLineR"><u><span
-style='color:blue'>DelayLineR</span></u></a></span></p>
+<p class=indent><a href="#_DelayLineR">DelayLineR</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_DelayLineV"><u><span
-style='color:blue'>DelayLineV</span></u></a></span></p>
+<p class=indent><a href="#_DelayLineV">DelayLineV</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_DelayLineT"><u><span
-style='color:blue'>DelayLineT</span></u></a></span></p>
+<p class=indent><a href="#_DelayLineT">DelayLineT</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_AllPassDelay"><u><span
-style='color:blue'>AllPassDelay</span></u></a></span></p>
+<p class=indent><a href="#_AllPassDelay">AllPassDelay</a></p>
 
 <h3><a name="_DelayLine"></a>DelayLine</h3>
 
@@ -2599,7 +2582,7 @@ method.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_DelayLine"><u><span style='color:blue'>DelayLine</span></u></a>)</p>
+<p class=method>(See <a href="#_DelayLine">DelayLine</a>)</p>
 
 <p class=method>void InitDLR(FrqValue dlyTm, FrqValue decTm, <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2636,7 +2619,7 @@ extends the basic delay line to implement a variable delay.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_DelayLine"><u><span style='color:blue'>DelayLine</span></u></a>)</p>
+<p class=method>(See <a href="#_DelayLine">DelayLine</a>)</p>
 
 <p class=method>void SetDelayT(PhsAccum d)</p>
 
@@ -2662,7 +2645,7 @@ to set and move the tap positions on each write to the delay line.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_DelayLine"><u><span style='color:blue'>DelayLine</span></u></a>)</p>
+<p class=method>(See <a href="#_DelayLine">DelayLine</a>)</p>
 
 <p class=method>void InitDLT(FrqValue dlyTm, int taps, AmpValue decay)</p>
 
@@ -2699,13 +2682,11 @@ as <span class=codevariablechar>DelayLineR</span>.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_DelayLine"><u><span style='color:blue'>DelayLine</span></u></a>
-and <a href="#_DelayLineR"><u><span style='color:blue'>DelayLineR</span></u></a>)</p>
+<p class=method>(See <a href="#_DelayLine">DelayLine</a> and <a href="#_DelayLineR">DelayLineR</a>)</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
-<h2><a name="_Ref204841463"></a><a name="_Mixing_and_Effects"></a>Mixing and
-Effects</h2>
+<h2><a name="_Mixing_and_Effects"></a>Mixing and Effects</h2>
 
 </div>
 
@@ -2714,16 +2695,13 @@ unit classes for reverb and flanger/chorus.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Mixer"><u><span
-style='color:blue'>Mixer</span></u></a></span></p>
+<p class=indent><a href="#_Mixer">Mixer</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Reverb2"><u><span
-style='color:blue'>Reverb2</span></u></a></span></p>
+<p class=indent><a href="#_Reverb2">Reverb2</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Flanger/Chorus"><u><span
-style='color:blue'>Flanger/Chorus</span></u></a></span></p>
+<p class=indent><a href="#_Flanger/Chorus">Flanger/Chorus</a></p>
 
-<h3><a name="_Ref204841479"></a><a name="_Sequencing"></a><a name="_Mixer"></a>Mixer</h3>
+<h3><a name="_Mixer"></a>Mixer</h3>
 
 <p class=noindent>The <span class=codevariablechar>Mixer</span> class
 implements a variable channel mixer with internal panning support. Amplitude
@@ -2751,6 +2729,13 @@ from the <span class=codevariablechar>GenUnit</span> base class.</p>
 <p class=method>void ChannelIn(int ch, AmpValue val)</p>
 
 <p class=method>void ChannelIn2(int ch, AmpValue lft, AmpValue rgt)</p>
+
+<p class=method>void SetFxChannels(int nunit)</p>
+<p class=method>int GetFxChannels()</p>
+<p class=method>void FxInit(int f, GenUnit *fx, AmpValue lvl)</p>
+<p class=method>void FxLevel(int f, int ch, AmpValue lvl)</p>
+<p class=method>void FxPan(int f, int pm, AmpValue lvl)</p>
+<p class=method>void FxIn(int f, AmpValue val)</p>
 
 <p class=method>void Out(AmpValue *lval, AmpValue *rval)</p>
 
@@ -2802,6 +2787,27 @@ Multiple calls to <span class=codevariablechar>ChannelIn2</span> will
 accumulate values until the <span class=codevariablechar>Out</span> method is
 called.</p>
 
+<p class=noindent>The <span class=codevariablechar>SetFxChannels</span> method
+sets the number of effects channels on the mixer to the value of <span
+class=codevariablechar>nunit</span>. This method allocates buffers for the
+inputs and must be called first, before any other operations on the mixer are
+performed. </p>
+
+<p class=noindent>The <span class=codevariablechar>GetFxChannels</span> method
+returns the number of currently defined effects channels.</p>
+
+<p class=noindent>The <span class=codevariablechar>FxInit</span> method sets the 
+unit generator object (<i>fx</i>) and output level (<i>lvl</i>) for effects unit <i>f</i>.</p>
+
+<p class=noindent>The <span class=codevariablechar>FxLevel</span> method sets the 
+send level (<i>lvl</i>) for input channel (<i>ch</i>) on effects unit (<i>f</i>).</p>
+
+<p class=noindent>The <span class=codevariablechar>FxPan</span> method sets the 
+pan amount (<i>lvl</i>) and method (<i>pm</i>) on effects unit (<i>f</i>).</p>
+
+<p class=noindent>The <span class=codevariablechar>FxIn</span> method sends a
+value (<i>val</i>) directly to effects unit (<i>f</i>), bypassing the input channels.</p>
+
 <p class=noindent>The <span class=codevariablechar>Out </span>method sums the
 current level of all active input channels, adjusts the output by the master
 volume levels, and returns the values for left and right amplitude in the
@@ -2816,8 +2822,9 @@ all input values to zero.</p>
 
 <p class=noindent>The <span class=codevariablechar>Reverb2</span> class
 implements a Schroeder reverb with three comb filters and two allpass delay filters.
-To apply the reverb, pass the current sample to the <span
-class=codevariablechar>Sample</span> method.</p>
+To apply the reverb, pass the current sample to the <span class=codevariablechar>Sample</span>
+method, or attach the reverb object to the mixer
+using the <span class=codevariablechar>Mixer::FxInit</span> method.</p>
 
 <p class=methodheading>File:</p>
 
@@ -2838,8 +2845,8 @@ and override the <span class=codevariablechar>InitReverb</span> method.</p>
 <p class=noindent>The <span class=codevariablechar>Flanger</span> class
 implements a variable Flanger-Chorus unit using a variable delay line and
 allpass filter combination. An internal oscillator varies the delay line length
-to produce the effect. To apply the Flanger, pass the current sample to the <span
-class=codevariablechar>Sample</span> method.</p>
+to produce the effect. To apply the Flanger, pass the current sample to the <span class=codevariablechar>Sample</span> method,
+or attach the reverb object to the mixer using the <span class=codevariablechar>Mixer::FxInit</span> method.</p>
 
 <p class=methodheading>File:</p>
 
@@ -2893,7 +2900,7 @@ the flanger settings to another instance of this class.</p>
 delay line to all zeros while the <span class=codevariablechar>Reset</span>
 method sets the internal delay line and sweep oscillator to initial conditions.</p>
 
-<div style='border:none;border-top:solid windowtext 1.0pt;padding:1.0pt 0in 0in 0in'>
+<div style='border:none;border-top:solid windowtext 1.0pt;margin-top:12.0pt;padding:1.0pt 0in 0in 0in'>
 
 <h2><a name="_Sequencing_"></a>Sequencing</h2>
 
@@ -2913,23 +2920,17 @@ the MIDI sequencer is in the Example09 program.</p>
 
 <p class=indent>&nbsp;</p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Sequencer"><u><span
-style='color:blue'>Sequencer</span></u></a></span></p>
+<p class=indent><a href="#_Sequencer">Sequencer</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_SeqEvent"><u><span
-style='color:blue'>SeqEvent</span></u></a></span></p>
+<p class=indent><a href="#_SeqEvent">SeqEvent</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_NoteEvent"><u><span
-style='color:blue'>NoteEvent</span></u></a></span></p>
+<p class=indent><a href="#_NoteEvent">NoteEvent</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_VarParamEvent"><u><span
-style='color:blue'>VarParamEvent</span></u></a></span></p>
+<p class=indent><a href="#_VarParamEvent">VarParamEvent</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_Instrument"><u><span
-style='color:blue'>Instrument</span></u></a></span></p>
+<p class=indent><a href="#_Instrument">Instrument</a></p>
 
-<p class=indent><span class=MsoHyperlink><a href="#_InstrManager"><u><span
-style='color:blue'>InstrManager</span></u></a></span></p>
+<p class=indent><a href="#_InstrManager">InstrManager</a></p>
 
 <h3><a name="_Sequencer"></a>Sequencer</h3>
 
@@ -2961,8 +2962,8 @@ bsInt32 startTime = 0,<br>
 one event to the sequencer event list. The caller must set the start time
 before calling this method. All other fields of the event must be set before
 the sequence is started. The sequencer class maintains a sorted list of events
-for playback. As each event is added, the sequencer inserts the invent into the
-list based on the start time. Thus, events may be added in any order.</p>
+for playback. As each event is added, the sequencer inserts the event into the
+list based on the start time. Thus events may be added in any order.</p>
 
 <p class=noindent>The <span class=codevariablechar>Sequence</span> method
 begins playback of the sequence. The <span class=codevariablechar>instMgr</span>
@@ -3093,10 +3094,9 @@ additional members. All other parameter values are passed to the base class.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_SeqEvent"><u><span style='color:blue'>SeqEvent</span></u></a>)</p>
+<p class=method>(See <a href="#_SeqEvent">SeqEvent</a>)</p>
 
-<p class=noindent>The additional parameters are identified by the following
-constants.</p>
+<p class=noindent>The additional parameters are identified by the following constants.</p>
 
 <p class=code>&nbsp;</p>
 
@@ -3123,8 +3123,7 @@ additional members. All other parameter values are passed to the base class.</p>
 
 <p class=methodheading>Methods:</p>
 
-<p class=method>(See <a href="#_SeqEvent"><u><span style='color:blue'>SeqEvent</span></u></a>
-and <a href="#_NoteEvent"><u><span style='color:blue'>NoteEvent</span></u></a>)</p>
+<p class=method>(See <a href="#_SeqEvent">SeqEvent</a> and <a href="#_NoteEvent">NoteEvent</a>)</p>
 
 <h3><a name="_Instrument"></a>Instrument</h3>
 
@@ -3155,9 +3154,9 @@ class=codevariablechar>Sequencer</span> classes during sequencer playback.</p>
 
 <p class=method>int Save(XmlSynthElem *parent)</p>
 
-<p class=method>Instrument *(*InstrFactory)(InstrManager *, Opaque tmplt)</p>
+<p class=method>static Instrument *(*InstrFactory)(InstrManager *, Opaque tmplt)</p>
 
-<p class=method>SeqEvent&nbsp;&nbsp; *(*EventFactory)(Opaque tmplt);</p>
+<p class=method>static SeqEvent&nbsp;&nbsp; *(*EventFactory)(Opaque tmplt);</p>
 
 <p class=noindent>The <span class=codevariablechar>Start</span> method is
 called when the current playback time matches the event start time. The event
@@ -3193,11 +3192,10 @@ instrument instances and reuse them if it is more efficient to do so.</p>
 
 <p class=noindent>The <span class=codevariablechar>Load</span> and <span
 class=codevariablechar>Save</span> methods are used to load and store
-instrument configuration in an XML file. (See <a href="#_XML_Wrapper"><u><span
-style='color:blue'>XML Wrapper</span></u></a>).</p>
+instrument configuration in an XML file. (See <a href="#_XML_Wrapper">XML Wrapper</a>).</p>
 
 <p class=noindent>The <span class=codevariablechar>InstrFactory</span> function
-is a non-class function or static class method that instantiates and object of
+is a non-class function or static class method that instantiates an object of
 the instrument type. The <span class=codevariablechar>tmplt</span> argument is
 an instrument specific template that the object may use to initialize with. The
 <span class=codevariablechar>im</span> argument is a pointer to the active
@@ -3392,10 +3390,6 @@ otherwise. Parsing stops with the first error.</p>
 <p class=noindent>The <span class=codevariablechar>GetError</span> method
 returns a formatted string for the last error encountered while parsing or
 loading the file.</p>
-
-</div>
-
-</div>
 
 </body>
 
