@@ -19,7 +19,11 @@ public:
 class SubSynth  : public Instrument
 {
 private:
-	GenWaveWT    osc;
+#ifdef USE_OSCILI
+	GenWaveI osc;
+#else
+	GenWaveWT osc;
+#endif
 	GenNoise nz;
 	EnvGenADSR   envSig;
 	//FilterLP     filt;

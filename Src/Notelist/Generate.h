@@ -678,6 +678,16 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+class nlOptNode : public nlScriptNode
+{
+public:
+	nlOptNode()
+	{
+		token = T_OPTION;
+	}
+	virtual nlScriptNode *Exec();
+};
+
 class nlGenerate  
 {
 private:
@@ -693,6 +703,8 @@ private:
 	nlSyncMark *synclist;
 
 	long maxParam;
+	long freqmode;
+	long voldbmode;
 	double beat;
 	double secBeat;
 	double nlVersion;
@@ -716,6 +728,11 @@ public:
 	long GetMaxParam() { return maxParam; }
 	void SetVersion(double v) { nlVersion = v; }
 	double GetVersion() { return nlVersion; }
+
+	void SetFrequencyMode(long n) { freqmode = n; }
+	long GetFrequencyMode() { return freqmode; }
+	void SetVoldbMode(long n) { voldbmode = n; }
+	long GetVoldbMode() { return voldbmode; }
 
 	void SetTempo(double b, double t)
 	{

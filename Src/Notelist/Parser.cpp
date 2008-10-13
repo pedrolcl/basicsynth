@@ -351,6 +351,32 @@ int nlParser::Set()
 	return err;
 }
 
+// option = 'option' optname ('on'|'off')
+// optname = 'frequency' | 'voldb'
+int nlParser::Option()
+{
+	int err = 0;
+	int opt = lexPtr->Next();
+	if (opt == T_FREQ || opt == T_VOLDB)
+	{
+		theToken = lexPtr->Next();
+		if (theToken == T_ON || theToken == T_OFF)
+		{
+			nlOptNode *node = new nlOptNode;
+			node->SetToken(opt);
+			node->SetValue(theToken == T_ON ? 1L : 0L);
+			genPtr->AddNode(node);
+		}
+		else
+			err = Error("Expected ON|OFF", skiptoend);
+	}
+	else
+		err = Error("Unknown option", skiptoend);
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	return err;
+}
+
 // version = 'version' numstr ';'
 // numstr = number | strlit
 int nlParser::Version()

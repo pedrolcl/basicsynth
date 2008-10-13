@@ -39,6 +39,8 @@ nlGenerate::nlGenerate()
 	for (int i = 0; i < MAXFGEN; i++)
 		iFnGen[i] = NULL;
 
+	freqmode = 0;
+	voldbmode = 0;
 	maxParam = MAXPARAM;
 	curVoice = NULL;
 	voiceList = NULL;
@@ -108,7 +110,7 @@ nlVoice *nlGenerate::SetCurVoice(int n)
 		vp->genPtr = this;
 		vp->SetMaxParam(maxParam);
 		vp->next = voiceList;
-		if (nlVersion < 3.0)
+		if (nlVersion < 1.0)
 			vp->articParam = 1;
 		voiceList = vp;
 	}
@@ -820,7 +822,7 @@ nlScriptNode *nlVolumeNode::Exec()
 	{
 		double d = 0;
 		next->GetValue(&d);
-		if (genPtr->GetVersion() >= 3.0)
+		if (genPtr->GetVersion() >= 1.0)
 			vox->volMul = d / 100.0;
 		else
 			vox->volMul = d;
@@ -843,7 +845,11 @@ nlScriptNode *nlTransposeNode::Exec()
 	nlScriptNode *ret = next->Exec();
 	nlVoice *vox = genPtr->GetCurVoice();
 	if (vox)
+	{
 		next->GetValue(&vox->transpose);
+		if (genPtr->GetFrequencyMode())
+			vox->transpose = pow(2, vox->transpose / 12.0);
+	}
 	return ret;
 }
 
@@ -1369,7 +1375,7 @@ nlScriptNode *nlArticNode::Exec()
 	nlVoice *pv = genPtr->GetCurVoice();
 	GetValue(&pv->articType);
 
-	if (genPtr->GetVersion() < 3.0)
+	if (genPtr->GetVersion() < 1.0)
 		return next;
 
 	nlScriptNode *pList = next;
@@ -1491,6 +1497,23 @@ nlScriptNode *nlMaxParamNode::Exec()
 }
 
 ///////////////////////////////////////////////////////////
+// OPTION opt on|off -- set an option
+///////////////////////////////////////////////////////////
+nlScriptNode *nlOptNode::Exec()
+{
+	switch (token)
+	{
+	case T_FREQ:
+		genPtr->SetFrequencyMode(lVal);
+		break;
+	case T_VOLDB:
+		genPtr->SetVoldbMode(lVal);
+		break;
+	}
+	return next;
+}
+
+///////////////////////////////////////////////////////////
 // CALL expr - pass the expression as a string to the
 // external script engine.
 ///////////////////////////////////////////////////////////
@@ -1609,9 +1632,15 @@ nlScriptNode *nlNoteNode::Exec()
 		double thisPit = vox->lastPit;
 		if (thisPit >= 0)
 		{
-			thisPit += vox->transpose;
+			if (vox->transpose)
+			{
+				if (genPtr->GetFrequencyMode())
+					thisPit *= vox->transpose; // pow(2, vox->transpose/12.0);
+				else
+					thisPit += vox->transpose;
+			}
 			double thisVol;
-			if (genPtr->GetVersion() < 3.0)
+			if (genPtr->GetVersion() < 1.0)
 				thisVol = (vox->lastVol / 327.67) * vox->volMul;
 			else
 				thisVol = vox->lastVol * vox->volMul;

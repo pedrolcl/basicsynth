@@ -161,8 +161,18 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 	evt->SetParam(P_CHNL, (long) curVoice->chnl);
 	evt->SetParam(P_START, (float) start);
 	evt->SetParam(P_DUR, (float) dur);
-	evt->SetParam(P_PITCH, (long) pit);
-	evt->SetParam(P_VOLUME, (float) (amp / 100.0));
+	if (gen.GetFrequencyMode())
+		evt->SetParam(P_FREQ, pit);
+	else
+		evt->SetParam(P_PITCH, (long) pit);
+	if (amp > 0)
+	{
+		if (gen.GetVoldbMode())
+			amp = pow(10, amp / 20.0) / 100000.0;
+		else
+			amp /= 100.0;
+	}
+	evt->SetParam(P_VOLUME, (float) amp);
 
 	double val;
 	int pn, mn;

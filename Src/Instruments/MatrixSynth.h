@@ -41,7 +41,11 @@
 class MatrixTone
 {
 private:
-	GenWaveWT  osc;    // signal oscillator
+#ifdef USE_OSCILI
+	GenWaveI osc;      // signal oscillator
+#else
+	GenWaveWT osc;     // signal oscillator
+#endif
 	FrqValue frqMult;  // Frequency multiplier
 	AmpValue volLvl;   // Signal out level
 	AmpValue modLvl;   // Modulation in level

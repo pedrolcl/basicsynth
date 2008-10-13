@@ -18,7 +18,11 @@
 class FMSynth : public Instrument
 {
 private:
-	GenWaveWT  gen1Osc;
+#ifdef USE_OSCILI
+	GenWaveI gen1Osc;
+#else
+	GenWaveWT gen1Osc;
+#endif
 	EnvGenADSR gen1EG;
 	EnvDef     gen1EnvDef;
 	FrqValue   gen1Mult;
@@ -30,12 +34,20 @@ private:
 	AmpValue   panLft;
 	AmpValue   panRgt;
 
-	GenWaveWT  gen2Osc;
+#ifdef USE_OSCILI
+	GenWaveI gen2Osc;
+#else
+	GenWaveWT gen2Osc;
+#endif
 	EnvGenADSR gen2EG;
 	EnvDef     gen2EnvDef;
 	FrqValue   gen2Mult;
 
-	GenWaveWT  gen3Osc;
+#ifdef USE_OSCILI
+	GenWaveI gen3Osc;
+#else
+	GenWaveWT gen3Osc;
+#endif
 	EnvGenADSR gen3EG;
 	EnvDef     gen3EnvDef;
 	FrqValue   gen3Mult;

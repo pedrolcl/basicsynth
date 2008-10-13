@@ -123,7 +123,11 @@ private:
 	int pbOn;
 	int lfoOn;
 	AmpValue vol;
+#ifdef USE_OSCILI
+	GenWaveI osc;
+#else
 	GenWaveWT osc;
+#endif
 	EnvGenADSR env;
 	LFO lfoGen;
 	PitchBend pbGen;

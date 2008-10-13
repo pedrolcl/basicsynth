@@ -8,7 +8,7 @@
 // Copyright 2008, Daniel R. Mitchell
 //////////////////////////////////////////////////////////////////////
 
-#define NOTELIST_VERSION 3.0
+#define NOTELIST_VERSION 1.0
 
 // generator tokens
 
@@ -105,6 +105,9 @@
 #define T_DECLARE 383
 #define T_VAR 384
 #define T_SET 385
+#define T_OPTION 386
+#define T_FREQ 387
+#define T_VOLDB 388
 
 #define MAXPARAM 10
 #define MAXFGEN  10

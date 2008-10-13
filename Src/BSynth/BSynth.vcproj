@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy test.nl $(TargetDir)&#x0D;&#x0A;copy test.nl2  $(TargetDir)&#x0D;&#x0A;copy testinst.xml $(TargetDir)&#x0D;&#x0A;copy testprj.xml  $(TargetDir)&#x0D;&#x0A;copy jig.nl  $(TargetDir)&#x0D;&#x0A;copy jig.xml  $(TargetDir)"
+				CommandLine="copy test.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl2 &quot; $(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
 				Outputs="$(TargetDir)/test.nl"
 			/>
 			<Tool
@@ -302,6 +302,163 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="../../Lib$(PlatformName)/Instruments.lib ../../Lib$(PlatformName)/Notelist.lib ../../Lib$(PlatformName)/Common.lib"
 				OutputFile="..\..\Bin$(PlatformName)\$(ProjectName).exe"
+				LinkIncremental="1"
+				GenerateDebugInformation="false"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="ReleaseI|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				CommandLine="copy test.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl2 &quot; $(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
+				Outputs="$(TargetDir)/test.nl"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_MSXML;USE_OSCILI"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="2"
+				DebugInformationFormat="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="../../Lib/InstrumentsI.lib ../../Lib/Notelist.lib ../../Lib/Common.lib"
+				OutputFile="..\..\Bin\$(ProjectName)I.exe"
+				LinkIncremental="1"
+				GenerateDebugInformation="false"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="ReleaseI|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_MSXML;USE_OSCILI"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="1"
+				DebugInformationFormat="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="../../Lib$(PlatformName)/InstrumentsI.lib ../../Lib$(PlatformName)/Notelist.lib ../../Lib$(PlatformName)/Common.lib"
+				OutputFile="..\..\Bin$(PlatformName)\$(ProjectName)I.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
 				SubSystem="1"

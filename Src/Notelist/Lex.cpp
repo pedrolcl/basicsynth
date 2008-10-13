@@ -310,6 +310,8 @@ int nlLex::Next()
 			return T_FIXED;
 		if (CompareToken(cTokbuf, "FGEN") == 0)
 			return T_FGEN;
+		if (CompareToken(cTokbuf, "FREQUENCY") == 0)
+			return T_FREQ;
 		break;
 	case 'I':
 		if (CompareToken(cTokbuf, "INSTR") == 0)
@@ -356,6 +358,8 @@ int nlLex::Next()
 			return T_OFF;
 		if (CompareToken(cTokbuf, "OR") == 0)
 			return T_OR;
+		if (CompareToken(cTokbuf, "OPTION") == 0)
+			return T_OPTION;
 		break;
 	case 'P':
 		if (CompareToken(cTokbuf, "PARAM") == 0)

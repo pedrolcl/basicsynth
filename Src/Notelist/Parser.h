@@ -80,6 +80,7 @@ public:
 	int Score();
 	int Statement();
 	int Version();
+	int Option();
 	int System();
 	int Script();
 	int Include();
