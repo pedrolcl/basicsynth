@@ -61,25 +61,32 @@ InstrMapEntry *LoadInstr(InstrManager& mgr, XmlSynthElem *instr)
 	char *desc = NULL;
 	if (!instr->GetAttribute("type", &type) && type)
 	{
+		Opaque tp;
 		instTyp = mgr.FindType(type);
 		if (instTyp)
 		{
-			Instrument *ip = instTyp->manufInstr(&mgr, 0);
-			if (ip)
+			if (instTyp->manufTmplt)
+				tp = instTyp->manufTmplt(instr);
+			else if (instTyp->manufInstr)
 			{
-				ip->Load(instr);
-				instr->GetAttribute("id", inum);
-				instEnt = mgr.AddInstrument(inum, instTyp, (Opaque) ip);
-				if (instEnt)
-				{
-					instr->GetAttribute("desc", &desc);
-					instr->GetAttribute("name", &name);
-					instEnt->SetName(name);
-					instEnt->SetDesc(desc);
-					instEnt->SetType(type);
-					delete name;
-					delete desc;
-				}
+				Instrument *ip = instTyp->manufInstr(&mgr, 0);
+				if (ip)
+					ip->Load(instr);
+				tp = (Opaque) ip;
+			}
+			else
+				tp = 0;
+			instr->GetAttribute("id", inum);
+			instEnt = mgr.AddInstrument(inum, instTyp, tp);
+			if (instEnt)
+			{
+				instr->GetAttribute("desc", &desc);
+				instr->GetAttribute("name", &name);
+				instEnt->SetName(name);
+				instEnt->SetDesc(desc);
+				instEnt->SetType(type);
+				delete name;
+				delete desc;
 			}
 		}
 		delete type;

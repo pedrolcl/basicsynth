@@ -16,6 +16,7 @@
 
 static WaveFileIn wfCache[WFSYNTH_MAX_WAVEFILES];
 static int wfCacheCount = 0;
+static AmpValue dummy;
 
 int WFSynth::GetCacheCount()
 {
@@ -101,10 +102,10 @@ void WFSynthEvent::SetParam(bsInt16 idx, float v)
 		pa = (bsInt16) v;
 		break;
 	case 19:
-		ar = (FrqValue) v;
+		ar = FrqValue(v);
 		break;
 	case 20:
-		rr = (FrqValue) v;
+		rr = FrqValue(v);
 		break;
 	default:
 		NoteEvent::SetParam(idx, v);
@@ -115,7 +116,7 @@ void WFSynthEvent::SetParam(bsInt16 idx, float v)
 WFSynth::WFSynth()
 {
 	im = NULL;
-	samples = NULL;
+	samples = &dummy;
 	sampleNumber = 0;
 	sampleTotal = 0;
 	looping = 0;
@@ -125,6 +126,7 @@ WFSynth::WFSynth()
 	eg.SetRelRt(0.0);
 	eg.SetSus(1.0);
 	eg.SetSusOn(1);
+	memset(wfUsed, 0, sizeof(wfUsed));
 }
 
 WFSynth::~WFSynth()
@@ -146,24 +148,21 @@ void WFSynth::Start(SeqEvent *evt)
 {
 	SetParams((WFSynthEvent*)evt);
 
-	samples = 0;
+	samples = &dummy;
 	sampleNumber = 0;
 	sampleTotal = 0;
 
-	WaveFileIn *wfp = 0;
-	for (int n = 0; n < WFSYNTH_MAX_WAVEFILES; n++)
+	WaveFileIn *wfp = &wfCache[0];
+	WaveFileIn *wfe = &wfCache[WFSYNTH_MAX_WAVEFILES];
+	while (wfp < wfe)
 	{
-		if (wfCache[n].GetFileID() == fileID)
+		if (wfp->GetFileID() == fileID)
 		{
-			wfp = &wfCache[n];
+			samples = wfp->GetSampleBuffer();
+			sampleTotal = wfp->GetInputLength();
 			break;
 		}
-	}
-	if (wfp)
-	{
-		samples = wfp->GetSampleBuffer();
-		sampleTotal = wfp->GetInputLength();
-		sampleNumber = 0;
+		wfp++;
 	}
 	eg.Reset(0);
 }
@@ -196,8 +195,6 @@ void WFSynth::Stop()
 
 void WFSynth::Tick()
 {
-	if (samples == NULL)
-		return;
 	if (sampleNumber >= sampleTotal)
 	{
 		if (!looping)
@@ -223,7 +220,7 @@ int WFSynth::Load(XmlSynthElem *parent)
 {
 	float atk;
 	float rel;
-	long ival;
+	short ival;
 
 	memset(wfUsed, 0, sizeof(wfUsed));
 
@@ -233,12 +230,12 @@ int WFSynth::Load(XmlSynthElem *parent)
 	{
 		if (elem->TagMatch("wvf"))
 		{
-			elem->GetAttribute("fn", ival);
-			fileID = (bsInt16) ival;
-			elem->GetAttribute("lp", ival);
-			looping = (bsInt16) ival;
-			elem->GetAttribute("pa", ival);
-			playAll = (bsInt16) ival;
+			if (elem->GetAttribute("fn", ival) == 0)
+				fileID = (bsInt16) ival;
+			if (elem->GetAttribute("lp", ival) == 0)
+				looping = (bsInt16) ival;
+			if (elem->GetAttribute("pa", ival) == 0)
+				playAll = (bsInt16) ival;
 		}
 		else if (elem->TagMatch("env"))
 		{
@@ -249,14 +246,14 @@ int WFSynth::Load(XmlSynthElem *parent)
 		else if (elem->TagMatch("file"))
 		{
 			char *filename = 0;
-			elem->GetAttribute("name", &filename);
-			if (filename)
+			if (elem->GetAttribute("name", &filename) == 0)
 			{
-				ival = -1;
-				elem->GetAttribute("id", ival);
-				ival = AddToCache(filename, (bsInt16) ival);
-				if (ival >= 0)
-					wfUsed[ival] = 1;
+				if (elem->GetAttribute("id", ival) == 0)
+				{
+					ival = AddToCache(filename, (bsInt16) ival);
+					if (ival >= 0)
+						wfUsed[ival] = 1;
+				}
 				delete filename;
 			}
 		}
@@ -286,15 +283,16 @@ int WFSynth::Save(XmlSynthElem *parent)
 	elem->SetAttribute("rr", eg.GetRelRt());
 	delete elem;
 
-	for (int n = 0; n < wfCacheCount; n++)
+	for (int n = 0; n < WFSYNTH_MAX_WAVEFILES; n++)
 	{
-		if (wfUsed[n])
+		short id = (short) wfCache[n].GetFileID();
+		if (wfUsed[id])
 		{
 			elem = parent->AddChild("file");
 			if (elem == NULL)
 				return -1;
 			elem->SetAttribute("name", wfCache[n].GetFilename());
-			elem->SetAttribute("id", (long) wfCache[n].GetFileID());
+			elem->SetAttribute("id", id);
 			delete elem;
 		}
 	}

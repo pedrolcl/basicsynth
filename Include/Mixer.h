@@ -107,8 +107,8 @@ public:
 
 	void FxIn(int ch, AmpValue val)
 	{
-		if (init)
-			value += fxlvl[ch] * val;
+		// NB no runtine check
+		value += fxlvl[ch] * val;
 	}
 
 	void FxIn(AmpValue val)
@@ -118,18 +118,10 @@ public:
 
 	void FxOut(AmpValue& lft, AmpValue& rgt)
 	{
-		if (init)
-		{
-			AmpValue out = fx->Sample(value) * fxmix;
-			lft = out * pan.panlft;
-			rgt = out * pan.panrgt;
-			value = 0;
-		}
-		else
-		{
-			lft = 0;
-			rgt = 0;
-		}
+		AmpValue out = fx->Sample(value) * fxmix;
+		lft += out * pan.panlft;
+		rgt += out * pan.panrgt;
+		value = 0;
 	}
 
 	void FxInit(GenUnit *p, int ch, AmpValue lvl)
@@ -182,7 +174,8 @@ public:
 	void Clear()
 	{
 		value = 0;
-		fx->Reset();
+		if (fx)
+			fx->Reset();
 	}
 };
 
@@ -197,7 +190,6 @@ public:
 class MixChannel 
 {
 private:
-	AmpValue both;
 	AmpValue left;
 	AmpValue right;
 	AmpValue volume;
@@ -211,7 +203,6 @@ public:
 	{
 		volume = 0.5;
 		on = false;
-		both = 0;
 		left = 0;
 		right = 0;
 		panset = 0;
@@ -252,8 +243,6 @@ public:
 
 	void In(AmpValue val)
 	{
-		val *= volume;
-		both  += val;
 		left  += val * pan.panlft;
 		right += val * pan.panrgt;
 	}
@@ -261,29 +250,28 @@ public:
 	void In2(AmpValue lft, AmpValue rgt)
 	{
 		// N.B. : bypass panning and effects!
-		left += lft * volume;
-		right += rgt * volume;
+		left += lft;
+		right += rgt;
 	}
 
 	AmpValue Level()
 	{
-		return both;
+		//return both * volume;
+		return (left + right) * volume;
 	}
 
 	void Out(AmpValue &lval, AmpValue& rval)
 	{
-		lval = left;
-		rval = right;
+		lval += left * volume;
+		rval += right * volume;
 		left = 0;
 		right = 0;
-		both = 0;
 	}
 
 	void Clear()
 	{
 		left = 0;
 		right = 0;
-		both = 0;
 	}
 };
 
@@ -339,9 +327,14 @@ public:
 
 	void SetChannels(int nchnl)
 	{
-		delete[] inBuf;
+		if (inBuf)
+		{
+			delete[] inBuf;
+			inBuf = 0;
+		}
 		mixInputs = nchnl;
-		inBuf = new MixChannel[nchnl];
+		if (nchnl > 0)
+			inBuf = new MixChannel[nchnl];
 	}
 
 	int GetChannels()
@@ -424,8 +417,6 @@ public:
 	void Out(AmpValue *lval, AmpValue *rval)
 	{
 		int n;
-		AmpValue lvalIn;
-		AmpValue rvalIn;
 		AmpValue lvalOut = 0;
 		AmpValue rvalOut = 0;
 		FxChannel *fx, *fxe;
@@ -443,9 +434,7 @@ public:
 						fx++;
 					}
 				}
-				pin->Out(lvalIn, rvalIn);
-				lvalOut += lvalIn;
-				rvalOut += rvalIn;
+				pin->Out(lvalOut, rvalOut);
 
 			}
 			pin++;
@@ -456,9 +445,7 @@ public:
 			fxe = &fxBuf[fxUnits];
 			while (fx < fxe)
 			{
-				fx->FxOut(lvalIn, rvalIn);
-				lvalOut += lvalIn;
-				rvalOut += rvalIn;
+				fx->FxOut(lvalOut, rvalOut);
 				fx++;
 			}
 		}

@@ -17,6 +17,7 @@ PitchBend::PitchBend()
 	end = 0;
 	val = 0;
 	mul = 1.0;
+	frq = 0;
 	int n;
 	for (n = 0; n < PB_RATES; n++)
 		rate[n] = 0;

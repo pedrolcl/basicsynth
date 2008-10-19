@@ -337,13 +337,15 @@ int SubSynth::Save(XmlSynthElem *parent)
 	elem = parent->AddChild("lfo");
 	if (elem == NULL)
 		return -1;
-	lfoGen.Save(parent);
+	lfoGen.Save(elem);
+	delete elem;
 
 	elem = parent->AddChild("pb");
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("on", (short) pbOn);
-	pbGen.Save(parent);
+	pbGen.Save(elem);
+	delete elem;
 
 	return 0;
 }

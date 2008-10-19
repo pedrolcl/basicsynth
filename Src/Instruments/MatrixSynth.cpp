@@ -487,7 +487,7 @@ int MatrixSynth::SaveEnv(XmlSynthElem *elem, int en)
 		elemEG->SetAttribute("rt",  envs[en].GetRate(sn));
 		elemEG->SetAttribute("lv",  envs[en].GetLevel(sn));
 		elemEG->SetAttribute("ty", (short) envs[en].GetType(sn));
-		delete elem;
+		delete elemEG;
 	}
 
 	return 0;
@@ -545,7 +545,8 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 	err |= elem->SetAttribute("vol", vol);
 	delete elem;
 
-	for (long n = 0; n < MATGEN; n++)
+	long n;
+	for (n = 0; n < MATGEN; n++)
 	{
 		elem = parent->AddChild("gen");
 		if (elem == NULL)
@@ -555,7 +556,7 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 		delete elem;
 	}
 
-	for (long n = 0; n < MATGEN; n++)
+	for (n = 0; n < MATGEN; n++)
 	{
 		elem = parent->AddChild("env");
 		if (elem == NULL)
@@ -660,11 +661,14 @@ int MatrixTone::Load(XmlSynthElem *elem)
 	if (elem->GetAttribute("mnx", dval) == 0)
 		modLvl = AmpValue(dval);
 	char *bits = NULL;
+	char *bp;
+	bsUint32 mask;
+	int b;
 	if (elem->GetAttribute("out", &bits) == 0)
 	{
-		char *bp = bits;
-		bsUint32 mask = 1;
-		for (int b = 0; b < 16 && *bp; b++, bp++)
+		bp = bits;
+		mask = 1;
+		for (b = 0; b < 16 && *bp; b++, bp++)
 		{
 			if (*bp == '1')
 				toneFlags |= mask;
@@ -675,9 +679,9 @@ int MatrixTone::Load(XmlSynthElem *elem)
 
 	if (elem->GetAttribute("mod", &bits) == 0)
 	{
-		char *bp = bits;
-		bsUint32 mask = TONE_MOD1IN;
-		for (int b = 0; b < MATGEN && *bp; b++, bp++)
+		bp = bits;
+		mask = TONE_MOD1IN;
+		for (b = 0; b < MATGEN && *bp; b++, bp++)
 		{
 			if (*bp == '1')
 				toneFlags |= mask;
@@ -717,13 +721,13 @@ int MatrixTone::Save(XmlSynthElem *elem)
 	err |= elem->SetAttribute("mul", frqMult);
 	err |= elem->SetAttribute("mnx", modLvl);
 	err |= elem->SetAttribute("eg",  (short) envIndex);
-	char bits[MATGEN+1];
+	char bits[33];
 	bsUint32 mask = 1;
 	int b;
 	for (b = 0; b < 16; b++)
 	{
 		bits[b] = toneFlags & mask ? '1' : '0';
-		mask >>= 1;
+		mask <<= 1;
 	}
 	bits[b] = 0;
 	err |= elem->SetAttribute("out", bits);
@@ -732,7 +736,7 @@ int MatrixTone::Save(XmlSynthElem *elem)
 	for (b = 0; b < MATGEN; b++)
 	{
 		bits[b] = toneFlags & mask ? '1' : '0';
-		mask >>= 1;
+		mask <<= 1;
 	}
 	bits[b] = 0;
 	err |= elem->SetAttribute("mod", bits);

@@ -30,7 +30,7 @@ Reverb2 rvrb;
 WaveFile wvf;
 
 
-void AddEvent(bsInt16 inum, int pit, float dur)
+static void AddEvent(bsInt16 inum, int pit, float dur)
 {
 	SeqEvent *evt;
 	evt = inMgr.ManufEvent(inum);
@@ -46,11 +46,17 @@ void AddEvent(bsInt16 inum, int pit, float dur)
 	seq.AddEvent(evt);
 }
 
-void AddSequence(bsInt16 inum, float dur)
+static void AddSequence(bsInt16 inum, float dur)
 {
 	for (int pit = 48; pit <= 53; pit++)
 		AddEvent(inum, pit, dur);
 	startTime += 0.1;
+}
+
+static void DestroyTemplate(Opaque tp)
+{
+	Instrument *ip = (Instrument *)tp;
+	delete ip;
 }
 
 int main(int argc, char *argv[])
@@ -108,6 +114,7 @@ int main(int argc, char *argv[])
 		if (inst->TagMatch("instr"))
 		{
 			InstrMapEntry *ent = LoadInstr(inMgr, inst);
+			ent->dumpTmplt = DestroyTemplate;
 			if (strcmp(ent->GetType(), "WFSynth") == 0)
 				AddEvent(ent->inum, 48, 1.0);
 			else
@@ -140,6 +147,31 @@ int main(int argc, char *argv[])
 #endif
 
 	wvf.CloseWaveFile();
+
+	///////////////////////////////////////////////////////////////
+	// Code to test instrument save functions...
+/*	root = doc.NewDoc("instrlib");
+	InstrMapEntry *ime = inMgr.EnumInstr(0);
+	while (ime)
+	{
+		Instrument *ip = (Instrument *)ime->instrTmplt;
+		if (ip)
+		{
+			inst = root->AddChild("instr");
+			inst->SetAttribute("id", ime->inum);
+			inst->SetAttribute("type", ime->itype);
+			inst->SetAttribute("name", ime->iname);
+			inst->SetAttribute("desc", ime->idesc);
+			ip->Save(inst);
+			delete inst;
+		}
+		ime = inMgr.EnumInstr(ime);
+	}
+	bsString outxml;
+	outxml = "_";
+	outxml += fname;
+	doc.Save((char *) (const char *)outxml);*/
+	///////////////////////////////////////////////////////////////
 
 	return 0;
 }

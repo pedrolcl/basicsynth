@@ -65,7 +65,16 @@ typedef Instrument *(*InstrFactory)(InstrManager *, Opaque tmplt);
 // The EventFactory is a static method or non-class function
 // used to instantiate an event specific to an instrument.
 ///////////////////////////////////////////////////////////
-typedef SeqEvent   *(*EventFactory)(Opaque tmplt);
+typedef SeqEvent *(*EventFactory)(Opaque tmplt);
+
+///////////////////////////////////////////////////////////
+// The TmplFactory is a static method or non-class function
+// used to instantiate a template specific to an instrument.
+// This is optional. If not used, the template will be
+// created as an instance of the instrument.
+///////////////////////////////////////////////////////////
+typedef Opaque (*TmpltFactory)(XmlSynthElem *tmplt);
+typedef void (*TmpltDump)(Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
 // InstrMapEntry class is used by the instrument manager
@@ -82,14 +91,33 @@ public:
 	bsInt16 inum;
 	InstrFactory manufInstr;
 	EventFactory manufEvent;
-	Opaque instrTemplate;
+	TmpltFactory manufTmplt;
+	TmpltDump dumpTmplt;
+	Opaque instrTmplt;
 
 	InstrMapEntry(bsInt16 ino, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
 	{
 		inum = ino;
 		manufInstr = in;
 		manufEvent = ev;
-		instrTemplate = tmplt;
+		manufTmplt = 0;
+		instrTmplt = tmplt;
+	}
+
+	InstrMapEntry(bsInt16 ino, InstrFactory in, EventFactory ev, TmpltFactory tf, TmpltDump td)
+	{
+		inum = ino;
+		manufInstr = in;
+		manufEvent = ev;
+		manufTmplt = tf;
+		dumpTmplt = td;
+		instrTmplt = 0;
+	}
+
+	~InstrMapEntry()
+	{
+		if (dumpTmplt && instrTmplt)
+			dumpTmplt(instrTmplt);
 	}
 
 	const char *GetType()
@@ -145,7 +173,7 @@ private:
 	InstrMapEntry *typeList;
 	Mixer *mix;
 	WaveOutBuf *wvf;
-	int internalID;
+	bsInt16 internalID;
 
 public:
 	InstrManager()
@@ -154,10 +182,32 @@ public:
 		typeList = 0;
 		mix = 0;
 		wvf = 0;
-		internalID = 32768;
+		internalID = 16384;
 	}
 
-	virtual ~InstrManager() { }
+	virtual ~InstrManager() 
+	{
+		Clear();
+	}
+
+	virtual void Clear()
+	{
+		// TODO: For now, the caller must clean-up templates
+		InstrMapEntry *ime;
+		while ((ime = instList) != 0)
+		{
+			instList = ime->next;
+			delete ime;
+		}
+		while ((ime = typeList) != 0)
+		{
+			typeList = ime->next;
+			delete ime;
+		}
+		mix = 0;
+		wvf = 0;
+		internalID = 16384;
+	}
 
 	// Init MUST be called first. If you forget, 
 	// things will go very wrong very quickly !
@@ -167,16 +217,28 @@ public:
 		wvf = w;
 	}
 
+	inline void SetMixer(Mixer *m) { mix = m; }
+	inline Mixer *GetMixer() { return mix; }
+	inline void SetWaveOut(WaveOutBuf *w) { wvf = w; }
+	inline WaveOutBuf *GetWaveOut() { return wvf; }
+
 	// Add an entry to the instrument manager type list.
-	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev)
+	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf = 0)
 	{
-		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, 0);
+		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, tf);
 		ent->SetType(type);
 		if (typeList)
 			typeList->Insert(ent);
 		else
 			typeList = ent;
 		return ent;
+	}
+
+	InstrMapEntry *EnumType(InstrMapEntry *p)
+	{
+		if (p)
+			return p->next;
+		return typeList;
 	}
 
 	// Find the entry for a specific type
@@ -205,29 +267,59 @@ public:
 	// object if it is desired to locate instruments by name.
 	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrMapEntry *type, Opaque tmplt = 0)
 	{
-		return AddInstrument(inum, type->manufInstr, type->manufEvent, tmplt);
+		InstrMapEntry* in = AddInstrument(inum, type->manufInstr, type->manufEvent, tmplt);
+		if (in)
+			in->dumpTmplt = type->dumpTmplt;
+		return in;
 	}
 
 	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
 	{
-		if (FindInstr(inum))
+		if (inum < 0)
 			inum = internalID++;
 		InstrMapEntry *ent = new InstrMapEntry(inum, in, ev, tmplt);
-		if (instList)
-			instList->Insert(ent);
-		else
+		InstrMapEntry *pos = instList;
+		if (pos == 0)
+		{
 			instList = ent;
+			return ent;
+		}
+
+		InstrMapEntry *last = 0;
+		while (pos)
+		{
+			if (pos->inum > inum)
+			{
+				pos->InsertBefore(ent);
+				if (pos == instList)
+					instList = ent;
+				return ent;
+			}
+			if (pos->inum == inum)
+				inum = internalID++;
+			last = pos;
+			pos = pos->next;
+		}
+		if (last)
+			last->Insert(ent);
 		return ent;
+	}
+
+	InstrMapEntry *EnumInstr(InstrMapEntry *p)
+	{
+		if (p)
+			return p->next;
+		return instList;
 	}
 
 	// Find instrument by number
 	virtual InstrMapEntry *FindInstr(bsInt16 inum)
 	{
 		InstrMapEntry *in;
-		for (in = instList; in != NULL; in = in->next)
+		for (in = instList; in; in = in->next)
 		{
 			if (in->inum == inum)
-				break;
+				return in;
 		}
 		return in;
 	}
@@ -236,7 +328,7 @@ public:
 	virtual InstrMapEntry *FindInstr(const char *iname)
 	{
 		InstrMapEntry *in;
-		for (in = instList; in != NULL; in = in->next)
+		for (in = instList; in; in = in->next)
 		{
 			if (in->iname.CompareNC(iname) == 0)
 				break;
@@ -247,9 +339,13 @@ public:
 	// Allocate an instance of an instrument for playback.
 	virtual Instrument *Allocate(bsInt16 inum)
 	{
-		InstrMapEntry *in = FindInstr(inum);
+		return Allocate(FindInstr(inum));
+	}
+
+	virtual Instrument *Allocate(InstrMapEntry *in)
+	{
 		if (in)
-			return in->manufInstr(this, in->instrTemplate);
+			return in->manufInstr(this, in->instrTmplt);
 		return new Instrument;
 	}
 
@@ -261,9 +357,21 @@ public:
 	// Allocate a new event for an instrument 
 	virtual SeqEvent *ManufEvent(bsInt16 inum)
 	{
-		InstrMapEntry *in = FindInstr(inum);
+		return ManufEvent(FindInstr(inum));
+	}
+
+	virtual SeqEvent *ManufEvent(InstrMapEntry *in)
+	{
 		if (in)
-			return in->manufEvent(in->instrTemplate);
+		{
+			SeqEvent *evt = in->manufEvent(in->instrTmplt);
+			if (evt)
+			{
+				evt->inum = in->inum;
+				evt->im = in;
+				return evt;
+			}
+		}
 		return new NoteEvent;
 	}
 

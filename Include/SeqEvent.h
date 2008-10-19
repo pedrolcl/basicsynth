@@ -45,6 +45,7 @@
 // "instrument" only needs to know to start/stop operation
 // and does not need pitch, volume, duration, etc.
 ///////////////////////////////////////////////////////////
+class InstrMapEntry;
 class SeqEvent : public SynthList<SeqEvent>
 {
 public:
@@ -55,6 +56,7 @@ public:
 	bsInt32 evid;     // event ID or reference to earlier event
 	bsInt32 start;    // start time in samples
 	bsInt32 duration; // duration in samples
+	InstrMapEntry *im; //
 
 	SeqEvent()
 	{
@@ -65,6 +67,7 @@ public:
 		chnl = 0;
 		start = 0;
 		duration = 0;
+		im = 0;
 	}
 
 	virtual ~SeqEvent() { }

@@ -235,21 +235,21 @@ int ToneInstr::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("frq", osc.GetFrequency());
-	elem->SetAttribute("wt", (long) osc.GetWavetable());
-	elem->SetAttribute("vol", (double) vol);
+	elem->SetAttribute("wt", (short)osc.GetWavetable());
+	elem->SetAttribute("vol", vol);
 	delete elem;
 
 	elem = parent->AddChild("env");
 	if (elem == NULL)
 		return -1;
-	elem->SetAttribute("st", (double)env.GetStart());
-	elem->SetAttribute("atk", (double)env.GetAtkRt());
-	elem->SetAttribute("pk",  (double)env.GetAtkLvl());
-	elem->SetAttribute("dec", (double)env.GetDecRt());
-	elem->SetAttribute("sus",  (double)env.GetSusLvl());
-	elem->SetAttribute("rel", (double)env.GetRelRt());
-	elem->SetAttribute("end",  (double)env.GetRelLvl());
-	elem->SetAttribute("ty", (long) env.GetType());
+	elem->SetAttribute("st", env.GetStart());
+	elem->SetAttribute("atk", env.GetAtkRt());
+	elem->SetAttribute("pk",  env.GetAtkLvl());
+	elem->SetAttribute("dec", env.GetDecRt());
+	elem->SetAttribute("sus", env.GetSusLvl());
+	elem->SetAttribute("rel", env.GetRelRt());
+	elem->SetAttribute("end", env.GetRelLvl());
+	elem->SetAttribute("ty", (short)env.GetType());
 	delete elem;
 
 	elem = parent->AddChild("lfo");

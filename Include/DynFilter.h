@@ -39,7 +39,7 @@ public:
 
 	AmpValue Sample(AmpValue in)
 	{
-		int tndx = (int) (env.Gen() + 0.5);
+		int tndx = (int) (env.Gen() * frqTI);
 		if (tndx < 0 || tndx >= cosOffs)
 			return in; // filter off or out of range
 		if (tndx != lastNdx)
@@ -82,7 +82,7 @@ public:
 	                AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = linSeg, AmpValue fg = 1.0)
 	{
 		BiQuadFilter::Init(0, fg);
-		env.InitADSR(st*frqTI, ar, al*frqTI, dr, sl*frqTI, rr, rl*frqTI, t);
+		env.InitADSR(st, ar, al, dr, sl, rr, rl, t);
 		Reset(0);
 	}
 

@@ -250,37 +250,18 @@ public:
 	{
 		if (!(length & 1))
 			return;
-		int n2 = length/2;
-		int ndx1 = n2 + 1;
-		int ndx2 = n2 - 1;
-		double g = 1.0;
-		int k;
-		/**** Direct calculation ****
-		double w1 = fc * synthParams.frqRad;
-		double w2 = 1.0;
-		double w3 = twoPI / (double) (length-1);
-		double phs1 = w1;
-		double phs2 = w2;
-		double phs3 = w3;
-		double v;
-		for (k = 0; k < n2; k++)
-		{
-			v = (sin(phs1) / phs2) * (0.54 + (0.46 * cos(phs3)));
-			g += v + v;
-			imp[ndx1++] = AmpValue(v);
-			imp[ndx2--] = AmpValue(v);
-			phs1 += w1;
-			phs2 += w2;
-			phs3 += w3;
-		}
-		***************/
-		/***** Table lookup *********/
 		PhsAccum ti1 = fc * synthParams.frqTI;
 		PhsAccum ti2 = synthParams.ftableLength / (PhsAccum) (length - 1);
 		PhsAccum tph1 = ti1;
 		PhsAccum tph2 = ti2 + (synthParams.ftableLength / 4);
-		AmpValue divInc = 1.0; // or PI
+		AmpValue divInc = PI;
 		AmpValue div = divInc;
+		int n2 = length/2;
+		int ndx1 = n2 + 1;
+		int ndx2 = n2 - 1;
+		double g = 2 * (fc / synthParams.sampleRate);
+		imp[n2] = g;
+		int k;
 		AmpValue v;
 		for (k = 0; k < n2; k++)
 		{
@@ -294,24 +275,39 @@ public:
 				tph2 -= synthParams.ftableLength;
 			div += divInc;
 		}
-		/*************************/
-		imp[n2] = 1.0;
-
 		// normalize filter gain for unity at DC
 		// and optionally convert to high-pass
 		for (k = 0; k < length; k++)
 		{
 			imp[k] /= g;
-			if (hp && (k & 1))
+			if (hp)
 				imp[k] = -imp[k];
 		}
+		if (hp)
+			imp[n2] += 1.0;
+
+		/**** Direct calculation (for reference) ****
+		int z = (length - 1) / 2;
+		double m = (double) length - 1;
+		double f = fc / synthParams.sampleRate;
+		for (k = 0; k < length; k++)
+		{
+			double n = (double)k - (m / 2);
+			if (n == 0)
+				imp[k] = 2.0 * f;
+			else
+				imp[k] = sin(twoPI*f*n) / (PI*n);
+			imp[k] *= 0.54 + (0.46 * cos(twoPI * n / m));
+		}
+		**********************************************/
 	}
 
 	// Reset: Reset history values to 0
 	void Reset(float initPhs = 0)
 	{
-		for (int n = 0; n < length; n++)
-			val[n] = 0;
+		AmpValue *v = val;
+		for (int n = length; n > 0; n--)
+			*v++ = 0;
 	}
 
 	// Return the next sample,
@@ -319,15 +315,6 @@ public:
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue out = imp[0] * inval;
-		/*
-		int n;
-		for (n = length-1; n > 0; n--)
-		{
-			val[n] = val[n-1];
-			out += imp[n] * val[n];
-		}
-		val[0] = inval;
-		*/
 		int m = length-1;
 		AmpValue *vp = &val[m];
 		AmpValue *ip = &imp[m];
@@ -343,6 +330,14 @@ public:
 		}
 		*vp = inval;
 		return out;
+		/***** indexing (for ref) *****
+		for (n = length-1; n > 0; n--)
+		{
+			val[n] = val[n-1];
+			out += imp[n] * val[n];
+		}
+		val[0] = inval;
+		*******************************/
 	}
 };
 

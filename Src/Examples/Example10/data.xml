@@ -32,7 +32,7 @@
     <lfo frq="3.5" wt="1" dly="0.1" rt="0.1" amp="0" />
     <pb on="1" r1="0.1" r2="0.15" a1="1" a2="0" a3="-0.2" />
   </instr>
-  <instr id="4" type="AddSynth" parts="3" >
+  <instr id="4" type="AddSynth" name="plink" parts="3" >
   <part pn="0"  mul="1">
    <osc frq="440.0" wt="0" />
    <env segs="2" st="0" son="0">
@@ -63,9 +63,9 @@
  </instr>
  <instr id="6" type="FMSynth" name="Basic FM" >
   <fm mix="0.6" alg="3" dly="0" />
-  <gen1 st="0" atk="0.2" pk="1.0" dec="0.2" sus="0.9" rel="0.2" end="0" />
-  <gen2 mul="1.0" st="0" atk="0.1" pk="1" dec="0.2" sus="0.8" rel="0.2" end="0" />
-  <gen3 mul="2.0" st="2" atk="0.1" pk="1" dec="0.2" sus="0.8" rel="0.2" end="0" />
+  <gen1 mul="1.0" st="0" atk="0.2" pk="1.0" dec="0.2" sus="0.9" rel="0.2" end="0" ty="1"/>
+  <gen2 mul="1.0" st="0" atk="0.1" pk="1" dec="0.2" sus="0.8" rel="0.2" end="0" ty="1"/>
+  <gen3 mul="2.0" st="2" atk="0.1" pk="1" dec="0.2" sus="0.8" rel="0.2" end="0" ty="1"/>
   <lfo frq="2.7" wt="1" dly="0.0" rt="0.01" amp="1.8" />
  </instr>
  <instr id="7" type="FMSynth" name="Noisy piano" >

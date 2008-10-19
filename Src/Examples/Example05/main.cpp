@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 	Generate(duration, &wv, &eg, &hpf);
 
 	/////////////////////////////////////////////////
-	// 9 - band pass filters
+	// 9-10 - band pass filters
 	/////////////////////////////////////////////////
 	bpf.Init(cutoff, 1.0, 200.0);
 	Generate(duration, &wv, &eg, &bpf);
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 	Silence(0.5);
 
 	/////////////////////////////////////////////////
-	// 10 - reson filters
+	// 11-14 - reson filters
 	/////////////////////////////////////////////////
 	Reson resf;
 	resf.InitRes(cutoff, 1.0, 0.9);
@@ -159,19 +159,17 @@ int main(int argc, char *argv[])
 	Generate(duration, &wv, &eg, &resf);
 	resf.InitRes(0.0, 1.0, 0.7);
 	Generate(duration, &wv, &eg, &resf);
-	resf.InitRes(synthParams.sampleRate/2, 1.0, 0.7);
-	Generate(duration, &wv, &eg, &resf);
 
 	Silence(0.5);
 
 	/////////////////////////////////////////////////
-	// 10 - Allpass filter
+	// 15 - Allpass filter
 	/////////////////////////////////////////////////
 	apf.InitAP(0.5);
 	Generate(duration, &wv, &eg, &apf);
 
 	/////////////////////////////////////////////////
-	// 11 - Running average filter
+	// 16 - Running average filter
 	/////////////////////////////////////////////////
 	FilterAvgN avgn;
 	avgn.InitFilter(4);
@@ -180,7 +178,7 @@ int main(int argc, char *argv[])
 	Silence(0.5);
 
 	/////////////////////////////////////////////////
-	// 12 - Dynamic lowpass filter
+	// 17 - Dynamic lowpass filter
 	/////////////////////////////////////////////////
 	DynFilterLP dynfilt;
 	dynfilt.InitFilter(100.0, 0.2, 4000.0, 0.4, 1000.0, 0.2, 100.0);
@@ -189,85 +187,97 @@ int main(int argc, char *argv[])
 	Silence(0.5);
 
 	/////////////////////////////////////////////////
-	// 13 - Dynamic calculation of FIR LP filter
+	// 18 - Dynamic calculation of FIR LP filter
 	/////////////////////////////////////////////////
 	FilterFIRn firn;
 	float cu = 100.0;
 	//firn.Init(129, NULL); // <== very sharp roll-off
-	//firn.Init(49, NULL);  // <== a good compromise
-	firn.Init(17, NULL);    // <== much faster to calculate
+	firn.Init(49, NULL);  // <== a good compromise
+	//firn.Init(17, NULL);    // <== much faster to calculate
 	eg.InitEG(1.0, 5.0, 0.1, 0.1);
-	long sn = (long) (5.0 * synthParams.sampleRate) / 50;
+	long fstep = 50;
+	float custep = 5000.0 / (float) fstep;
+	long sn = (long) (5.0 * synthParams.sampleRate) / fstep;
 	long nf;
 	int fn;
-	// prime the pump a little to stablize the filter...
-	firn.CalcCoef(cu, 0);
-	for (fn = 0; fn < 100; fn++)
-		firn.Sample(nz.Gen());
-	for (fn = 0; fn < 50; fn++)
+	for (fn = 0; fn < fstep; fn++)
 	{
 		firn.CalcCoef(cu, 0);
 		for (nf = 0; nf < sn; nf++)
 			wvf.Output1(eg.Gen() * firn.Sample(nz.Gen()));
-		cu += 100.0;
+		cu += custep;
 	}
 
 	/////////////////////////////////////////////////
-	// 14 - Dynamic calculation of FIR HP filter
+	// 19 - Dynamic calculation of FIR HP filter
 	/////////////////////////////////////////////////
 	cu = 100.0;
 	//firn.Reset();
 	eg.Reset();
-	for (fn = 0; fn < 50; fn++)
+	for (fn = 0; fn < fstep; fn++)
 	{
 		firn.CalcCoef(cu, 1);
 		for (nf = 0; nf < sn; nf++)
 			wvf.Output1(eg.Gen() * firn.Sample(nz.Gen()));
-		cu += 100.0;
+		cu += custep;
 	}
 
 	Silence(0.5);
 
 	/////////////////////////////////////////////////
-	// 15 - Dynamic calculation of IIR LP filter
+	// 20 - Dynamic calculation of IIR LP filter
 	/////////////////////////////////////////////////
 	FilterIIR2 iir2;
 	cu = 100.0;
 	eg.Reset();
-	for (fn = 0; fn < 50; fn++)
+	for (fn = 0; fn < fstep; fn++)
 	{
 		iir2.CalcCoef(cu, 0);
 		for (nf = 0; nf < sn; nf++)
 			wvf.Output1(eg.Gen() * iir2.Sample(nz.Gen()));
-		cu += 100.0;
+		cu += custep;
 	}
 
 	/////////////////////////////////////////////////
-	// Dynamic calculation of IIR HP filter
+	// 21 - Dynamic calculation of IIR HP filter
 	/////////////////////////////////////////////////
 	cu = 100.0;
 	eg.Reset();
-	for (fn = 0; fn < 50; fn++)
+	for (fn = 0; fn < fstep; fn++)
 	{
 		iir2.CalcCoef(cu, 1);
 		for (nf = 0; nf < sn; nf++)
 			wvf.Output1(eg.Gen() * iir2.Sample(nz.Gen()));
-		cu += 100.0;
+		cu += custep;
 	}
 
 	/////////////////////////////////////////////////
-	// Variable Reson LP filter
+	// 22 Variable Reson LP filter
 	/////////////////////////////////////////////////
 	eg.Reset();
 	cu = 0.0;
-	for (fn = 0; fn < 50; fn++)
+	custep = 1.0 / (float) fstep;
+	for (fn = 0; fn < fstep; fn++)
 	{
 		resf.InitRes(0.0, 1.0, cu);
 		for (nf = 0; nf < sn; nf++)
 			wvf.Output1(eg.Gen() * resf.Sample(nz.Gen()));
-		cu += 0.02;
+		cu += custep;
 	}
 
+	/////////////////////////////////////////////////
+	// 23 - Variable Reson HP filter
+	/////////////////////////////////////////////////
+	eg.Reset();
+	custep = 1.0 / (float) fstep;
+	cu = 1.0 - custep;
+	for (fn = 0; fn < fstep; fn++)
+	{
+		resf.InitRes(synthParams.sampleRate / 2, 1.0, cu);
+		for (nf = 0; nf < sn; nf++)
+			wvf.Output1(eg.Gen() * resf.Sample(nz.Gen()));
+		cu -= custep;
+	}
 /****************************************************
 	Silence(0.5);
 	/////////////////////////////////////////////////

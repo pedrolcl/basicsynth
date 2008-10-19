@@ -41,24 +41,23 @@ int CWavePlot::Plot(HDC dc, RECT& rc)
 
 		HPEN dots = CreatePen(PS_DOT, 0, RGB(128,128,128));
 		HGDIOBJ sav = SelectObject(dc, dots);
-		y = rc.top + (cy / 2);
-		MoveToEx(dc, 0, y, NULL);
-		LineTo(dc, cx, y);
+		int mid = rc.top + (cy / 2);
+		MoveToEx(dc, 0, mid, NULL);
+		LineTo(dc, cx, mid);
 		SelectObject(dc, sav);
 
 		GenWaveI wv;
 		wv.InitWT((float) periods * synthParams.sampleRate / (float) cx, WT_USR(0));
 
 		float val = wv.Gen();
-		y = (int) ((((val + 1.0) / 2) * (float) cy) + 0.5);
-		MoveToEx(dc, rc.left, rc.top + (cy - y), NULL);
+		y = (int) (val * mid);
+		MoveToEx(dc, rc.left, mid - y, NULL);
 		for (x = 0; x < cx; x++)
 		{
 			val = wv.Gen();
-			y = (int) (((val + 1.0) / 2) * (float) cy);
-			LineTo(dc, rc.left + x, rc.top + (cy - y));
+			y = (int) (val * mid);
+			LineTo(dc, rc.left + x, mid - y);
 		}
-		//LineTo(dc, rc.left + cx + 1, rc.top + (cy / 2));
 	}
 
 	return 0;

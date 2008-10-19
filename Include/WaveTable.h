@@ -260,14 +260,21 @@ public:
 
 		double *phsVal = new double[nparts];
 		double *phsInc = new double[nparts];
+		double *sigma = new double[nparts];
 
 		double incr = twoPI / (double) synthParams.ftableLength;
+		int index = 0;
+		int mulMax = 0;
 		int partNum;
 		int partMax = 0;
 		for (partNum = 0; partNum < nparts; partNum++)
 		{
 			if (mul != NULL)
+			{
+				if (mul[partNum] > mulMax)
+					mulMax = mul[partNum];
 				phsInc[partNum] = incr * mul[partNum];
+			}
 			else
 				phsInc[partNum] = incr * (partNum + 1);
 			if (phsInc[partNum] < PI)
@@ -278,29 +285,33 @@ public:
 				phsVal[partNum] = 0.0;
 		}
 
+		if (mulMax == 0)
+			mulMax = partMax;
 		double value;
 		double maxvalue = 0.00001;
-		double sigK = PI / partMax;
-		double sigN;
+		double sigK = PI / (double) mulMax;
+		for (partNum = 0; partNum < partMax; partNum++)
+		{
+			sigma[partNum] = 1.0;
+			if (gibbs)
+			{
+				if (mul)
+					value = mul[partNum] * sigK;
+				else
+					value = (double) partNum * sigK;
+				if (value > 0)
+					sigma[partNum] = sin(value) / value;
+			}
+		}
 
-		int index = 0;
 		for (index = 0; index < synthParams.itableLength; index++)
 		{
 			value = 0;
-			sigN = sigK;
 			for (partNum = 0; partNum < partMax; partNum++)
 			{
 				if (amp[partNum] != 0)
 				{
-					// no adjustment:
-					if (!gibbs || partNum == 0)
-						value += sin(phsVal[partNum]) * amp[partNum];
-					else
-					{
-						// Adjustment with Lanczos sigma to minimize Gibbs phenomenon
-						value += sin(phsVal[partNum]) * (sin(sigN) / sigN) * amp[partNum];
-						sigN += sigK;
-					}
+					value += sin(phsVal[partNum]) * amp[partNum] * sigma[partNum];
 					phsVal[partNum] += phsInc[partNum];
 				}
 			}
@@ -316,6 +327,7 @@ public:
 		wavTable[synthParams.itableLength] = wavTable[0];
 		delete phsVal;
 		delete phsInc;
+		delete sigma;
 
 		return 0;
 	}

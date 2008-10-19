@@ -7,14 +7,13 @@ map "Fidl" 32:1.5, 43;
 voice 0
 begin      
 	instr "Fidl";   
-	channel 0;            
+	channel 0;          
 	artic percent, param;  
 	transpose -12;   
-	R, %1;  
-	R, %1;   
-	R, %1;
+	R, %1*3;  
 	[C5, G5], %1*2, 40, 80, 1.0;
-	[C6, G5], %1, 60, 80, 0.5;
+	[C6, G5], %1, 50, 80, 0.5;
+	volume 140;  
 	loop 2
 	begin
 		loop 4
@@ -35,18 +34,18 @@ begin
 		{C5, G5, G5, F5, E5, G5}, %12, {100, 80, 80, 100, 80, 100}, {80, 100, 80, 80, 100, 100}, {0.04, 0.09, 0.09, 0.04, 0.09, 0.07};
 		{F5, E5, D5, G4}, {%8, %8, %6, %12}, 100, {60, 60, 80, 100}, {0.04, 0.09, 0.09, 0.04, 0.09, 0.07};
 		{C5, G5, A5, F5, E5, G5}, %12, 100, {80, 100, 80, 80, 100, 100}, {0.04, 0.09, 0.09, 0.04, 0.09, 0.07}; 
-		transpose 0;
-		!vol 80;
-		!double 12, 100;
+		'transpose 0;
+		vol 90;
+		double 12, 100;
 	end
-	!double OFF;
 	[C5, G5], %2, {80, 80}, 100, 0.1;
 end          
 
 voice 1
 begin      
 	instr "Fidl";   
-	channel 3;            
+	channel 3;
+	volume 110;
 	artic percent, param;  
 	loop 2
 	begin
@@ -57,14 +56,14 @@ begin
 	loop 6
 	begin  
 		C2, %1, 50, 100, 0.1;
-		C1, %1, 30, 100;
+		C1, %1, 50, 100;
 	end       
-	C1, %2, 30, 100;
+	C1, %2, 50, 100;
 end
 
 voice 2
 begin      
-	instr "Bass";   
+	instr "Drum";   
 	channel 1;     
 	artic fixed, 0.3;
 	loop 12
@@ -86,7 +85,7 @@ end
 
 voice 3
 begin      
-	instr "Bass";  
+	instr "Drum";  
 	channel 2;     
 	artic fixed, 0.4;   
 	loop 2

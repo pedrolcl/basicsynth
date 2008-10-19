@@ -246,11 +246,11 @@ int main(int argc, char *argv[])
 	// 12 - Dynamic summing: sawtooth
 	/////////////////////////////////////////////////
 	GenWaveSum wvs;
-	float mult[8];
-	float amps[8];
+	AmpValue mult[8];
+	AmpValue amps[8];
 	for (int pnum = 0; pnum < 8; pnum++)
 	{
-		float x = (float)pnum + 1;
+		AmpValue x = (AmpValue)pnum + 1;
 		mult[pnum] = x;
 		amps[pnum] = 1.0/x;
 		if (pnum & 1)

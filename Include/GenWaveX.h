@@ -26,9 +26,11 @@ private:
 		PhsAccum incr;
 		PhsAccum mul;
 		AmpValue amp;
+		AmpValue sigma;
 	} *parts;
-	int   maxPart;
 	int   numPart;
+	int   cntPart;
+	PhsAccum maxMult;
 	AmpValue scale;
 	AmpValue sigK;
 	AmpValue sigN;
@@ -38,11 +40,12 @@ public:
 	GenWaveSum()
 	{
 		parts = NULL;
-		maxPart = 0;
 		numPart = 0;
+		cntPart = 0;
 		sigK = 0;
 		scale = 1;
 		gibbs = 0;
+		maxMult = 0;
 	}
 
 	~GenWaveSum()
@@ -50,34 +53,51 @@ public:
 		delete[] parts;
 	}
 
-	// Fo, WT, n, {part,amp}*n, Gibbs
-	void Init(int n, float *v)
+	// Fo, WT, gibbs, n, {part,amp}*n
+	virtual void Init(int n, float *v)
 	{
-		if (n > 2)
+		if (n > 3)
 		{
-			AllocParts((int)v[2]);
-			int n2 = n - 3;
-			float *p2 = v + 3;
+			gibbs = (int) v[2];
+			AllocParts((int)v[3]);
+			int n2 = n - 4;
+			float *v2 = v + 4;
 			for (int i = 0; i < numPart && n2 >= 2; i++)
 			{
-				SetPart(i, p2[0], p2[1]);
+				SetPart(i, v2[0], v2[1]);
 				n2 -= 2;
-				p2 += 2;
+				v2 += 2;
 			}
-			if (n2 > 0)
-				gibbs = (int) p2[0];
 		}
+		// the base class will call Reset()
 		GenWaveWT::Init(n, v);
 	}
 
 	void InitParts(int n, float *m, float *a, int g = 0)
 	{
+		maxMult = 0;
 		gibbs = g;
 		AllocParts(n);
 		for (int i = 0; i < n; i++)
 			SetPart(i, m[i], a[i]);
 		Reset();
 		CalcParts();
+	}
+
+	virtual void Reset(float initPhs = 0)
+	{
+		GenWaveWT::Reset(initPhs);
+		CalcParts();
+		if (initPhs >= 0)
+		{
+			SumPart *pp = parts;
+			SumPart *pe = &parts[numPart];
+			while (pp < pe)
+			{
+				pp->phase = 0;
+				pp++;
+			}
+		}
 	}
 
 	void AllocParts(int n)
@@ -89,21 +109,21 @@ public:
 		}
 		parts = new SumPart[n];
 		numPart = n;
-		maxPart = 0;
+		maxMult = 0;
+		cntPart = 0;
 		scale = 1;
-		// Lanczos sigma factor:
-		sigK = (AmpValue) (PI / numPart);
 	}
 
-	void SetPart(int n, float mul, float amp, float phs = 0)
+	void SetPart(int n, float mul, float amp)
 	{
 		SumPart *pp = &parts[n];
 		pp->amp = AmpValue(amp);
+		pp->sigma = pp->amp;
 		pp->mul = PhsAccum(mul);
 		pp->incr = 0;
-		pp->phase = phs;
-		if (n > maxPart)
-			maxPart = n;
+		pp->phase = 0;
+		if (pp->mul > maxMult)
+			maxMult = pp->mul;
 	}
 
 	void SetGibbs(int n)
@@ -117,87 +137,69 @@ public:
 		CalcParts();
 	}
 
-	virtual void Reset(float initPhs = 0)
-	{
-		GenWaveWT::Reset(initPhs);
-		CalcParts();
-		for (int np = 0; np < numPart; np++)
-			parts[np].phase = 0;
-	}
-
 	virtual void PhaseModWT(PhsAccum phs)
 	{
 		SumPart *pp = parts;
-		for (int np = 0; np < numPart; np++)
+		SumPart *pe = &parts[numPart];
+		while (pp < pe)
 		{
 			pp->phase += phs * pp->mul;
-			if (pp->phase >= synthParams.ftableLength)
-			{
-				do
-					pp->phase -= synthParams.ftableLength;
-				while (pp->phase >= synthParams.ftableLength);
-			}
-			else if (pp->phase < 0)
-			{
-				do
-					pp->phase += synthParams.ftableLength;
-				while (pp->phase < 0);
-			}
+			while (pp->phase >= synthParams.ftableLength)
+				pp->phase -= synthParams.ftableLength;
+			while (pp->phase < 0)
+				pp->phase += synthParams.ftableLength;
 			pp++;
 		}
 	}
 
+	// NB - indexIncr is calculated in the base class Reset method.
 	void CalcParts()
 	{
 		FrqValue tld2 = synthParams.ftableLength / 2;
-		maxPart = 0;
 		scale = 0;
+		cntPart = 0;
+		AmpValue sigK = PI / maxMult;
+		AmpValue sigN;
+		AmpValue sigTL = tld2/PI;
 		SumPart *pp = parts;
-		for (int np = 0; np < numPart; np++)
+		SumPart *pe = &parts[numPart];
+		while (pp < pe)
 		{
-			scale += (AmpValue) fabs((double)pp->amp);
 			pp->incr = indexIncr * pp->mul;
 			if (pp->incr < tld2)
-				maxPart++;
+			{
+				if (gibbs && pp->mul > 0)
+				{
+					sigN = sigK * pp->mul;
+					pp->sigma = (wtSet.wavSin[(int)((sigN*sigTL)+0.5)] / sigN) * pp->amp;
+				}
+				else
+					pp->sigma = pp->amp;
+				scale += (AmpValue) fabs((double)pp->sigma);
+				cntPart++;
+			}
+			else
+				pp->sigma = 0;
 			pp++;
 		}
-		// Lanczos sigma factor:
-		if (maxPart > 0)
-			sigK = (AmpValue) (PI / maxPart);
-		else
-			sigK = 0;
-		sigTL = tld2/PI;
 	}
 
 	virtual AmpValue Gen()
 	{
-		if (maxPart < 1)
+		if (cntPart < 1)
 			return 0;
 
-		SumPart *pp = parts;
 		AmpValue val = 0;
-		AmpValue amp;
-		AmpValue sigN = sigK;
-		for (int n = 0; n < maxPart; n++)
+		SumPart *pp = parts;
+		SumPart *pe = &parts[numPart];
+		while (pp < pe)
 		{
-			if (gibbs && n > 0)
-			{
-				// use sin wavetable
-				//amp = pp->amp * (sinv(sigN) / sigN);
-				amp = pp->amp * (wtSet.wavSin[(int)((sigN*sigTL)+0.5)] / sigN);
-				sigN += sigK;
-			}
-			else
-				amp = pp->amp;
-			val += waveTable[(int)pp->phase] * amp;
+			val += waveTable[(int)(pp->phase+0.5)] * pp->sigma;
 			pp->phase += pp->incr;
 			if (pp->phase >= synthParams.ftableLength)
 				pp->phase -= synthParams.ftableLength;
 			pp++;
 		}
-		// hack around round-off errors if needed
-		//if (val > scale)
-		//	scale = val;
 		return val / scale;
 	}
 };
@@ -235,7 +237,7 @@ public:
 
 	virtual void InitFM(FrqValue frequency, FrqValue mult, AmpValue mi, int wtIndex)
 	{
-		indexOfMod = (PhsAccum)mi;
+		indexOfMod = PhsAccum(mi);
 		modMult = mult;
 		GenWaveWT::InitWT(frequency, wtIndex);
 	}
@@ -246,7 +248,7 @@ public:
 		modAmp = indexOfMod * modIncr;
 	}
 
-	virtual void SetModIndex(AmpValue iom)
+	void SetModIndex(AmpValue iom)
 	{
 		indexOfMod = (PhsAccum)iom;
 		CalcModAmp();
@@ -285,7 +287,7 @@ public:
 
 		valCar = waveTable[(int)(index+0.5)];
 		valMod = waveTable[(int)(modIndex+0.5)];
-		index += indexIncr + ((PhsAccum)valMod * modAmp);
+		index += indexIncr + (PhsAccum(valMod) * modAmp);
 		if (index >= synthParams.ftableLength)
 			index -= synthParams.ftableLength;
 		else if (index < 0)
@@ -336,7 +338,7 @@ public:
 	virtual void Reset(float initPhs = 0)
 	{
 		GenWaveWT::Reset(initPhs);
-		modIncr = synthParams.frqTI * (PhsAccum) modFrq;
+		modIncr = synthParams.frqTI * PhsAccum(modFrq);
 		if (initPhs >= 0)
 		{
 			modIndex = initPhs * synthParams.radTI;
@@ -373,7 +375,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// Pitched noise - essentially, a ring modulation of a sine wave and noise
+// Pitched noise - ring modulation of a sine wave and noise
 // See: Computer Music, Dodge&Jerse, chapter 4.11b
 ///////////////////////////////////////////////////////////
 class GenWaveNZ : public GenUnit

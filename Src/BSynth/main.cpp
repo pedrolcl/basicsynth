@@ -59,6 +59,7 @@ public:
 	float mixVolRgt;
 	AmpValue tail;
 	AmpValue lead;
+	int silent;
 
 	long outType;
 	long lastOOR;
@@ -75,6 +76,12 @@ public:
 		((SynthProject *)arg)->Update(cnt);
 	}
 
+	static void DestroyTemplate(Opaque tp)
+	{
+		Instrument *ip = (Instrument *)tp;
+		delete ip;
+	}
+
 	void Update(bsInt32 cnt)
 	{
 		long oor = wvf.GetOOR();
@@ -88,6 +95,7 @@ public:
 
 	SynthProject()
 	{
+		silent = 0;
 		name = 0;
 		author = 0;
 		descr = 0;
@@ -119,6 +127,9 @@ public:
 		mgr.AddType("FMSynth", FMSynth::FMSynthFactory, FMSynth::FMSynthEventFactory);
 		mgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
 		mgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
+		InstrMapEntry *im = 0;
+		while ((im = mgr.EnumType(im)) != 0)
+			im->dumpTmplt = DestroyTemplate;
 	}
 
 	int LoadProject(char *prjFname)
@@ -162,7 +173,7 @@ public:
 			else if (child->TagMatch("out"))
 			{
 				child->GetAttribute("type", outType);
-				child->GetAttribute("ldin", lead);
+				child->GetAttribute("lead", lead);
 				child->GetAttribute("tail", tail);
 				child->GetContent(&outFile);
 			}
@@ -316,7 +327,7 @@ public:
 							mixElem->GetAttribute("unit", cn);
 							mixElem->GetAttribute("lvl", vol);
 							mixElem->GetAttribute("mix", flngMix);
-							mixElem->GetAttribute("fb", flngMix);
+							mixElem->GetAttribute("fb", flngFb);
 							mixElem->GetAttribute("cntr", flngCenter);
 							mixElem->GetAttribute("depth", flngDepth);
 							mixElem->GetAttribute("sweep", flngSweep);
@@ -357,16 +368,19 @@ public:
 			doc.Close();
 			return -1;
 		}
-		if (name)
-			fprintf(stdout, "%s\n", name);
-		if (title)
-			fprintf(stdout, "%s\n", name);
-		if (author)
-			fprintf(stdout, "%s\n", author);
-		if (cpyrgt)
-			fprintf(stdout, "%s\n", cpyrgt);
-		if (descr)
-			fprintf(stdout, "%s\n", descr);
+		if (!silent)
+		{
+			if (name)
+				fprintf(stdout, "%s\n", name);
+			if (title)
+				fprintf(stdout, "%s\n", name);
+			if (author)
+				fprintf(stdout, "%s\n", author);
+			if (cpyrgt)
+				fprintf(stdout, "%s\n", cpyrgt);
+			if (descr)
+				fprintf(stdout, "%s\n", descr);
+		}
 
 		child = root->FirstChild();
 		while (child != NULL)
@@ -377,7 +391,8 @@ public:
 				child->GetContent(&fname);
 				if (fname)
 				{
-					fprintf(stdout, "Load library %s\n", fname);
+					if (!silent)
+						fprintf(stdout, "Load library %s\n", fname);
 					if (FindOnPath(fullPath, fname))
 					{
 						if (LoadInstrLib(mgr, fname))
@@ -426,7 +441,8 @@ public:
 				{
 					if (FindOnPath(fullPath, fname))
 					{
-						fprintf(stdout, "Convert %s\n", fname);
+						if (!silent)
+							fprintf(stdout, "Convert %s\n", fname);
 						if (cvt.Convert(fullPath, NULL))
 							errcnt++;
 					}
@@ -446,7 +462,8 @@ public:
 				{
 					if (FindOnPath(fullPath, fname))
 					{
-						fprintf(stdout, "Load %s\n", fname);
+						if (!silent)
+							fprintf(stdout, "Load %s\n", fname);
 						SequenceFile seqFileLoad;
 						seqFileLoad.Init(&mgr, &seq);
 						if (seqFileLoad.LoadFile(fullPath))
@@ -494,17 +511,21 @@ public:
 	{
 		AmpValue lv, rv;
 		long pad;
-		fprintf(stdout, "Generate sequence\n");
+		if (!silent)
+			fprintf(stdout, "Generate sequence\n");
 		int errcnt = cvt.Generate();
 		if (errcnt == 0 && outFile)
 		{
-			fprintf(stdout, "Generate wavefile %s\n", outFile);
+			if (!silent)
+				fprintf(stdout, "Generate wavefile %s\n", outFile);
+			wvf.SetBufSize(30);
 			wvf.OpenWaveFile(outFile, 2);
 			pad = (long) (synthParams.isampleRate * lead);
 			while (pad-- > 0)
 				wvf.Output2(0.0, 0.0);
 			lastOOR = 0;
-			seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
+			if (!silent)
+				seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
 			int n = seq.Sequence(mgr);
 			pad = (long) (synthParams.isampleRate * tail);
 			while (pad-- > 0)
@@ -513,10 +534,13 @@ public:
 				wvf.Output2(lv, rv);
 			}
 			wvf.CloseWaveFile();
-			lastOOR = wvf.GetOOR() - lastOOR;
-			if (lastOOR > 0)
-				fprintf(stdout, " %ld samples out-of-range\r", lastOOR);
-			fprintf(stdout, "\nDone.");
+			if (!silent)
+			{
+				lastOOR = wvf.GetOOR() - lastOOR;
+				if (lastOOR > 0)
+					fprintf(stdout, " %ld samples out-of-range\r", lastOOR);
+				fprintf(stdout, "\nDone.");
+			}
 		}
 		return errcnt;
 	}
@@ -532,12 +556,18 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "use: BSynth project.xml\n");
+		fprintf(stderr, "use: BSynth [-s] project.xml\n");
 	}
 	else
 	{
+		int i = 1;
+		if (strcmp(argv[1], "-s") == 0)
+		{
+			prj.silent = 1;
+			i++;
+		}
 		prj.Init();
-		int errcnt = prj.LoadProject(argv[1]);
+		int errcnt = prj.LoadProject(argv[i]);
 		if (errcnt == 0)
 			errcnt = prj.Generate();
 	}

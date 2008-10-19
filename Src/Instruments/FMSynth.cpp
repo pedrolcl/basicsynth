@@ -50,6 +50,14 @@ FMSynth::FMSynth()
 	gen2EnvDef.Alloc(3, 0, 1);
 	gen3EnvDef.Alloc(3, 0, 1);
 	nzEnvDef.Alloc(3, 0, 1);
+	int i;
+	for (i = 0; i < 3; i++)
+	{
+		gen1EnvDef.Set(i, 0, 0, linSeg);
+		gen2EnvDef.Set(i, 0, 0, linSeg);
+		gen3EnvDef.Set(i, 0, 0, linSeg);
+		nzEnvDef.Set(i, 0, 0, linSeg);
+	}
 	maxPhs = synthParams.ftableLength / 2;
 	gen1Mult = 1.0;
 	gen2Mult = 1.0;
@@ -453,6 +461,13 @@ void FMSynth::Tick()
 		gen2Mod = lfoOut * gen2Mult;
 		gen1Mod = lfoOut * gen1Mult;
 	}
+	else if (pbOn)
+	{
+		lfoOut = pbGen.Gen() * synthParams.frqTI;
+		gen3Mod = lfoOut * gen3Mult;
+		gen2Mod = lfoOut * gen2Mult;
+		gen1Mod = lfoOut * gen1Mult;
+	}
 	else
 	{
 		gen3Mod = 0;
@@ -654,7 +669,7 @@ int FMSynth::Save(XmlSynthElem *parent)
 	elem->SetAttribute("mul", gen3Mult);
 	delete elem;
 
-	elem = SaveEG(parent, "nz", gen3EnvDef);
+	elem = SaveEG(parent, "nz", nzEnvDef);
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("mix", nzMix);

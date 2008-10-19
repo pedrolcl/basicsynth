@@ -140,7 +140,11 @@ bsInt32 Sequencer::Sequence(InstrManager& instMgr, bsInt32 startTime, bsInt32 en
 					act->ison = true;
 
 					// assume: allocate should not fail, even if inum is invalid...
-					if ((act->ip = instMgr.Allocate(evt->inum)) == NULL)
+					if (evt->im)
+						act->ip = instMgr.Allocate(evt->im);
+					else
+						act->ip = instMgr.Allocate(evt->inum);
+					if (act->ip == 0)
 					{
 						// ...except if we are out of memory, so give up now.
 						playing = false;
