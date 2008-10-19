@@ -225,7 +225,7 @@ public:
 	// Add an entry to the instrument manager type list.
 	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf = 0)
 	{
-		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, tf);
+		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, tf, 0);
 		ent->SetType(type);
 		if (typeList)
 			typeList->Insert(ent);
