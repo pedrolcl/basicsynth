@@ -1,0 +1,161 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+
+<head>
+<title>BSynth Synthesizer</title>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<meta name="author" content="Daniel Mitchell">
+<meta name="keywords" content="synthesizers, electronic music, music notation">
+</head>
+
+<style>
+<!--
+ /* Style Definitions */
+h1
+	{margin-right:0in;
+	margin-left:0in;
+	font-family:"Arial";}
+h2
+	{margin-right:0in;
+	margin-left:0in;
+	font-family:"Arial";}
+p
+	{margin-top:.25in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	font-family:"Times New Roman";}
+-->
+</style>
+
+<body style="padding: 15px 40px 15px 30px;" lang="en-us">
+
+<h1>BSynth</h1>
+
+<p><em>BSynth</em> is a command line program that implements a complete synthesizer using the 
+<em>BasicSynth</em> <a href="Library.html"><em>Common</em></a>, <a href="Instruments.html"><em>Instrument</em></a>, and
+<a href="Notelist.html"><em>Notelist</em></a> libraries.
+<em>BSynth</em> takes a single command line argument that specifies a project file containing instrument configurations and 
+<a href="Notelist.html"><em>Notelist</em></a> scripts, and produces a .WAV file as output. 
+An optional argument (-s) turns off output to the console while the program is running.</p>
+
+<p style="padding-left:0.25in;">BSynth [-s] <em>project.xml</em></p>
+
+<p>A <em>BSynth</em> project file is an XML format file that contains general information
+about the composition, synthesizer settings, instrument definitions, score files, and parameters that control the format of the output. An template project file is shown below.</p>
+
+<pre>
+&lt;synthprj&gt;
+  &lt;name&gt;Composition name&lt;/name&gt;
+  &lt;author&gt;Composer name&lt;/author&gt;
+  &lt;desc&gt;Description of the composition&lt;/desc&gt;
+  &lt;cpyrgt&gt;Copyright notice&lt;/cpyrgt&gt;
+  &lt;synth sr=“44100” wt=“16384” usr=“” &gt;
+    &lt;wvtable ndx=“” parts=“” gibbs=“” &gt;
+      &lt;part mul=“” amp=“” phs=“”/&gt;
+    &lt;/wvtable&gt;
+  &lt;/synth&gt;
+  &lt;mixer chnls=“” fxunits=“” lft=“” rgt=“”&gt;
+    &lt;chnl cn=“” on=“” vol=“” pan=“”/&gt;
+    &lt;reverb unit=“” vol=“” rvt=“” pan=“” &gt;
+      &lt;send chnl=“” amt=“”/&gt;
+    &lt;/reverb&gt;
+    &lt;flanger unit=“” lvl=“” mix=“” fb=“” 
+      cntr=“” depth=“” sweep=“” pan=“” &gt;
+      &lt;send chnl=“” amt=“” /&gt;
+    &lt;/flanger&gt;
+  &lt;/mixer&gt;
+  &lt;libdir&gt;path to libraries and scores&lt;/libdir&gt;
+  &lt;libfile&gt;an instrument library&lt;/libfile&gt;
+  &lt;instrlib&gt;
+    &lt;instr&gt; instrument definition &lt;/instr&gt;
+  &lt;/instrlib&gt;
+  &lt;seq name=“”&gt;a sequencer file&lt;/seq&gt;
+  &lt;score name=“” dbg=“”&gt;a notelist file&lt;/score&gt;
+  &lt;text&gt;file associated with the project&lt;/text&gt;
+  &lt;out type=“1” lead=“” tail=“”&gt;
+    output file path
+  &lt;/out&gt;
+&lt;/synthprj&gt;
+</pre>
+
+<table border=1 style="border:solid black 1.0pt;" >
+<tr style='background:#CCC;border:solid black 1.0pt;'><th>
+Tag</th><th>Attribute</th><th>Use</th></tr>
+<tr><td>synthprj</td><td>&nbsp;</td><td>Document root tag</td></tr>
+<tr><td>name</td><td>&nbsp;</td><td>Name of the composition</td></tr>
+<tr><td>author</td><td>&nbsp;</td><td>Composer’s name</td></tr>
+<tr><td>desc</td><td>&nbsp;</td><td>Description</td></tr>
+<tr><td>cpyrgt</td><td>&nbsp;</td><td>Copyright</td></tr>
+<tr><td>synth</td><td>sr</td><td>Sample rate</td></tr>
+<tr><td>&nbsp;</td><td>wt</td><td>Wavetable length</td></tr>
+<tr><td>&nbsp;</td><td>usr</td><td>Number of user defined wave tables, defined by wvtable tags</td></tr>
+<tr><td>wvtable</td><td>ndx</td><td>Wavetable index number (0-9 are reserved for library use)</td></tr>
+<tr><td>&nbsp;</td><td>parts</td><td>Number of partials</td></tr>
+<tr><td>&nbsp;</td><td>gibbs</td><td>Apply adjustment for Gibbs effect, 1=apply, 0=don't apply</td></tr>
+<tr><td>part</td><td>mul</td><td>Partial number (1-n)</td></tr>
+<tr><td>&nbsp;</td><td>amp</td><td>Amplitude for this partial</td></tr>
+<tr><td>&nbsp;</td><td>phs</td><td>Starting phase of this partial, in radians (optional)</td></tr>
+<tr><td>mixer</td><td>chnls</td><td>Number of mixer inputs</td></tr>
+<tr><td>&nbsp;</td><td>fxunits</td><td>Number of effects units</td></tr>
+<tr><td>&nbsp;</td><td>lft</td><td>Master volume – left</td></tr>
+<tr><td>&nbsp;</td><td>rgt</td><td>Master volume – right</td></tr>
+<tr><td>chnl</td><td>cn</td><td>Mixer input channel number</td></tr>
+<tr><td>&nbsp;</td><td>on</td><td>Channel on (1) or off (0)</td></tr>
+<tr><td>&nbsp;</td><td>pan</td><td>Channel pan (-1 to +1)</td></tr>
+<tr><td>reverb</td><td>unit</td><td>Effects unit number</td></tr>
+<tr><td>&nbsp;</td><td>vol</td><td>Output volume level</td></tr>
+<tr><td>&nbsp;</td><td>rvt</td><td>Reverb time</td></tr>
+<tr><td>&nbsp;</td><td>pan</td><td>Pan for the reverb</td></tr>
+<tr><td>send</td><td>chnl</td><td>Channel to send from</td></tr>
+<tr><td>&nbsp;</td><td>amt</td><td>Amplitude to send to effects unit</td></tr>
+<tr><td>flanger</td><td>unit</td><td>Effects unit number</td></tr>
+<tr><td>&nbsp;</td><td>fb</td><td>Feedback amount</td></tr>
+<tr><td>&nbsp;</td><td>center</td><td>Center delay (seconds)</td></tr>
+<tr><td>&nbsp;</td><td>depth</td><td>Delay sweep depth (seconds)</td></tr>
+<tr><td>&nbsp;</td><td>lvl</td><td>Output level</td></tr>
+<tr><td>&nbsp;</td><td>mix</td><td>Mix of input to flanger output</td></tr>
+<tr><td>&nbsp;</td><td>sweep</td><td>Sweep rate in Hz</td></tr>
+<tr><td>&nbsp;</td><td>pan</td><td>Pan position for flanger output</td></tr>
+<tr><td>libdir</td><td>&nbsp;</td><td>Path to libraries</td></tr>
+<tr><td>libfile</td><td>&nbsp;</td><td>Instrument library</td></tr>
+<tr><td>instrlib</td><td>&nbsp;</td><td>In-line instrument library</td></tr>
+<tr><td>instr</td><td>*</td><td>See the definition of each instrument in the <a href="Instruments.html">Instrument Library</a></td></tr>
+<tr><td>seq</td><td>&nbsp;</td><td>A sequencer file, may be path relative to a libdir entry</td></tr>
+<tr><td>&nbsp;</td><td>name</td><td>Display name for the file</td></tr>
+<tr><td>score</td><td>&nbsp;</td><td>A Notelist file, may be path relative to a libdir entry</td></tr>
+<tr><td>&nbsp;</td><td>name</td><td>Display name for the file</td></tr>
+<tr><td>&nbsp;</td><td>dbg</td><td>Debug level 0-3</td></tr>
+<tr><td>text</td><td>&nbsp;</td><td>File associated with the project</td></tr>
+<tr><td>out</td><td>&nbsp;</td><td>Output file path</td></tr>
+<tr><td>&nbsp;</td><td>type</td><td>1 = WAVE file, 2 channel PCM</td></tr>
+<tr><td>&nbsp;</td><td>lead</td><td>Seconds of silence at beginning of the file</td></tr>
+<tr><td>&nbsp;</td><td>tail</td><td>Seconds of silence at end of file. When reverb is enabled, this should be at least as long as RVT.</td></tr>
+</table>
+
+<p>The <em>name, author, desc, copyright, synth, mixer,</em> and <em>out</em> tags should appear once. 
+The <em>libdir, libfile, instrlib, seq,</em> and <em>score</em> tags can be repeated as many times as needed.</p>
+
+<p>The synthesizer parameters must be set prior to loading instruments, and instruments must be loaded prior to 
+processing score or sequence files. The <em>BSynth</em> program insures the proper order by making three scans 
+of the project file. The first scan looks for synth and mixer nodes. The second scan loads instruments and 
+instrument libraries. The third scan processes score and sequence files.</p>
+
+<p>The <em>Bin</em> directory contains an example project, <em>jig.xml</em> and associated score file <em>jig.nl</em>.</p>
+
+<!-- Creative Commons License -->
+
+<p>
+<a href="http://creativecommons.org/licenses/GPL/2.0/">
+<span style='text-decoration:none'>
+<img border=0 width=88 height=62 src="http://creativecommons.org/images/public/cc-GPL-a.png" alt="CC-GNU GPL">
+</span></a><br>
+The <em>BasicSynth</em> library, instrument library, example and utility
+programs are licensed under the <a href="http://creativecommons.org/licenses/GPL/2.0/">CC-GNU GPL</a>.
+</p>
+
+</body>
+
+</html>
