@@ -91,6 +91,7 @@ public:
 			lastOOR = oor;
 		}
 		fprintf(stdout, "\r%d:%02d", cnt / 60, cnt % 60);
+		fflush(stdout);
 	}
 
 	SynthProject()
