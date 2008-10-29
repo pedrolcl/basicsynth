@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReverbExplorer", "ReverbExp
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install", "Install\Install.vdproj", "{106BD2B6-68C9-43F1-99F2-E8E8268E89C5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualKBD", "VirtualKBD\VirtualKBD.vcproj", "{C872FF18-7C75-4939-B761-FA835838581C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -55,6 +57,12 @@ Global
 		{106BD2B6-68C9-43F1-99F2-E8E8268E89C5}.Debug|x64.ActiveCfg = Debug
 		{106BD2B6-68C9-43F1-99F2-E8E8268E89C5}.Release|Win32.ActiveCfg = Release
 		{106BD2B6-68C9-43F1-99F2-E8E8268E89C5}.Release|x64.ActiveCfg = Release
+		{C872FF18-7C75-4939-B761-FA835838581C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Debug|Win32.Build.0 = Debug|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Debug|x64.ActiveCfg = Debug|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Release|Win32.ActiveCfg = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Release|Win32.Build.0 = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
