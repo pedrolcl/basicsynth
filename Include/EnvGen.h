@@ -2,19 +2,27 @@
 //
 // BasicSynth - EnvGen
 //
-// Fixed duration AR type envelope generators, linear, exponential and log
-// All classes in this file vary output from 0 - peak - 0
-//
-// EnvGen - linear attack and decay, base class for other types
-// EnvGenExp - exponential attack and decay
-// EnvGenLog - log attack and decay
+/// @file EnvGen.h Simple envelope generators.
+/// Fixed duration AR type envelope generators, linear, exponential and log
+/// All classes in this file vary output from 0 - peak - 0
+///
+///  - EnvGen - linear attack and decay, base class for other types
+///  - EnvGenExp - exponential attack and decay
+///  - EnvGenLog - log attack and decay
 //
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
+/// @addtogroup grpEnv
+//@
 #ifndef _ENVGEN_H_
 #define _ENVGEN_H_
 
+/// Fixed duration envelope generator. EnvGen implements a fixed duration
+/// envelope generator with one attack segment and one release segment.
+/// EnvGen has a linear attack and decay, and is the base class for other
+/// simple fixed duration generators. 
+/// @sa GenUnit
 class EnvGen : public GenUnit
 {
 protected:
@@ -48,13 +56,26 @@ public:
 		duration = 0;
 	}
 
-	// peak, duration, attackTm, decayTm
+	/// Initialize the envelope. Values are initialized from the v array. \n
+	/// v[0] = peak amplitude \n
+	/// v[1] = total duration \n
+	/// v[2] = attack time \n
+	/// v[3] = decay time
+	/// @param n number of values (4)
+	/// @param v array of values
 	virtual void Init(int n, float *v)
 	{
 		if (n >= 4)
 			InitEG(AmpValue(v[0]), FrqValue(v[1]), FrqValue(v[2]), FrqValue(v[3]));
 	}
 
+	/// Initialize from specific values. 
+	/// The total duration must be greater than or equal to the sum of the attack and decay. 
+	/// If this is not the case, the attack and decay times are reduced in length proportionately.
+	/// @param peak maximum amplitude and/or sustain level
+	/// @param dur sets the total duration. 
+	/// @param atk sets the attack time in seconds
+	/// @param dec sets the decay (release) time in seconds
 	virtual void InitEG(AmpValue peak, FrqValue dur, FrqValue atk, FrqValue dec)
 	{
 		duration = dur;
@@ -83,9 +104,12 @@ public:
 		Reset();
 	}
 
-	// 0 <= initPhs < 1 will set the volume to the appropriate level
-	// and can be used to re-trigger or cycle the envelope.
-	// initPhs < 0 will not change the current level or index
+	/// Reset the envelope. This is called to start or continue
+	/// generation of the envelope.
+	/// 0 <= initPhs < 1 will set the volume to the appropriate level
+	/// and can be used to re-trigger or cycle the envelope.
+	/// initPhs < 0 will not change the current level or index
+	/// @param initPhs phase in seconds
 	virtual void Reset(float initPhs = 0)
 	{
 		if (initPhs >= 0)
@@ -106,11 +130,18 @@ public:
 		}
 	}
 
+	/// Generate the next value.
+	/// The next envelope value is multiplied by the argument and returned.
+	/// @param inval current sample value
 	virtual AmpValue Sample(AmpValue inval)
 	{
 		return Gen() * inval;
 	}
 
+	/// Generate the next value.
+	/// Gen calculates and returns the next envelope value. 
+	/// When the end of the envelope is reached, the last value is returned
+	/// until Reset() is called.
 	virtual AmpValue Gen()
 	{
 		if (index >= totalSamples)
@@ -125,12 +156,18 @@ public:
 		return volume;
 	}
 
+	/// Determine if envelope is finished.
+	/// This method returns true if the envelope has reached the last value.
 	virtual int IsFinished()
 	{
 		return index >= totalSamples;
 	}
 };
 
+/// Expoential AR envelope. EnvGenExp implements a fixed duration envelope generator with one
+/// attack segment and one release segment. EnvGenExp has an exponential attack and decay,
+/// but is otherwise the same as EnvGen.
+/// @sa EnvGen GenUnit
 class EnvGenExp : public EnvGen
 {
 private:
@@ -146,11 +183,21 @@ public:
 		expFactor = 0;
 	}
 
+	/// Set the curve bias. 
+	/// The curve is defined by the equation:
+	/// @code
+	/// (b/(1+b))^(1/t) or ((1+b)/b))^(1/t)
+	/// @endcode
+	/// where \e t is the attack or decay time as appropriate. 
+	/// The bias must be greater than zero. Smaller values produce steeper curves. 
+	/// The default bias value is 0.2.
+	/// @param b bias
 	virtual void SetBias(AmpValue b)
 	{
 		expMin = b;
 	}
 
+	/// @copydoc EnvGen::Reset()
 	virtual void Reset(float initPhs = 0)
 	{
 		EnvGen::Reset(initPhs);
@@ -175,6 +222,7 @@ public:
 		}
 	}
 
+	/// @copydoc EnvGen::Gen()
 	virtual AmpValue Gen()
 	{
 		if (index >= totalSamples)
@@ -196,6 +244,10 @@ public:
 	}
 };
 
+/// Logarithmic envelope generator. 
+/// EnvGenLog implements a fixed duration envelope generator with one attack segment 
+/// and one release segment. EnvGenLog has a logarithmic attack and decay, but is otherwise the same as EnvGenExp.
+/// @sa EnvGenLog EnvGen GenUnit
 class EnvGenLog : public EnvGen
 {
 private:
@@ -211,11 +263,13 @@ public:
 		expFactor = 0.0f;
 	}
 
+	/// @copydoc EnvGenExp::SetBias()
 	virtual void SetBias(AmpValue b)
 	{
 		expMin = b;
 	}
 
+	/// @copydoc EnvGen::Reset()
 	virtual void Reset(float initPhs = 0)
 	{
 		EnvGen::Reset(initPhs);
@@ -240,6 +294,7 @@ public:
 		}
 	}
 
+	/// @copydoc EnvGen::Gen()
 	virtual AmpValue Gen()
 	{
 		if (index >= totalSamples)
@@ -260,5 +315,5 @@ public:
 		return volume;
 	}
 };
-
+//@}
 #endif

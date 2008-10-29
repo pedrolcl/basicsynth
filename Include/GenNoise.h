@@ -2,29 +2,44 @@
 //
 // BasicSynth Noise generators
 //
-// GenNoise - white noise generator
-// GenNoiseH - sampled white noise
-// GenNoiseI - sampled/interpolated white noise
-// GenPink1 - pink-ish noise generator using FIR comb filter
-// GenPink2 - pink-ish noise generator using IIR comb filter
+/// @file GenNoise.h Noise generators
+///
+///  - GenNoise - white noise generator
+///  - GenNoiseH - sampled white noise
+///  - GenNoiseI - sampled/interpolated white noise
+///  - GenPink1 - pink-ish noise generator using FIR comb filter
+///  - GenPink2 - pink-ish noise generator using IIR comb filter
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
+/// @addtogroup grpNoise
+//@{
 #ifndef _GENNOISE_H_
 #define _GENNOISE_H_
 
-// White Noise
+/// White Noise. 
 class GenNoise : public GenUnit
 {
 public:
+	/// Initialize. This currently has no effect but is needed
+	/// to implement all base class methods.
 	virtual void Init(int n, float *v) { }
+	/// Reset. This currently has no effect but is needed
+	/// to implement all base class methods.
 	virtual void Reset(float initPhs = 0) { }
 
+	/// Generate the next sample. The noise signal is
+	/// multiplied by the supplied amplitude level.
+	/// @param in peak amplitude level
+	/// @returns sample value
 	virtual AmpValue Sample(AmpValue in)
 	{
 		return Gen() * in;
 	}
 
+	/// Generate the next sample. The noise value is returned
+	/// normalized to [-1,+1] amplitude range.
+	/// @returns sample value
 	virtual AmpValue Gen()
 	{
 		return ((AmpValue) rand() - (RAND_MAX/2)) / (RAND_MAX/2);
@@ -32,6 +47,9 @@ public:
 
 };
 
+/// Held noise. The frequency setting determines when a new random
+/// value is generated. In between, the last value is reused. This
+/// has the effect of resampling the noise, in effect a low-pass filter.
 class GenNoiseH : public GenNoise
 {
 private:
@@ -48,12 +66,17 @@ public:
 		lastVal = 0;
 	}
 
+	/// Initialize the generator. The first value in the array sets the hold frequency.
+	/// @param n number of values (1)
+	/// @param v array of values (v[0] = frequency)
 	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 			InitH(*v);
 	}
 
+	/// Initialize the generator. The argument sets the hold frequency.
+	/// @param f hold frequency
 	void InitH(FrqValue f)
 	{
 		if ((freq = f) <= 0)
@@ -61,12 +84,15 @@ public:
 		Reset(0);
 	}
 
+	/// Reset the generator. The hold rate is recalculated from the last set frequency.
+	/// @param iniPhs ignored
 	virtual void Reset(float initPhs = 0)
 	{
 		hcount = (bsInt32) (synthParams.sampleRate / freq);
 		count = 0;
 	}
 
+	/// @copydoc GenNoise::Gen()
 	virtual AmpValue Gen()
 	{
 		if (--count <= 0)
@@ -79,6 +105,9 @@ public:
 
 };
 
+/// Interpolated noise. The frequency setting determines when a new random
+/// value is generated. In between, the value is interpolated from the last value.
+/// This has the effect of resampling the noise, in effect a low-pass filter.
 class GenNoiseI : public GenNoise
 {
 private:
@@ -99,12 +128,14 @@ public:
 		incrVal = 0;
 	}
 
+	/// @copydoc GenNoiseH::Init()
 	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
 			InitH(FrqValue(*v));
 	}
 
+	/// @copydoc GenNoiseH::InitH()
 	void InitH(FrqValue f)
 	{
 		if ((freq = f) <= 0)
@@ -112,6 +143,8 @@ public:
 		Reset(0);
 	}
 
+	/// Reset the generator. The hold rate is recalculated from the last set frequency.
+	/// @param iniPhs ignored
 	virtual void Reset(float initPhs = 0)
 	{
 		hcount = (bsInt32) (synthParams.sampleRate / freq);
@@ -123,6 +156,7 @@ public:
 		incrVal = (nextVal - lastVal) / (AmpValue) hcount;
 	}
 
+	/// @copydoc GenNoise::Gen()
 	virtual AmpValue Gen()
 	{
 		if (--count <= 0)
@@ -139,8 +173,7 @@ public:
 
 };
 
-// "Pink-ish" noise generators - first order LP filter on White noise output
-// choose between FIR (Pink1) and IIR (Pink2)
+/// "Pink-ish" noise generator. First order FIR LP filter on White noise output
 class GenNoisePink1 : public GenNoise
 {
 private:
@@ -151,6 +184,7 @@ public:
 		prev = 0;
 	}
 
+	/// @copydoc GenNoise::Gen()
 	virtual AmpValue Gen()
 	{
 		AmpValue val = GenNoise::Gen();
@@ -160,6 +194,7 @@ public:
 	}
 };
 
+/// "Pink-ish" noise generator. First order IIR LP filter on White noise output
 class GenNoisePink2 : public GenNoise
 {
 private:
@@ -170,6 +205,7 @@ public:
 		prev = 0;
 	}
 
+	/// @copydoc GenNoise::Gen()
 	virtual AmpValue Gen()
 	{
 		//AmpValue val = GenWaveNoise::Gen();
@@ -179,6 +215,6 @@ public:
 		return prev = (GenNoise::Gen() + prev) / 2;
 	}
 };
-
+//@}
 #endif
 

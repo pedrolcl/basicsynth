@@ -1,20 +1,15 @@
 ///////////////////////////////////////////////////////////////
-//
 // BasicSynth - Wave Table set
 //
-// Class to hold wave tables;
-//
-// A single global instance of this class must be defined (see below)
-// if you intend to use the GenWaveWT class and its derivations.
+/// @file WaveTable.h Class to hold wave tables for oscillators
+///
+/// A single global instance of this class must be defined (@see wtSet)
+/// if you intend to use the GenWaveWT class and its derivations.
 // 
-// N.B.: The Init() method must be called
-//       before using the wave table generators. The generators
-//       do not check for null tables in order to optimize
-//       performance. If you fail to call Init(), things will
-//       crash very quickly...
-//
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
+/// @addtogroup grpGeneral
+//@{
 #ifndef _WAVETABLE_H_
 #define _WAVETABLE_H_
 
@@ -33,17 +28,29 @@
 class WaveTableSet
 {
 public:
+	/// pointer to the sine wave table (WT_SIN)
 	AmpValue *wavSin;
+	/// pointer to the square wave table (WT_SQR)
 	AmpValue *wavSqr;
+	/// pointer to the sawtooth wave table (WT_SAW)
 	AmpValue *wavSaw;
+	/// pointer to the triangle wave table (WT_TRI)
 	AmpValue *wavTri;
+	/// pointer to the pulse wave table (WT_PLS)
 	AmpValue *wavPls;
+	/// pointer to the sawtooth wave table created by direct calculation (WT_SAWL)
 	AmpValue *lfoSaw;
+	/// pointer to the triangle wave table created by direct calculation (WT_TRIL)
 	AmpValue *lfoTri;
+	/// pointer to the square wave table created by direct calculation (WT_SQRL)
 	AmpValue *lfoSqr;
+	/// pointer to the positive only sawtooth wave table created by direct calculation (WT_SAWP)
 	AmpValue *posSaw;
+	/// pointer to the positive only triangle wave table created by direct calculation (WT_TRIP)
 	AmpValue *posTri;
+	/// array of wavetables, size WT_USER(n)
 	AmpValue **wavSet;
+	/// number of wavetables
 	bsInt32 wavTblMax;
 
 	WaveTableSet()
@@ -67,6 +74,7 @@ public:
 		DestroyTables();
 	}
 
+	/// Destroy all wavetables
 	void DestroyTables()
 	{
 		if (wavSet)
@@ -81,12 +89,19 @@ public:
 		wavSet = NULL;
 	}
 
-	// Initialize the default wavetables. 
-	// This method initializes the default wave tables.
-	// The NUM_PARTS constant is set to allow oscillator frequencies 
-	// up to 2 octaves above middle C.
-	// Higher pitches will produce alias frequencies.
-	// For higher partials, or higher pitches, use GenWaveSum
+	/// Initialize the default wavetables. 
+	/// This method initializes the default wave tables.
+	/// The NUM_PARTS constant is set to allow oscillator frequencies 
+	/// up to 2 octaves above middle C.
+	/// Higher pitches will produce alias frequencies.
+	/// For higher partials, or higher pitches, use GenWaveSum.
+	///
+	/// When Init is called, existing wavetables are destroyed. 
+	/// Thus any oscillators using wavetables MUST be deleted before calling Init.
+	/// Generally, Init is called once at startup. However, in an
+	/// interactive system, it may be necessary to call Init if
+	/// the user desires to add new wavetables.
+	/// @param wtUsr number of user-defined wavetables
 	void Init(bsInt32 wtUsr = 0)
 	{
 		DestroyTables();
@@ -239,13 +254,15 @@ public:
 		wavSet[WT_TRIP] = posTri;
 	}
 
-	// Set an indexed wave table.
-	// n -> table index
-	// nparts -> number of partials
-	// mul[] -> array of partial numbers, NULL if all partials through n included
-	// amp[] -> array of partial amplitudes
-	// phs[] -> array of phase offsets, NULL for all 0 phase
-	// gibbs -> turn gibbs correction on/off
+	/// Set an indexed wave table. This is the method to fill in a user wavetable
+	/// by summing a set of sinusoids. Since wavetables are public members, it is
+	/// also allowable to init the wavetable directly.
+	/// @param n table index
+	/// @param nparts number of partials
+	/// @param mul array of partial numbers, NULL if all partials through n included
+	/// @param amp array of partial amplitudes (required)
+	/// @param phs array of phase offsets, NULL for all 0 phase
+	/// @param gibbs turn gibbs correction on/off
 	int SetWaveTable(bsInt32 n, bsInt32 nparts, bsInt32 *mul, double *amp, double *phs, int gibbs)
 	{
 		if (n < 0 || n >= wavTblMax || amp == NULL)
@@ -333,8 +350,10 @@ public:
 	}
 };
 
-// this global is defined and initialized by the InitSynthesizer method.
-// it is shared by all oscialltors
+/// Global wavetable object. This global must be allocated somewhere. It is shared
+/// by all wavetable oscillators. Typically, it is defined by including the
+/// common library and initialized by the InitSynthesizer() method.
 extern WaveTableSet wtSet;
 
+//@}
 #endif

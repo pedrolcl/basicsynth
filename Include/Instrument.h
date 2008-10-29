@@ -11,10 +11,10 @@
 class InstrManager; // forward reference for type defs below
 
 ///////////////////////////////////////////////////////////
-// Instrument - base class for instruments. This class defines
-// the common methods needed by the instrument manager and
-// sequencer. It also functions as a dummy instrument that
-// can be allocated in place of invalid instrument numbers.
+/// Base class for instruments. This class defines
+/// the common methods needed by the instrument manager and
+/// sequencer. It also functions as a dummy instrument that
+/// can be allocated in place of invalid instrument numbers.
 //
 // Start - method called when the current playback time
 //         matches the event start time. The instrument
@@ -52,36 +52,35 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// The InstrFactory is a static method or non-class function
-// used to instantiate the instrument. The template parameter
-// contains default settings for the instrument and is
-// opaque to the sequencer and instrument manager.
-// Typically, only this function should create new instances
-// of instruments. There are exceptions, of course.
+/// The InstrFactory is a static method or non-class function
+/// used to instantiate the instrument. The template parameter
+/// contains default settings for the instrument and is
+/// opaque to the sequencer and instrument manager.
+/// Typically, only this function should create new instances
+/// of instruments. There are exceptions, of course.
 ///////////////////////////////////////////////////////////
 typedef Instrument *(*InstrFactory)(InstrManager *, Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
-// The EventFactory is a static method or non-class function
-// used to instantiate an event specific to an instrument.
+/// The EventFactory is a static method or non-class function
+/// used to instantiate an event specific to an instrument.
 ///////////////////////////////////////////////////////////
 typedef SeqEvent *(*EventFactory)(Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
-// The TmplFactory is a static method or non-class function
-// used to instantiate a template specific to an instrument.
-// This is optional. If not used, the template will be
-// created as an instance of the instrument.
+/// The TmplFactory is a static method or non-class function
+/// used to instantiate a template specific to an instrument.
+/// This is optional. If not used, the template will be
+/// created as an instance of the instrument.
 ///////////////////////////////////////////////////////////
 typedef Opaque (*TmpltFactory)(XmlSynthElem *tmplt);
 typedef void (*TmpltDump)(Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
-// InstrMapEntry class is used by the instrument manager
-// to manage one type of instrument, and, a specific 
-// configuration of an instrument. 
+/// This class is used by the instrument manager
+/// to manage one type of instrument, and, a specific 
+/// configuration of an instrument. 
 ///////////////////////////////////////////////////////////
-
 class InstrMapEntry : public SynthList<InstrMapEntry>
 {
 public:
@@ -152,23 +151,23 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// Instrument manager class
+/// Instrument manager class.
 //
-// This class maintains lists of instrument types and 
-// pre-configured instruments. It is called by the sequencer
-// to allocate a new instance of the instrument when a note
-// is started, and to deallocate an instance when the note
-// is finished. 
-// Before playback is started, the manager must be initialized
-// with mixer and output buffer objects. 
-// The instance of the instrument manager is passed to each
-// instrument instance. Instruments output samples through
-// a method on the instrument manager, not directly to the
-// mixer or output device.
+/// This class maintains lists of instrument types and 
+/// pre-configured instruments. It is called by the sequencer
+/// to allocate a new instance of the instrument when a note
+/// is started, and to deallocate an instance when the note
+/// is finished. 
+/// Before playback is started, the manager must be initialized
+/// with mixer and output buffer objects. 
+/// The instance of the instrument manager is passed to each
+/// instrument instance. Instruments output samples through
+/// a method on the instrument manager, not directly to the
+/// mixer or output device.
 ///////////////////////////////////////////////////////////
 class InstrManager
 {
-private:
+protected:
 	InstrMapEntry *instList;
 	InstrMapEntry *typeList;
 	Mixer *mix;
@@ -188,29 +187,31 @@ public:
 	virtual ~InstrManager() 
 	{
 		Clear();
+		InstrMapEntry *ime;
+		while ((ime = typeList) != 0)
+		{
+			typeList = ime->next;
+			delete ime;
+		}
 	}
 
+	/// Clear the instrument list. This removes all current
+	/// instrument definitions. It does not remove the instrument
+	/// types.
 	virtual void Clear()
 	{
-		// TODO: For now, the caller must clean-up templates
 		InstrMapEntry *ime;
 		while ((ime = instList) != 0)
 		{
 			instList = ime->next;
 			delete ime;
 		}
-		while ((ime = typeList) != 0)
-		{
-			typeList = ime->next;
-			delete ime;
-		}
-		mix = 0;
-		wvf = 0;
 		internalID = 16384;
 	}
 
-	// Init MUST be called first. If you forget, 
-	// things will go very wrong very quickly !
+	/// Initialize the mixer and output buffer.
+	/// Init MUST be called first. If you forget, 
+	/// things will go very wrong very quickly.
 	virtual void Init(Mixer *m, WaveOutBuf *w)
 	{
 		mix =  m;
@@ -222,7 +223,7 @@ public:
 	inline void SetWaveOut(WaveOutBuf *w) { wvf = w; }
 	inline WaveOutBuf *GetWaveOut() { return wvf; }
 
-	// Add an entry to the instrument manager type list.
+	/// Add an entry to the instrument type list.
 	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf = 0)
 	{
 		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, tf, 0);
@@ -234,6 +235,7 @@ public:
 		return ent;
 	}
 
+	/// Enumerate instrument types.
 	InstrMapEntry *EnumType(InstrMapEntry *p)
 	{
 		if (p)
@@ -241,7 +243,7 @@ public:
 		return typeList;
 	}
 
-	// Find the entry for a specific type
+	/// Find the entry for a specific type
 	virtual InstrMapEntry *FindType(const char *type)
 	{
 		InstrMapEntry *ent;
@@ -253,18 +255,18 @@ public:
 		return ent;
 	}
 
-	// Add a new instrument.
-	// The "tmplt" argument is stored in the instrument entry
-	// and passed to the instrument instance during construction.
-	// Typically the "tmplt" is an instance of the instrument
-	// that should be used to initialize a copy for playback,
-	// but can be any data the instrument needs to use for
-	// initialization.
-	// Instrument numbers must be unique. If a duplicate is found,
-	// the instrument number is adjusted. Callers should check the
-	// return object if specific instrument numbers are needed.
-	// In addition, the caller should set the name on the returned
-	// object if it is desired to locate instruments by name.
+	/// Add a new instrument.
+	/// The "tmplt" argument is stored in the instrument entry
+	/// and passed to the instrument instance during construction.
+	/// Typically the "tmplt" is an instance of the instrument
+	/// that should be used to initialize a copy for playback,
+	/// but can be any data the instrument needs to use for
+	/// initialization.
+	/// Instrument numbers must be unique. If a duplicate is found,
+	/// the instrument number is adjusted. Callers should check the
+	/// return object if specific instrument numbers are needed.
+	/// In addition, the caller should set the name on the returned
+	/// object if it is desired to locate instruments by name.
 	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrMapEntry *type, Opaque tmplt = 0)
 	{
 		InstrMapEntry* in = AddInstrument(inum, type->manufInstr, type->manufEvent, tmplt);
@@ -273,6 +275,9 @@ public:
 		return in;
 	}
 
+	/// Add an instrument. The instrument is identified by number. The caller should
+	/// set the instrument name on the returned object, if appropriate. The template
+	/// is used to initialize instrument instances for this entry.
 	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
 	{
 		if (inum < 0)
@@ -305,6 +310,11 @@ public:
 		return ent;
 	}
 
+	/// Enumerate instruments. The first call should
+	/// pass NULL as an argument. Subsequent calls
+	/// pass the previous entry.
+	/// @param p instrument map entry
+	/// @returns next instrument
 	InstrMapEntry *EnumInstr(InstrMapEntry *p)
 	{
 		if (p)
@@ -312,7 +322,9 @@ public:
 		return instList;
 	}
 
-	// Find instrument by number
+	/// Find instrument by number.
+	/// @param inum instrument number
+	/// @return pointer to the instrument map entry or NULL
 	virtual InstrMapEntry *FindInstr(bsInt16 inum)
 	{
 		InstrMapEntry *in;
@@ -324,7 +336,9 @@ public:
 		return in;
 	}
 
-	// Find instrument by name
+	/// Find instrument by name
+	/// @param iname instrument name
+	/// @return pointer to the instrument map entry or NULL
 	virtual InstrMapEntry *FindInstr(const char *iname)
 	{
 		InstrMapEntry *in;
@@ -336,12 +350,15 @@ public:
 		return in;
 	}
 
-	// Allocate an instance of an instrument for playback.
+	/// Allocate an instrument instance.
+	/// @param inum instrument number
 	virtual Instrument *Allocate(bsInt16 inum)
 	{
 		return Allocate(FindInstr(inum));
 	}
 
+	/// Allocate an instrument instance.
+	/// @param in instrument map entry for the instrument
 	virtual Instrument *Allocate(InstrMapEntry *in)
 	{
 		if (in)
@@ -354,12 +371,15 @@ public:
 		ip->Destroy();
 	}
 
-	// Allocate a new event for an instrument 
+	/// Allocate a new event for an instrument.
+	/// @param inum instrument number
 	virtual SeqEvent *ManufEvent(bsInt16 inum)
 	{
 		return ManufEvent(FindInstr(inum));
 	}
 
+	/// Allocate a new event for an instrument.
+	/// @param in instrument map entry
 	virtual SeqEvent *ManufEvent(InstrMapEntry *in)
 	{
 		if (in)
@@ -375,7 +395,7 @@ public:
 		return new NoteEvent;
 	}
 
-	// Start is called by the sequencer when the sequence starts.
+	/// Start is called by the sequencer when the sequence starts.
 	virtual void Start()
 	{
 		// clear the mixer
@@ -383,19 +403,19 @@ public:
 			mix->Reset();
 	}
 	
-	// Stop is called by the sequencer when the sequence stops.
+	/// Stop is called by the sequencer when the sequence stops.
 	virtual void Stop()
 	{
 	}
 
-	// Tick is called by the sequencer on each sample. This is
-	// the point where all active instruments have produced a
-	// value for the current sample. We can now output the sample
-	// to the output buffer. Notice that this only supports 
-	// two-channel output. However, the buffer can be set for
-	// single channel and merge the two outputs together. For
-	// more that two channels, derive a class from this one
-	// and override Tick.
+	/// Tick is called by the sequencer on each sample. This is
+	/// the point where all active instruments have produced a
+	/// value for the current sample. We can now output the sample
+	/// to the output buffer. Notice that this only supports 
+	/// two-channel output. However, the buffer can be set for
+	/// single channel and merge the two outputs together. For
+	/// more that two channels, derive a class from this one
+	/// and override Tick.
 	virtual void Tick()
 	{
 		AmpValue outLft, outRgt;
@@ -403,23 +423,32 @@ public:
 		wvf->Output2(outLft, outRgt);
 	}
 
-	// Direct output to effects units - this bypasses the
-	// normal input channel volume, pan, and fx send values
+	/// Direct output to effects units. This bypasses the
+	/// normal input channel volume, pan, and fx send values.
+	/// @param unit effects unit number
+	/// @param val amplitude value to send
 	virtual void FxSend(int unit, AmpValue val)
 	{
 		mix->FxIn(unit, val);
 	}
 
-	// Output a sample on the indicated channel
+	/// Output a sample on the indicated channel.
+	/// The value is passed through the panning and
+	/// effects processing for the channel.
+	/// @param ch mixer input channel
+	/// @param val amplitude value
 	virtual void Output(int ch, AmpValue val)
 	{
 		mix->ChannelIn(ch, val);
 	}
 
-	// Output a left/right sample on the indicated channel,
-	// This is used by instruments that have internal
-	// panning capability as it will bypass the mixer 
-	// panning functions.
+	/// Output a left/right sample on the indicated channel.
+	/// This is used by instruments that have internal
+	/// panning capability as it will bypass the mixer 
+	/// panning functions.
+	/// @param ch mixer input channel
+	/// @param lft left output amplitude value
+	/// @param rgt right output amplitude value
 	virtual void Output2(int ch, AmpValue lft, AmpValue rgt)
 	{
 		mix->ChannelIn2(ch, lft, rgt);

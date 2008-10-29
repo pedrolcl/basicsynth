@@ -2,22 +2,12 @@
 //
 // BasicSynth - Wave file output
 //
-// WaveOutBuf provides a base class for sample output. Samples are
-// stored in a buffer until the buffer is filled, at which time
-// a flush routine is called. For file output, the flush routine
-// dumps the samples to disk and resets the buffer. For a live
-// playback system, a derived class should send the filled buffer
-// to the DAC.
-//
-// WaveFile manages output to a WAV file. This uses a simplified model
-// of the WAV file where only one chunk is output. That chunk
-// is the sample data and is always PCM, 1 or 2 channel.
-//
-// WaveFileIn reads a WAV file into a buffer, converting samples
-// to the internal data format (i.e. AmpValue).
+/// @file WaveFile.h Classes for wavefile managment
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
+/// @addtogroup grpIO
+//@{
 #ifndef _WAVEFILE_H_
 #define _WAVEFILE_H_
 
@@ -31,25 +21,40 @@ extern bsInt32 Swap32(bsInt32 x);
 #define SwapSample(x) x
 #endif
 
+/// Size of RIFF chunk
 #define CHUNK_SIZE 8
+/// Size of RIFF chunk ID
 #define CHUNK_ID   4
 
+/// One chunk in a RIFF file.
 struct RiffChunk
 {
+	/// The chunk ID
 	bsInt8  chunkId[CHUNK_ID];
+	/// The chunk size (little-endian byte order)
 	bsInt32 chunkSize;
 };
 
+/// PCM file format data.
 struct FmtData
 {
-	bsInt16 fmtCode;     // 1 = PCM
-	bsInt16 channels;    // 1 = mono, 2 = stereo
-	bsInt32 sampleRate;  // 44100
-	bsInt32 avgbps;      // samplerate * align
-	bsInt16 align;       // (channels*bits)/8;
-	bsInt16 bits;        // bits per sample (16)
+	/// Format code 1 = PCM
+	bsInt16 fmtCode;
+	/// Number of channles, 1 = mono, 2 = stereo
+	bsInt16 channels;
+	/// Sample rate (44100Hz)
+	bsInt32 sampleRate;
+	/// Bytes per second (samplerate * align)
+	bsInt32 avgbps;
+	/// Sample alignment (channels*bits)/8
+	bsInt16 align; 
+	/// Bits per sample (16)
+	bsInt16 bits;
 };
 
+/// Simplified WAVE file header. The chunks and format are combined
+/// into a single structure.
+/// @see RiffChunk FmtData
 struct WavHDR
 {
 	bsInt8  riffId[4];   // 'RIFF' chunk
@@ -67,7 +72,12 @@ struct WavHDR
 	bsInt32 waveSize;    // size of chunk in bytes
 };
 
-// output sample buffer
+/// Base class for sample output. Samples are
+/// stored in a buffer until the buffer is filled, at which time
+/// a flush routine is called. For file output, the flush routine
+/// dumps the samples to disk and resets the buffer. For a live
+/// playback system, a derived class should send the filled buffer
+/// to the DAC.
 class WaveOutBuf
 {
 protected:
@@ -101,11 +111,22 @@ public:
 			DeallocBuf();
 	}
 
+	/// Get a pointer to the output buffer. Although not declared as such,
+	/// this should be treated as volatile since the buffer can get reallocated
+	/// by derived classes.
+	/// @return pointer to start of sample buffer
 	SampleValue *GetBuf()
 	{
 		return samples;
 	}
 
+	/// Allocate the sample buffer. You can invoke this directly, but
+	/// usually a derived class will call this when it needs a new
+	/// buffer.
+	/// @note for multi-channel output, multiply the number of
+	/// samples by the number of channels to set the length.
+	/// @param length size of the buffer in samples
+	/// @param ch number of channels
 	virtual int AllocBuf(long length, bsInt16 ch)
 	{
 		DeallocBuf();
@@ -126,6 +147,10 @@ public:
 		return 0;
 	}
 
+	/// De-allocate the sample buffer. If the buffer was set by
+	/// passing a value to SetBuf() this will clear the pointer
+	/// but not delete the memory for the buffer. If the buffer
+	/// was allocated by AllocBuf() it is deleted.
 	virtual void DeallocBuf()
 	{
 		if (ownBuf && samples)
@@ -135,6 +160,12 @@ public:
 		sampleMax = 0;
 	}
 
+	/// Set the sample buffer. This can be used when you already
+	/// have an appropriately sized buffer, for example one 
+	/// allocated through DirectSound.
+	/// @param length size of the buffer in samples
+	/// @param ch number of output channels
+	/// @param bp pointer to the buffer
 	virtual void SetBuf(long length, bsInt16 ch, SampleValue *bp)
 	{
 		DeallocBuf();
@@ -145,8 +176,9 @@ public:
 		endSamp = samples + length;
 	}
 
-	// Put value directly into buffer
-	// without range checking or scaling.
+	/// Put value directly into the buffer. This function bypasses
+	/// range checking or scaling or duplication into mutiple channels.
+	/// @param value the sample
 	void OutS(SampleValue value)
 	{
 	//	if (sampleNumber >= sampleMax)
@@ -158,7 +190,11 @@ public:
 		sampleTotal++;
 	}
 
-	// Write one value only
+	/// Put one value into the buffer. The value is assumed normalized [-1,+1]
+	/// and is checked for range then scaled to the output sample size.
+	/// The value is placed directly into the buffer, not duplicated for
+	/// each channel.
+	/// @param value the sample
 	virtual void Output(AmpValue value)
 	{
 		// the out-of-range test can be removed to gain a
@@ -183,7 +219,10 @@ public:
 		sampleTotal++;
 	}
 
-	// Write one value to all channels
+	/// Put one sample into the buffer. Write one value to all channels. This
+	/// function will duplicate the sample for two channel output.
+	/// Values are assumed normalized to [-1,+1] and are scaled appropriately
+	/// @param value the sample
 	virtual void Output1(AmpValue value)
 	{
 		Output(value);
@@ -191,7 +230,12 @@ public:
 			Output(value);
 	}
 
-	// Write two values, combining if needed
+	/// Put two values into the buffer. This function copies the values to
+	/// left and right channels, or combines then into one channel as
+	/// appropriate. Values are assumed normalized to [-1,+1] and are
+	/// scaled appropriately.
+	/// @param vleft left channel sample
+	/// @param vright right channel sample
 	virtual void Output2(AmpValue vleft, AmpValue vright)
 	{
 		if (channels == 1)
@@ -205,8 +249,10 @@ public:
 		}
 	}
 
-	// Dummy base class method.
-	// derived classes must implement this
+	/// Flush buffer. When the sample buffer is filled this function is called.
+	/// The base class does nothing but reset the next input position back
+	/// to the beginning of the buffer. Derived classes must implement this
+	/// and do something with the samples when the buffer is filled.
 	virtual int FlushOutput()
 	{
 		nxtSamp = samples;
@@ -214,10 +260,16 @@ public:
 		return 0;
 	}
 
+	/// Get the number of out-of-range samples
 	long GetOOR() { return sampleOOR; }
 };
 
-// wave file writer 
+/// Wave file writer. WaveFile manages output to a WAV file.
+/// The wave file header is automatically updated as needed.
+/// A simplified model of a wave file is used. Only two chunks
+/// are defined, fmt and data, and are always at the first of the
+/// file. This allows us to treat the file as a fixed length
+/// header followed by sample data. Sample data and is always PCM, 1 or 2 channel.
 class WaveFile : public WaveOutBuf
 {
 private:
@@ -238,26 +290,41 @@ public:
 		wfp.FileClose();
 	}
 
-	// size of buffer in seconds
+	/// Set buffer size. The size of the buffer in specified in seconds, not samples.
+	/// The buffer size must be set before the wave file is opened. Changing the size
+	/// afterword has no effect.
+	/// @param secs buffer size
 	void SetBufSize(int secs)
 	{
 		bufSecs = secs;
 	}
 
-	// Open wave output file, 
-	// fname is file name, channels number of outputs
+	/// Open wave output file. The file is created if it does not exist. 
+	/// Existing files are truncated.
+	/// @param fname path to the output file
+	/// @param chnls number of output channels, 1 or 2
+	/// @returns 0 on success, negative value on error
 	int OpenWaveFile(char *fname, int chnls = 1);
 
-	// Flush remaining output and close file
+	/// Close the wave file. Closing the file will flush remaining output, update
+	/// the header and then close the file.
+	/// @return 0 on success, negative on error
 	int CloseWaveFile();
 
-	// write output to WAVE file
+	/// Write output to WAVE file. This does not need to be called directly.
+	/// The WaveOutBuf base class will call this method each time the buffer
+	/// is filled.
 	int FlushOutput();
 };
 
 #define SMPL_BUFSIZE 8192
 
-// wav file reader
+/// Wave file reader. WaveFileIn reads a WAV file into a buffer, converting samples
+/// to the internal data format (i.e. AmpValue). The peak values are rescaled to 
+/// the maximum amplitude range. Only files in PCM format (16-bit samples, 44.1kHz)
+/// are allowed. However, multiple channels are allowed, but only the first two
+/// are used. These two are combined into a single channel. The resulting sample buffer is
+/// always one-channel, normalized to [-1,+1]. 
 class WaveFileIn
 {
 private:
@@ -283,26 +350,35 @@ public:
 			delete filename;
 	}
 
+	/// Get the filename for this wavefile.
+	/// @returns pointer to filename member.
 	const char *GetFilename()
 	{
 		return filename;
 	}
 
+	/// Get the file ID for this wavefile.
+	/// @returns integer ID.
 	bsInt16 GetFileID()
 	{
 		return fileID;
 	}
 
+	/// Get direct access to the samples.
+	/// @return the sample buffer
 	AmpValue *GetSampleBuffer()
 	{
 		return samples;
 	}
 
+	/// Get the number of samples in the wavefile.
+	/// @return number of samples
 	long GetInputLength()
 	{
 		return (long)sampleTotal;
 	}
 
+	/// Clear the filename, ID, and sample buffer.
 	void Clear()
 	{
 		if (filename)
@@ -319,6 +395,13 @@ public:
 		sampleTotal = 0;
 	}
 
+	/// Load a wave file. This function loads the wave file and converts it
+	/// to a one-channel sample buffer normalized to [-1,+1] amplitude range.
+	/// @param fname path to the file
+	/// @param id unique identifier for this file
+	/// @return 0 on success or negative value on error
 	int LoadWaveFile(const char *fname, bsInt16 id);
 };
+
+//@}
 #endif

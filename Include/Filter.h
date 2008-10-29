@@ -9,12 +9,17 @@
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
+// \addtogroup grpFilter
+//@{
 #ifndef _FILTER_H_
 #define _FILTER_H_
 
 
 ///////////////////////////////////////////////////////////
-// One-zero filter: y[n] = b * x[n] + a * x[n-1]
+/// FIR, one-zero filter. This filter implements the equation:
+/// \code
+/// y[n] = b * x[n] + a * x[n-1]
+/// \endcode
 ///////////////////////////////////////////////////////////
 class FilterFIR : public GenUnit
 {
@@ -30,24 +35,33 @@ public:
 		dlyAmp = 0;
 	}
 
-	// ampin, ampdly
+	/// Initialize the filter. Set the two coefficients from the 
+	/// value array.
+	/// v[0] = inAmp (b)
+	/// v[1] = dlyAmp (a)
 	void Init(int n, float *v)
 	{
 		if (n > 1)
 			InitFilter(AmpValue(v[0]), AmpValue(v[1]));
 	}
 
+	/// Reset the filter. This merely clears the delay buffer. The phase argument is ignored
 	void Reset(float initPhs = 0)
 	{
 		delay = 0;
 	}
 
+	/// Initialize the filter. The two arguments are the coefficients 
+	/// \param in input sample coefficient (a)
+	/// \param out delayed sample coefficient (b)
 	void InitFilter(AmpValue in, AmpValue out)
 	{
 		inAmp = in;
 		dlyAmp = out;
 	}
 
+	/// Process the current sample. The input sample is stored in the delay
+	/// buffer and the filtered sample is calculated and returned.
 	AmpValue Sample(AmpValue val)
 	{
 		AmpValue out = (val * inAmp) + (delay * dlyAmp);
@@ -57,7 +71,10 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// One-pole filter: y[n] = b * x[n] - a * y[n-1]
+/// IIR, one-zero filter. This filter implements the equation:
+/// \code
+/// y[n] = b * x[n] - a * y[n-1]
+/// \endcode
 ///////////////////////////////////////////////////////////
 class FilterIIR : public GenUnit
 {
@@ -73,24 +90,35 @@ public:
 		dlyAmp = 0;
 	}
 
-	// inAmp dlyAmp
+	/// Initialize the filter. Set the two coefficients from the 
+	/// value array.
+	/// v[0] = inAmp
+	/// v[1] = dlyAmp
 	void Init(int n, float *v)
 	{
 		if (n > 1)
 			InitFilter(AmpValue(v[0]), AmpValue(v[1]));
 	}
 
+	/// Reset the filter. This merely clears the delay buffer. The phase argument is ignored
 	void Reset(float initPhs = 0)
 	{
 		delay = 0;
 	}
 
+	/// Initialize the filter. The two arguments are the coefficients 
+	/// \param in input sample coefficient (a)
+	/// \param out delayed sample coefficient (b)
 	void InitFilter(AmpValue in, AmpValue out)
 	{
 		inAmp = in;
 		dlyAmp = out;
 	}
 
+	/// Calculate coefficients. The coefficients are calculate to produce the indicated
+	/// cutoff frequency for either a low-pass or high-pass frequency response.
+	/// \param fc cutoff frequency
+	/// \param hp when true, produce a high-passs
 	void CalcCoef(FrqValue fc, int hp = 0)
 	{
 		double x = exp(-twoPI * (fc/synthParams.sampleRate));
@@ -106,6 +134,8 @@ public:
 		}
 	}
 
+	/// Process the current sample. The input sample is stored in the delay
+	/// buffer and the filtered sample is calculated and returned.
 	AmpValue Sample(AmpValue val)
 	{
 		return delay = (val * inAmp) - (delay * dlyAmp);
@@ -113,7 +143,10 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// One-pole, two-zero filter: y[n] = a0 * x[n] + a1 * x[n-1] + b1 * y[n-1]
+/// One-pole, two-zero filter. This filter implements the equation
+/// \code
+/// y[n] = a0 * x[n] + a1 * x[n-1] + b1 * y[n-1]
+/// \endcode
 ///////////////////////////////////////////////////////////
 class FilterIIR2 : public GenUnit
 {
@@ -133,19 +166,28 @@ public:
 		dlyAmp = 0;
 	}
 
-	// inAmp dlyAmp
+	/// Initialize the filter. Set the three coefficients from the 
+	/// value array.
+	/// v[0] = inAmp0 (a0)
+	/// v[1] = inAmp1 (a1)
+	/// v[2] = dlyAmp (b)
 	void Init(int n, float *v)
 	{
 		if (n > 2)
 			InitFilter(AmpValue(v[0]), AmpValue(v[1]), AmpValue(v[2]));
 	}
 
+	/// Reset the filter. This merely clears the delay buffer. The phase argument is ignored
 	void Reset(float initPhs = 0)
 	{
 		delayX = 0;
 		delayY = 0;
 	}
 
+	/// Initialize the filter. The three arguments are the coefficients 
+	/// \param in0 input sample coefficient (a0)
+	/// \param in1 input sample coefficient (a1)
+	/// \param out delayed sample coefficient (b)
 	void InitFilter(AmpValue in0, AmpValue in1, AmpValue out)
 	{
 		inAmp0 = in0;
@@ -153,6 +195,10 @@ public:
 		dlyAmp = out;
 	}
 
+	/// Calculate coefficients. The coefficients are calculate to produce the indicated
+	/// cutoff frequency for either a low-pass or high-pass frequency response.
+	/// \param fc cutoff frequency
+	/// \param hp when true, produce a high-passs
 	void CalcCoef(FrqValue fc, int hp = 0)
 	{
 		double x = exp(-twoPI * (fc/synthParams.sampleRate));
@@ -169,6 +215,8 @@ public:
 		dlyAmp = AmpValue(x);
 	}
 
+	/// Process the current sample. The input sample is stored in the delay
+	/// buffer and the filtered sample is calculated and returned.
 	AmpValue Sample(AmpValue val)
 	{
 		delayY = (val * inAmp0) + (inAmp1 * delayX) + (delayY * dlyAmp);
@@ -179,8 +227,11 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// FIR impulse response filter:
-//   y[n] = h[0] * x[0] + h[1] * x[n-1] ... + h[m] * x[n-m]
+/// FIR impulse response filter. This filter implements
+/// convolution of the input with an impulse response:
+/// \code
+///   y[n] = h[0] * x[0] + h[1] * x[n-1] ... + h[m] * x[n-m]
+/// \endcode
 ///////////////////////////////////////////////////////////
 class FilterFIRn : public GenUnit
 {
@@ -202,6 +253,11 @@ public:
 		delete imp;
 	}
 
+	/// Allocate impulse response. The impulse responce array holds the coefficients
+	/// for convolution. This array is allocated automatically when Init() is called.
+	/// If coefficients are to be set individulally using SetCoef() this function
+	/// must be called first to create the buffer.
+	/// \param n number of coefficients
 	void AllocImpResp(int n)
 	{
 		if (val)
@@ -222,9 +278,11 @@ public:
 		}
 	}
 
-	// Initialization:
-	//  n -> number of impulses
-	//  v -> array of impluse values
+	// Initialize the filter. The first member of the value array
+	/// contains the number of impulses. The remaining values
+	/// contain the amplitudes for each impulse.
+	//  v[0] = number of coefficients (n)
+	//  v[1..n] = array of coefficient values
 	void Init(int n, float *v)
 	{
 		AllocImpResp(n);
@@ -238,14 +296,17 @@ public:
 		}
 	}
 
+	/// Set the impulse coefficients. The array must be of the same
+	/// length set with AllocImpResp()
 	void SetCoef(float *v)
 	{
 		for (int i = 0; i < length; i++)
 			imp[i] = AmpValue(v[i]);
 	}
 	
-	// calculate coefficients for a LP/HP filter
-	// using windowed sinc (Hamming window)
+	/// Calculate coefficients. The impulse responce coefficients are calculated
+	/// for a low-pass or high-pass filter using the windowed sinc equation with
+	/// a Hamming window.
 	void CalcCoef(FrqValue fc, int hp = 0)
 	{
 		if (!(length & 1))
@@ -302,7 +363,7 @@ public:
 		**********************************************/
 	}
 
-	// Reset: Reset history values to 0
+	/// Reset the filter. This clears the history values to 0. The phase argument is ignored.
 	void Reset(float initPhs = 0)
 	{
 		AmpValue *v = val;
@@ -310,8 +371,8 @@ public:
 			*v++ = 0;
 	}
 
-	// Return the next sample,
-	// convolution of input with impulse
+	/// Process the current sample. The current sample is pushed into the
+	/// history buffer and then convolved with the impulse response.
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue out = imp[0] * inval;
@@ -342,10 +403,12 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// Running average filter:
-//     y[n] = (x[n] + x[n-1] ... + x[n-M]) / M
+/// Running average filter. This filter sums a series of
+/// samples using the equation:
+/// \code
+/// y[n] = (x[n] + x[n-1] ... + x[n-M]) / M
+/// \endcode
 ///////////////////////////////////////////////////////////
-
 class FilterAvgN : public GenUnit
 {
 protected:
@@ -363,12 +426,14 @@ public:
 		delete prev;
 	}
 
+	/// Initialize the filter. The first value in the array is the number of samples to average.
 	void  Init(int n, float *v)
 	{
 		if (n > 0)
 			InitFilter((int)v[0]);
 	}
 
+	/// Reset the filter. This clears the previous values. The phase argument is ignored.
 	void Reset(float initPhs = 0)
 	{
 		if (length > 0)
@@ -379,6 +444,9 @@ public:
 		}
 	}
 
+	/// Initialize the filter. A history buffer is allocated to the indicated length
+	/// and set to zero. 
+	/// \param n number of samples to average.
 	void InitFilter(int n)
 	{
 		if (prev)
@@ -392,6 +460,8 @@ public:
 		Reset();
 	}
 
+	/// Process the current sample. The sample is added to the history buffer
+	/// and then the average is returned.
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue out = inval;
@@ -408,6 +478,6 @@ public:
 		return out / (AmpValue) length;
 	}
 };
-
+//@}
 
 #endif
