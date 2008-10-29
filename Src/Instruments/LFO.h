@@ -14,6 +14,10 @@ class LFO : public GenUnit
 private:
 	GenWave32 osc;
 	EnvSegExp atk;
+	AmpValue depth;
+	AmpValue ampLvl;
+	FrqValue sigFrq;
+	FrqValue atkRt;
 	int lfoOn;
 
 public:
@@ -24,14 +28,24 @@ public:
 	void SetFrequency(FrqValue frq) { osc.SetFrequency(frq); }
 	void SetWavetable(int wt)       { osc.SetWavetable(wt); }
 	void SetAttack(FrqValue val)    { atk.SetRate(val); }
-	void SetLevel(AmpValue val)     { atk.SetLevel(val); }
+	void SetLevel(AmpValue val)     { depth = val; } //atk.SetLevel(val);
+	void SetSigFrq(FrqValue val)    { sigFrq = val; }
 
 	void Init(int n, float *f);
-	void InitLFO(FrqValue frq, int wvf, FrqValue rt, AmpValue amp);
+	void InitLFO(FrqValue frq, int wvf, FrqValue rt, AmpValue amp, FrqValue sig);
 	void GetSettings(FrqValue &frq, int &wvf, FrqValue& rt, AmpValue& amp);
 	void Reset(float initPhs = 0);
-	AmpValue Sample(AmpValue in);
-	AmpValue Gen();
+
+	AmpValue Sample(AmpValue in)
+	{
+		return Gen() * in;
+	}
+
+	AmpValue Gen()
+	{
+		return atk.Gen() * osc.Gen() * ampLvl;
+	}
+
 
 	int On() { return lfoOn; }
 	int Load(XmlSynthElem *elem);

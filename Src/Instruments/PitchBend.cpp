@@ -82,11 +82,6 @@ void PitchBend::Reset(float initPhs)
 	CalcMul();
 }
 
-AmpValue PitchBend::Sample(AmpValue in)
-{
-	return Gen() * in;
-}
-
 AmpValue PitchBend::Gen()
 {
 	switch (state)

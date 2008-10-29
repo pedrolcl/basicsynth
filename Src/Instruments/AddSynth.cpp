@@ -198,6 +198,7 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 		pSig->osc.Reset(initPhs);
 		pSig->env.Reset(initPhs);
 	}
+	lfoGen.SetSigFrq(frq);
 	lfoGen.Reset(initPhs);
 }
 

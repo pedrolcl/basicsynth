@@ -180,6 +180,7 @@ void FMSynth::Start(SeqEvent *evt)
 	dlyOn = dlyMix > 0 && (fmDly > 0 || nzDly > 0);
 	if (dlyOn)
 		apd.InitDLR(dlyTim, dlyDec, 0.001);
+	lfoGen.SetSigFrq(frq);
 	lfoGen.Reset();
 	if (pbOn)
 	{
@@ -196,9 +197,14 @@ void FMSynth::Param(SeqEvent *evt)
 	// Envelope rates and levels are not reset while playing.
 	// changing the 'algorithm' while playing is an "interseting" idea...
 	// most likely will produce unpredictable behavior.
+	gen1Osc.SetFrequency(frq*gen1Mult);
+	gen2Osc.SetFrequency(frq*gen2Mult);
+	gen3Osc.SetFrequency(frq*gen3Mult);
 	gen1Osc.Reset(-1);
 	gen2Osc.Reset(-1);
 	gen3Osc.Reset(-1);
+	lfoGen.SetSigFrq(frq);
+	lfoGen.Reset(-1);
 	if (nzOn)
 	{
 		nzi.Reset(-1);

@@ -119,12 +119,12 @@ void ToneInstr::Start(SeqEvent *evt)
 void ToneInstr::Param(SeqEvent *evt)
 {
 	SetParam((ToneEvent*)evt);
-	osc.Reset(0);
-	env.Reset(0);
+	osc.Reset(-1);
+	env.Reset(-1);
 	if (lfoOn)
-		lfoGen.Reset(0);
+		lfoGen.Reset(-1);
 	if (pbOn)
-		pbGen.Reset(0);
+		pbGen.Reset(-1);
 }
 
 void ToneInstr::SetParam(ToneEvent *te)
@@ -135,12 +135,14 @@ void ToneInstr::SetParam(ToneEvent *te)
 		         te->susLevel, te->relRate, te->endLevel, te->envType);
 	osc.SetFrequency(te->frq);
 	osc.SetWavetable(te->waveTable);
+	lfoGen.SetSigFrq(te->frq);
 	if (te->lfoAmp > 0)
 	{
 		lfoGen.SetFrequency(te->lfoFreq);
 		lfoGen.SetWavetable(te->lfoWaveTable);
 		lfoGen.SetAttack(te->lfoAtkRate);
 		lfoGen.SetLevel(te->lfoAmp);
+		lfoGen.SetSigFrq(te->frq);
 		lfoOn = lfoGen.On();
 	}
 	if ((pbOn = te->pbOn) != 0)

@@ -18,7 +18,10 @@ LFO::LFO()
 {
 	osc.InitWT(3.5, WT_SIN);
 	atk.InitSeg(0, 0, 0.1);
-	lfoOn = 1;
+	depth = 0;
+	sigFrq = 0;
+	ampLvl = 1.0;
+	lfoOn = 0;
 }
 
 LFO::~LFO()
@@ -26,10 +29,12 @@ LFO::~LFO()
 
 }
 
-void LFO::InitLFO(FrqValue frq, int wvf, FrqValue rt, AmpValue amp)
+void LFO::InitLFO(FrqValue frq, int wvf, FrqValue rt, AmpValue amp, FrqValue sig)
 {
 	osc.InitWT(frq, wvf);
-	atk.InitSeg(rt, 0, amp);
+	atkRt = rt;
+	depth = amp;
+	sigFrq = sig;
 	lfoOn = amp > 0;
 }
 
@@ -37,37 +42,42 @@ void LFO::GetSettings(FrqValue &frq, int &wvf, FrqValue& rt, AmpValue& amp)
 {
 	frq = osc.GetFrequency();
 	wvf = osc.GetWavetable();
-	AmpValue tmp;
-	atk.GetSettings(rt, tmp, amp);
+	rt = atkRt;
+	amp = depth;
 }
 
 void LFO::Copy(LFO *tp)
 {
 	osc.SetFrequency(tp->osc.GetFrequency());
 	osc.SetWavetable(tp->osc.GetWavetable());
-	atk.Copy(&tp->atk);
+	atkRt = tp->atkRt;
+	depth = tp->depth;
+	sigFrq = tp->sigFrq;
 }
 
 void LFO::Init(int n, float *f)
 {
 	if (n == 4)
-		InitLFO(f[0], (int)f[1], f[2], f[3]);
+		InitLFO(f[0], (int)f[1], f[2], f[3], 1.0);
 }
 
 void LFO::Reset(float initPhs)
 {
+	if (initPhs == 0)
+	{
+		atk.SetRate(atkRt);
+		atk.SetStart(0.0);
+		atk.SetLevel(1.0);
+	}
+	if (sigFrq)
+	{
+		FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
+		ampLvl = AmpValue(fabs(f1 - sigFrq));
+	}
+	else
+		ampLvl = depth;
 	osc.Reset(initPhs);
 	atk.Reset(initPhs);
-}
-
-AmpValue LFO::Sample(AmpValue in)
-{
-	return Gen();
-}
-
-AmpValue LFO::Gen()
-{
-	return atk.Gen() * osc.Gen();
 }
 
 int LFO::Load(XmlSynthElem *elem)
@@ -79,7 +89,7 @@ int LFO::Load(XmlSynthElem *elem)
 	elem->GetAttribute("wt", ival);
 	elem->GetAttribute("atk", dvals[1]);
 	elem->GetAttribute("amp", dvals[2]);
-	InitLFO(FrqValue(dvals[0]), (int)ival, FrqValue(dvals[1]), AmpValue(dvals[2]));
+	InitLFO(FrqValue(dvals[0]), (int)ival, FrqValue(dvals[1]), AmpValue(dvals[2]), 0.0);
 	return 0;
 }
 
@@ -88,8 +98,8 @@ int LFO::Save(XmlSynthElem *elem)
 {
 	elem->SetAttribute("frq", osc.GetFrequency());
 	elem->SetAttribute("wt",  (short) osc.GetWavetable());
-	elem->SetAttribute("atk", atk.GetRate());
-	elem->SetAttribute("amp", atk.GetLevel());
+	elem->SetAttribute("atk", atkRt);
+	elem->SetAttribute("amp", depth);
 	return 0;
 }
 

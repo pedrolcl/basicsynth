@@ -123,7 +123,10 @@ void MatrixSynth::Start(SeqEvent *evt)
 	fx4On = (allFlags & TONE_FX4OUT) ? 1 : 0;
 	panOn = (allFlags & TONE_PAN) ? 1 : 0;
 	if (lfoOn)
+	{
+		lfoGen.SetSigFrq(frq);
 		lfoGen.Reset(0);
+	}
 	if (pbOn)
 		pbGen.Reset(0);
 }
@@ -139,6 +142,10 @@ void MatrixSynth::Param(SeqEvent *evt)
 			tSig->AlterFreq(frq);
 		tSig++;
 	}
+	if (lfoOn)
+		lfoGen.Reset(-1);
+	if (pbOn)
+		pbGen.Reset(-1);
 }
 
 void MatrixSynth::SetParams(VarParamEvent *evt)

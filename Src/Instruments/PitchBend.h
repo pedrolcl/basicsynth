@@ -61,7 +61,10 @@ public:
 	void Init(int n, float *p);
 	void Reset(float initPhs = 0);
 	void InitPB(FrqValue f, FrqValue a1, FrqValue r1, FrqValue a2, FrqValue r2, FrqValue a3);
-	AmpValue Sample(AmpValue in);
+	AmpValue Sample(AmpValue in)
+	{
+		return Gen() * in;
+	}
 	AmpValue Gen();
 
 	int IsFinished()

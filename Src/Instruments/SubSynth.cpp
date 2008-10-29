@@ -89,6 +89,7 @@ void SubSynth::SetParams(SubSynthEvent *evt)
 	vol = evt->vol;
 	osc.SetFrequency(evt->frq);
 	pbGen.SetFrequency(evt->frq);
+	lfoGen.SetSigFrq(evt->frq);
 	chnl = evt->chnl;
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
