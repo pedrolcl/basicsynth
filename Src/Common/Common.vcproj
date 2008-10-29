@@ -294,6 +294,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Player.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SequenceFile.cpp"
 				>
 			</File>
@@ -311,6 +315,10 @@
 			</File>
 			<File
 				RelativePath=".\WaveFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WaveOutDirect.cpp"
 				>
 			</File>
 			<File
@@ -392,6 +400,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Include\Player.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Include\Reverb.h"
 				>
 			</File>
@@ -425,6 +437,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Include\WaveFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\WaveOutDirect.h"
 				>
 			</File>
 			<File

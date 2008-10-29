@@ -43,6 +43,7 @@ int bsString::SetLen(int newLen)
 		if (newLen >= maxLen)
 			Allocate(newLen);
 		curLen = newLen;
+		theStr[curLen] = 0;
 	}
 	return curLen;
 }
