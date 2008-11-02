@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<instrLib>
+<instrlib>
  <instr id="0" type="Tone" name="SineWave" desc="">
   <osc frq="440.0" wt="0" />
   <env st="0" atk="0.1" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
@@ -23,14 +23,14 @@
   <instr id="14" type="ToneFM" name="FMFixed" desc="">
     <osc frq="440.0" mnx="2.0" mul="3.0" vol="1.0" />
     <env st="0" atk="0.1" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
-    <lfo frq="3.5" wt="1" dly="0.05" rt="0.01" amp="0" />
+    <lfo frq="3.5" wt="1" atk="0.01" amp="0" />
     <pb on="0" r1="0" r2="0" a1="0" a2="0" a3="0" />
   </instr>
   <instr id="15" type="Tone" name="PulseBend" desc="">
     <osc frq="440.0" wt="4" />
     <env st="0" atk="0.1" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
-    <lfo frq="3.5" wt="1" dly="0.1" rt="0.1" amp="0" />
-    <pb on="1" r1="0.1" r2="0.15" a1="1" a2="0" a3="-0.2" />
+    <lfo frq="3.5" wt="1" atk="0.1" amp="0" />
+    <pb on="1" r1="0.05" r2="0.05" a1="1" a2="0" a3="-0.2" />
   </instr>
   <instr id="4" type="AddSynth" name="plink" parts="3" >
   <part pn="0"  mul="1">
@@ -56,17 +56,17 @@
   </part>
  </instr>
  <instr id="5" type="SubSynth" >
-  <osc frq="440" vol="1.0" mix="1.0" fg="1.0" fr="0.9" wt="1" />
+  <osc frq="440" vol="1.0" mix="1.0" fg="1.0" fr="0.9" ft="0" wt="1" />
   <egs st="0" atk="0.05" pk="1.0" dec="0.2" sus="0.8" rel="0.1" end="0" ty="1" />
   <egf st="100" atk="0.1" pk="4000.0" dec="0.5" sus="500" rel="0.1" end="100" ty="1" />
-  <lfo frq="3.5" wt="1" dly="0.1" rt="0.1" amp="2" />
+  <lfo frq="3.5" wt="1" atk="0.1" amp="0.2" />
  </instr>
  <instr id="6" type="FMSynth" name="Basic FM" >
   <fm mix="0.6" alg="3" dly="0" />
   <gen1 mul="1.0" st="0" atk="0.2" pk="1.0" dec="0.2" sus="0.9" rel="0.2" end="0" ty="1"/>
   <gen2 mul="1.0" st="0" atk="0.1" pk="1" dec="0.2" sus="0.8" rel="0.2" end="0" ty="1"/>
   <gen3 mul="2.0" st="2" atk="0.1" pk="1" dec="0.2" sus="0.8" rel="0.2" end="0" ty="1"/>
-  <lfo frq="2.7" wt="1" dly="0.0" rt="0.01" amp="1.8" />
+  <lfo frq="2.7" wt="1" atk="0.01" amp="0.2" />
  </instr>
  <instr id="7" type="FMSynth" name="Noisy piano" >
   <fm mix="0.7" dly="0.5" alg="2" />
@@ -75,7 +75,7 @@
   <gen3 mul="5.0" st="2" atk="0.01" pk="1.5" dec="1" sus="0.2" rel="0.1" end="0.1" ty="2" />
   <nz mix="0.3" dly="0.3" fo="200" fr="400" st="0" atk="0.001" pk="1.0" dec="0.2" sus="0" rel="0.1" end="0" ty="2" />
   <dln mix="0.3" dly="0.05" dec="0.8" />
-  <lfo frq="3.5" wt="1" dly="0.1" rt="0.2" amp="0.5" />
+  <lfo frq="3.5" wt="1" atk="0.2" amp="0.01" />
  </instr>
  <instr id="8" type="FMSynth" name="Plain piano" >
   <fm mix="0.7" dly="1.0" alg="2" />
@@ -84,18 +84,18 @@
   <gen3 mul="5.0" st="2" atk="0.01" pk="1.5" dec="1" sus="0.2" rel="0.1" end="0.1" ty="2" />
   <nz mix="0.0" fr="100" fo="100" st="0" atk="0.05" pk="1.0" dec="0.1" sus="0" rel="0.1" end="0" ty="1" />
   <dln mix="0.0" dly="0.01" dec="0.1" />
-  <lfo frq="3.5" wt="1" dly="0" rt="0.0" amp="0.0" />
+  <lfo frq="3.5" wt="1" atk="0.0" amp="0.0" />
  </instr>
  <instr id="9" type="MatrixSynth" >
   <mat frq="440.0" vol="1" />
   <gen gn="0" out="1100000000000000" mod="00000000" frq="440" wt="2" mul="1" mnx="1" vol="0.8" eg="0" lfo="1" />
-  <env en="0" st="0" sus="1">
-    <seg sn="0" rt="0.01" lv="1.0" ty="1" />
-    <seg sn="1" rt="0.10" lv="0.8" ty="1" />
-    <seg sn="2" rt="0.30" lv="0.5" ty="1" />
-    <seg sn="3" rt="0.10" lv="0.0" ty="1" />
+  <env en="0" segs="4" st="0" sus="1">
+    <seg sn="0" rt="0.01" lvl="1.0" ty="1" />
+    <seg sn="1" rt="0.10" lvl="0.8" ty="1" />
+    <seg sn="2" rt="0.30" lvl="0.5" ty="1" />
+    <seg sn="3" rt="0.10" lvl="0.0" ty="1" />
   </env>
-  <lfo frq="3.5" wt="0" dly="0" rt="0.0" amp="1.2" />
+  <lfo frq="3.5" wt="0" atk="0.0" amp="0.1" />
  </instr>
  <instr id="10" type="MatrixSynth" desc="Tone and Bell">
   <mat frq="440.0" vol="0.5" />
@@ -103,31 +103,31 @@
   <gen gn="1" out="1000000000000000" mod="00000000" wt="0" mul="2.0" mnx="1" vol="0" eg="1"  />
   <gen gn="2" out="1100000000000001" mod="00010000" wt="0" mul="1.0" mnx="1" vol="0.4" eg="2"  pan="0.7"/>
   <gen gn="3" out="1000000000000000" mod="00000000" wt="0" mul="1.4" mnx="2" vol="0" eg="3" />
-  <env en="0" st="0" sus="1">
-   <seg sn="0" rt="0.01" lv="1.0" ty="1" />
-   <seg sn="1" rt="0.10" lv="0.8" ty="1" />
-   <seg sn="2" rt="0.30" lv="0.5" ty="1" />
-   <seg sn="3" rt="0.10" lv="0.0" ty="1" />
+  <env en="0" segs="4" st="0" sus="1">
+   <seg sn="0" rt="0.01" lvl="1.0" ty="1" />
+   <seg sn="1" rt="0.10" lvl="0.8" ty="1" />
+   <seg sn="2" rt="0.30" lvl="0.5" ty="1" />
+   <seg sn="3" rt="0.10" lvl="0.0" ty="1" />
   </env>
-  <env en="1" st="0" sus="1">
-   <seg sn="0" rt="0.01" lv="1.0" ty="1" />
-   <seg sn="1" rt="0.10" lv="0.8" ty="1" />
-   <seg sn="2" rt="0.30" lv="0.5" ty="1" />
-   <seg sn="3" rt="0.10" lv="0.0" ty="1" />
+  <env en="1" segs="4" st="0" sus="1">
+   <seg sn="0" rt="0.01" lv1="1.0" ty="1" />
+   <seg sn="1" rt="0.10" lv1="0.8" ty="1" />
+   <seg sn="2" rt="0.30" lv1="0.5" ty="1" />
+   <seg sn="3" rt="0.10" lv1="0.0" ty="1" />
   </env>
-  <env en="2" st="0" sus="1">
-   <seg sn="0" rt="0.001" lv="1.0" ty="1" />
-   <seg sn="1" rt="0.100" lv="0.8" ty="1" />
-   <seg sn="2" rt="1.000" lv="0.0" ty="1" />
-   <seg sn="3" rt="0.050" lv="0.0" ty="1" />
+  <env en="2" segs="4" st="0" sus="1">
+   <seg sn="0" rt="0.001" lvl="1.0" ty="1" />
+   <seg sn="1" rt="0.100" lvl="0.8" ty="1" />
+   <seg sn="2" rt="1.000" lvl="0.0" ty="1" />
+   <seg sn="3" rt="0.050" lvl="0.0" ty="1" />
   </env>
-  <env en="3" st="0" sus="1">
-   <seg sn="0" rt="0.005" lv="1.0" ty="1" />
-   <seg sn="1" rt="0.100" lv="0.9" ty="1" />
-   <seg sn="2" rt="1.000" lv="0.1" ty="1" />
-   <seg sn="3" rt="0.100" lv="0.1" ty="1" />
+  <env en="3" segs="4" st="0" sus="1">
+   <seg sn="0" rt="0.005" lvl="1.0" ty="1" />
+   <seg sn="1" rt="0.100" lvl="0.9" ty="1" />
+   <seg sn="2" rt="1.000" lvl="0.1" ty="1" />
+   <seg sn="3" rt="0.100" lvl="0.1" ty="1" />
   </env>
-  <lfo frq="3.5" wt="0" dly="0" rt="0.0" amp="0.5" />
+  <lfo frq="3.5" wt="0" atk="0.0" amp="0.05" />
  </instr>
  <instr id="11" type="WFSynth" >
    <wvf fn="1" lp="0" pa="1" />
@@ -139,4 +139,4 @@
    <env ar="0.25" rr="0.25" />
    <file name="test2.wav" id="2" />
  </instr>
-</instrLib>
+</instrlib>
