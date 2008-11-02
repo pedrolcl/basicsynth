@@ -45,6 +45,7 @@ SeqEvent *ToneInstr::ToneEventFactory(Opaque tmplt)
 		te->susLevel = ip->env.GetSusLvl();
 		te->relRate = ip->env.GetRelRt();
 		te->endLevel = ip->env.GetRelLvl();
+		te->envType = ip->env.GetType();
 		ip->lfoGen.GetSettings(te->lfoFreq, te->lfoWaveTable, te->lfoAtkRate, te->lfoAmp);
 		te->pbOn = ip->pbOn;
 		te->pbR1 = ip->pbGen.GetRate(0);
