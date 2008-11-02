@@ -386,7 +386,7 @@ void ToneFM::SetParam(ToneFMEvent *te)
 	vol  = te->vol;
 	env.InitADSR(te->startLevel, te->atkRate, te->atkLevel, te->decRate, 
 		         te->susLevel, te->relRate, te->endLevel, te->envType);
-	osc.SetWavetable(WT_SIN);
+	osc.SetWavetable(te->waveTable);
 	osc.SetFrequency(te->frq);
 	osc.SetModMultiple(te->modMult);
 	osc.SetModIndex(te->modIndex);

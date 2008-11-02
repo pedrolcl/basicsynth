@@ -25,19 +25,14 @@ Instrument *AddSynth::AddSynthFactory(InstrManager *m, Opaque tmplt)
 
 SeqEvent *AddSynth::AddSynthEventFactory(Opaque tmplt)
 {
-	AddSynth *ap = (AddSynth *)tmplt;
-	bsInt16 np = 0;
-	if (ap)
-	{
-		// osci lfo (5) + numParts * (wt + mult + start + suson + env)
-		np = 5 + (ap->numParts * 4);
-		for (int n = 0; n < ap->numParts; n++)
-			np += ap->parts[n].env.GetSegs() * 3;
-	}
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = np;
 	ep->frq = 440.0;
 	ep->vol = 1.0;
+	AddSynth *ap = (AddSynth *)tmplt;
+	if (ap)
+		ep->maxParam  = ((ap->numParts + 1) * 512) + 8;
+	else
+		ep->maxParam  = 4616; // default: 8 partials
 	return (SeqEvent *) ep;
 }
 
@@ -107,9 +102,9 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 	bsInt16 *id = vpe->idParam;
 	float *valp = vpe->valParam;
 	int n = vpe->numParam;
-	// [pn(6)][sn(4)][val(5)]
-	// PN = (partial number + 1) * 512
-	// SN = (segment number + 1)* 32
+	// [pn(6)][sn(4)][val(4)]
+	// PN = (partial number + 1) * 256
+	// SN = (segment number + 1) * 16
 	// PN+0	Frequency multiplier. 
 	// PN+1	Initial frequency for this oscillator. 
 	// PN+2	Wave table index.
@@ -119,16 +114,17 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 	// PN+SN+6	Level at the end of the segment.
 	// PN+SN+7	Segment curve type: 1=linear 2=exponential 3=log.
 
+	bsInt16 idval, pn, sn;
+	float val;
+
 	while (n-- > 0)
 	{
-		float val = *valp++;
-		bsInt16 idval = *id++;
-		bsInt16 pn = (idval >> 9) & 0x3F;
-		bsInt16 sn = (idval >> 5) & 0x0F;
-		bsInt16 vn = idval & 0x1F;
+		val = *valp++;
+		idval = *id++;
+		pn = (idval & 0x7F00) >> 8;
 		if (pn == 0)
 		{
-			switch (vn)
+			switch (idval)
 			{
 			case 16:
 				lfoGen.SetFrequency(FrqValue(val));
@@ -146,43 +142,34 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 		}
 		else if (pn <= numParts)
 		{
+			sn = (idval & 0xF0) >> 4;
 			pSig = &parts[pn-1];
-			if (sn == 0)
+			switch (idval & 0x0F)
 			{
-				switch (vn)
-				{
-				case 0:
-					pSig->mul = FrqValue(val);
-					break;
-				case 1:
-					pSig->osc.SetFrequency(FrqValue(val));
-					break;
-				case 2:
-					pSig->osc.SetWavetable((int)val);
-					break;
-				}
-			}
-			else
-			{
-				sn--;
-				switch (vn)
-				{
-				case 3:
-					pSig->env.SetStart(AmpValue(val));
-					break;
-				case 4:
-					pSig->env.SetSuson((int)val);
-					break;
-				case 5:
-					pSig->env.SetRate(sn, FrqValue(val));
-					break;
-				case 6:
-					pSig->env.SetLevel(sn, AmpValue(val));
-					break;
-				case 7:
-					pSig->env.SetType(sn, (EGSegType) (int) val);
-					break;
-				}
+			case 0:
+				pSig->mul = FrqValue(val);
+				break;
+			case 1:
+				pSig->osc.SetFrequency(FrqValue(val));
+				break;
+			case 2:
+				pSig->osc.SetWavetable((int)val);
+				break;
+			case 3:
+				pSig->env.SetStart(AmpValue(val));
+				break;
+			case 4:
+				pSig->env.SetSusOn((int)val);
+				break;
+			case 5:
+				pSig->env.SetRate(sn, FrqValue(val));
+				break;
+			case 6:
+				pSig->env.SetLevel(sn, AmpValue(val));
+				break;
+			case 7:
+				pSig->env.SetType(sn, (EGSegType) (int) val);
+				break;
 			}
 		}
 	}
@@ -191,10 +178,13 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 	AddSynthPart *pEnd = &parts[numParts];
 	for (pSig = parts; pSig < pEnd; pSig++)
 	{
-		FrqValue f = pSig->mul * frq;
-		if (f < 0 || f >= nyquist)
-			f = 0;
-		pSig->osc.SetFrequency(f);
+		if (pSig->mul > 0)
+		{
+			FrqValue f = pSig->mul * frq;
+			if (f < 0 || f >= nyquist)
+				f = 0;
+			pSig->osc.SetFrequency(f);
+		}
 		pSig->osc.Reset(initPhs);
 		pSig->env.Reset(initPhs);
 	}
@@ -255,12 +245,12 @@ void AddSynth::Destroy()
 
 /*************
 <instr parts="n">
- <part pn="n"  mul="n">
-   <osc frq="n" wt="n" />
+ <part pn="n"  mul="n" frq="n" wt="n" />
    <env segs="n" st="n" son="n">
     <seg sn="n" rt="n" lvl="n" ty="t" />
    </env>
  </part>
+ <lfo frq="" wt="" atk="" lvl="" />
 </instr>
 ***************/
 
@@ -271,8 +261,8 @@ int AddSynth::Load(XmlSynthElem *parent)
 	float rt;
 	long ival;
 
-	parent->GetAttribute("parts", ival);
-	SetNumParts(ival);
+	if (parent->GetAttribute("parts", ival) == 0)
+		SetNumParts(ival);
 
 	XmlSynthElem *elem;
 	XmlSynthElem *next = parent->FirstChild();
@@ -281,45 +271,43 @@ int AddSynth::Load(XmlSynthElem *parent)
 		if (elem->TagMatch("part"))
 		{
 			long pno = -1;
-			elem->GetAttribute("pn", pno);
-			if (pno < numParts)
+			if (elem->GetAttribute("pn", pno) == 0 && pno < numParts)
 			{
 				AddSynthPart *pn = &parts[pno];
 				if (elem->GetAttribute("mul", dval) == 0)
 					pn->mul = FrqValue(dval);
+				if (elem->GetAttribute("frq", dval) == 0)
+					pn->osc.SetFrequency(FrqValue(dval));
+				if (elem->GetAttribute("wt", ival) == 0)
+					pn->osc.SetWavetable((int) ival);
 				XmlSynthElem *partElem = elem->FirstChild();
 				while (partElem != NULL)
 				{
-					if (partElem->TagMatch("osc"))
-					{
-						partElem->GetAttribute("frq", dval);
-						partElem->GetAttribute("wt", ival);
-						pn->osc.SetFrequency(FrqValue(dval));
-						pn->osc.SetWavetable((int) ival);
-					}
-					else if (partElem->TagMatch("env"))
+					if (partElem->TagMatch("env"))
 					{
 						EnvGenSeg *pe = &pn->env;
 						long son;
 						long nseg = 0;
-						partElem->GetAttribute("segs", nseg);
-						partElem->GetAttribute("st", lvl);
-						partElem->GetAttribute("son", son);
-						pe->SetSegs((int)nseg);
-						pe->SetStart(AmpValue(lvl));
-						pe->SetSuson((int)son);
+						if (partElem->GetAttribute("segs", nseg) == 0)
+							pe->SetSegs((int)nseg);
+						if (partElem->GetAttribute("st", lvl) == 0)
+							pe->SetStart(AmpValue(lvl));
+						if (partElem->GetAttribute("sus", son) == 0)
+							pe->SetSusOn((int)son);
 						XmlSynthElem *segElem = partElem->FirstChild();
 						while (segElem != NULL)
 						{
 							if (segElem->TagMatch("seg"))
 							{
-								segElem->GetAttribute("sn", nseg);
-								segElem->GetAttribute("rt", rt);
-								segElem->GetAttribute("lvl", lvl);
-								segElem->GetAttribute("ty", ival);
-								pe->SetRate((int)nseg, FrqValue(rt));
-								pe->SetLevel((int)nseg, AmpValue(lvl));
-								pe->SetType((int)nseg, (EGSegType)ival);
+								if (segElem->GetAttribute("sn", nseg) == 0)
+								{
+									if (segElem->GetAttribute("rt", rt) == 0)
+										pe->SetRate((int)nseg, FrqValue(rt));
+									if (segElem->GetAttribute("lvl", lvl) == 0)
+										pe->SetLevel((int)nseg, AmpValue(lvl));
+									if (segElem->GetAttribute("ty", ival) == 0)
+										pe->SetType((int)nseg, (EGSegType)ival);
+								}
 							}
 							next = segElem->NextSibling();
 							delete segElem;
@@ -357,12 +345,8 @@ int AddSynth::Save(XmlSynthElem *parent)
 			return -1;
 		partElem->SetAttribute("pn", (short) n);
 		partElem->SetAttribute("mul", p->mul);
-		subElem = partElem->AddChild("osc");
-		if (subElem == NULL)
-			return -1;
-		subElem->SetAttribute("frq", p->osc.GetFrequency());
-		subElem->SetAttribute("wt", (short) p->osc.GetWavetable());
-		delete subElem;
+		partElem->SetAttribute("frq", p->osc.GetFrequency());
+		partElem->SetAttribute("wt", (short) p->osc.GetWavetable());
 
 		subElem = partElem->AddChild("env");
 		if (subElem == NULL)
@@ -371,7 +355,7 @@ int AddSynth::Save(XmlSynthElem *parent)
 		int segs = pe->GetSegs();
 		subElem->SetAttribute("segs", (short) segs);
 		subElem->SetAttribute("st", pe->GetStart());
-		subElem->SetAttribute("son", (short) pe->GetSusOn());
+		subElem->SetAttribute("sus", (short) pe->GetSusOn());
 		for (int sn = 0; sn < segs; sn++)
 		{
 			segElem = subElem->AddChild("seg");

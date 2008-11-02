@@ -34,10 +34,7 @@ SeqEvent *FMSynth::FMSynthEventFactory(Opaque tmplt)
 {
 	FMSynth *ip = (FMSynth *)tmplt;
 	VarParamEvent *vpe = new VarParamEvent;
-	vpe->maxParam = 72;
-	vpe->pitch = 67;
-	vpe->frq = 440.0;
-	vpe->vol  = 1.0;
+	vpe->maxParam = 106;
 	return (SeqEvent *) vpe;
 }
 
@@ -62,6 +59,9 @@ FMSynth::FMSynth()
 	gen1Mult = 1.0;
 	gen2Mult = 1.0;
 	gen3Mult = 2.0;
+	gen1Wt = 0;
+	gen2Wt = 0;
+	gen3Wt = 0;
 	fmMix = 1.0;
 	fmDly = 0.0;
 	nzMix = 0.0;
@@ -76,9 +76,6 @@ FMSynth::FMSynth()
 	dlySamps = 0;
 	panOn  = 0;
 	pbOn = 0;
-	panSet = 0.0;
-	panLft = 0.5;
-	panRgt = 0.5;
 }
 
 FMSynth::~FMSynth()
@@ -92,19 +89,19 @@ FMSynth::~FMSynth()
 void FMSynth::Copy(FMSynth *ip)
 {
 	gen1Osc.SetFrequency(ip->gen1Osc.GetFrequency());
-	gen1Osc.SetWavetable(ip->gen1Osc.GetWavetable());
+	gen1Osc.SetWavetable(gen1Wt = ip->gen1Osc.GetWavetable());
 	gen1EnvDef.Copy(&ip->gen1EnvDef);
 	gen1Mult = ip->gen1Mult;
 	fmMix = ip->fmMix;
 	algorithm = ip->algorithm;
 
 	gen2Osc.SetFrequency(ip->gen2Osc.GetFrequency());
-	gen2Osc.SetWavetable(ip->gen2Osc.GetWavetable());
+	gen2Osc.SetWavetable(gen2Wt = ip->gen2Osc.GetWavetable());
 	gen2EnvDef.Copy(&ip->gen2EnvDef);
 	gen2Mult = ip->gen2Mult;
 
 	gen3Osc.SetFrequency(ip->gen3Osc.GetFrequency());
-	gen3Osc.SetWavetable(ip->gen3Osc.GetWavetable());
+	gen3Osc.SetWavetable(gen3Wt = ip->gen3Osc.GetWavetable());
 	gen3EnvDef.Copy(&ip->gen3EnvDef);
 	gen3Mult = ip->gen3Mult;
 
@@ -132,7 +129,7 @@ AmpValue FMSynth::CalcPhaseMod(AmpValue amp, FrqValue mult)
 {
 	amp = (amp * mult) * synthParams.frqTI;
 	if (amp > maxPhs)
-		amp = maxPhs;
+		amp = 0;
 	return amp;
 }
 
@@ -141,9 +138,9 @@ void FMSynth::Start(SeqEvent *evt)
 	SetParams((VarParamEvent*)evt);
 	FrqValue mul1 = gen2Mult * frq;
 	FrqValue mul2 = gen3Mult * frq;
-	gen1Osc.InitWT(frq*gen1Mult, WT_SIN);
-	gen2Osc.InitWT(mul1, WT_SIN);
-	gen3Osc.InitWT(mul2, WT_SIN);
+	gen1Osc.InitWT(frq*gen1Mult, gen1Wt);
+	gen2Osc.InitWT(mul1, gen2Wt);
+	gen3Osc.InitWT(mul2, gen3Wt);
 	gen1EG.SetEnvDef(&gen1EnvDef);
 	gen1EG.Reset(0);
 	if (algorithm != ALG_DELTA)
@@ -197,6 +194,9 @@ void FMSynth::Param(SeqEvent *evt)
 	// Envelope rates and levels are not reset while playing.
 	// changing the 'algorithm' while playing is an "interseting" idea...
 	// most likely will produce unpredictable behavior.
+	gen1Osc.SetWavetable(gen1Wt);
+	gen2Osc.SetWavetable(gen2Wt);
+	gen3Osc.SetWavetable(gen3Wt);
 	gen1Osc.SetFrequency(frq*gen1Mult);
 	gen2Osc.SetFrequency(frq*gen2Mult);
 	gen3Osc.SetFrequency(frq*gen3Mult);
@@ -240,9 +240,7 @@ void FMSynth::SetParams(VarParamEvent *evt)
 			panOn = (bsInt16) val;
 			break;
 		case 20:
-			panSet = AmpValue(val);
-			panLft = panSet;
-			panRgt = panSet;
+			panSet.Set(panTrig, AmpValue(val));
 			break;
 		case 30: //mul
 			gen1Mult = val;
@@ -273,6 +271,9 @@ void FMSynth::SetParams(VarParamEvent *evt)
 			gen1EnvDef.SetType(0, segType);
 			gen1EnvDef.SetType(1, segType);
 			gen1EnvDef.SetType(2, segType);
+			break;
+		case 39: // wt
+			gen1Wt = (int) val;
 			break;
 		//gen2: 
 		case 40: //mul
@@ -305,6 +306,9 @@ void FMSynth::SetParams(VarParamEvent *evt)
 			gen2EnvDef.SetType(1, segType);
 			gen2EnvDef.SetType(2, segType);
 			break;
+		case 49: // wt
+			gen2Wt = (int) val;
+			break;
 		// gen3:
 		case 50: //mul
 			gen3Mult = val;
@@ -335,6 +339,9 @@ void FMSynth::SetParams(VarParamEvent *evt)
 			gen3EnvDef.SetType(0, segType);
 			gen3EnvDef.SetType(1, segType);
 			gen3EnvDef.SetType(2, segType);
+			break;
+		case 59: // wt
+			gen3Wt = (int) val;
 			break;
 		//nz: 
 		case 60: //mix
@@ -509,7 +516,9 @@ void FMSynth::Tick()
 
 	if (nzOn) 
 	{
-		nzOut = nzi.Gen() * nzo.Gen() * nzEG.Gen();
+		nzOut = nzi.Gen() * nzEG.Gen();
+		if (nzFrqo)
+			nzOut *= nzo.Gen();
 		sigOut += nzOut * nzMix;
 	}
 	
@@ -524,7 +533,7 @@ void FMSynth::Tick()
 
 	sigOut *= vol;
 	if (panOn)
-		im->Output2(chnl, sigOut * panLft, sigOut * panRgt);
+		im->Output2(chnl, sigOut * panSet.panlft, sigOut * panSet.panrgt);
 	else
 		im->Output(chnl, sigOut);
 }
@@ -571,23 +580,33 @@ int FMSynth::Load(XmlSynthElem *parent)
 				fmMix = dval;
 			if (elem->GetAttribute("dly", dval) == 0)
 				fmDly = dval;
+			if (elem->GetAttribute("pon", ival) == 0)
+				panOn = ival;
+			if (elem->GetAttribute("pan", dval) == 0)
+				panSet.Set(panTrig, AmpValue(dval));
 		}
 		if (elem->TagMatch("gen1"))
 		{
 			if (elem->GetAttribute("mul", dval) == 0)
 				gen1Mult = dval;
+			if (elem->GetAttribute("wt", ival) == 0)
+				gen1Wt = ival;
 			LoadEG(elem, gen1EnvDef);
 		}
 		else if (elem->TagMatch("gen2"))
 		{
 			if (elem->GetAttribute("mul", dval) == 0)
 				gen2Mult = dval;
+			if (elem->GetAttribute("wt", ival) == 0)
+				gen2Wt = ival;
 			LoadEG(elem, gen2EnvDef);
 		}
 		else if (elem->TagMatch("gen3"))
 		{
 			if (elem->GetAttribute("mul", dval) == 0)
 				gen3Mult = dval;
+			if (elem->GetAttribute("wt", ival) == 0)
+				gen3Wt = ival;
 			LoadEG(elem, gen3EnvDef);
 		}
 		else if (elem->TagMatch("nz"))
@@ -653,26 +672,31 @@ int FMSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("mix", fmMix);
-	elem->SetAttribute("alg", (short) algorithm);
 	elem->SetAttribute("dly", fmDly);
+	elem->SetAttribute("alg", (short) algorithm);
+	elem->SetAttribute("pon", (short)panOn);
+	elem->SetAttribute("pan", panSet.panval);
 	delete elem;
 
 	elem = SaveEG(parent, "gen1", gen1EnvDef);
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("mul", gen1Mult);
+	elem->SetAttribute("wt",  (short)gen1Wt);
 	delete elem;
 
 	elem = SaveEG(parent, "gen2", gen2EnvDef);
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("mul", gen2Mult);
+	elem->SetAttribute("wt",  (short)gen2Wt);
 	delete elem;
 
 	elem = SaveEG(parent, "gen3", gen3EnvDef);
 	if (elem == NULL)
 		return -1;
 	elem->SetAttribute("mul", gen3Mult);
+	elem->SetAttribute("wt",  (short)gen3Wt);
 	delete elem;
 
 	elem = SaveEG(parent, "nz", nzEnvDef);

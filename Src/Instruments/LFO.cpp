@@ -53,6 +53,7 @@ void LFO::Copy(LFO *tp)
 	atkRt = tp->atkRt;
 	depth = tp->depth;
 	sigFrq = tp->sigFrq;
+	lfoOn = depth > 0;
 }
 
 void LFO::Init(int n, float *f)

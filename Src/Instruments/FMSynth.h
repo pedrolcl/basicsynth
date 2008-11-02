@@ -29,10 +29,7 @@ private:
 	AmpValue   fmMix;
 	AmpValue   fmDly;
 	long algorithm;
-
-	AmpValue   panSet;
-	AmpValue   panLft;
-	AmpValue   panRgt;
+	int gen1Wt;
 
 #ifdef USE_OSCILI
 	GenWaveI gen2Osc;
@@ -42,6 +39,7 @@ private:
 	EnvGenADSR gen2EG;
 	EnvDef     gen2EnvDef;
 	FrqValue   gen2Mult;
+	int gen2Wt;
 
 #ifdef USE_OSCILI
 	GenWaveI gen3Osc;
@@ -51,6 +49,7 @@ private:
 	EnvGenADSR gen3EG;
 	EnvDef     gen3EnvDef;
 	FrqValue   gen3Mult;
+	int gen3Wt;
 
 	GenNoiseI  nzi;
 	GenWaveWT  nzo;
@@ -60,6 +59,7 @@ private:
 	FrqValue   nzFrqo;
 	AmpValue   nzMix;
 	AmpValue   nzDly;
+	Panner   panSet;
 
 	AllPassDelay apd;
 	FrqValue   dlyTim;

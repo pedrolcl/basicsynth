@@ -11,8 +11,11 @@
 
 struct AddSynthPart
 {
+#ifdef USE_OSCILI
+	GenWaveI osc; //<-- if you prefer interpolation
+#else
 	GenWaveWT osc;
-	//GenWaveI osc; <-- if you prefer interpolation
+#endif
 	EnvGenSegSus env;
 	FrqValue  mul; // frequency multiplier
 

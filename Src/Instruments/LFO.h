@@ -28,7 +28,7 @@ public:
 	void SetFrequency(FrqValue frq) { osc.SetFrequency(frq); }
 	void SetWavetable(int wt)       { osc.SetWavetable(wt); }
 	void SetAttack(FrqValue val)    { atk.SetRate(val); }
-	void SetLevel(AmpValue val)     { depth = val; } //atk.SetLevel(val);
+	void SetLevel(AmpValue val)     { depth = val; lfoOn = depth > 0; } //atk.SetLevel(val);
 	void SetSigFrq(FrqValue val)    { sigFrq = val; }
 
 	void Init(int n, float *f);

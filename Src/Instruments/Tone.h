@@ -44,7 +44,7 @@ public:
 
 	virtual bsInt16 MaxParam()
 	{
-		return P_VOLUME+19;
+		return 34;
 	}
 
 	virtual void SetParam(bsInt16 id, float v)
@@ -167,7 +167,7 @@ public:
 
 	virtual bsInt16 MaxParam()
 	{
-		return P_VOLUME+21;
+		return 36;
 	}
 
 	void SetParam(bsInt16 id, float v)

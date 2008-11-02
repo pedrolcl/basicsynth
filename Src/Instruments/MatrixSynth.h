@@ -23,6 +23,7 @@
 #define TONE_FX3OUT  0x00000040
 #define TONE_FX4OUT  0x00000080
 //#define TONE_XXX   0x00007F00 <= available
+#define TONE_TREM    0x00004000
 #define TONE_PAN     0x00008000
 #define TONE_OUTANY  0x000000F2
 
@@ -52,9 +53,7 @@ private:
 	PhsAccum modRad;   // ...in radians
 	AmpValue lfoLvl;   // LFO input level
 	AmpValue pbLvl;    // Pitch Bend level
-	AmpValue panSet;   // Pan setting -1,+1
-	AmpValue panLft;   // Pan left 0-1
-	AmpValue panRgt;   // Pan right 0-1
+	Panner   panSet;   // Pan setting -1,+1
 	AmpValue fx1Lvl;   // Fx1 send level
 	AmpValue fx2Lvl;   // Fx2 send level
 	AmpValue fx3Lvl;   // Fx3 send level

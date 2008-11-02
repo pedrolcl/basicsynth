@@ -113,7 +113,7 @@ int PitchBend::Load(XmlSynthElem *elem)
 
 int PitchBend::Save(XmlSynthElem *elem)
 {
-	elem->SetAttribute("frq", frq);
+	//elem->SetAttribute("frq", frq);
 	elem->SetAttribute("r1", rate[0]);
 	elem->SetAttribute("r2", rate[1]);
 	elem->SetAttribute("a1", amnt[0]);
