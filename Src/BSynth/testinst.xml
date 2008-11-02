@@ -35,11 +35,11 @@
  <instr id="9" type="MatrixSynth" name="Bloop">
   <mat frq="440.0" vol="1" />
    <gen gn="0" out="11100000" mod="00000000" frq="440" wt="2" mul="1" mnx="1" vol="1" eg="0" fx1="0" fx2="0" fx3="0" fx4="0" />
-   <env en="0" st="0" sus="1">
-    <seg sn="0" rt="0.01" lv="1.0" ty="1" />
-    <seg sn="1" rt="0.10" lv="0.8" ty="1" />
-    <seg sn="2" rt="0.30" lv="0.5" ty="1" />
-    <seg sn="3" rt="0.10" lv="0.0" ty="1" />
+   <env en="0" segs="4" st="0" sus="1">
+    <seg sn="0" rt="0.01" lvl="1.0" ty="1" />
+    <seg sn="1" rt="0.10" lvl="0.8" ty="1" />
+    <seg sn="2" rt="0.30" lvl="0.5" ty="1" />
+    <seg sn="3" rt="0.10" lvl="0.0" ty="1" />
   </env>
   <lfo frq="3.5" wt="0" dly="0" rt="0.0" amp="1.2" />
  </instr>

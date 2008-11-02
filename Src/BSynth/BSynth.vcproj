@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy test.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl2 &quot; $(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
+				CommandLine="copy test.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test2.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstaddsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstfmsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstmatsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstsubsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tsttonesynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;&#x0D;&#x0A;"
 				Outputs="$(TargetDir)/test.nl"
 			/>
 			<Tool
@@ -578,6 +578,46 @@
 		</File>
 		<File
 			RelativePath=".\testprj.xml"
+			>
+		</File>
+		<File
+			RelativePath=".\tstaddsynth.nl"
+			>
+		</File>
+		<File
+			RelativePath=".\tstaddsynth.xml"
+			>
+		</File>
+		<File
+			RelativePath=".\tstfmsynth.nl"
+			>
+		</File>
+		<File
+			RelativePath=".\tstfmsynth.xml"
+			>
+		</File>
+		<File
+			RelativePath=".\tstmatsynth.nl"
+			>
+		</File>
+		<File
+			RelativePath=".\tstmatsynth.xml"
+			>
+		</File>
+		<File
+			RelativePath=".\tstsubsynth.nl"
+			>
+		</File>
+		<File
+			RelativePath=".\tstsubsynth.xml"
+			>
+		</File>
+		<File
+			RelativePath=".\tsttonesynth.nl"
+			>
+		</File>
+		<File
+			RelativePath=".\tsttonesynth.xml"
 			>
 		</File>
 	</Files>

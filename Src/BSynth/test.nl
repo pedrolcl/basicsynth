@@ -9,7 +9,7 @@ tempo 4, 120;
 'write "Write string " # "pasted\n";
 maxparam 3;
 ! attack in ms, release
-map "Pulse"  18:0.001, 22:(1/1000);
+map "Pulse"  10+8:0.001, 22:(1/1000);
 
 var abc;
 var var1, var2;
