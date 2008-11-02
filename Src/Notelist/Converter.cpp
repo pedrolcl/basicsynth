@@ -226,6 +226,27 @@ int nlConverter::FindInstrNum(const char *name)
 	return -1;
 }
 
+void nlConverter::InitParamMap(int inum)
+{
+	nlParamMap *mp = mapList;
+	while (mp)
+	{
+		if (mp->Match(inum))
+		{
+			mp->Clear();
+			break;
+		}
+		mp = mp->next;
+	}
+
+	if (curVoice)
+	{
+		curVoice->cntParam = 0;
+		if (inum == curVoice->instr)
+			curMap = mp;
+	}
+}
+
 void nlConverter::SetParamMap(int inum, int pn, int mn, double scl)
 {
 	nlParamMap *mp = mapList;
@@ -246,7 +267,10 @@ void nlConverter::SetParamMap(int inum, int pn, int mn, double scl)
 			mapList->InsertBefore(mp);
 		mapList = mp;
 	}
+
 	mp->AddEntry(pn, mn, (float) scl);
+	if (curVoice && curVoice->instr == inum)
+		curMap = mp;
 }
 
 nlSymbol *nlConverter::Lookup(const char *name)

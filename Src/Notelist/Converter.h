@@ -65,6 +65,17 @@ public:
 		return n == instr;
 	}
 
+	void Clear()
+	{
+		int pn;
+		for (pn = 0; pn < mapSiz; pn++)
+		{
+			mapPtr[pn] = 0;
+			mapScl[pn] = 1.0;
+		}
+		maxEnt = 0;
+	}
+
 	void AddEntry(int pn, int mn, float scl)
 	{
 		if (pn >= mapSiz)
@@ -199,7 +210,8 @@ public:
 	nlSymbol *AddSymbol(const char *name);
 
 	virtual int  FindInstrNum(const char *name);
-	virtual void SetParamMap(int in, int pn, int mn, double sc);
+	virtual void InitParamMap(int inum);
+	virtual void SetParamMap(int inum, int pn, int mn, double sc);
 	virtual void BeginNotelist();
 	virtual void EndNotelist();
 	virtual void BeginInstr();

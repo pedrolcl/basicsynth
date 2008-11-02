@@ -1450,10 +1450,8 @@ nlScriptNode *nlMapNode::Exec()
 	}
 	else
 		return NULL;
-	
-	pList = pList->GetNext();
-	if (pList == NULL)
-		return NULL;
+
+	cvtPtr->InitParamMap(inum);
 
 	pList = pList->GetNext();
 	while (pList != NULL)
