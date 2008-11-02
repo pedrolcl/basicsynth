@@ -119,6 +119,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example05", "Examples\Examp
 		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualKBD", "Utilities\VirtualKBD\VirtualKBD.vcproj", "{C872FF18-7C75-4939-B761-FA835838581C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3932F06-DA1D-42A8-95AB-B3469B90F26F} = {E3932F06-DA1D-42A8-95AB-B3469B90F26F}
+		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -393,6 +399,15 @@ Global
 		{78A942D0-99BD-4726-8EF0-0BF63A2CB1BE}.ReleaseI|Win32.ActiveCfg = Release|x64
 		{78A942D0-99BD-4726-8EF0-0BF63A2CB1BE}.ReleaseI|x64.ActiveCfg = Release|x64
 		{78A942D0-99BD-4726-8EF0-0BF63A2CB1BE}.ReleaseI|x64.Build.0 = Release|x64
+		{C872FF18-7C75-4939-B761-FA835838581C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Debug|Win32.Build.0 = Debug|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Debug|x64.ActiveCfg = Debug|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Release|Win32.ActiveCfg = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Release|Win32.Build.0 = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.Release|x64.ActiveCfg = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.ReleaseI|Win32.ActiveCfg = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.ReleaseI|Win32.Build.0 = Release|Win32
+		{C872FF18-7C75-4939-B761-FA835838581C}.ReleaseI|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
