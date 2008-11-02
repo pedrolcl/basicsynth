@@ -1,19 +1,26 @@
 
 ///////////////////////////////////////////////////////////
-// BasicSynth - Sequence file parser 
+// BasicSynth - 
 //
-// See SequenceFile.cpp for explanation
+/// @file SequenceFile.h Sequence file loader
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
+/// @addtogroup grpSeq
+//@{
 
 #ifndef _SEQUENCEFILE_H_
 #define _SEQUENCEFILE_H_
 
+/// maximum line length for a sequence file
 #define SEQ_MAX_LINE 2048
+/// maximum number of arguments on a sequence file line
 #define SEQ_MAX_ARG  256
 #define SEQ_PARAM_GROW 10
 
+/// Sequence file paramater map.
+/// Used internally by the SequenceFileLoader and
+/// should not be called directly.
 class SeqFileMap : public SynthList<SeqFileMap>
 {
 public:
@@ -64,6 +71,43 @@ public:
 	}
 };
 
+/// Sequencer file loader.
+/// A sequencer file is a line of timed events. Each event line
+/// in the file must start with the values required by the 
+/// sequencer event base class. The format of one event line
+/// in the sequence file is as follows:
+/// @code
+///    [+|-|&]inum chnl time duration { param }
+/// @endcode
+/// A line beginning with a plus (+) will generate a PARAM event.
+/// Lines beginning with a minus (-) will generate a STOP event. 
+/// A line beginning with ampersand will generate a RESTART event.
+/// All other lines (except as noted below) will produce a START event. 
+///
+/// Fields are separated by one or more spaces and may be either
+/// a number or a character string. Numbers (other than the inum field)
+/// may be entered as a real or integer value and may also include
+/// a leading negative sign. Character strings are enclosed in either
+/// single or double quote marks. The maximum field length is 256 characters.
+/// The first four fields are required. The inum field is an integer 
+/// value that matches an entry in the instrument definition table. 
+/// The chnl field indicates the output channel, usually a mixer input. 
+/// The time and duration fields are numbers that specify the event 
+/// time and duration in seconds. 
+///
+/// The params are optional and specific to the instrument inum. 
+/// Any number of param fields may be included, up to a maximum line 
+/// length of 2048 characters. 
+///
+/// A line beginning with equal (=) defines a parameter map. Since
+/// the number of parameters is potentially large, the parameter map
+/// allows selecting only those parameters that are essential. The map
+/// statement has the form:
+/// @code
+/// =inum p1 p2 p3...
+/// @endcode
+/// Each pn value represents the actual parameter ID value to use for
+/// parameter number n.
 class SequenceFile
 {
 private:
@@ -105,18 +149,27 @@ public:
 		}
 	}
 
-	// Initialize - the InstrManager instance is used to locate the
-	// event factory by instrument id. The sequencer is called to
-	// store each event as it is parsed.
+	/// Initialize.
+	/// The InstrManager instance is used to locate the
+	/// event factory by instrument id. The sequencer is called to
+	/// store each event as it is parsed.
+	/// @param im instrument manager
+	/// @param s sequencer
 	void Init(InstrManager *im, Sequencer *s)
 	{
 		inMgr = im;
 		seq = s;
 	}
 
+	/// Parse the sequence from a memory buffer.
+	/// @param linbuf buffer with one sequencer line
 	int ParseMem(char *linbuf);
+
+	/// Load the file from a disk file
+	/// @param fileName path to file to load
 	int LoadFile(const char *fileName);
 
+	/// Return the error during loading
 	int GetError(bsString& buf)
 	{
 		if (!error)
@@ -125,5 +178,5 @@ public:
 		return lineno;
 	}
 };
-
+//@}
 #endif

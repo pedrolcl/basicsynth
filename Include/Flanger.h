@@ -1,16 +1,21 @@
 /////////////////////////////////////////////////////////////////////
+// BasicSynth Flanger/Chorus unit. 
 //
-// BasicSynth Flanger/Chorus unit. Uses a variable tap delay line
-// to modulate the delay. Allows feedback to provide for allpass filtering. 
-//
-// See: Jon Dattorro, "Effect Design", Journal of the Audio Engineering
-//      Society, Vol 45, No. 10, 1997 October, p. 764
+/// @file Flanger.h Flanger/Chorus unit
 //
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////////
+/// @addtogroup grpMix
+//@{
 #ifndef _FLANGER_H_
 #define _FLANGER_H_
 
+/// Flanger class
+/// Uses a variable tap delay line
+/// to modulate the delay. Allows feedback to provide for allpass filtering. 
+///
+/// See: Jon Dattorro, "Effect Design", Journal of the Audio Engineering
+///      Society, Vol 45, No. 10, 1997 October, p. 764
 class Flanger : public GenUnit
 {
 protected:
@@ -91,5 +96,5 @@ public:
 		return (inval * dlyLvl) + dlv.Sample(inval);
 	}
 };
-
+//@}
 #endif

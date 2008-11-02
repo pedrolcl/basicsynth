@@ -164,7 +164,7 @@ public:
 	}
 };
 
-/// Expoential AR envelope. EnvGenExp implements a fixed duration envelope generator with one
+/// Exponential AR envelope. EnvGenExp implements a fixed duration envelope generator with one
 /// attack segment and one release segment. EnvGenExp has an exponential attack and decay,
 /// but is otherwise the same as EnvGen.
 /// @sa EnvGen GenUnit

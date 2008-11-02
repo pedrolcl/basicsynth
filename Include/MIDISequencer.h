@@ -1,14 +1,12 @@
 /////////////////////////////////////////////////////////////
 // BasicSynth Library
 //
-// MIDI Sequencer Classes
+/// @file MIDISequencer.h MIDI Sequencer Classes
 //
-// This is intended as a prototype/example class. A complete
-// implementation needs more sophisticated processing of CC#s
-// as well as SMPTE, standard MIDI instruments, etc.
-// 
 // Copyright 2008, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////
+/// @addtogroup grpSeq
+//@{
 #ifndef _MIDISEQUENCE_H_
 #define _MIDISEQUENCE_H_
 
@@ -57,9 +55,10 @@
 #define MIDI_META_TMSG 0x58
 #define MIDI_META_KYSG 0x59
 
-// The MIDI event holds information needed
-// for each event. There is never more than
-// two parameters.
+/// A MIDI event.
+/// The MIDI event holds information needed
+/// for each event. There are never more than
+/// two parameters for an event.
 class MIDIEvent : public SynthList<MIDIEvent>
 {
 public:
@@ -71,6 +70,9 @@ public:
 	bsUint32 lval;
 };
 
+/// MIDI instrument interface.
+/// Similar to Instrument, but adds MIDI specific methods
+/// to handle channel messages.
 class MIDIInstrument
 {
 public:
@@ -85,6 +87,7 @@ public:
 	virtual void Destroy() { delete this; }
 };
 
+/// Event for MIDI notes.
 class MIDINote : public SynthList<MIDINote>
 {
 public:
@@ -94,6 +97,8 @@ public:
 	MIDIInstrument *ip;
 };
 
+/// MIDI channel.
+/// This class manages a set of sounding notes on an instrument.
 class MIDIChannel
 {
 public:
@@ -145,6 +150,8 @@ public:
 
 class MIDISequence;
 
+/// MIDI track.
+/// This is the class that maintains a list of MIDI events for playback.
 class MIDITrack : public SynthList<MIDITrack>
 {
 private:
@@ -198,6 +205,10 @@ public:
 	int Play(MIDISequence *seq);
 };
 
+/// MIDI Sequencer.
+/// This is intended as a prototype/example class. A complete
+/// implementation needs more sophisticated processing of CC#s
+/// as well as SMPTE, standard MIDI instruments, META, etc.
 class MIDISequence
 {
 private:
@@ -340,6 +351,7 @@ public:
 };
 
 
+/// MIDI header chunk
 struct MTHDchunk 
 {
 	bsUint8  chnkID[4]; // MThd
@@ -350,6 +362,7 @@ struct MTHDchunk
 };
 
 
+/// Load a standard MIDI file for sequencing.
 class MIDIFileLoad
 {
 protected:
@@ -461,5 +474,5 @@ protected:
 		fp.FileClose();
 	}
 };
-
+//@}
 #endif

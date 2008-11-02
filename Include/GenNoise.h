@@ -85,7 +85,7 @@ public:
 	}
 
 	/// Reset the generator. The hold rate is recalculated from the last set frequency.
-	/// @param iniPhs ignored
+	/// @param initPhs not used
 	virtual void Reset(float initPhs = 0)
 	{
 		hcount = (bsInt32) (synthParams.sampleRate / freq);
@@ -144,7 +144,7 @@ public:
 	}
 
 	/// Reset the generator. The hold rate is recalculated from the last set frequency.
-	/// @param iniPhs ignored
+	/// @param initPhs not used
 	virtual void Reset(float initPhs = 0)
 	{
 		hcount = (bsInt32) (synthParams.sampleRate / freq);
@@ -173,7 +173,8 @@ public:
 
 };
 
-/// "Pink-ish" noise generator. First order FIR LP filter on White noise output
+/// "Pinkish" noise generator.
+/// First order FIR LP filter applied to white noise.
 class GenNoisePink1 : public GenNoise
 {
 private:
@@ -194,7 +195,8 @@ public:
 	}
 };
 
-/// "Pink-ish" noise generator. First order IIR LP filter on White noise output
+/// "Pinkish" noise generator.
+/// First order IIR LP filter applied to white noise.
 class GenNoisePink2 : public GenNoise
 {
 private:

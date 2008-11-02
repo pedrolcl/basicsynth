@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////
 // BasicSynth - DelayLine
 //
-// Various forms of delay lines
+/// @file DelayLine.h Various forms of delay lines
 //
 //  - DelayLine, basic delay line with attenuation of the output
 //  - DelayLineR, recirculating delay line (resonator)
@@ -11,13 +11,18 @@
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
-/// \addtogroup grpDelay
-/*@{*/
+/// @addtogroup grpDelay
+//@{
 #ifndef _DELAYLINE_H_
 #define _DELAYLINE_H_
 
-/// Basic delay line
-/// \sa GenUnit
+/// Basic delay line. Delay lines store the input sample and return
+/// a sample delayed by some number of sample times. The decay
+/// setting applies an attenuator to the output of the delay line.
+/// This simulates the loss of energy during the delay time.
+/// @code
+/// y[n] = x[n-M] * g, M = delay time, g = decay
+/// @endcode
 class DelayLine : public GenUnit
 {
 protected:
@@ -55,13 +60,16 @@ public:
 		ReleaseBuffers();
 	}
 
-	/// Make a copy of the delay line settings
+	/// Initialize the delay line from a source object.
+	/// @param dp source object.
 	virtual void Copy(DelayLine *dp)
 	{
 		InitDL(dp->delayTime, dp->decayFactor);
 	}
 
-	/// Get the delay line settings
+	/// Get the delay line settings.
+	/// @param dly delay time
+	/// @param dec decay time
 	void GetSettings(FrqValue& dly, FrqValue& dec)
 	{
 		dly = delayTime;
@@ -76,6 +84,9 @@ public:
 			InitDL(v[0], v[1]);
 	}
 
+	/// Reset the delay line. This merely moves the current position
+	/// to the beginning of the buffer.
+	/// @param initPhs not used
 	virtual void Reset(float initPhs = 0)
 	{
 		delayPos = delayBuf;
@@ -90,7 +101,9 @@ public:
 		delayPos = delayBuf;
 	}
 
-	/// Initialize the delay line
+	/// Initialize the delay line.
+	/// @param dlyTm delay time
+	/// @param decay amplitude attenuation
 	virtual void InitDL(FrqValue dlyTm, AmpValue decay = 1)
 	{
 		ReleaseBuffers();
@@ -105,12 +118,14 @@ public:
 	}
 
 	/// Read the value at time offset d
+	/// @param d time offset in seconds
 	AmpValue TapT(PhsAccum d)
 	{
 		return Tap(d * synthParams.sampleRate);
 	}
 
 	/// Read the value at sample offset s
+	/// @param s time offset in samples
 	AmpValue Tap(PhsAccum s)
 	{
 		AmpValue *tp = delayPos - (int) s;
@@ -126,6 +141,7 @@ public:
 	}
 
 	/// Set the newest value
+	/// @param inval value to store in the delay line
 	inline void SetIn(AmpValue inval)
 	{
 		*delayPos = inval;
@@ -134,16 +150,18 @@ public:
 	}
 
 	/// Store a new value and return the oldest value
-	virtual AmpValue Sample(AmpValue in)
+	/// @param inval value to store in the delay line
+	virtual AmpValue Sample(AmpValue inval)
 	{
 		AmpValue out = GetOut();
-		SetIn(in);
+		SetIn(inval);
 		return out;
 	}
 };
 
-/// Re-circulating delay line, a/k/a IIR comb filter, resonator
-/// \see DelayLine
+/// Re-circulating delay line.
+/// Also called feedback delay line, IIR comb filter, resonator.
+/// @sa DelayLine
 class DelayLineR : public DelayLine
 {
 private:
@@ -159,11 +177,17 @@ public:
 		decayTime = 1.0;
 	}
 
+	/// @copydoc DelayLine::Copy
 	virtual void Copy(DelayLineR *dp)
 	{
 		InitDLR(dp->delayTime, dp->decayTime, dp->final, dp->peak);
 	}
 
+	/// Get the delay line settings
+	/// @param dlyTm delay time
+	/// @param decTm decay time
+	/// @param fin amplitude attentaion after decay time
+	/// @param pk peak amplitude
 	void GetSettings(FrqValue& dlyTm, FrqValue& decTm, AmpValue& fin, AmpValue& pk)
 	{
 		dlyTm = delayTime;
@@ -172,9 +196,14 @@ public:
 		pk = peak;
 	}
 
+	/// Initialize the delay line.
 	/// This method calculates an exponential decay based on delayTime and
 	/// final amplitude level after decayTime. Use InitDL directly if the
 	/// caller calculates decayFactor by some other means.
+	/// @param dlyTm delay time
+	/// @param decTm decay time
+	/// @param fin amplitude attentaion after decay time
+	/// @param pk peak amplitude
 	void InitDLR(FrqValue dlyTm, FrqValue decTm, AmpValue fin, AmpValue pk = 1.0)
 	{
 		final = fin;
@@ -183,6 +212,9 @@ public:
 		DelayLine::InitDL(dlyTm, pow(peak * final, dlyTm/decTm));
 	}
 
+	/// Process the current sample. The new value is stored in the
+	/// delay line and the delayed sample is returned.
+	/// @param inval current sample value
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue out = GetOut();
@@ -191,8 +223,11 @@ public:
 	}
 };
 
-/// variable delay tap delay line
-/// \see DelayLine
+/// Variable delay tap delay line.
+/// This delay line can shift the delay time smoothly from
+/// one value to another by interpolating between adjacent
+/// delayed values.
+/// @sa DelayLine
 class DelayLineV : public DelayLine
 {
 protected:
@@ -210,12 +245,14 @@ public:
 
 	/// Set delay in seconds.
 	/// The delay time must be less than the configured delay length
+	/// @param d delay time
 	void SetDelayT(PhsAccum d)
 	{
 		SetDelay(d * synthParams.sampleRate);
 	}
 
 	/// Set variable delay in samples
+	/// @param d delay time
 	void SetDelay(PhsAccum d)
 	{
 		dlyTime = d;
@@ -229,6 +266,9 @@ public:
 		rdFract = dlyTime - (PhsAccum) rdInt;
 	}
 
+	/// Process the current sample. The current sample is stored
+	/// in the delay line buffer and the delayed sample is returned.
+	/// @param inval current sample value
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue *rdPos = delayPos - rdInt;
@@ -255,11 +295,16 @@ public:
 	}
 };
 
-/// Delay line with all-pass feedback value
-/// \see DelayLineR
+/// Delay line with all-pass feedback value.
+/// The feedback value creates a combination high-pass + low-pass
+/// comb filter that has a flat frequency response.
+/// @sa DelayLineR
 class AllPassDelay : public DelayLineR
 {
 public:
+	/// Process the current sample. The input value is stored and the delayed
+	/// sample is returned.
+	/// @param inval current sample value
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue vm = *delayPos;
@@ -269,7 +314,8 @@ public:
 	}
 };
 
-// direct-form I, uses two separate delay lines
+/// All-pass delay line (2).
+/// This uses direct-form I, two separate delay lines.
 class AllPassDelay2 : public GenUnit
 {
 private:
@@ -309,7 +355,9 @@ public:
 		InitDL(delayTime, pow(peak * atten, delayTime/decayTime));
 	}
 
-	/// Store a new value and return the oldest value
+	/// Process the current sample. The input value is stored and the delayed
+	/// sample is returned.
+	/// @param inval current sample value
 	AmpValue Sample(AmpValue inval)
 	{
 		AmpValue out = (inval * apg) + dlx.GetOut() - dly.GetOut();
@@ -319,8 +367,8 @@ public:
 	}
 };
 
-/// Multi-tap delay line
-/// \see DelayLine
+/// Multi-tap delay line.
+/// @sa DelayLine
 class DelayLineT : public DelayLine
 {
 protected:
@@ -419,6 +467,6 @@ public:
 	}
 };
 
-/*@}*/
+//@}
 
 #endif

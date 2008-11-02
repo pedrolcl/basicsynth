@@ -203,7 +203,7 @@ public:
 	}
 
 	// N.B. - abs(phs) should NEVER be > tableLength/2
-	/// @copydoc GenWaveWT::PhseModWT()
+	/// @copydoc GenWaveWT::PhaseModWT
 	virtual void PhaseModWT(PhsAccum phs)
 	{
 		if (phs >= synthParams.ftableLength)

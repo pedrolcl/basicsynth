@@ -2,14 +2,14 @@
 //
 // BasicSynth - BiQuad
 //
-// BiQuad filters.
+/// @file BiQuad.h BiQuad filters.
 //
-// LowPass, High-pass and Band-pass Butterworth filters
+/// LowPass, High-pass and Band-pass Butterworth, and resonant filters.
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
-/// \addtogroup grpFilter
-/*@{*/
+/// @addtogroup grpFilter
+//@{
 #ifndef _BIQUAD_H_
 #define _BIQUAD_H_
 
@@ -50,9 +50,9 @@ public:
 		dlyOut2 = 0;
 	}
 
-	/// Initialize with a copy. Initialize the filter coefficients from
-	/// the object filt.
-	/// \param filt filter to copy from
+	/// Initialize with a copy. 
+	/// Settings, coefficients are copied from the filt object.
+	/// @param filt filter to copy from
 	virtual void Copy(BiQuadFilter *filt)
 	{
 		cutoff = filt->cutoff;
@@ -69,8 +69,8 @@ public:
 	}
 
 	/// Initialize the filter. The input array holds the cutoff frequency and gain.
-	/// \param n number of values (1 or 2)
-	/// \param v values: v[0] = cutoff, v[1] = gain
+	/// @param n number of values (1 or 2)
+	/// @param v values: v[0] = cutoff, v[1] = gain
 	virtual void  Init(int n, float *v)
 	{
 		if (n > 1)
@@ -80,8 +80,8 @@ public:
 	}
 
 	/// Initialize cutoff frequency and gain.
-	/// \param cu cutoff frequency
-	/// \param g overall filter gain
+	/// @param cu cutoff frequency
+	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
 		cutoff = cu;
@@ -89,7 +89,7 @@ public:
 	}
 
 	/// Reset the filter. The history buffer is cleared to zero. The phase argument is ignored.
-	/// \param initPhs (not used)
+	/// @param initPhs (not used)
 	virtual void Reset(float initPhs)
 	{
 		dlyIn1 = 0;
@@ -100,7 +100,7 @@ public:
 
 	/// Process the current sample. The output sample is calculated from
 	/// the coefficients and delayed samples.
-	/// \param vin current sample amplitude
+	/// @param vin current sample amplitude
 	virtual AmpValue Sample(AmpValue vin)
 	{
 		// Direct Form I
@@ -122,15 +122,17 @@ public:
 
 ///////////////////////////////////////////////////////////
 /// Low-pass filter. This class extends BiQuadFilter adding
-/// code to calculate the coefficients for a low-pass filter.
+/// code to calculate the coefficients for a 2nd order
+/// Butterworth low-pass filter.
 ///////////////////////////////////////////////////////////
 class FilterLP : public BiQuadFilter
 {
 public:
-	/// Initialize the cutoff frequency and gain. This method calculates the
-	/// coefficients if the new frequency does not match the current frequency.
-	/// \param cu cutoff frequency
-	/// \param g overall filter gain
+	/// Initialize the filter. This method calculates the
+	/// low-pass coefficients from the cutoff frequency and stores
+	/// the gain value for use in processing.
+	/// @param cu cutoff frequency
+	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
 		FrqValue old = cutoff;
@@ -154,15 +156,17 @@ public:
 
 ///////////////////////////////////////////////////////////
 /// High-pass filter. This class extends BiQuadFilter adding 
-/// code to calculate the coefficients for a high-pass filter.
+/// code to calculate the coefficients for a 2nd order
+/// Butterworth high-pass filter.
 ///////////////////////////////////////////////////////////
 class FilterHP : public BiQuadFilter
 {
 public:
-	/// Initialize the cutoff frequency and gain. This method calculates the
-	/// coefficients if the new frequency does not match the current frequency.
-	/// \param cu cutoff frequency
-	/// \param g overall filter gain
+	/// Initialize the filter. This method calculates the
+	/// high-pass coefficients from the cutoff frequency and stores
+	/// the gain value for use in processing.
+	/// @param cu cutoff frequency
+	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
 		FrqValue old = cutoff;
@@ -186,27 +190,32 @@ public:
 
 ///////////////////////////////////////////////////////////
 /// Band-pass filter. This class extends BiQuadFilter adding
-/// code to calculate the coefficients for a band-pass filter.
+/// code to calculate the coefficients for a 2nd order
+/// Butterworth band-pass filter.
 ///////////////////////////////////////////////////////////
 class FilterBP : public BiQuadFilter
 {
 private:
 	float bw;
 public:
-	/// Initialize the filter. Sets the cutoff frequency and gain. Bandwidth defaults
-	/// to 1K.
-	/// \param cu cutoff frequency
-	/// \param g overall filter gain
+	/// Initialize the filter. This method calculates the
+	/// coefficients from the cutoff frequency and stores
+	/// the gain value for use in processing. Bandwidth defaults
+	/// to 1K.	
+	/// @param cu cutoff frequency
+	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
 		Init(cu, g, 1000.0);
 	}
 
-	/// Initialize cutoff frequency, gain and bandwidth. The coefficients are calculated
-	/// for a band-pass filter with a center frequency and bandwidth.
-	/// \param cu cutoff frequency
-	/// \param g filter gain
-	/// \param B bandwidth
+	/// Initialize the filter. This method calculates the
+	/// bandpass coefficients from the cutoff frequency and stores
+	/// the gain value for use in processing. Bandwidth is
+	/// taken from the B argument.
+	/// @param cu cutoff frequency
+	/// @param g overall filter gain
+	/// @param B bandwidth
 	virtual void Init(FrqValue cu, AmpValue g, float B)
 	{
 		FrqValue old = cutoff;
@@ -232,9 +241,10 @@ public:
 
 ///////////////////////////////////////////////////////////
 /// Constant gain Resonantor. This class extends BiQuadFilter
-/// adding code to calculate the coefficients for a resonant band-pass filter.
+/// adding code to calculate the coefficients for a resonant
+/// band-pass filter.
 /// See J. Smith, "Introduction to Digital Filters", Appendix B
-/// and also Perry Cook, "Real Sound Synthesis", Chapter 3
+/// and Perry Cook, "Real Sound Synthesis", Chapter 3
 ///////////////////////////////////////////////////////////
 class Reson : public BiQuadFilter
 {
@@ -247,20 +257,21 @@ public:
 		res = 1.0;
 	}
 
-	/// Initialize the filter. Sets the cutoff frequency and gain. Resonance defaults
-	/// to 1.
-	/// \param cu cutoff frequency
-	/// \param g overall filter gain
+	/// Initialize the filter. 
+	/// Sets the cutoff frequency and gain. Resonance defaults to 1.
+	/// @param cu cutoff frequency
+	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
 		InitRes(cu, g, 1);
 	}
 
-	/// Initialize the filter cutoff frequency, gain and resonance. The coefficients are calculated
+	/// Initialize the filter from arguments.
+	/// The coefficients are calculated
 	/// for a band-pass filter with a center frequency and resonance.
-	/// \param cu cutoff frequency
-	/// \param g filter gain
-	/// \param r bandwidth
+	/// @param cu cutoff frequency
+	/// @param g filter gain
+	/// @param r resonance (0-1)
 	virtual void InitRes(FrqValue cu, AmpValue g, float r)
 	{
 		FrqValue old = cutoff;
@@ -278,5 +289,5 @@ public:
 	}
 };
 
-/*@}*/
+//@}
 #endif

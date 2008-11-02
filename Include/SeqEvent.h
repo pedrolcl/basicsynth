@@ -5,47 +5,61 @@
 // NoteEvent - instrument event base class
 // VarParamEvent - variable parameters class
 //
-// Events provide the coupling between the sequencer, instrument
-// manager and active instruments. The base class defines the
-// information needed by the sequencer. Each instrument derives
-// an event structure from SeqEvent, NoteEvent or VarParamEvent
-// and can add whatever additional parameters or methods 
-// the instrument needs. The event is passed to the instrument
-// for the START or PARAM signals.
-//
-// A parameter number is a monotonically increasing value that
-// is an index into the array of parameters. A parameter ID value
-// is the actual value used by the instrument to identify the 
-// parameter. For a fixed number of parameters, the two values
-// are the same. For variable number of parameters, the index and ID
-// will usually be different.
+/// @file SeqEvent.h Sequencer events
 //
 // Copyright 2008, Daniel R. Mitchell
 ////////////////////////////////////////////////////////////
+/// @addtogroup grpSeq
+//@{
 #ifndef _SEQEVENT_H
 #define _SEQEVENT_H
 
+/// Start a sound
 #define SEQEVT_START 0
+/// Stop a sound
 #define SEQEVT_STOP  1
+/// Change instrument parameters without restart
 #define SEQEVT_PARAM 2
+/// Restart the sound with new parameters
 #define SEQEVT_RESTART 3
 
 // Paramater index
+/// Instrument number
 #define P_INUM  0
+/// Mixer channel number
 #define P_CHNL  1
+/// Start time in samples
 #define P_START 2
+/// Duration in samples
 #define P_DUR   3
+/// Index of first instrument-specific ID
 #define P_XTRA  4
-// the first instrument-specific ID is P_XTRA
+
+class InstrMapEntry;
 
 ///////////////////////////////////////////////////////////
-// SeqEvent defines the minimum information needed by the
-// sequencer class. This can be used alone in cases where
-// a control function is needed. In that case, the
-// "instrument" only needs to know to start/stop operation
-// and does not need pitch, volume, duration, etc.
+/// A sequencer event.
+/// SeqEvent defines the minimum information needed by the
+/// sequencer class. This can be used alone in cases where
+/// a control function is needed. In that case, the
+/// "instrument" only needs to know to start/stop operation
+/// and does not need pitch, volume, duration, etc.
+///
+/// Events provide the coupling between the sequencer, instrument
+/// manager and active instruments. The base class defines the
+/// information needed by the sequencer. Each instrument derives
+/// an event structure from SeqEvent, NoteEvent or VarParamEvent
+/// and can add whatever additional parameters or methods 
+/// the instrument needs. The event is passed to the instrument
+/// for the START or PARAM signals.
+///
+/// A parameter number is a monotonically increasing value that
+/// is an index into the array of parameters. A parameter ID value
+/// is the actual value used by the instrument to identify the 
+/// parameter. For a fixed number of parameters, the two values
+/// are the same. For variable number of parameters, the index and ID
+/// will usually be different.
 ///////////////////////////////////////////////////////////
-class InstrMapEntry;
 class SeqEvent : public SynthList<SeqEvent>
 {
 public:
@@ -72,14 +86,22 @@ public:
 
 	virtual ~SeqEvent() { }
 
-	// The instrument manager and sequencer will call Destroy
-	// rather than the desctructor. Derived classes can use
-	// this feature to recycle events if desired...
+	/// Destroy the event.
+	/// The instrument manager and sequencer will call Destroy
+	/// rather than the desctructor. Derived classes can use
+	/// this feature to recycle events if desired.
 	virtual void Destroy() { delete this; }
 
+	/// Allocate space for variable parameters.
+	/// @param n the number of parameters needed.
 	virtual int AllocParam(bsInt16 n) { return 0; }
+
+	/// Get the maximum number of parameters.
 	virtual bsInt16 MaxParam() { return P_XTRA; }
 
+	/// Set a parameter
+	/// @param id unique id number for this value
+	/// @param v the parameter value
 	virtual void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
@@ -102,27 +124,34 @@ public:
 		}
 	}
 
-	// Set parameter from a string. This is a convenience
-	// for sequencer file readers...
+	/// Set parameter from a string. This is a convenience
+	/// for sequencer file readers.
+	/// @param id unique id number for this value
+	/// @param s the parameter value
 	virtual void SetParam(bsInt16 id, char *s)
 	{
 		SetParam(id, (float) atof(s));
 	}
 };
 
-///////////////////////////////////////////////////////////
-// The NoteEvent structure adds pitch, frequency and volume
-// to the pre-defined event parameters. Instruments that 
-// are to be used with Notelist should derive their events
-// from the NoteEvent class instead of SeqEvent.
-// ID numbers from P_XTRA up to P_USER are reserved for Notelist.
-///////////////////////////////////////////////////////////
+/// The pitch value (0-127)
 #define P_PITCH  4
+/// The frequency value (0-SR/2)
 #define P_FREQ   5
+/// The volume (0-1)
 #define P_VOLUME 6
-// First instrument specific parameter is P_USER = 16
+/// First instrument specific parameter is P_USER = 16
 #define P_USER 16
 
+///////////////////////////////////////////////////////////
+/// A note event.
+/// The NoteEvent structure adds pitch, frequency and volume
+/// to the pre-defined event parameters. Instruments that 
+/// are to be used with Notelist should derive their events
+/// from the NoteEvent class instead of SeqEvent.
+/// ID numbers from P_XTRA up to P_USER are reserved for Notelist.
+/// @sa SeqEvent
+///////////////////////////////////////////////////////////
 class NoteEvent : public SeqEvent
 {
 public:
@@ -137,8 +166,10 @@ public:
 		vol = 1.0;
 	}
 
+	/// @copydoc SeqEvent::MaxParam
 	virtual bsInt16 MaxParam() { return P_VOLUME; }
 
+	/// @copydoc SeqEvent::SetParam
 	virtual void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
@@ -162,12 +193,14 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-// Instruments that have variable number of parameters,
-// or have a very large number of parameters, can use
-// VarParamEvent as a class for events. The event
-// factory should set the maxParam member to the number
-// of unique parameters, not the maximum instrument parameter
-// ID value. 
+/// Variable parameter event.
+/// Instruments that have variable number of parameters,
+/// or have a very large number of parameters, can use
+/// VarParamEvent as a class for events. The event
+/// factory should set the maxParam member to the number
+/// of unique parameters, not the maximum instrument parameter
+/// ID value. 
+/// @sa SeqEvent
 ///////////////////////////////////////////////////////////
 class VarParamEvent : public NoteEvent
 {
@@ -196,6 +229,7 @@ public:
 		}
 	}
 
+	/// @copydoc SeqEvent::AllocParam
 	int AllocParam(bsInt16 n)
 	{
 		bsInt16 *ndx = new bsInt16[n];
@@ -223,15 +257,17 @@ public:
 		return n;
 	}
 
+	/// @copydoc SeqEvent::MaxParam
 	virtual bsInt16 MaxParam() 
 	{ 
 		return maxParam;
 	}
 
-	void SetParam(bsInt16 id, float val)
+	/// @copydoc SeqEvent::SetParam
+	void SetParam(bsInt16 id, float v)
 	{
 		if (id <= NoteEvent::MaxParam())
-			NoteEvent::SetParam(id, val);
+			NoteEvent::SetParam(id, v);
 		else if (id < maxParam)
 		{
 			if (numParam >= allParam)
@@ -240,10 +276,10 @@ public:
 					return;
 			}
 			idParam[numParam] = id;
-			valParam[numParam] = val;
+			valParam[numParam] = v;
 			numParam++;
 		}
 	}
 };
-
+//@}
 #endif

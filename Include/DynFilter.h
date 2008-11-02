@@ -1,36 +1,31 @@
 ///////////////////////////////////////////////////////////
 // BasicSynth - DynFilter
 //
-// This is a combination Filter/Envelope Generators that 
-// is optimized for classic subtractive synthesis where
-// the filter cutoff frequency is constantly varied with
-// an envelope generator. 
-// The tangent is calculated with a lookup from a sin wave table
-// to save processing time. This is slightly less accurate, but
-// for a constantly changing cutoff frequency, there should be
-// no audible difference. Coefficents are only calculated when
-// the table index value changes, saving additional time.
+/// @file DynFilter.h Combination Filter/Envelope
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
-/// \\addtogroup grpFilter
-/*@{*/
+/// @addtogroup grpFilter
+//@{
 #ifndef _DYNFILTER_H_
 #define _DYNFILTER_H_
 
 //#include <BiQuad.h>
 
-/// \brief Dynamic Filter
-/// \details \p DynFilterLP implements a specialized version of the low-pass bi-quad filter. 
+/// Dynamic Filter.
+/// This is a combination Filter/Envelope Generators that 
+/// is optimized for classic subtractive synthesis where
+/// the filter cutoff frequency is constantly varied with
+/// an envelope generator. 
 /// Subtractive synthesis methods typically apply an envelope generator to the cut-off frequency
 /// of a filter with the result that the coefficients must be re-calculated on every sample. 
-/// \p DynFilterLP minimizes the calculation time by aggregating an ADSR envelope generator and 
+/// DynFilterLP minimizes the calculation time by aggregating an ADSR envelope generator and 
 /// using a table lookup for the \e cos and \e sin values. The level values 
 /// for the envelope generator are set to values that equate to the frequency values.
 /// This filter is not as precise in terms of cut-off frequency due to round off by table lookup.
 /// However, because the filter center frequency is constantly changing, the frequency error 
 /// is not noticeable and the audible effect is the same as the true low-pass filter.
-/// \sa GenUnit BiQuadFilter EnvGenADSR
+/// @sa GenUnit BiQuadFilter EnvGenADSR
 class DynFilterLP : public BiQuadFilter
 {
 private:
@@ -50,6 +45,9 @@ public:
 		lastNdx = 0;
 	}
 
+	/// Process the current sample.
+	/// The current sample is passed through the filter and the filtered value is returned.
+	/// @param in current sample value
 	AmpValue Sample(AmpValue in)
 	{
 		int tndx = (int) (env.Gen() * frqTI);
@@ -91,18 +89,18 @@ public:
 	AmpValue GetRelLvl(){ return env.GetRelLvl(); }
 	EGSegType GetType() { return env.GetType(); }
 
-	/// \brief Initialize the filter
-	/// \details Sets the values for the built-in envelope generator. 
+	/// Initialize the filter.
+	/// Sets the values for the built-in envelope generator. 
 	/// All level values specify a frequency.
-	/// \param st Starting frequency
-	/// \param ar Attack rate
-	/// \param al Frequency at end of attack
-	/// \param dr Decay rate
-	/// \param sl Frequency during sustain
-	/// \param rr Relese rate
-	/// \param rl Frequency at end of release
-	/// \param t Segment curve type
-	/// \param fg Filter gain (default 1.0)
+	/// @param st Starting frequency
+	/// @param ar Attack rate
+	/// @param al Frequency at end of attack
+	/// @param dr Decay rate
+	/// @param sl Frequency during sustain
+	/// @param rr Relese rate
+	/// @param rl Frequency at end of release
+	/// @param t Segment curve type
+	/// @param fg Filter gain (default 1.0)
 	void InitFilter(AmpValue st, FrqValue ar, AmpValue al, FrqValue dr, 
 	                AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = linSeg, AmpValue fg = 1.0)
 	{
@@ -111,34 +109,38 @@ public:
 		Reset(0);
 	}
 
-	/// \brief Copy the filter settings
-	/// \details Make a copy of the filter settings into the object \p fp
-	/// \param fp Destination object to copy into
+	/// Initialize from a copy.
+	/// Set the filter parameters from the object fp.
+	/// @param fp Source object to copy from
 	void Copy(DynFilterLP *fp)
 	{
 		BiQuadFilter::Copy(fp);
 		env.Copy(&fp->env);
 	}
 
-	void GetEnvDef(EnvDef *e)
+	/// @copydoc EnvGenUnit::GetEnvDef
+	void GetEnvDef(EnvDef *def)
 	{
-		env.GetEnvDef(e);
+		env.GetEnvDef(def);
 	}
 
-	void SetEnvDef(EnvDef *e)
+	/// @copydoc EnvGenUnit::SetEnvDef
+	void SetEnvDef(EnvDef *def)
 	{
-		env.GetEnvDef(e);
+		env.GetEnvDef(def);
 	}
 
+	/// Reset the envelope to the beginning.
 	void Reset(float initPhs)
 	{
 		env.Reset(initPhs);
 	}
 
+	/// Move the envelope to the final segment.
 	void Release()
 	{
 		env.Release();
 	}
 };
-/*@}*/
+//@}
 #endif

@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////
 // BasicSynth XML Wrapper class definitions
 //
-// These classes provide a portable abstraction over the XML DOM.
+/// @file XmlWrap.h Wrapper classes to provide a portable abstraction over the XML DOM.
 //
 // define USE_MSXML to use the MS Windows msxml dll
 // define USE_LIBXML to use the libxml2 library
@@ -31,6 +31,7 @@
 
 class XmlSynthDoc;
 
+/// An XML element node.
 class XmlSynthElem
 {
 private:
@@ -71,6 +72,7 @@ public:
 	int GetContent(char **data);
 };
 
+/// An XML document.
 class XmlSynthDoc
 {
 private:

@@ -3,9 +3,12 @@
 // BasicSynth - Fast wavetable generator using Q24.40 index
 // Very precise phase increment if you have 64-bit data type.
 //
+/// @file GenWave64.h Oscillator with 64-bit phase accumulator
+//
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
-
+/// @addtogroup grpOscil
+//@{
 #ifndef _GENWAVE64_H_
 #define _GENWAVE64_H_
 
@@ -23,6 +26,8 @@ typedef long long int64;
 typedef __int64 int64;
 #endif
 
+/// Oscillator with 64-bit fixed point phase accumulator.
+/// @sa GenWave32
 class GenWave64 : public GenWaveWT
 {
 private:
@@ -79,5 +84,5 @@ public:
 		return v;
 	}
 };
-
+//@}
 #endif

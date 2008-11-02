@@ -1,18 +1,22 @@
 ///////////////////////////////////////////////////////////////
 // BasicSynth Reverb classes
 //
+/// @file Reverb.h Reverberation units
+//
 // Reverb1 - Single resonator with LP filter
 // Reverb2 - Schroeder type reverb unit
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
-
+/// @addtogroup grpMix
+//@{
 #ifndef _REVERB_H_
 #define _REVERB_H_
 
-#include "DelayLine.h"
+//#include "DelayLine.h"
 
-// Single resonator with LP filter in the feedback loop
+/// Single resonator reverb.
+/// Includes a LP filter in the feedback loop.
 class Reverb1 : public DelayLineR
 {
 private:
@@ -25,16 +29,19 @@ public:
 		prev = 0.0;
 	}
 
-	// atten, LT, RT
+	/// Initialize the reverb.
+	/// @param n number of values (3)
+	/// @param v values, v[0] = atten v[1] = LT, v[2] = RT
 	void Init(int n, float *v)
 	{
 		if (n > 2)
 			InitReverb(AmpValue(v[0]), FrqValue(v[1]), FrqValue(v[2]));
 	}
 
-	// a = input attenuation
-	// lt = Loop time
-	// rt = Reverb time
+	/// Initialize the reverb.
+	/// @param a input attenuation
+	/// @param lt loop time
+	/// @param rt reverb time
 	void InitReverb(AmpValue a, FrqValue lt, FrqValue rt)
 	{
 		atten = a;
@@ -42,6 +49,10 @@ public:
 		prev = 0.0;
 	}
 
+	/// Process the current sample.
+	/// The input value is passed to the reverb.
+	/// The reverberated sample is returned.
+	/// @param vin current sample
 	AmpValue Sample(AmpValue vin)
 	{
 		AmpValue out = *delayPos * decayFactor;
@@ -54,7 +65,8 @@ public:
 	}
 };
 
-// Schroeder reverb - four parallel comb filters + two series allpass filters
+/// Schroeder reverb.
+/// This reverb uses four parallel comb filters + two series allpass filters
 class Reverb2 : public GenUnit
 {
 private:
@@ -67,13 +79,18 @@ public:
 		atten = 1.0;
 	}
 
-	// atten, RT
+	/// Initialize the reverb.
+	/// @param n number of values (2)
+	/// @param v values, v[0] = atten v[1] = RT
 	void Init(int n, float *v)
 	{
 		if (n > 1)
 			InitReverb(AmpValue(v[0]), FrqValue(v[1]));
 	}
 
+	/// Reset the reverb
+	/// Clears the comb filters to zero.
+	/// @param initPhs not used
 	void Reset(float initPhs = 0)
 	{
 		dlr[0].Reset(initPhs);
@@ -84,11 +101,14 @@ public:
 		ap[1].Reset(initPhs);
 	}
 
-	// InitReverb sets the typical LT values for a Scroeder unit.
-	// The RT value is 1-2 seconds typical.
-	// The attenuation value controls how much of the signal
-	// will be sent through the reverb. Usually it is set to
-	// 1.0, but can be lowered if the reverb distorts.
+	/// Initialize the reverb.
+	/// InitReverb sets the typical LT values for a Scroeder unit.
+	/// The RT value is 1-2 seconds typical.
+	/// The attenuation value controls how much of the signal
+	/// will be sent through the reverb. Usually it is set to
+	/// 1.0, but can be lowered if the reverb distorts.
+	/// @param a attenuation value for input
+	/// @param rt reverb time
 	void InitReverb(AmpValue a, FrqValue rt)
 	{
 		atten = a;
@@ -100,9 +120,13 @@ public:
 		ap[1].InitDLR(0.03292, 0.0017, 0.001);
 	}
 
-	// Set the LT and RT values individually
-	// The first four index values (0-3) are the comb
-	// filters while index 4-5 are the allpass units.
+	/// Initialize Reverb.
+	/// Set the LT and RT values individually
+	/// The first four index values (0-3) are the comb
+	/// filters while index 4-5 are the allpass units.
+	/// @param n comb filter index
+	/// @param lt loop time
+	/// @param rt reverb time
 	void InitDelay(int n, FrqValue lt, FrqValue rt)
 	{
 		if (n >= 0 && n < 4)
@@ -111,6 +135,10 @@ public:
 			ap[n-4].InitDLR(lt, rt, 0.001);
 	}
 
+	/// Process the current sample.
+	/// The input value is passed to the reverb.
+	/// The reverberated sample is returned.
+	/// @param vin current sample
 	AmpValue Sample(AmpValue vin)
 	{
 		vin *= atten;
@@ -119,5 +147,5 @@ public:
 	}
 };
 
-
+//@}
 #endif

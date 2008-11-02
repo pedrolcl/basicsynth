@@ -125,7 +125,7 @@ public:
 	/// buffer.
 	/// @note for multi-channel output, multiply the number of
 	/// samples by the number of channels to set the length.
-	/// @param length size of the buffer in samples
+	/// @param length size of the buffer in frames
 	/// @param ch number of channels
 	virtual int AllocBuf(long length, bsInt16 ch)
 	{

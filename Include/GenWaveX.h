@@ -2,7 +2,7 @@
 //
 // BasicSynth - GenWaveX
 //
-// Various complex spectrum waveform generators using wavetables
+/// @file GenWaveX.h Various complex spectrum waveform generators using wavetables.
 //
 // GenWaveSum - sum of waveforms, typically for additive synth, but other uses as well.
 // GenWaveFM - frequency modulation generator, one modulator
@@ -12,11 +12,14 @@
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
+/// @addtogroup grpOscil
+//@{
 #ifndef _GENWAVEX_H_
 #define _GENWAVEX_H_
 
-// Incremental calculation of sum of waves - slower than precalc,
-// but BW limited and also useful for doubling, chorus effects, etc.
+/// Incremental calculation of sum of waves. Slower than precalculating
+/// a sum of sinusoids, but BW limited and also useful for doubling, 
+/// chorus effects, etc.
 class GenWaveSum : public GenWaveWT
 {
 private:
@@ -205,10 +208,10 @@ public:
 };
 
 
-// FM (PM) Generator
-// Any WT class has a modulator input. This special class has the
-// modulator oscillator built in for convienence.
-// The Modulate() method also works, and can be used for LFO.
+/// FM (PM) Generator
+/// Any WT class has a modulator input. This special class has the
+/// modulator oscillator built in for convienence.
+/// The Modulate() method also works, and can be used for LFO.
 class GenWaveFM : public GenWaveWT
 {
 private:
@@ -300,7 +303,7 @@ public:
 	}
 };
 
-// AM Generator (2-quadrant multiply)
+/// AM Generator (2-quadrant multiply)
 class GenWaveAM : public GenWaveWT
 {
 protected:
@@ -359,7 +362,7 @@ public:
 	}
 };
 
-// Ring modulator (i.e. 4-quadrant multiply)
+/// Ring modulator (i.e. 4-quadrant multiply)
 class GenWaveRM : public GenWaveAM
 {
 public:
@@ -375,8 +378,9 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// Pitched noise - ring modulation of a sine wave and noise
-// See: Computer Music, Dodge&Jerse, chapter 4.11b
+/// Pitched noise. Ring modulation of a sine wave and noise
+/// See: Computer Music, Dodge&Jerse, chapter 4.11b
+/// @sa GenNoise
 ///////////////////////////////////////////////////////////
 class GenWaveNZ : public GenUnit
 {
@@ -415,6 +419,6 @@ public:
 	}
 };
 
-
+//@}
 #endif
 

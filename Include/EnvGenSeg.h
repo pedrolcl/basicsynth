@@ -139,16 +139,16 @@ public:
 		value = start;
 	}
 
-	/// Get the current value.	This returns the current value of the generator
-	/// without moving forward to the next value.
+	/// Get the current value.	This returns the current value
+	///  of the generator without moving forward to the next value.
 	/// @return current amplitude value
 	virtual AmpValue Value()
 	{
 		return value;
 	}
 
-	/// Generate the next sample. This moves to the next value and multiplies
-	/// it by the supplied peak amplitude value.
+	/// Generate the next sample. This moves to the next value
+	///  and multiplies it by the input amplitude value.
 	/// @param in amplitude scale value
 	/// @return next amplitude value
 	virtual AmpValue Sample(AmpValue in)
@@ -199,7 +199,7 @@ public:
 		return linSeg;
 	}
 
-	/// @copydoc EnvGenSet::Reset()
+	/// @copydoc EnvSeg::Reset()
 	virtual void Reset(float initPhs = 0)
 	{
 		EnvSeg::Reset(initPhs);
@@ -208,7 +208,7 @@ public:
 			incr /= (AmpValue) count;
 	}
 
-	/// @copydoc EnvGenSet::Gen()
+	/// @copydoc EnvSeg::Gen()
 	virtual AmpValue Gen()
 	{
 		if (--count >= 0)
@@ -253,7 +253,7 @@ public:
 		bias = (AmpValue)b;
 	}
 
-	/// @copydoc EnvGenSeg::Reset()
+	/// @copydoc EnvSeg::Reset()
 	virtual void Reset(float initPhs = 0)
 	{
 		EnvSeg::Reset(initPhs);
@@ -279,7 +279,7 @@ public:
 			incr = 1;
 	}
 
-	/// @copydoc EnvGenSeg::Gen()
+	/// @copydoc EnvSeg::Gen()
 	virtual AmpValue Gen()
 	{
 		if (--count >= 0)
@@ -306,6 +306,7 @@ public:
 		return logSeg; 
 	}
 
+	/// @copydoc EnvSeg::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		count = (long) (rate * synthParams.sampleRate);
@@ -332,6 +333,7 @@ public:
 			incr = 1;
 	}
 
+	/// @copydoc EnvSeg::Gen
 	virtual AmpValue Gen()
 	{
 		if (--count >= 0)
@@ -343,18 +345,23 @@ public:
 	}
 };
 
+/// Structure to hold values for an envelope segment.
 struct SegVals
 {
+	/// Time in seconds.
 	FrqValue rate;
+	/// End level.
 	AmpValue level;
+	/// Curve type
 	EGSegType type;
 };
 
 ///////////////////////////////////////////////////////////
 /// Structure to hold values for an envelope generator.
-/// This class provides a dynamic array of
-/// level,rate pairs. The multi-segment envelope generators
+/// This class provides a dynamic array of SegVals,
+/// (level,rate,type) tuples. The multi-segment envelope generators
 /// can be initialized by passing an object of this type
+/// to the SetEnvDef member function.
 ///////////////////////////////////////////////////////////
 struct EnvDef
 {
@@ -377,7 +384,6 @@ struct EnvDef
 	}
 
 	/// Allocate space for segments.
-	/// Allocate an array large enough to hold the rate,level pairs.
 	/// Existing values are discarded. The starting value and sustain-on flags
 	/// are also set here.
 	/// @param n number of segments
@@ -389,36 +395,74 @@ struct EnvDef
 		nsegs = n;
 		start = s;
 		suson = 1;
-		segs = new SegVals[n];
+		if (n > 0)
+			segs = new SegVals[n];
 	}
 
 	/// Get the number of segments allocated.
-	int NumSegs() { return nsegs; }
+	int NumSegs()
+	{ 
+		return nsegs; 
+	}
 
 	/// Set the starting value for the envelope.
 	/// @param st starting value
-	inline void SetStart(AmpValue st) { start = st; }
+	inline void SetStart(AmpValue st)
+	{ 
+		start = st; 
+	}
 	/// Set the rate for segment n
 	/// @param n segment
 	/// @param rt rate (time from start to end)
-	inline void SetRate(int n, FrqValue rt) { segs[n].rate = rt; }
+	inline void SetRate(int n, FrqValue rt)
+	{ 
+		if (n < nsegs)
+			segs[n].rate = rt;
+	}
 	/// Set the level for segment n
 	/// @param n segment
 	/// @param lv end level
-	inline void SetLevel(int n, AmpValue lv) { segs[n].level = lv; }
+	inline void SetLevel(int n, AmpValue lv)
+	{ 
+		if (n < nsegs)
+			segs[n].level = lv; 
+	}
+
 	/// Set the type for segment n
 	/// @param n segment
 	/// @param ty segment type
-	inline void SetType(int n, EGSegType ty) { segs[n].type = ty; }
+	inline void SetType(int n, EGSegType ty)
+	{ 
+		if (n < nsegs)
+			segs[n].type = ty; 
+	}
 
 	/// Get the starting value
-	inline AmpValue GetStart() { return start; }
+	inline AmpValue GetStart()
+	{ 
+		return start; 
+	}
 	/// Get the rate for segment \p n
-	inline FrqValue GetRate(int n)  { return segs[n].rate; }
+	inline FrqValue GetRate(int n)
+	{ 
+		if (n < nsegs)
+			return segs[n].rate; 
+		return 0.0;
+	}
 	/// Get the level for segment \p n
-	inline AmpValue GetLevel(int n) { return segs[n].level; }
+	inline AmpValue GetLevel(int n)
+	{ 
+		if (n < nsegs)
+			return segs[n].level; 
+		return 0.0;
+	}
 	/// Get the type for segment \p n
-	inline EGSegType GetType(int n) { return segs[n].type; }
+	inline EGSegType GetType(int n)
+	{ 
+		if (n < nsegs)
+			return segs[n].type; 
+		return nulSeg;
+	}
 
 	/// Set one segment.
 	/// Set the rate, level and type for a segment.
@@ -470,39 +514,52 @@ struct EnvDef
 			delete segs;
 		nsegs = 0;
 		start = 0;
+		suson = 0;
 		segs = NULL;
 	}
 };
 
 ///////////////////////////////////////////////////////////
-// Interface definition for multi-segment envelope generators
+// Class definitions for multi-segment envelope generators
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
 /// Multi-segment Envelope generator.
-/// This the base class for multi-segment envelope generators.
-/// This class defines the common methods, but provides no implementation except 
+/// This is the interface definition for multi-segment envelope generators.
+/// It defines the common methods, but provides no implementation except 
 /// for the Sample method.
+///////////////////////////////////////////////////////////
 class EnvGenUnit : public GenUnit
 {
 public:
-	virtual AmpValue Gen() { return 0; }
+	/// Generate the next value. This method calculates
+	/// the next value and steps to the next segment
+	/// when the current segment is finished. When the end
+	/// of the envelope is reached, the final value is
+	/// returned until Reset() is called.
+	virtual AmpValue Gen() { return 0.0; }
+
+	/// Generate the next value and multiply by the
+	/// current sample value.
+	/// @param in current sample amplitude value
 	virtual AmpValue Sample(AmpValue in)
 	{
 		return Gen() * in;
 	}
 
+	/// Move to the release segment.
 	virtual void Release() { }
 
 	/// Return the envelope settings in an EnvDef structure.
-	/// @param def envelop definition
+	/// @param def envelope definition
 	virtual void GetEnvDef(EnvDef *def) { }
 
 	/// Initialize the envelope from an EnvDef structure.
-	/// @param def envelop definition
+	/// @param def envelope definition
 	virtual void SetEnvDef(EnvDef *def) { }
 
 	/// Initialize from a copy.
-	/// Initialize the envelope by copying values from the object tp.
+	/// The envelope values are copied from the source object.
 	/// @param tp pointer to source object
 	virtual void Copy(EnvGenUnit *tp) { }
 };
@@ -510,23 +567,22 @@ public:
 ///////////////////////////////////////////////////////////
 /// Variable multi-segment envelope generator
 ///
-/// This is the base class for multi-segment EG classes.
-///
 /// The array of segment values is dynamic, allowing any
 /// number of segments. Each segment has a rate, level and
 /// type, thus allowing a mixture of linear, exponential,
-/// log curves. The "segObj" array is initialized to 
-/// the appropriate curve generator when the SetType() method is called.
+/// log curves. The segObj array is initialized to 
+/// the appropriate curve generator when the SetType
+/// method is called.
 ///
 /// This class does not implement indeterminate sustain. 
 /// However, it is possible to create a fixed duration 
 /// sustain segment by setting the start and end points
 /// equal for one of the segments and setting the type
-/// to "susSeg". 
+/// to susSeg. 
 //
 /// The AR, ADSR, and A3SR classes derive from this class
 /// and implement a state-machine that stops at the sustain
-/// point if configured.
+/// segment if it is set to on.
 ///////////////////////////////////////////////////////////
 class EnvGenSeg : public EnvGenUnit
 {
@@ -571,7 +627,8 @@ public:
 		EnvGenSeg *ap = (EnvGenSeg *)tp;
 		SetStart(ap->segStart);
 		SetSegs(ap->numSeg);
-		for (int n = 0; n < numSeg; n++)
+		susOn = ap->susOn;
+		for (int n = 0; n < ap->numSeg; n++)
 			SetSegN(n, ap->segRLT[n].rate, ap->segRLT[n].level, ap->segRLT[n].type);
 	}
 
@@ -614,13 +671,18 @@ public:
 	virtual void GetEnvDef(EnvDef *def)
 	{
 		def->Alloc(numSeg, segStart, susOn);
-		memcpy(def->segs, segRLT, numSeg*sizeof(SegVals));
+		if (numSeg > 0)
+			memcpy(def->segs, segRLT, numSeg*sizeof(SegVals));
 	}
 
 	/// Get the number of segments
-	int GetSegs() { return numSeg; }
+	int GetSegs()
+	{ 
+		return numSeg; 
+	}
 
-	/// Set the number of segments.
+	/// Set the number of segments. This method allocates
+	/// an array of SegVals and initializes them to zero.
 	/// @param count number of segments
 	virtual void SetSegs(int count)
 	{
@@ -647,19 +709,97 @@ public:
 		}
 	}
 
-	inline void SetSuson(int on) { susOn = on; }
-	inline void SetStart(AmpValue lvl) { segStart = lvl; }
-	inline void SetRate(int segn, FrqValue rt) { segRLT[segn].rate = rt; }
-	inline void SetLevel(int segn, AmpValue lvl) { segRLT[segn].level = lvl; }
+	/// Set the sustain flag on/off. When the sustain flag is set
+	/// on the envelope will stop before the final segment and
+	/// continue to return the current value until Release is called.
+	/// @param on sustain on flag, 1 = on, 0 = off
+	inline void SetSusOn(int on)
+	{
+		susOn = on; 
+	}
 
-	inline int GetSusOn()      { return susOn; }
-	inline AmpValue GetStart() { return segStart; }
-	inline FrqValue GetRate(int segn) { return segRLT[segn].rate; }
-	inline AmpValue GetLevel(int segn) { return segRLT[segn].level; }
-	inline EGSegType GetType(int segn) { return segRLT[segn].type; }
+	/// Set the starting value for the envelope. Typically this
+	/// is set to zero for amplitude envelopes. It will often
+	/// be set to a non-zero value when the envelope is used
+	/// to sweep a filter or an FM index value.
+	/// @param lvl starting level
+	inline void SetStart(AmpValue lvl)
+	{
+		segStart = lvl; 
+	}
 
+	/// Set the rate for a segment. This sets the seconds
+	/// to transition to the end level for the segment.
+	/// @param segn segment number
+	/// @param rt time in seconds for this segment
+	inline void SetRate(int segn, FrqValue rt)
+	{
+		if (segn < numSeg)
+			segRLT[segn].rate = rt;
+	}
+
+	/// Set the ending level for a segment. This is the value
+	/// reached at the end of the segment. The starting
+	/// value is always the current level when the segment
+	/// begins.
+	/// @param segn segment number
+	/// @param lvl end level
+	inline void SetLevel(int segn, AmpValue lvl)
+	{
+		if (segn < numSeg)
+			segRLT[segn].level = lvl; 
+	}
+
+	/// Get the current value for the sustain on flag.
+	inline int GetSusOn()
+	{ 
+		return susOn; 
+	}
+
+	/// Get the current start value for envelope.
+	inline AmpValue GetStart()
+	{ 
+		return segStart; 
+	}
+
+	/// Get the rate for a segment.
+	/// @param segn segment number
+	inline FrqValue GetRate(int segn)
+	{ 
+		if (segn < numSeg)
+			return segRLT[segn].rate;
+		return 0;
+	}
+
+	/// Get the end level for a segment.
+	/// @param segn segment number
+	inline AmpValue GetLevel(int segn)
+	{ 
+		if (segn < numSeg)
+			return segRLT[segn].level; 
+		return 0;
+	}
+
+	/// Get the type of a segment. The type defines
+	/// the curve, linear, exponential, logarithmic,
+	/// or sustain.
+	/// @param segn segment number
+	inline EGSegType GetType(int segn)
+	{ 
+		if (segn < numSeg)
+			return segRLT[segn].type; 
+		return nulSeg;
+	}
+
+	/// Set the type of a segment. The type defines
+	/// the curve, linear, exponential, logarithmic,
+	/// or sustain.
+	/// @param segn segment number
+	/// @param ty segment type, one of EGSegType
 	void SetType(int segn, EGSegType ty)
 	{
+		if (segn >= numSeg)
+			return;
 		segRLT[segn].type = ty;
 		switch(ty)
 		{
@@ -679,6 +819,12 @@ public:
 		}
 	}
 
+	/// Get all values for a segment. This method copies all three
+	/// values into the appropriate arguments.
+	/// @param segn segment number
+	/// @param rt time in seconds for the segment
+	/// @param lvl end level for the segment
+	/// @param typ curve type for the segment
 	void GetSegN(int segn, FrqValue& rt, AmpValue& lvl, EGSegType& typ)
 	{
 		if (segn >= numSeg)
@@ -688,6 +834,12 @@ public:
 		typ = segRLT[segn].type;
 	}
 
+	/// Set all values for a segment. This method copies all three
+	/// values from the appropriate arguments.
+	/// @param segn segment number
+	/// @param rt time in seconds for the segment
+	/// @param lvl end level for the segment
+	/// @param typ curve type for the segment
 	void SetSegN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg)
 	{
 		if (segn >= numSeg)
@@ -711,6 +863,9 @@ public:
 		}
 	}
 
+	/// Begin the envelope release.
+	/// For a multi-segment envelope without sustain
+	/// this method does nothing.
 	virtual void Release()
 	{
 		// NOOP for the base class...
@@ -736,7 +891,7 @@ public:
 			seg = segObj[numSeg-1];
 	}
 
-	/// @copydoc EnvGen::Gen()
+	/// @copydoc EnvGenUnit::Gen()
 	virtual AmpValue Gen()
 	{
 		lastVal = seg->Gen();
@@ -753,11 +908,12 @@ public:
 }; 
 
 ///////////////////////////////////////////////////////////
-/// Multi-attack, sustain, single release segments.
-/// The multi-segment with sustain envelope generator
-/// provides a configurable number of attack segments, an optional
-/// sustain of indeterminate length, and a single release
-/// segment.
+/// Multi-attack, sustain, single release segment envelope generator.
+/// This envelope generator implements a configurable number
+/// of attack segments, an optional sustain of indeterminate length,
+/// and a single release segment. The ADSR and AR envelopes
+/// derive from this class.
+/// @sa EnvGenSeg
 ///////////////////////////////////////////////////////////
 class EnvGenSegSus : public EnvGenSeg
 {
@@ -772,6 +928,7 @@ public:
 		relSeg = 0;
 	}
 
+	/// @copydoc EnvGenSeg::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		if (initPhs >= 0)
@@ -782,7 +939,7 @@ public:
 		}
 	}
 
-	/// @copydoc EnvGen::Gen()
+	/// @copydoc EnvGenUnit::Gen()
 	virtual AmpValue Gen()
 	{
 		switch (state)
@@ -814,11 +971,9 @@ public:
 		return lastVal;
 	}
 
-	/// Trigger the release segment.
-	/// If the envelope is already in the
-	/// release phase (due to sustain-on being false) no action is taken. Otherwise,
-	/// the segment is moved to the release segment regardless of the current
-	/// segment.
+	/// Begin the envelope release.
+	/// If the envelope is already in the release phase no action is taken. Otherwise,
+	/// the segment is moved to the release segment regardless of the current segment.
 	virtual void Release()
 	{
 		if (state < 2)
@@ -842,6 +997,7 @@ public:
 /// This envelope generator provides a single attack
 /// and single release segment with a variable length sustain.
 /// The release segment begins when the Release() method is called.
+/// @sa EnvGenSegSus EnvGenSeg
 ///////////////////////////////////////////////////////////
 class EnvGenAR : public EnvGenSegSus
 {
@@ -854,19 +1010,48 @@ public:
 		EnvGenSeg::SetSegs(2);
 	}
 
-	inline void SetAtkRt(FrqValue val)  { SetRate(0, val); }
-	inline void SetRelRt(FrqValue val)  { SetRate(1, val); }
-	inline void SetSus(AmpValue val)    { SetLevel(0, val); }
-	inline void SetSusOn(int val)       { susOn = val; }
-	inline FrqValue GetAtkRt() { return GetRate(0); }
-	inline FrqValue GetRelRt() { return GetRate(1); }
-	inline AmpValue GetSus()   { return GetLevel(0); }
+	/// Set the attack rate.
+	/// @param val rate in seconds from 0 to peak level
+	inline void SetAtkRt(FrqValue val)
+	{ 
+		SetRate(0, val); 
+	}
+	/// Set the release rate.
+	/// @param val rate in seconds from peak to 0 level.
+	inline void SetRelRt(FrqValue val)
+	{ 
+		SetRate(1, val); 
+	}
+	/// Set the sustain level.
+	inline void SetSus(AmpValue val)
+	{ 
+		SetLevel(0, val); 
+	}
+	/// Get the attack rate
+	inline FrqValue GetAtkRt()
+	{ 
+		return GetRate(0); 
+	}
+	/// Get the release rate.
+	inline FrqValue GetRelRt()
+	{ 
+		return GetRate(1); 
+	}
+	/// Get the sustain level.
+	inline AmpValue GetSus()
+	{ 
+		return GetLevel(0); 
+	}
 
+	/// Set the number of segments.
+	/// For AR generators the number of segments is always two.
 	void SetSegs(int count) { }
+	/// Get the number of segments.
+	/// For AR generators the number of segments is always two.
 	int GetSegs() { return 2; }
 
-	/// Initialize with explicit values.
-	/// Initialize the envelope with the parameter values.
+	/// Initialize all segments.
+	/// This method sets all values with one function call.
 	/// @param ar attack rate
 	/// @param sl sustain level
 	/// @param rr release rate
@@ -874,7 +1059,7 @@ public:
 	/// @param t curve type (\see EGSegType)
 	virtual void InitAR(FrqValue ar, AmpValue sl, FrqValue rr, int son, EGSegType t)
 	{
-		SetSuson(son);
+		SetSusOn(son);
 		SetStart(0);
 		SetSegN(0, ar, sl, t);
 		SetSegN(1, rr, 0, t);
@@ -889,6 +1074,7 @@ public:
 /// decay, sustain, release envelope. The length of the sustain
 /// segment is variable. The release segment begins when the
 /// Release() method is called.
+/// @sa EnvGenSegSus EnvGenSeg
 ///////////////////////////////////////////////////////////
 class EnvGenADSR : public EnvGenSegSus
 {
@@ -901,30 +1087,105 @@ public:
 		EnvGenSeg::SetSegs(3);
 	}
 
-	void SetAtkRt(FrqValue val)  { SetRate(0, val); }
-	void SetAtkLvl(AmpValue val) { SetLevel(0, val); }
-	void SetDecRt(FrqValue val)  { SetRate(1, val); }
-	void SetSusLvl(AmpValue val) { SetLevel(1, val); }
-	void SetRelRt(FrqValue val)  { SetRate(2, val); }
-	void SetRelLvl(AmpValue val) { SetLevel(2, val); }
-	void SetType(EGSegType ty)   
+	/// Set the attack rate.
+	/// @param val rate in seconds to transtion from start to initial peak level
+	inline void SetAtkRt(FrqValue val)
+	{ 
+		SetRate(0, val); 
+	}
+	/// Set the initial peak level.
+	/// @param val level at end of attack segment
+	inline void SetAtkLvl(AmpValue val)
+	{ 
+		SetLevel(0, val); 
+	}
+	/// Set the decay rate.
+	/// @param val rate in seconds to transition from attack peak to sustain level
+	inline void SetDecRt(FrqValue val)
+	{
+		SetRate(1, val); 
+	}
+	/// Set the sustain level.
+	/// @param val level at end of decay segment
+	inline void SetSusLvl(AmpValue val)
+	{ 
+		SetLevel(1, val); 
+	}
+	/// Set the release rate.
+	/// @param val rate in seconds to transition from sustain level to end level
+	inline void SetRelRt(FrqValue val)  
+	{ 
+		SetRate(2, val); 
+	}
+	/// Set the release level.
+	/// @param val level at the end of the envelope
+	inline void SetRelLvl(AmpValue val) 
+	{ 
+		SetLevel(2, val); 
+	}
+	/// Set the envelope curve type. All segments in an ADSR envelope
+	/// have the same type.
+	/// @param ty envelope curve type
+	inline void SetType(EGSegType ty)   
 	{
 		EnvGenSeg::SetType(0, ty);
 		EnvGenSeg::SetType(1, ty);
 		EnvGenSeg::SetType(2, ty);
 	}
 
-	FrqValue GetAtkRt() { return GetRate(0); }
-	AmpValue GetAtkLvl(){ return GetLevel(0); }
-	FrqValue GetDecRt() { return GetRate(1); }
-	AmpValue GetSusLvl(){ return GetLevel(1); }
-	FrqValue GetRelRt() { return GetRate(2); }
-	AmpValue GetRelLvl(){ return GetLevel(2); }
-	EGSegType GetType()  { return EnvGenSeg::GetType(0); }
+	/// Get the attack rate.
+	inline FrqValue GetAtkRt()
+	{ 
+		return GetRate(0); 
+	}
+	/// Get the attack level.
+	inline AmpValue GetAtkLvl()
+	{ 
+		return GetLevel(0); 
+	}
+	/// Get the decay rate.
+	inline FrqValue GetDecRt()
+	{ 
+		return GetRate(1); 
+	}
+	/// Get the sustain level.
+	inline AmpValue GetSusLvl()
+	{ 
+		return GetLevel(1); 
+	}
+	/// Get the release rate.
+	inline FrqValue GetRelRt()
+	{ 
+		return GetRate(2); 
+	}
+	/// Get the release (final) level
+	inline AmpValue GetRelLvl()
+	{ 
+		return GetLevel(2); 
+	}
+	/// Get the curve type.
+	inline EGSegType GetType()
+	{ 
+		return EnvGenSeg::GetType(0); 
+	}
 
+	/// Set the number of segments.
+	/// For ADSR generators the number of segments is always three.
 	void SetSegs(int count) { }
+	/// Get the number of segments.
+	/// For ADSR generators the number of segments is always three.
 	int GetSegs() {	return 3; }
 
+	/// Initialize all segments.
+	/// This method sets all rate and level values from the arguments.
+	/// @param st start level
+	/// @param ar attack rate
+	/// @param al attack level
+	/// @param dr decay rate
+	/// @param sl sustain level
+	/// @param rr release rate
+	/// @param rl release (final) level
+	/// @param t curve type (\see EGSegType)
 	virtual void InitADSR(AmpValue st, FrqValue ar, AmpValue al, FrqValue dr, 
 	                      AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = logSeg)
 	{
@@ -937,7 +1198,15 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// Multi-attack, sustain, multi-decay segments
+/// Multi-attack, sustain, multi-decay segment envelope generator.
+/// EnvGenMulSus implements a multi-segment envelope with a
+/// variable number of attack and decay segments and 
+/// indeterminate sustain length. This aggregates two copies of EnvGenSeg.
+/// The first object contains the attack segments while the 
+/// second contains the decay segments. When the end of all 
+/// attack segments has been reached, EnvGenSegSus waits for
+/// the Release() method call to begin processing the decay segments.
+/// @sa EnvGenSeg
 ///////////////////////////////////////////////////////////
 class EnvGenMulSus : public EnvGenUnit
 {
@@ -957,6 +1226,7 @@ public:
 		segStart = 0;
 	}
 
+	/// @copydoc EnvGenUnit::Copy
 	virtual void Copy(EnvGenUnit *tp)
 	{
 		EnvGenMulSus *ap = (EnvGenMulSus *)tp;
@@ -967,6 +1237,7 @@ public:
 		segStart = ap->segStart;
 	}
 
+	/// @copydoc EnvGenSeg::Init
 	virtual void Init(int n, float *v)
 	{
 		if (n > 0)
@@ -994,38 +1265,56 @@ public:
 		Reset();
 	}
 
+	/// Set the starting level for the envelope.
+	/// @param sv starting level
 	void SetStart(AmpValue sv)
 	{
 		atk.SetStart(sv);
 	}
 
+	/// Set the number of attack and decay segments
+	/// @param atks number of attack segments
+	/// @param decs number of decay segments
 	void SetSegs(int atks, int decs)
 	{
 		atk.SetSegs(atks);
 		dec.SetSegs(decs);
 	}
 
+	/// Set values for one attack segment.
+	/// @param segn segment number
+	/// @param rt rate in seconds
+	/// @param lvl end level for the segment
+	/// @param typ curve type for the segment
 	void SetAtkN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg)
 	{
 		atk.SetSegN(segn, rt, lvl, typ);
 	}
 
+	/// Set values for one decay segment.
+	/// @param segn segment number
+	/// @param rt rate in seconds
+	/// @param lvl end level for the segment
+	/// @param typ curve type for the segment
 	void SetDecN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg)
 	{
 		dec.SetSegN(segn, rt, lvl, typ);
 	}
 
+	/// @copydoc EnvGenSeg::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		state = 0;
 		atk.Reset(initPhs);
 	}
 
+	/// @copydoc EnvGenUnit::Sample
 	virtual AmpValue Sample(AmpValue in)
 	{
 		return Gen() * in;
 	}
 
+	/// Move to the first release segment.
 	virtual void Release()
 	{
 		dec.SetStart(lastVal);
@@ -1033,6 +1322,7 @@ public:
 		state = 2;
 	}
 
+	/// @copydoc EnvGenUnit::Gen()
 	virtual AmpValue Gen()
 	{
 		switch (state)
@@ -1055,6 +1345,7 @@ public:
 		return lastVal;
 	}
 
+	/// @copydoc EnvGenSeg::IsFinished
 	virtual int IsFinished()
 	{
 		return state == 3;
@@ -1062,11 +1353,11 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-// Table lookup envelope generator. The entire envelope
-// is calculated once and stored in a lookup table. 
-// This is more efficient when the envelope rarely changes.
-// Note that this derives directly from GenUnit and does
-// not include the Release method of EnvGenUnit. 
+/// Table lookup envelope generator. The entire envelope
+/// is calculated once and stored in a lookup table. 
+/// This is more efficient when the envelope rarely changes.
+/// Note that this derives directly from GenUnit and does
+/// not include the Release method of EnvGenUnit. 
 ///////////////////////////////////////////////////////////
 class EnvGenTable : public GenUnit
 {
@@ -1088,11 +1379,14 @@ public:
 		delete egTable;
 	}
 
+	/// Return the next value multiplied by the current sample amplitude.
 	virtual AmpValue Sample(AmpValue in)
 	{
 		return Gen() * in;
 	}
 
+	/// Generate the next value. When the end of the calculated table
+	/// is reached, the final value is returned.
 	virtual AmpValue Gen()
 	{
 		if (index < count)
@@ -1100,12 +1394,20 @@ public:
 		return egTable[count];
 	}
 
+	/// Check to see if the envelope is finished.
+	/// Returns true when all values have been returned.
 	virtual int IsFinished()
 	{
 		return index >= count;
 	}
 
 	// segs, start, [rate, level]*
+	/// Initialize the envelope. 
+	/// v[0] contains the number of segments; v[1] contains
+	/// the starting level. The remaining values contains pairs of
+	/// rate,level for each segment.
+	/// @param n number of values
+	/// @param v array of initialization values
 	virtual void Init(int n, float *v)
 	{
 		if (n >= 2)
@@ -1132,17 +1434,21 @@ public:
 		}
 	}
 
+	/// Reset the envelope.
+	/// @param initPhs time position to move to
 	virtual void Reset(float initPhs = 0)
 	{
 		if (initPhs >= 0)
 			index = (bsInt32) (initPhs * synthParams.sampleRate);
 	}
 
-	// segs  -> number of segments
-	// start -> starting value
-	// len[] -> array of segment lengths in seconds
-	// amp[] -> array of levels at end of segment
-	// typ[] -> array of segment types, 1=lin, 2=exp, 3=log, 4=flat, if NULL, all segs are linear
+	/// Initialize the envelope.
+	/// Values are taken from the arguments:
+	/// @param segs  number of segments
+	/// @param start starting value
+	/// @param rt array of segment lengths in seconds
+	/// @param amp array of levels at end of segments
+	/// @param typ array of segment types, if NULL, all segs are linear
 	void InitSegs(int segs, AmpValue start, FrqValue *rt, AmpValue *amp, EGSegType *typ)
 	{
 		if (egTable)

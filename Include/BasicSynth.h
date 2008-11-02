@@ -1,3 +1,4 @@
+/// @file BasicSynth.h Master include file for BasicSynth common library.
 #include <SynthDefs.h>
 #include <SynthString.h>
 #include <SynthList.h>

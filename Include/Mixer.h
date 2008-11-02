@@ -2,40 +2,57 @@
 //
 // BasicSynth - Mixer
 //
+/// @file Mixer.h Mixer and associated classes.
+//
 // The Mixer and associated classes implement a multi-channel
 // mixer with panning and effects send/recieve. The number of
 // input channels and effects processors is settable at run-time.
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////////
+/// @addtogroup grpMix
+//@{
 #ifndef _MIXER_H_
 #define _MIXER_H_
 
+/// Pan method off
 #define panOff 0
+/// Pan method linear
 #define panLin 1
+/// Pan method sin(pan)
 #define panTrig 2
+/// Pan method sqrt(pan)
 #define panSqr 3
 
 ///////////////////////////////////////////////////////////////
-// The Panner class calculates the left and right multipliers
-// based on pan method and pan value (-1,+1). Lookup tables are
-// used for non-linear panning methods so that dynamic panning
-// is efficient.
+/// Pan sounds left to right.
+/// The Panner class calculates the left and right multipliers
+/// based on pan method and pan value (-1,+1). Lookup tables are
+/// used for non-linear panning methods so that dynamic panning
+/// is efficient.
 ///////////////////////////////////////////////////////////////
 class Panner
 {
 public:
+	AmpValue panval;
 	AmpValue panlft;
 	AmpValue panrgt;
 
 	Panner()
 	{
+		panval = 0.0;
 		panlft = 0.5;
 		panrgt = 0.5;
 	}
 
+	/// Set the pan method and value.
+	/// The pan value is -1 for full left, +1 for full right, and 0 for center.
+	/// Pan methods are off, linear, trig and square-root.
+	/// @param pm pan method
+	/// @param pv pan setting value
 	void Set(int pm, AmpValue pv)
 	{
+		panval = pv;
 		if (pm == panOff)
 		{
 			panlft = 0.5;
@@ -66,20 +83,23 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////
-// FxChannel represents one effects channel. The effects 
-// processor is typically reverb, flanger, chorus, etc., but
-// can in theory be any unit generator. For example, if the
-// fx member is set to a LFO, this would apply tremolo to all
-// inputs.
-// This class includes an array of "send" values representing
-// the amount of each input channel that is passed through the
-// effects processor. This allows multiple inputs to share the
-// same reverb (for example) but with a different level applied
-// to each channel.
-// The FxChannel also has a built-in panner so that it can be
-// directed to each output channel independently. I.E. we can
-// have one amount of reverb in the left output, and a different
-// amount in the right output.
+/// Effects channel.
+/// FxChannel represents one effects channel. The effects 
+/// processor is typically reverb, flanger, chorus, etc., but
+/// can in theory be any unit generator. For example, if the
+/// fx member is set to a LFO, this would apply tremolo to all
+/// inputs.
+///
+/// This class includes an array of "send" values representing
+/// the amount of each input channel that is passed through the
+/// effects processor. This allows multiple inputs to share the
+/// same reverb (for example) but with a different level applied
+/// to each channel.
+///
+/// The FxChannel also has a built-in panner so that it can be
+/// directed to each output channel independently. I.E. we can
+/// have one amount of reverb in the left output, and a different
+/// amount in the right output.
 ///////////////////////////////////////////////////////////////
 class FxChannel
 {
@@ -105,17 +125,25 @@ public:
 		delete[] fxlvl;
 	}
 
+	/// Effects in from input channel.
+	/// @param ch input channel sending the value
+	/// @param val input amplitude value
 	void FxIn(int ch, AmpValue val)
 	{
 		// NB no runtine check
 		value += fxlvl[ch] * val;
 	}
 
+	/// Effects in direct.
+	/// @param val input amplitude value
 	void FxIn(AmpValue val)
 	{
 		value += val;
 	}
 
+	/// Effects output. Applies internall panning
+	/// @param lft left output value
+	/// @param rgt right output value
 	void FxOut(AmpValue& lft, AmpValue& rgt)
 	{
 		AmpValue out = fx->Sample(value) * fxmix;
@@ -124,6 +152,10 @@ public:
 		value = 0;
 	}
 
+	/// Effects initialization.
+	/// @param p generator unit (e.g., reverb, chorus)
+	/// @param ch number of input channel
+	/// @param lvl output level
 	void FxInit(GenUnit *p, int ch, AmpValue lvl)
 	{
 		if (fxlvl)
@@ -143,12 +175,18 @@ public:
 		fxmix = lvl;
 	}
 
+	/// Set effects level setting
+	/// @param ch input channel
+	/// @param lvl receive attenuator
 	void FxSendSet(int ch, AmpValue lvl)
 	{
 		if (init)
 			fxlvl[ch] = lvl;
 	}
 
+	/// Get effects level setting
+	/// @param ch input channel
+	/// @return receive attenuator
 	AmpValue FxSendGet(int ch)
 	{
 		if (init)
@@ -156,21 +194,28 @@ public:
 		return 0;
 	}
 
+	/// Set effects output level.
+	/// @param lvl output level
 	void FxOutSet(AmpValue lvl)
 	{
 		fxmix = lvl;
 	}
 
+	/// Get effects output level
 	AmpValue FxOutGet()
 	{
 		return fxmix;
 	}
 
+	/// Set effects pan values.
+	/// @param pm pan method
+	/// @param lvl pan setting (-1,+1)
 	void FxPanSet(int pm, AmpValue lvl)
 	{
 		pan.Set(pm, lvl);
 	}
 
+	/// Clear the effects unit to zero.
 	void Clear()
 	{
 		value = 0;
@@ -180,12 +225,12 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////
-// Mixer input channel class. This accumulates values for one
-// input and applies panning to the value. In addition, a mono
-// value is accumulated so that it can be passed through to
-// additional FX processors. The In2 method bypasses the mixer
-// panning and FX so that instruments can implement dynamic panning
-// reverb, etc, on a note-by-note basis.
+/// Mixer input channel class. This accumulates values for one
+/// input and applies panning to the value. In addition, a mono
+/// value is accumulated so that it can be passed through to
+/// additional FX processors. The In2 method bypasses the mixer
+/// panning and FX so that instruments can implement dynamic panning
+/// reverb, etc, on a note-by-note basis.
 ///////////////////////////////////////////////////////////////
 class MixChannel 
 {
@@ -209,26 +254,35 @@ public:
 		method = 0;
 	}
 
+	/// Set channel on/off
+	/// @param n on = 1, off = 0
 	void SetOn(int n)
 	{
 		on = n;
 	}
 
+	/// Get channel on/off
 	int IsOn()
 	{
 		return on;
 	}
 
+	/// Set channel level.
+	/// @param v volume level
 	void SetVolume(AmpValue v)
 	{
 		volume = v;
 	}
 
+	/// Get channel level.
 	AmpValue GetVolume() 
 	{
 		return volume;
 	}
 
+	/// Set channel panning.
+	/// @param pm pan method
+	/// @param p pan setting (-1,+1)
 	void SetPan(int pm, AmpValue p)
 	{
 		panset = p;
@@ -236,17 +290,25 @@ public:
 		pan.Set(pm, p);
 	}
 
+	/// Get channel panning level.
 	AmpValue GetPan()
 	{
 		return panset;
 	}
 
+	/// Add a value to the input buffer.
+	/// Panning is applied here.
+	/// @param val sample value
 	void In(AmpValue val)
 	{
 		left  += val * pan.panlft;
 		right += val * pan.panrgt;
 	}
 
+	/// Add a value to the input buffer directly.
+	/// This bypasses internall panning.
+	/// @param lft left amplitude value
+	/// @param rgt right amplitude value
 	void In2(AmpValue lft, AmpValue rgt)
 	{
 		// N.B. : bypass panning and effects!
@@ -254,12 +316,16 @@ public:
 		right += rgt;
 	}
 
+	/// Get the current level as monophonic value
 	AmpValue Level()
 	{
 		//return both * volume;
 		return (left + right) * volume;
 	}
 
+	/// Get the current level as stereo values
+	/// @param lval left channel value
+	/// @param rval right channel value
 	void Out(AmpValue &lval, AmpValue& rval)
 	{
 		lval += left * volume;
@@ -268,6 +334,7 @@ public:
 		right = 0;
 	}
 
+	/// Clear the input buffer to zero.
 	void Clear()
 	{
 		left = 0;
@@ -276,19 +343,22 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////
-// The Mixer class combines multiple input channels into a
-// two channel output, applying panning and FX. The number of
-// input channels and number of Fx units can be set dynamically
-// but typically are set once at program initialization.
-// Master left/right values are applied to the sum of all input
-// channels.
-// The ChannelIn and Out methods are the main interface to the
-// mixer. Each signal generator should pass its output to the
-// appropriate input channel. When all generators have been
-// invoked for the current sample, the Out method is called to
-// get the final output samples. The Out method combines inputs
-// and applies Fx units, before applying the final master output
-// amp value. 
+/// Mix multiple inputs and apply panning and effects.
+///
+/// The Mixer class combines multiple input channels into a
+/// two channel output, applying panning and effects. The number of
+/// input channels and number of Fx units can be set dynamically
+/// but typically are set once at program initialization.
+/// Master left/right values are applied to the sum of all input
+/// channels.
+///
+/// The ChannelIn() and Out() methods are the main interface to the
+/// mixer. Each signal generator should pass its output to the
+/// appropriate input channel. When all generators have been
+/// invoked for the current sample, the Out method is called to
+/// get the final output samples. The Out method combines inputs
+/// and applies Fx units, before applying the final master output
+/// level. 
 ///////////////////////////////////////////////////////////////
 class Mixer
 {
@@ -319,12 +389,20 @@ public:
 			delete[] fxBuf;
 	}
 
+	/// Set the master volume values.
+	/// @param lv left channel output volume
+	/// @param rv right channel output volume
 	void MasterVolume(AmpValue lv, AmpValue rv)
 	{
 		lvol = lv;
 		rvol = rv;
 	}
 
+	/// Set the number of channels.
+	/// This must be called before the mixer is put into use.
+	/// Calling this again clears the old buffers.
+	/// Input channels are allocated, but not initialized.
+	/// @param nchnl number of channels.
 	void SetChannels(int nchnl)
 	{
 		if (inBuf)
@@ -337,41 +415,64 @@ public:
 			inBuf = new MixChannel[nchnl];
 	}
 
+	/// Get the number of input channels.
 	int GetChannels()
 	{
 		return mixInputs;
 	}
 
+	/// Set an input channel on/off.
+	/// @param ch input channel
+	/// @param on 1 = on, 0 = off
 	void ChannelOn(int ch, int on)
 	{
 		if (ch < mixInputs)
 			inBuf[ch].SetOn(on);
 	}
 
+	/// Set an input channel level.
+	/// @param ch input channel
+	/// @param v input volume level
 	void ChannelVolume(int ch, AmpValue v)
 	{
 		if (ch < mixInputs)
 			inBuf[ch].SetVolume(v);
 	}
 
+	/// Set an input channel pan values.
+	/// @param ch input channel
+	/// @param pm pan method
+	/// @param p pan level setting (-1,+1)
 	void ChannelPan(int ch, int pm, AmpValue p)
 	{
 		if (ch < mixInputs)
 			inBuf[ch].SetPan(pm, p);
 	}
 
+	/// Send a sample to an input channel.
+	/// @param ch channel number
+	/// @param val sample amplitude value
 	void ChannelIn(int ch, AmpValue val)
 	{
 		// warning - no runtime range check here...
 		inBuf[ch].In(val);
 	}
 
+	/// Send a sample to an input channel, direct.
+	/// This bypasses channel panning.
+	/// @param ch channel number
+	/// @param lft left sample amplitude value
+	/// @param rgt right sample amplitude value
 	void ChannelIn2(int ch, AmpValue lft, AmpValue rgt)
 	{
 		// warning - no runtime range check here...
 		inBuf[ch].In2(lft, rgt);
 	}
 
+	/// Set the number of effects channels.
+	/// This should be called before beginning output.
+	/// Unlike SetChannels, effects channels are optional.
+	/// @param n number of effects channels
 	void SetFxChannels(int n)
 	{
 		if (fxBuf)
@@ -384,11 +485,17 @@ public:
 			fxBuf = new FxChannel[n];
 	}
 
+	/// Get the number of effects channels.
 	int GetFxChannels()
 	{
 		return fxUnits;
 	}
 
+	/// Initialise an effects channel.
+	/// This can only be set affter the number of input channels is set.
+	/// @param f effects channel
+	/// @param fx effects object
+	/// @param lvl output level
 	void FxInit(int f, GenUnit *fx, AmpValue lvl)
 	{
 		// NB: Must set mixInputs first.
@@ -396,24 +503,40 @@ public:
 			fxBuf[f].FxInit(fx, mixInputs, lvl);
 	}
 
+	/// Initialize the effects input level.
+	/// @param f effects channel
+	/// @param ch input channel
+	/// @param lvl send level
 	void FxLevel(int f, int ch, AmpValue lvl)
 	{
 		if (f < fxUnits)
 			fxBuf[f].FxSendSet(ch, lvl);
 	}
 	
+	/// Initialize the effects panning.
+	/// @param f effects channel
+	/// @param pm pan method
+	/// @param lvl pan setting
 	void FxPan(int f, int pm, AmpValue lvl)
 	{
 		if (f < fxUnits)
 			fxBuf[f].FxPanSet(pm, lvl);
 	}
 
-	// direct effects send, bypass input channel
+	/// Effects input direct.
+	/// Effects send, bypass input channel
+	/// @param f effects channel
+	/// @param val sample value
 	void FxIn(int f, AmpValue val)
 	{
 		fxBuf[f].FxIn(val);
 	}
 
+	/// Get the mixed output.
+	/// This is the main output of the mixer. All input channels
+	/// and effects are combined into the left and right values.
+	/// @param lval left output
+	/// @param rval right output
 	void Out(AmpValue *lval, AmpValue *rval)
 	{
 		int n;
@@ -454,6 +577,8 @@ public:
 		*rval = rvalOut * rvol;
 	}
 
+	/// Reset the mixer. This does not delete channels and effects,
+	/// only clears them to zero.
 	void Reset()
 	{
 		int n;
@@ -463,5 +588,5 @@ public:
 			fxBuf[n].Clear();
 	}
 };
-
+//@}
 #endif

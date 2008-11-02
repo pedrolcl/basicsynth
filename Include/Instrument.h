@@ -1,10 +1,12 @@
 ///////////////////////////////////////////////////////////
 // BasicSynth
 //
-// Instrument and Instrument manager classes.
+/// @file Instrument.h Instrument and Instrument manager classes.
 //
 // Copyright 2008, Daniel R. Mitchell
 ///////////////////////////////////////////////////////////
+/// @addtogroup grpSeq
+//@{
 #ifndef _INSTRDEF_
 #define _INSTRDEF_
 
@@ -15,39 +17,60 @@ class InstrManager; // forward reference for type defs below
 /// the common methods needed by the instrument manager and
 /// sequencer. It also functions as a dummy instrument that
 /// can be allocated in place of invalid instrument numbers.
-//
-// Start - method called when the current playback time
-//         matches the event start time. The instrument
-//         uses the event structure to get the per-note
-//         parameters for note initialization.
-// Param - used to alter parameters while playing.
-// Stop  - method called when the duration has completed.
-//         The instrument can stop immediately, or begin
-//         the release phase of its envelope if appropriate.
-//         The instrument remains active until IsFinished
-//         returns true.
-// Tick  - called to generate the current sample. Output
-//         is done through the instrument manager, set
-//         by the InstrFactory function
-// IsFinished - called for each sample after Stop has been sent
-//         to determine if the instrument can be removed from
-//         the active list. 
-// Load  - called to load the instrument configuration from
-//         an XML file
-// Save  - called to save the instrument configuration to
-//         an XML file
+/// @sa InstrFactory EventFactory TmpltFactory
 ///////////////////////////////////////////////////////////
 class Instrument
 {
 public:
 	virtual ~Instrument() { }
+	
+	/// Start output.
+	/// This method is called when the current playback time
+	/// matches the event start time. The instrument
+	/// uses the event structure to get the per-note
+	/// parameters for note initialization.
+	/// @param evt the start event
 	virtual void Start(SeqEvent *evt) { }
+	
+	/// Change parameters. 
+	/// Used to alter parameters while playing.
+	/// @param evt the change event
 	virtual void Param(SeqEvent *evt) { }
+
+	/// Stop output.
+	/// This method is called when the duration has completed.
+	/// The instrument can stop immediately, or begin
+	/// the release phase of its envelope if appropriate.
+	/// The instrument remains active until IsFinished
+	/// returns true.
 	virtual void Stop() { }
+
+	/// Produce next sample.
+	/// This method is called to generate the current sample. 
+	/// Sample output is done through the instrument manager, 
+	/// set by the instrument factory function
 	virtual void Tick() { }
+
+	/// Test for output complete.
+	/// IsFinished is called for each sample after Stop has been sent
+	/// to determine if the instrument can be removed from
+	/// the active list. 
 	virtual int  IsFinished() { return 1; }
+
+	/// Destroy the instance.
+	/// By default, this deletes the instance. However, an
+	/// instrument may cache instrument instances, or
+	/// may implement a singleton where only one instance
+	/// of the instrument ever exists. In those cases,
+	/// this method would not actually delete the instance.
 	virtual void Destroy() { delete this; }
+
+	/// Load instrument settings.
+	/// Called to load the instrument configuration from an XML file
 	virtual int Load(XmlSynthElem *parent) { return -1; }
+	
+	/// Save instrument settings.
+	/// Called to save the instrument configuration to an XML file
 	virtual int Save(XmlSynthElem *parent) { return -1; }
 };
 
@@ -63,7 +86,7 @@ typedef Instrument *(*InstrFactory)(InstrManager *, Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
 /// The EventFactory is a static method or non-class function
-/// used to instantiate an event specific to an instrument.
+/// used to instantiate an event object specific to an instrument.
 ///////////////////////////////////////////////////////////
 typedef SeqEvent *(*EventFactory)(Opaque tmplt);
 
@@ -74,11 +97,21 @@ typedef SeqEvent *(*EventFactory)(Opaque tmplt);
 /// created as an instance of the instrument.
 ///////////////////////////////////////////////////////////
 typedef Opaque (*TmpltFactory)(XmlSynthElem *tmplt);
+
+///////////////////////////////////////////////////////////
+/// The TmplDump is a static method or non-class function
+/// used to delete a template specific to an instrument.
+/// By default, the same dump is used for all templates.
+/// It casts the template to an Instrument pointer and
+/// calls the destructor. If an instrument implements
+/// the template factory it should also supply a companion
+/// dump to get rid of templates.
+///////////////////////////////////////////////////////////
 typedef void (*TmpltDump)(Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
 /// This class is used by the instrument manager
-/// to manage one type of instrument, and, a specific 
+/// to manage one type of instrument and a specific 
 /// configuration of an instrument. 
 ///////////////////////////////////////////////////////////
 class InstrMapEntry : public SynthList<InstrMapEntry>
@@ -94,6 +127,7 @@ public:
 	TmpltDump dumpTmplt;
 	Opaque instrTmplt;
 
+	/// Construct an entry with a template (used for instrument definitions)
 	InstrMapEntry(bsInt16 ino, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
 	{
 		inum = ino;
@@ -103,6 +137,7 @@ public:
 		instrTmplt = tmplt;
 	}
 
+	/// Construct an entry with factory functions (used for type definitions)
 	InstrMapEntry(bsInt16 ino, InstrFactory in, EventFactory ev, TmpltFactory tf, TmpltDump td)
 	{
 		inum = ino;
@@ -119,31 +154,37 @@ public:
 			dumpTmplt(instrTmplt);
 	}
 
+	/// Get the type value for the instrument 
 	const char *GetType()
 	{
 		return itype;
 	}
 
+	/// Set the type value for the instrument 
 	void SetType(const char *str)
 	{
 		itype = str;
 	}
 
+	/// Get the name value for the instrument map entry.
 	const char *GetName()
 	{
 		return iname;
 	}
 
+	/// Set the name value for the instrument map entry.
 	void SetName(const char *str)
 	{
 		iname = str;
 	}
 
+	/// Get the description value for the instrument map entry.
 	const char *GetDesc()
 	{
 		return idesc;
 	}
 
+	/// Set the name value for the instrument map entry.
 	void SetDesc(const char *str)
 	{
 		idesc = str;
@@ -154,16 +195,32 @@ public:
 /// Instrument manager class.
 //
 /// This class maintains lists of instrument types and 
-/// pre-configured instruments. It is called by the sequencer
+/// instrument definition. It is called by the sequencer
 /// to allocate a new instance of the instrument when a note
 /// is started, and to deallocate an instance when the note
 /// is finished. 
+///
 /// Before playback is started, the manager must be initialized
 /// with mixer and output buffer objects. 
 /// The instance of the instrument manager is passed to each
 /// instrument instance. Instruments output samples through
 /// a method on the instrument manager, not directly to the
 /// mixer or output device.
+///
+/// The "tmplt" argument is stored in the instrument entry
+/// and passed to the instrument instance during construction.
+/// Typically the "tmplt" is an instance of the instrument
+/// that should be used to initialize a copy for playback,
+/// but can be any data the instrument needs to use for
+/// initialization.
+///
+/// Each instrument is identified by a unique number.
+/// If a duplicate is found,
+/// the instrument number is automatically adjusted.
+/// When an instrument is added, callers should check the
+/// return object if specific instrument numbers are needed.
+/// In addition, the caller should set the name on the returned
+/// object if it is desired to locate instruments by name.
 ///////////////////////////////////////////////////////////
 class InstrManager
 {
@@ -212,6 +269,8 @@ public:
 	/// Initialize the mixer and output buffer.
 	/// Init MUST be called first. If you forget, 
 	/// things will go very wrong very quickly.
+	/// @param m mixer object
+	/// @param w wave output buffer
 	virtual void Init(Mixer *m, WaveOutBuf *w)
 	{
 		mix =  m;
@@ -224,6 +283,12 @@ public:
 	inline WaveOutBuf *GetWaveOut() { return wvf; }
 
 	/// Add an entry to the instrument type list.
+	/// This method constructs the instrument type object
+	/// from the supplied arguments.
+	/// @param type name for this instrument type
+	/// @param in instrument factory
+	/// @param ev event factory
+	/// @param tf template factory
 	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf = 0)
 	{
 		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, tf, 0);
@@ -236,6 +301,9 @@ public:
 	}
 
 	/// Enumerate instrument types.
+	/// The first call should pass NULL for the argument. Subsequent calls
+	/// should pass the last returned value.
+	/// @param p previous entry
 	InstrMapEntry *EnumType(InstrMapEntry *p)
 	{
 		if (p)
@@ -243,7 +311,8 @@ public:
 		return typeList;
 	}
 
-	/// Find the entry for a specific type
+	/// Find the instrument map entry for a specific type.
+	/// @param type name for the instrument type
 	virtual InstrMapEntry *FindType(const char *type)
 	{
 		InstrMapEntry *ent;
@@ -255,18 +324,10 @@ public:
 		return ent;
 	}
 
-	/// Add a new instrument.
-	/// The "tmplt" argument is stored in the instrument entry
-	/// and passed to the instrument instance during construction.
-	/// Typically the "tmplt" is an instance of the instrument
-	/// that should be used to initialize a copy for playback,
-	/// but can be any data the instrument needs to use for
-	/// initialization.
-	/// Instrument numbers must be unique. If a duplicate is found,
-	/// the instrument number is adjusted. Callers should check the
-	/// return object if specific instrument numbers are needed.
-	/// In addition, the caller should set the name on the returned
-	/// object if it is desired to locate instruments by name.
+	/// Add an instrument definition using the instrument type entry.
+	/// @param inum instrument number
+	/// @param type instrument type
+	/// @param tmplt template for instrument initialization
 	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrMapEntry *type, Opaque tmplt = 0)
 	{
 		InstrMapEntry* in = AddInstrument(inum, type->manufInstr, type->manufEvent, tmplt);
@@ -275,9 +336,11 @@ public:
 		return in;
 	}
 
-	/// Add an instrument. The instrument is identified by number. The caller should
-	/// set the instrument name on the returned object, if appropriate. The template
-	/// is used to initialize instrument instances for this entry.
+	/// Add an instrument definition using factory functions.
+	/// @param inum instrument number
+	/// @param in instrument factory
+	/// @param ev event factory
+	/// @param tmplt template for instrument initialization
 	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
 	{
 		if (inum < 0)
@@ -311,7 +374,7 @@ public:
 	}
 
 	/// Enumerate instruments. The first call should
-	/// pass NULL as an argument. Subsequent calls
+	/// pass NULL as an argument. Subsequent calls should
 	/// pass the previous entry.
 	/// @param p instrument map entry
 	/// @returns next instrument
@@ -454,5 +517,5 @@ public:
 		mix->ChannelIn2(ch, lft, rgt);
 	}
 };
-
+//@}
 #endif
