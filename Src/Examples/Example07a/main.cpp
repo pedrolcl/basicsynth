@@ -20,6 +20,7 @@
 #include "WaveFile.h"
 #include "GenWaveWT.h"
 #include "EnvGen.h"
+#include "DelayLine.h"
 #include "Reverb.h"
 
 int main(int argc, char *argv[])
