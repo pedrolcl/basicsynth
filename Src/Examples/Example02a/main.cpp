@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 	EnvGenSegSus a3sr;
 	a3sr.SetSegs(4);
 	a3sr.SetStart(0);
-	a3sr.SetSuson(1);
+	a3sr.SetSusOn(1);
 	for (i = 0; i < 3; i++)
 	{
 		a3sr.SetSegN(0, 0.2, 1.0, egTypes[i]);
