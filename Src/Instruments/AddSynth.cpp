@@ -91,6 +91,9 @@ AddSynthPart *AddSynth::GetPart(int n)
 
 void AddSynth::Copy(AddSynth *tp)
 {
+	frq = tp->frq;
+	vol = tp->vol;
+	chnl = tp->chnl;
 	SetNumParts(tp->GetNumParts());
 	for (int n = 0; n < numParts; n++)
 		parts[n].Copy(&tp->parts[n]);

@@ -63,6 +63,8 @@ SubSynth::~SubSynth()
 
 void SubSynth::Copy(SubSynth *tp)
 {
+	vol = tp->vol;
+	chnl = tp->chnl;
 	osc.SetWavetable(tp->osc.GetWavetable());
 	sigMix = tp->sigMix;
 	nzMix  = 1.0 - sigMix;

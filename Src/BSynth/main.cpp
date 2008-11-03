@@ -540,7 +540,7 @@ public:
 				lastOOR = wvf.GetOOR() - lastOOR;
 				if (lastOOR > 0)
 					fprintf(stdout, " %ld samples out-of-range\r", lastOOR);
-				fprintf(stdout, "\nDone.");
+				fprintf(stdout, "\nDone.\n");
 			}
 		}
 		return errcnt;

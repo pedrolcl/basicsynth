@@ -107,6 +107,8 @@ ToneInstr::~ToneInstr()
 
 void ToneInstr::Copy(ToneInstr *tp)
 {
+	chnl = tp->chnl;
+	vol = tp->vol;
 	env.Copy(&tp->env);
 	osc.SetFrequency(tp->osc.GetFrequency());
 	osc.SetWavetable(tp->osc.GetWavetable());

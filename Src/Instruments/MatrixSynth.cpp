@@ -64,6 +64,7 @@ MatrixSynth::MatrixSynth()
 MatrixSynth::MatrixSynth(MatrixSynth *tp)
 {
 	im = NULL;
+	maxPhs = synthParams.ftableLength/2;
 	Copy(tp);
 }
 

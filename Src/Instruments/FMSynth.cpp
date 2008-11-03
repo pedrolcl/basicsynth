@@ -85,6 +85,8 @@ FMSynth::FMSynth()
 
 FMSynth::FMSynth(FMSynth *tp)
 {
+	im = 0;
+	maxPhs = synthParams.ftableLength / 2;
 	Copy(tp);
 }
 
@@ -103,6 +105,7 @@ void FMSynth::Copy(FMSynth *ip)
 	gen1EnvDef.Copy(&ip->gen1EnvDef);
 	gen1Mult = ip->gen1Mult;
 	fmMix = ip->fmMix;
+	fmDly = ip->fmDly;
 	algorithm = ip->algorithm;
 
 	gen2Osc.SetFrequency(ip->gen2Osc.GetFrequency());
@@ -120,6 +123,7 @@ void FMSynth::Copy(FMSynth *ip)
 	nzFrqh = ip->nzFrqh;
 	nzFrqo = ip->nzFrqo;
 	nzOn = ip->nzOn;
+	nzDly = ip->nzDly;
 
 	dlyTim = ip->dlyTim;
 	dlyDec = ip->dlyDec;
@@ -129,6 +133,9 @@ void FMSynth::Copy(FMSynth *ip)
 	
 	lfoGen.Copy(&ip->lfoGen);
 	pbGen.Copy(&ip->pbGen);
+	pbOn = ip->pbOn;
+	panSet.Set(panTrig, ip->panSet.panval);
+	panOn = ip->panOn;
 
 	chnl = ip->chnl;
 	frq = ip->frq;
