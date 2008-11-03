@@ -2,6 +2,9 @@
 // BasicSynth Matrix Synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_MATRIXSYNTH_H_)
@@ -107,6 +110,7 @@ private:
 
 public:
 	MatrixSynth();
+	MatrixSynth(MatrixSynth *tp);
 	virtual ~MatrixSynth();
 	static Instrument *MatrixSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *MatrixSynthEventFactory(Opaque tmplt);

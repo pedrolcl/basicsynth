@@ -15,6 +15,9 @@
 // be added easily by modeling the class on the ToneFM instrument.)
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
@@ -22,10 +25,12 @@
 
 Instrument *ToneInstr::ToneFactory(InstrManager *m, Opaque tmplt)
 {
-	ToneInstr *ip = new ToneInstr;
-	ip->im = m;
+	ToneInstr *ip;
 	if (tmplt)
-		ip->Copy((ToneInstr*)tmplt);
+		ip = new ToneInstr((ToneInstr*)tmplt);
+	else
+		ip = new ToneInstr;
+	ip->im = m;
 	return ip;
 }
 
@@ -90,9 +95,14 @@ ToneInstr::ToneInstr()
 	lfoOn = 0;
 }
 
+ToneInstr::ToneInstr(ToneInstr *tp)
+{
+	im = NULL;
+	Copy(tp);
+}
+
 ToneInstr::~ToneInstr()
 {
-
 }
 
 void ToneInstr::Copy(ToneInstr *tp)

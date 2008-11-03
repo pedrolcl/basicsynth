@@ -1,5 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 // Required include files for instruments
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #if !defined(_INCLUDES_H_)
 #define _INCLUDES_H_

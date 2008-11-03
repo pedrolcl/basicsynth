@@ -2,6 +2,9 @@
 // BasicSynth Tone instruments
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_TONE_H_)
@@ -140,6 +143,7 @@ public:
 	static Instrument *ToneFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ToneEventFactory(Opaque tmplt);
 	ToneInstr();
+	ToneInstr(ToneInstr *tp);
 	virtual ~ToneInstr();
 	virtual void Copy(ToneInstr *tp);
 	virtual void Start(SeqEvent *evt);

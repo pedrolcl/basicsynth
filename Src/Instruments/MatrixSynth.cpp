@@ -11,6 +11,9 @@
 // built-in as well and can be applied individually to each oscillator.
 // 
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
@@ -18,10 +21,13 @@
 
 Instrument *MatrixSynth::MatrixSynthFactory(InstrManager *m, Opaque tmplt)
 {
-	MatrixSynth *ip = new MatrixSynth;
-	ip->im = m;
+	MatrixSynth *ip;
 	if (tmplt)
-		ip->Copy((MatrixSynth *) tmplt);
+		ip = new MatrixSynth((MatrixSynth*)tmplt);
+	else
+		ip = new MatrixSynth;
+	if (ip)
+		ip->im = m;
 	return ip;
 }
 
@@ -53,6 +59,12 @@ MatrixSynth::MatrixSynth()
 	envUsed = 0;
 	for (int n = 0; n < MATGEN; n++)
 		envs[n].SetSegs(1);
+}
+
+MatrixSynth::MatrixSynth(MatrixSynth *tp)
+{
+	im = NULL;
+	Copy(tp);
 }
 
 MatrixSynth::~MatrixSynth()

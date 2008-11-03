@@ -2,6 +2,9 @@
 // BasicSynth Subtractive synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_SUBSYNTHINSTR_H_)
@@ -152,6 +155,7 @@ private:
 
 public:
 	SubSynth();
+	SubSynth(SubSynth *tp);
 	virtual ~SubSynth();
 	static Instrument *SubSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *SubSynthEventFactory(Opaque tmplt);

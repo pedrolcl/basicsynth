@@ -2,6 +2,9 @@
 // BasicSynth instrument library load functions
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
@@ -13,6 +16,10 @@
 #include "Tone.h"
 #include "WFSynth.h"
 
+// Load and instrument library from the file "fname"
+// The file must be an XML file with a document node of
+// "instrlib" - all instrument instances are added
+// to the instrument manager "mgr"
 int LoadInstrLib(InstrManager& mgr, const char *fname)
 {
 	int err;
@@ -26,6 +33,10 @@ int LoadInstrLib(InstrManager& mgr, const char *fname)
 	return err;
 }
 
+// Load and instrument library from the XML document
+// node "root". root must point to a node of type
+// "instrlib" - all instrument instances are added
+// to the instrument manager "mgr"
 int LoadInstrLib(InstrManager& mgr, XmlSynthElem *root)
 {
 	int err = 0;
@@ -45,6 +56,8 @@ int LoadInstrLib(InstrManager& mgr, XmlSynthElem *root)
 	return err;
 }
 
+// Load an instrument defintion from the XML node
+// "instr" which must be of type <instr>.
 InstrMapEntry *LoadInstr(InstrManager& mgr, XmlSynthElem *instr)
 {
 	if (instr == 0)
@@ -59,7 +72,7 @@ InstrMapEntry *LoadInstr(InstrManager& mgr, XmlSynthElem *instr)
 	char *type = NULL;
 	char *name = NULL;
 	char *desc = NULL;
-	if (!instr->GetAttribute("type", &type) && type)
+	if (instr->GetAttribute("type", &type) == 0)
 	{
 		Opaque tp;
 		instTyp = mgr.FindType(type);

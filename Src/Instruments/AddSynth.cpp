@@ -9,6 +9,9 @@
 // all tone generators.
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
@@ -16,10 +19,13 @@
 
 Instrument *AddSynth::AddSynthFactory(InstrManager *m, Opaque tmplt)
 {
-	AddSynth *ip = new AddSynth;
-	ip->im = m;
+	AddSynth *ip;
 	if (tmplt)
-		ip->Copy((AddSynth *) tmplt);
+		ip = new AddSynth((AddSynth*)tmplt);
+	else
+		ip = new AddSynth;
+	if (ip)
+		ip->im = m;
 	return ip;
 }
 
@@ -39,11 +45,20 @@ SeqEvent *AddSynth::AddSynthEventFactory(Opaque tmplt)
 
 AddSynth::AddSynth()
 {
+	im = 0;
 	chnl = 0;
 	frq = 440.0;
 	vol = 1.0;
 	numParts = 0;
 	parts = NULL;
+}
+
+AddSynth::AddSynth(AddSynth *tp)
+{
+	im = 0;
+	parts = 0;
+	numParts = 0;
+	Copy(tp);
 }
 
 AddSynth::~AddSynth()

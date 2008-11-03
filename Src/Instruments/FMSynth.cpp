@@ -16,6 +16,9 @@
 // Panning can be done internally rather than through the mixer
 // 
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
@@ -23,10 +26,12 @@
 
 Instrument *FMSynth::FMSynthFactory(InstrManager *m, Opaque tmplt)
 {
-	FMSynth *ip = new FMSynth;
-	ip->im = m;
+	FMSynth *ip;
 	if (tmplt)
-		ip->Copy((FMSynth *) tmplt);
+		ip = new FMSynth((FMSynth*)tmplt);
+	else
+		ip = new FMSynth;
+	ip->im = m;
 	return ip;
 }
 
@@ -76,6 +81,11 @@ FMSynth::FMSynth()
 	dlySamps = 0;
 	panOn  = 0;
 	pbOn = 0;
+}
+
+FMSynth::FMSynth(FMSynth *tp)
+{
+	Copy(tp);
 }
 
 FMSynth::~FMSynth()

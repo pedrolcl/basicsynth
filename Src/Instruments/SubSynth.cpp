@@ -7,6 +7,9 @@
 // and envelope generators for amplitude and filter frequency.
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #include "Includes.h"
@@ -14,10 +17,13 @@
 
 Instrument *SubSynth::SubSynthFactory(InstrManager *m, Opaque tmplt)
 {
-	SubSynth *ip = new SubSynth;
-	ip->im = m;
+	SubSynth *ip;
 	if (tmplt)
-		ip->Copy((SubSynth *) tmplt);
+		ip = new SubSynth((SubSynth*)tmplt);
+	else
+		ip = new SubSynth;
+	if (ip)
+		ip->im = m;
 	return ip;
 }
 
@@ -28,9 +34,9 @@ SeqEvent *SubSynth::SubSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
-
 SubSynth::SubSynth()
 {
+	im = NULL;
 	vol = 1.0;
 	chnl = 0;
 	fltGain = 1.0;
@@ -41,6 +47,13 @@ SubSynth::SubSynth()
 	nzMix = 0.0;
 	nzOn = 0;
 	pbOn = 0;
+}
+
+SubSynth::SubSynth(SubSynth *tp)
+{
+	im = NULL;
+	filt = NULL;
+	Copy(tp);
 }
 
 SubSynth::~SubSynth()
@@ -59,8 +72,8 @@ void SubSynth::Copy(SubSynth *tp)
 	envSig.Copy(&tp->envSig);
 	envFlt.Copy(&tp->envFlt);
 	CreateFilter();
-	filt->Init(&envFlt, fltGain, fltRes);
-	filt->Copy(tp->filt);
+	if (filt)
+		filt->Copy(tp->filt);
 	lfoGen.Copy(&tp->lfoGen);
 	nzOn = nzMix > 0;
 	pbOn = tp->pbOn;
