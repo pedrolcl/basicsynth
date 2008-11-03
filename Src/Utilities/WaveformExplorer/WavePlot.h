@@ -1,6 +1,11 @@
-// WavePlot.h: interface for the CWavePlot class.
-//
 //////////////////////////////////////////////////////////////////////
+// Plot the waveform to screen or metafile.
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+/////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_WAVEPLOT_H__3524234D_D254_44ED_880E_163CDA7F4C7B__INCLUDED_)
 #define AFX_WAVEPLOT_H__3524234D_D254_44ED_880E_163CDA7F4C7B__INCLUDED_

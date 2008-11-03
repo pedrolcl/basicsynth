@@ -5,6 +5,9 @@
 /// @file WaveFile.h Classes for wavefile managment
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
 /// @addtogroup grpIO
 //@{

@@ -1,4 +1,13 @@
+///////////////////////////////////////////////////////////
+// Example converter-derived class showning output to 
+// a system other than BasicSynth. This produces output
+// in the form of a CSound score file.
+//
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////
 #include <stdio.h>
 #include "Converter.h"
 

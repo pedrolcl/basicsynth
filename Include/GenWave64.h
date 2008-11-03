@@ -6,6 +6,9 @@
 /// @file GenWave64.h Oscillator with 64-bit phase accumulator
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
 /// @addtogroup grpOscil
 //@{

@@ -1,12 +1,22 @@
 ///////////////////////////////////////////////////////////
+// BasicSynth - Example 10 (Chapters 18-23)
 // Instruments test
-//
+// 
 // ToneInstr
 // SubSynth
 // AddSynth
 // FMSynth
 // MatixSynth
 // WFSynth
+//
+// use: example10 [instrlib.xml]
+//
+// If no instrlib file is indicated, the file data.xml must exist in the current directory.
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
 
 #include <stdlib.h>
@@ -19,7 +29,13 @@
 
 #pragma warning(disable : 4996)
 
+// Uncomment the next line to add reverb to sounds.
 //#define ADD_REVERB 1
+// Uncomment the next line to dump instrument definitions back to disk.
+// This will validate that the internal state is the same as the
+// input file contents. Note that attributes may get rearranged
+// and additional nodes or attributes may appear in the output file.
+//#define TEST_SAVE_INSTR 1
 
 long evidcount = 1;
 float startTime = 0;
@@ -150,7 +166,8 @@ int main(int argc, char *argv[])
 
 	///////////////////////////////////////////////////////////////
 	// Code to test instrument save functions...
-/*	root = doc.NewDoc("instrlib");
+#ifdef TEST_SAVE_INSTR
+	root = doc.NewDoc("instrlib");
 	InstrMapEntry *ime = inMgr.EnumInstr(0);
 	while (ime)
 	{
@@ -170,7 +187,8 @@ int main(int argc, char *argv[])
 	bsString outxml;
 	outxml = "_";
 	outxml += fname;
-	doc.Save((char *) (const char *)outxml);*/
+	doc.Save((char *) (const char *)outxml);
+#endif
 	///////////////////////////////////////////////////////////////
 
 	return 0;

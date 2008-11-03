@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////////////////////
+// Project file load class.
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+/////////////////////////////////////////////////////////////////////////////
 #ifndef _PROJECT_H_
 #define _PROJECT_H_
 #pragma once

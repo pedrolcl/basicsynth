@@ -10,6 +10,9 @@
 // method, and link in your object instead of this one.
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
 #include <XmlWrap.h>
 #if !defined(USE_MSXML) && !defined(USE_LIBXML)

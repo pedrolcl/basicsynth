@@ -8,6 +8,9 @@
 // use: Example07 [duration [pitch]]
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
 #include <stdio.h>

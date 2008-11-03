@@ -1,3 +1,12 @@
+/////////////////////////////////////////////////////////////////////////////
+// Keyboard display window. This draws a piano keyboard on screen and sends
+// messages when the user clicks on keys.
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+/////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #define WM_VKBD (WM_USER+1)

@@ -2,15 +2,17 @@
 //
 // BasicSynth - SynthDefs
 //
-/// \file SynthDefs.h
-/// Global synthesizer definitions
+/// @file SynthDefs.h Global synthesizer definitions
 ///
 /// This file must be included in all programs that use the BasicSynth library.
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
-/// \addtogroup grpGeneral
-/*@{*/
+/// @addtogroup grpGeneral
+//@{
 
 
 #ifndef _SYNTHDEFS_H_
@@ -68,17 +70,29 @@ typedef float FrqValue;
 class SynthConfig
 {
 public:
-	FrqValue sampleRate;   /*< Global sample rate as frequency */
-	bsInt32 isampleRate;     // Sample rate as integer
-	AmpValue sampleScale;  // multiplier to convert internal sample values into output values
-	PhsAccum frqRad;       // pre-calculated multipler for frequency to radians twoPI/sampleRate
-	PhsAccum frqTI;        // pre-calculated multipler for frequency to table index
-	PhsAccum radTI;        // pre-calculated multipler for radians to table index
-	PhsAccum ftableLength;    // wave table length
-	bsInt32  itableLength;    // wave table length as integer, (slight optimization)
-	FrqValue tuning[128];     // table to convert pitch class*octave into frequency
-	AmpValue sinquad[PANTBLLEN]; // first quadrant of a sine wave
-	AmpValue sqrttbl[PANTBLLEN]; // square roots of 0-1
+	/// Sample rate
+	FrqValue sampleRate;
+	/// Sample rate as integer
+	bsInt32 isampleRate;
+	/// multiplier to convert internal sample values into output values
+	AmpValue sampleScale;
+	/// pre-calculated multipler for frequency to radians (twoPI/sampleRate)
+	PhsAccum frqRad;
+	/// pre-calculated multipler for frequency to table index (tableLength/sampleRate)
+	PhsAccum frqTI;
+	/// pre-calculated multipler for radians to table index (tableLength/twoPI)
+	PhsAccum radTI;
+	/// wave table length
+	PhsAccum ftableLength;
+	/// wave table length as integer
+	bsInt32  itableLength;
+	/// table to convert pitch index into frequency
+	FrqValue tuning[128];
+	/// first quadrant of a sine wave (used by Panner)
+	AmpValue sinquad[PANTBLLEN];
+	/// square roots of 0-1 (used by Panner)
+	AmpValue sqrttbl[PANTBLLEN];
+	/// pan table index scaling
 	bsInt32  sqNdx;
 
 	/// Constructor. The constructor for \p SynthConfig initializes
@@ -123,12 +137,12 @@ public:
 	/// Initialize values based on sample rate.
 	/// Init is called automatically from the constructor but may also be called
 	/// directly to change the sample rate and default wavetable length.
-	/// \note All unit generators should be deleted prior to calling this
+	/// @note All unit generators should be deleted prior to calling this
 	/// method as they may have internal values calculated based on sample rate
 	/// or table length. In addition, the wavetables must be reinitialized if
 	/// the wavetable length changes.
-	/// \param sr sample rate, default 44.1K
-	/// \param tl wavetable length, default 16K
+	/// @param sr sample rate, default 44.1K
+	/// @param tl wavetable length, default 16K
 	void Init(bsInt32 sr = 44100, bsInt32 tl = 16384)
 	{
 		sampleRate = (FrqValue) sr;
@@ -145,7 +159,7 @@ public:
 	/// scale with middle C at index 48. Since the tuning array is a public member, it is
 	/// possible to overwrite the values from anywhere in the system by updating the array
 	/// directly.
-	/// \param pitch pitch index (0-127)
+	/// @param pitch pitch index (0-127)
 	FrqValue GetFrequency(int pitch)
 	{
 		return tuning[pitch & 0x7F];
@@ -154,24 +168,31 @@ public:
 
 /// Global synthesizer parameteres object
 /// This global must be defined somewhere in the main code.
-/// The simplest way is to include the common library 
-/// call InitSynthesizer() to initialize the values.
+/// The simplest way is to include the common library. 
+/// It initializes automatically in the constructor to default values,
+/// but typically InitSynthesizer() is called to initialize the values.
 extern SynthConfig synthParams;
 
-/// Initialize the global parameters and wavetables.
-/// Both \p synthParams and \p wtSet must be initialized before calling any other 
-/// method in the library. This is easily accomplished by calling the \p InitSynthesizer 
-/// function during program startup.
+/// Initialize the global synthesizer parameters and wavetables.
+/// Both synthParams and wtSet must be initialized before using any other
+/// class or function in the library. This is easily accomplished by calling InitSynthesizer 
+/// during program startup or after synthesizer settings have been configured.
+/// @note InitSynthesizer can be called multiple times. However, you MUST delete all
+/// unit generators first. Many oscillators hold pointers into the wave table set
+/// or calculate local values once based on the current sample rate.
 extern int InitSynthesizer(bsInt32 sampleRate = 44100, bsInt32 wtLen = 16384, bsInt32 wtUsr = 0);
 
 /// A block of samples.
-/// A \p SampleBlock structure is used to buffer a block of samples.
-/// The \p size member defines the size of the in and out blocks.
+/// A SampleBlock structure is used to buffer a block of samples.
+/// The size member defines the size of the in and out blocks.
 class SampleBlock
 {
 public:
+	/// size of the sample block in frames
 	int size;
+	/// input buffer containing current values
 	AmpValue *in;
+	/// output buffer containing generated or processed values
 	AmpValue *out;
 	SampleBlock()
 	{
@@ -183,11 +204,16 @@ public:
 
 /// Unit generator.
 /// A unit generator is any class that can generate samples or control signals.
-/// \p GenUnit is the base class for oscillators, envelope generators, filters, and delay lines.
-/// Derived classes must implement the Init, Reset, and Sample methods.
+/// GenUnit is the base class for oscillators, envelope generators, filters, and delay lines,
+/// and is generally not used directly. However, it can be instantiated to produce a null generator.
+/// (A null generator is sometimes useful as a place-holder for a dynamically set unit generator
+/// and avoids repeatedly testing the variable to see if it is a null pointer.)
+/// Derived classes should implement the Init, Reset, and Sample methods.
 class GenUnit
 {
 public:
+	virtual ~GenUnit() { }
+
 	/// Initialize the generator.
 	/// The Init method sets initial values for the object. The count argument
 	/// indicates the number of values in the values array. This method provides
@@ -196,8 +222,8 @@ public:
 	/// interpretation. Most generator units will supply additional initialization
 	/// and access methods where each value is passed as an explicit argument. 
 	/// The latter form of initialization is preferred as it allows for effective type and range checking.
-	/// \param count number of values
-	/// \param values array of values
+	/// @param count number of values
+	/// @param values array of values
 	virtual void Init(int count, float *values) { }
 
 	/// Reset the generator.
@@ -213,21 +239,22 @@ public:
 	/// A value greater than 0 indicates a condition after some samples have been generated. 
 	/// A value of -1 indicates the object should apply any changed parameter values, 
 	/// but should not otherwise change the current phase. Not all generator units utilize the initPhs argument.
-	/// \param initPhs initial phase
+	/// @param initPhs initial phase
 	virtual void Reset(float initPhs = 0) { }
 
 	/// Return the next sample.
-	/// The Sample method is invoked to generate one sample. The the \p in argument represents
-	/// the current amplitude of the current sample. The use of \p in varies with the unit generator.
+	/// The Sample method is invoked to generate one sample. The the \e in argument represents
+	/// the current amplitude of the current sample. The use of \e in varies with the unit generator.
 	/// Objects that modify the current sample (e.g., filters, delay lines) may store the value
 	/// and return a filtered value. Objects that generate new samples (e.g., oscillators, envelope generators)
 	/// will typically treat the value as an amplitude multiplier.
-	/// \param in current sample amplitude
+	/// @param in current sample amplitude
+	/// @returns generated or processed sample vaule
 	virtual AmpValue Sample(AmpValue in) { return 0; }
 
 	/// Return a block of samples.
 	/// A convienience function that will call Sample to return a block of values
-	/// \param block structure to hold a block of samples, initialized by the caller.
+	/// @param block structure to hold a block of samples, initialized by the caller.
 	virtual void Samples(SampleBlock *block)
 	{
 		int n = block->size;
@@ -249,6 +276,6 @@ public:
 	}
 };
 
-/*@}*/
+//@}
 
 #endif

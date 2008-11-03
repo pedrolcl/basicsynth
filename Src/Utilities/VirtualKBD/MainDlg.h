@@ -4,6 +4,11 @@
 // This window contains the list of instruments, keyboard, and start/stop
 // controls. The keyboard is a separate window added to the dialog during
 // initialization.
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma once

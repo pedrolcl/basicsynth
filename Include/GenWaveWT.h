@@ -10,6 +10,9 @@
 /// - GenWave64 - wavetable generator w/ fast 64-bit fixed point index
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
 /// @addtogroup grpOscil
 //@{

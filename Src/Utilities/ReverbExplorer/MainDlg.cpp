@@ -1,5 +1,13 @@
-// maindlg.cpp : implementation of the CMainDlg class
+/////////////////////////////////////////////////////////////////////////////
+// Reverb explorer
 //
+// This program implements a configurable Shcroeder style reverb utilizing
+// four parallel comb filtes and two series allpass filters.
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"

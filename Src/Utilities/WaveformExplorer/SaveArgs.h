@@ -1,6 +1,12 @@
-// SaveArgs.h: interface for the CSaveArgs class.
-//
 //////////////////////////////////////////////////////////////////////
+// Save settings for the waveform
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+/////////////////////////////////////////////////////////////////////////////
+
 
 #if !defined(AFX_SAVEARGS_H__F8D2CD42_19EA_4CF0_8536_47C17C34A5AA__INCLUDED_)
 #define AFX_SAVEARGS_H__F8D2CD42_19EA_4CF0_8536_47C17C34A5AA__INCLUDED_

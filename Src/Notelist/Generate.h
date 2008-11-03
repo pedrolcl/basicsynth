@@ -1,7 +1,10 @@
 //////////////////////////////////////////////////////////////////////
-// Generate.h: definition of sequence generation classes.
+// Generator classes.
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_GENERATE_H_)

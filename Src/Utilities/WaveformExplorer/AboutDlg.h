@@ -1,5 +1,10 @@
-// aboutdlg.h : interface of the CAboutDlg class
+/////////////////////////////////////////////////////////////////////////////
+// About... box and Help dialog
 //
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_ABOUTDLG_H__5929CFA2_E7F0_4AF4_B70E_0569E22E66EE__INCLUDED_)

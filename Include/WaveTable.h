@@ -7,24 +7,52 @@
 /// if you intend to use the GenWaveWT class and its derivations.
 // 
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
 /// @addtogroup grpGeneral
 //@{
 #ifndef _WAVETABLE_H_
 #define _WAVETABLE_H_
 
+/// Index for Sine wave
 #define WT_SIN 0
+/// Index for Sawtooth wave (sum of partials)
 #define WT_SAW 1
+/// Index for Square wave (sum of partials)
 #define WT_SQR 2
+/// Index for Triangle wave (sum of partials)
 #define WT_TRI 3
+/// Index for Pulse wave (sum of partials)
 #define WT_PLS 4
+/// Index for LFO Sawtooth wave (interploated, not BW limited)
 #define WT_SAWL 5
+/// Index for LFO Square wave (interpolated, not BW limited)
 #define WT_SQRL 6
+/// Index for LFO Trianlge wave (interpolated, not BW limited)
 #define WT_TRIL 7
+/// Index for positive only Sawtooth wave (interpolated, not BW limited)
 #define WT_SAWP 8
+/// Index for positive only Triangle wave (interpolated, not BW limited)
 #define WT_TRIP 9
+/// Index for user-defined waveform
 #define WT_USR(n) ((n)+10)
 
+/// Global, pre-calculated waveform tables.
+/// These waveforms are used by wavetable oscillators.
+/// The first nine entries are pre-defined. Additional
+/// entries can be defined by calling the SetWaveTable()
+/// method. Access to wavetables is through the public
+/// member variable wavSet.
+///
+/// Since wavetables are public members, it is allowable to initialize
+/// the wavetable directly. Memory should be allocated using 
+/// @code
+/// wavSet[n] = new AmpValue[synthParams.itableLength+1].
+/// @endcode
+/// Although possible to replace the default waveforms,
+/// this is not a good idea, especially for WT_SIN.
 class WaveTableSet
 {
 public:
@@ -48,7 +76,7 @@ public:
 	AmpValue *posSaw;
 	/// pointer to the positive only triangle wave table created by direct calculation (WT_TRIP)
 	AmpValue *posTri;
-	/// array of wavetables, size WT_USER(n)
+	/// array of wavetables, wavTblMax in length
 	AmpValue **wavSet;
 	/// number of wavetables
 	bsInt32 wavTblMax;
@@ -90,11 +118,17 @@ public:
 	}
 
 	/// Initialize the default wavetables. 
-	/// This method initializes the default wave tables.
+	/// The length of wavetables is set by the synthParams itableLength member.
+	/// An additional guard point is added to the end of all tables.
+	/// Table values are normalized to the range[-1,+1].
+	/// The guard point is set to the value at index 0
+	/// to allow round-up of the table index without overflow.
+	///
 	/// The NUM_PARTS constant is set to allow oscillator frequencies 
 	/// up to 2 octaves above middle C.
 	/// Higher pitches will produce alias frequencies.
-	/// For higher partials, or higher pitches, use GenWaveSum.
+	/// For higher partials, or higher pitches, use GenWaveSum, or
+	/// add bandwith limited waveforms using SetWaveTable().
 	///
 	/// When Init is called, existing wavetables are destroyed. 
 	/// Thus any oscillators using wavetables MUST be deleted before calling Init.
@@ -255,12 +289,15 @@ public:
 	}
 
 	/// Set an indexed wave table. This is the method to fill in a user wavetable
-	/// by summing a set of sinusoids. Since wavetables are public members, it is
-	/// also allowable to init the wavetable directly.
+	/// by summing a set of sinusoids. 	Table values are automatically normalized
+	/// to the range [-1,+1]. Thus the actual amplitudes only need to be relative.
+	/// E.G., you can set amplitudes as 10,5,1 etc. and still produce a wavetable
+	/// with amplitudes in the range [-1,+1]. Phase values, if given, are in radians.
+	///
 	/// @param n table index
 	/// @param nparts number of partials
-	/// @param mul array of partial numbers, NULL if all partials through n included
-	/// @param amp array of partial amplitudes (required)
+	/// @param mul array of partial numbers, cann be NULL if all partials 1 through n included
+	/// @param amp array of partial relative amplitudes (required)
 	/// @param phs array of phase offsets, NULL for all 0 phase
 	/// @param gibbs turn gibbs correction on/off
 	int SetWaveTable(bsInt32 n, bsInt32 nparts, bsInt32 *mul, double *amp, double *phs, int gibbs)
@@ -352,7 +389,8 @@ public:
 
 /// Global wavetable object. This global must be allocated somewhere. It is shared
 /// by all wavetable oscillators. Typically, it is defined by including the
-/// common library and initialized by the InitSynthesizer() method.
+/// common library and initialized by the InitSynthesizer() method. It is also
+/// possible to define your own global variable and/or initialize it as you see fit.
 extern WaveTableSet wtSet;
 
 //@}

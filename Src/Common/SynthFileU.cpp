@@ -1,3 +1,12 @@
+/////////////////////////////////////////////////////////////////
+// BasicSynth - file I/O implementation using Unix system calls
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+/////////////////////////////////////////////////////////////////
+
 #include <fcntl.h>
 #include <sys/types.h>
 //#include <sys/uio.h>

@@ -33,12 +33,10 @@
 //
 // The sound can be saved as a single channel (monophonic) .WAV file.
 //
-// Copyright 2008,  Daniel R. Mitchell, All Rights Reserved
-// Creative Commons Attribution-Share alike license is granted.
-// You may use and distribute this program so long as you attribute
-// it to the copyright holder (Daniel R. Mitchell) and allow others
-// to use and copy the program without cost.
-// http://creativecommons.org/licenses/by-sa/3.0/us/
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"

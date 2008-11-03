@@ -1,6 +1,11 @@
-// SaveArgs.cpp: implementation of the CSaveArgs class.
-//
 //////////////////////////////////////////////////////////////////////
+// Save settings for the waveform
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "SaveArgs.h"

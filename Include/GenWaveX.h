@@ -11,6 +11,9 @@
 // GenWaveNZ - pitched noise
 //
 // Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
 /// @addtogroup grpOscil
 //@{
@@ -18,11 +21,12 @@
 #define _GENWAVEX_H_
 
 /// Incremental calculation of sum of waves. Slower than precalculating
-/// a sum of sinusoids, but BW limited and also useful for doubling, 
+/// a sum of sinusoids, but bandwidth limited and also useful for doubling, 
 /// chorus effects, etc.
 class GenWaveSum : public GenWaveWT
 {
 private:
+	/// Structure to hold information for one partial.
 	struct SumPart
 	{
 		PhsAccum phase;
@@ -56,7 +60,15 @@ public:
 		delete[] parts;
 	}
 
-	// Fo, WT, gibbs, n, {part,amp}*n
+	/// Initialize from an array of values.
+	/// The array contains {Fo, WT, G, N, (part,amp)*n}
+	/// where Fo is the oscillator frequency,
+	/// WT the wavetable index,
+	/// G the gibbs correction flag,
+	/// N the number of partials,
+	/// followed by N sets of partial number and amplitude pairs.
+	/// @param n number of values
+	/// @param v array of values
 	virtual void Init(int n, float *v)
 	{
 		if (n > 3)
@@ -76,6 +88,11 @@ public:
 		GenWaveWT::Init(n, v);
 	}
 
+	/// Initialize partials.
+	/// @param n number of partials
+	/// @param m partial number
+	/// @param a relative amplitude values
+	/// @param g apply correction for gibbs effect
 	void InitParts(int n, float *m, float *a, int g = 0)
 	{
 		maxMult = 0;
@@ -87,6 +104,7 @@ public:
 		CalcParts();
 	}
 
+	/// @copydoc GenWave::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		GenWaveWT::Reset(initPhs);
@@ -103,6 +121,11 @@ public:
 		}
 	}
 
+	/// Allocate space for partials.
+	/// This is called automatically from Init and InitParts.
+	/// If partials are set individually using SetPart this
+	/// must be called first.
+	/// @param n number of partials
 	void AllocParts(int n)
 	{
 		if (parts)
@@ -117,6 +140,10 @@ public:
 		scale = 1;
 	}
 
+	/// Set a partial.
+	/// @param n partial number index (0 based)
+	/// @param mul partial number (1 based)
+	/// @param amp amplitude
 	void SetPart(int n, float mul, float amp)
 	{
 		SumPart *pp = &parts[n];
@@ -155,7 +182,11 @@ public:
 		}
 	}
 
-	// NB - indexIncr is calculated in the base class Reset method.
+	/// Calculate amplitude and phase increments.
+	/// This is called during a Reset to calculate
+	/// the phase increment for each partial and
+	/// a scaling factor for normalization. Partials
+	/// that exceed the Nyquist limit are eliminated.
 	void CalcParts()
 	{
 		FrqValue tld2 = synthParams.ftableLength / 2;
@@ -187,6 +218,7 @@ public:
 		}
 	}
 
+	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
 		if (cntPart < 1)
@@ -208,7 +240,7 @@ public:
 };
 
 
-/// FM (PM) Generator
+/// FM (PM) Generator.
 /// Any WT class has a modulator input. This special class has the
 /// modulator oscillator built in for convienence.
 /// The Modulate() method also works, and can be used for LFO.
@@ -231,13 +263,24 @@ public:
 		indexOfMod = 1;
 	}
 
-	// Fc, WT, H, I
+	/// Initialize the oscillator.
+	/// The values are {Fc, WT, M, I} with
+	/// Fc the carrier frequency, WT the wavetable,
+	/// M the modulation multiple (c:m) and I
+	/// the index of modulation.
+	/// @param n number of values
+	/// @param v array of values
 	virtual void Init(int n, float *v)
 	{
 		if (n > 3)
 			InitFM(FrqValue(v[0]), FrqValue(v[2]), AmpValue(v[3]), (int) v[1]);
 	}
 
+	/// Initialize the oscillator from arguments.
+	/// @param frequency carrier oscillator frequency
+	/// @param mult modulator oscillator frequency as a c:m value
+	/// @param mi index of modulation (I=dF/Fm)
+	/// @param wtIndex wavetable index
 	virtual void InitFM(FrqValue frequency, FrqValue mult, AmpValue mi, int wtIndex)
 	{
 		indexOfMod = PhsAccum(mi);
@@ -245,33 +288,41 @@ public:
 		GenWaveWT::InitWT(frequency, wtIndex);
 	}
 
+	/// Calculate the modulator amplitude from index of modulation.
+	/// This is invoked internally whenever the index of modulation
+	/// is changed and does not normally need to be called directly.
 	inline void CalcModAmp()
 	{
 		//modAmp = synthParams.frqTI * indexOfMod * frq * modMult;
 		modAmp = indexOfMod * modIncr;
 	}
 
+	/// Set the index of modulation
 	void SetModIndex(AmpValue iom)
 	{
 		indexOfMod = (PhsAccum)iom;
 		CalcModAmp();
 	}
 
+	/// Get the index of modulation
 	AmpValue GetModIndex()
 	{ 
 		return indexOfMod; 
 	}
 
+	/// Set the modulation frequency multiplier (c:m)
 	void SetModMultiple(FrqValue m)
 	{
 		modMult = m;
 	}
 
+	/// Get the modulation frequency multiplier
 	FrqValue GetModMultiple()
 	{
 		return modMult;
 	}
 
+	/// @copydoc GenWave::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		GenWaveWT::Reset(initPhs);
@@ -283,6 +334,7 @@ public:
 		CalcModAmp();
 	}
 
+	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
 		AmpValue valMod;
@@ -303,7 +355,7 @@ public:
 	}
 };
 
-/// AM Generator (2-quadrant multiply)
+/// Amplitude modulation (AM) Generator (2-quadrant multiply)
 class GenWaveAM : public GenWaveWT
 {
 protected:
@@ -323,13 +375,24 @@ public:
 		modScale = 0.0;
 	}
 
-	// Fc, WT, Fm, Am
+	/// Initialize the oscillator.
+	/// The array of values contains {Fc, WT, Fm, Am}
+	/// where Fc is the carrier frequency, WT the wavetable, 
+	/// Fm is the modulator frequency and Am is the modulator
+	/// amplitude.
+	/// @param n number of values (4)
+	/// @param v array of values
 	virtual void Init(int n, float *v)
 	{
 		if (n > 3)
 			InitAM(FrqValue(v[0]), FrqValue(v[2]), FrqValue(v[3]), (int) v[1]);
 	}
 
+	/// Initialize the oscillator from arguments.
+	/// @param frequency carrier frequency
+	/// @param mfrq modulator frequency
+	/// @param mamp modulator amplitude.
+	/// @param wtIndex the wavetable index
 	virtual void InitAM(FrqValue frequency, FrqValue mfrq, AmpValue mamp, int wtIndex)
 	{
 		modAmp = mamp;
@@ -338,6 +401,7 @@ public:
 		GenWaveWT::InitWT(frequency, wtIndex);
 	}
 
+	/// @copydoc GenWave::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		GenWaveWT::Reset(initPhs);
@@ -350,6 +414,7 @@ public:
 		}
 	}
 
+	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
 		AmpValue valMod = 1.0 + (modAmp * waveTable[(int)(modIndex+0.5)]);
@@ -362,10 +427,11 @@ public:
 	}
 };
 
-/// Ring modulator (i.e. 4-quadrant multiply)
+/// Ring modulation (RM) generator (i.e. 4-quadrant multiply)
 class GenWaveRM : public GenWaveAM
 {
 public:
+	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
 		AmpValue v = waveTable[(int)(index+0.5)] * modAmp * waveTable[(int)(modIndex+0.5)];
@@ -389,30 +455,43 @@ private:
 	GenNoiseI nz;
 
 public:
-	// Fo WT Fn
+	/// Initialize the oscillator.
+	/// The array of values contains {Fo WT Fn}
+	/// where Fo is the oscillator frequency,
+	/// WT is the oscillator wavetable,
+	/// and Fn is the noise hold frequency.
+	/// @param n number of values
+	/// @param v array of values
 	virtual void Init(int n, float *v)
 	{
 		if (n > 2)
 			InitNZ(FrqValue(v[0]), FrqValue(v[2]), (int) v[1]);
 	}
 
+	/// Initialize the oscillator from arguments.
+	/// @param frequency oscillator frequency
+	/// @param nzfrq noise hold frequency
+	/// @param wtIndex oscillator wavetable index
 	virtual void InitNZ(FrqValue frequency, FrqValue nzfrq, int wtIndex)
 	{
 		osc.InitWT(frequency, wtIndex);
 		nz.Init(1, &nzfrq);
 	}
 
+	/// @copydoc GenWave::Reset
 	virtual void Reset(float initPhs = 0)
 	{
 		osc.Reset(initPhs);
 		nz.Reset(initPhs);
 	}
 
+	/// @copydoc GenWave::Sample
 	virtual AmpValue Sample(AmpValue in)
 	{
 		return Gen() * in;
 	}
 
+	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
 		return osc.Gen() * nz.Gen();
