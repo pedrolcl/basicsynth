@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
 
 <head>
@@ -52,19 +52,19 @@ about the composition, synthesizer settings, instrument definitions, score files
   &lt;author&gt;Composer name&lt;/author&gt;
   &lt;desc&gt;Description of the composition&lt;/desc&gt;
   &lt;cpyrgt&gt;Copyright notice&lt;/cpyrgt&gt;
-  &lt;synth sr=“44100” wt=“16384” usr=“” &gt;
-    &lt;wvtable ndx=“” parts=“” gibbs=“” &gt;
-      &lt;part mul=“” amp=“” phs=“”/&gt;
+  &lt;synth sr=&quot;44100&quot; wt=&quot;16384&quot; usr=&quot;&quot; &gt;
+    &lt;wvtable ndx=&quot;&quot; parts=&quot;&quot; gibbs=&quot;&quot; &gt;
+      &lt;part mul=&quot;&quot; amp=&quot;&quot; phs=&quot;&quot;/&gt;
     &lt;/wvtable&gt;
   &lt;/synth&gt;
-  &lt;mixer chnls=“” fxunits=“” lft=“” rgt=“”&gt;
-    &lt;chnl cn=“” on=“” vol=“” pan=“”/&gt;
-    &lt;reverb unit=“” vol=“” rvt=“” pan=“” &gt;
-      &lt;send chnl=“” amt=“”/&gt;
+  &lt;mixer chnls=&quot;&quot; fxunits=&quot;&quot; lft=&quot;&quot; rgt=&quot;&quot;&gt;
+    &lt;chnl cn=&quot;&quot; on=&quot;&quot; vol=&quot;&quot; pan=&quot;&quot;/&gt;
+    &lt;reverb unit=&quot;&quot; vol=&quot;&quot; rvt=&quot;&quot; pan=&quot;&quot; &gt;
+      &lt;send chnl=&quot;&quot; amt=&quot;&quot;/&gt;
     &lt;/reverb&gt;
-    &lt;flanger unit=“” lvl=“” mix=“” fb=“” 
-      cntr=“” depth=“” sweep=“” pan=“” &gt;
-      &lt;send chnl=“” amt=“” /&gt;
+    &lt;flanger unit=&quot;&quot; lvl=&quot;&quot; mix=&quot;&quot; fb=&quot;&quot; 
+      cntr=&quot;&quot; depth=&quot;&quot; sweep=&quot;&quot; pan=&quot;&quot; &gt;
+      &lt;send chnl=&quot;&quot; amt=&quot;&quot; /&gt;
     &lt;/flanger&gt;
   &lt;/mixer&gt;
   &lt;libdir&gt;path to libraries and scores&lt;/libdir&gt;
@@ -72,10 +72,10 @@ about the composition, synthesizer settings, instrument definitions, score files
   &lt;instrlib&gt;
     &lt;instr&gt; instrument definition &lt;/instr&gt;
   &lt;/instrlib&gt;
-  &lt;seq name=“”&gt;a sequencer file&lt;/seq&gt;
-  &lt;score name=“” dbg=“”&gt;a notelist file&lt;/score&gt;
+  &lt;seq name=&quot;&quot;&gt;a sequencer file&lt;/seq&gt;
+  &lt;score name=&quot;&quot; dbg=&quot;&quot;&gt;a notelist file&lt;/score&gt;
   &lt;text&gt;file associated with the project&lt;/text&gt;
-  &lt;out type=“1” lead=“” tail=“”&gt;
+  &lt;out type=&quot;1&quot; lead=&quot;&quot; tail=&quot;&quot;&gt;
     output file path
   &lt;/out&gt;
 &lt;/synthprj&gt;
@@ -86,7 +86,7 @@ about the composition, synthesizer settings, instrument definitions, score files
 Tag</th><th>Attribute</th><th>Use</th></tr>
 <tr><td>synthprj</td><td>&nbsp;</td><td>Document root tag</td></tr>
 <tr><td>name</td><td>&nbsp;</td><td>Name of the composition</td></tr>
-<tr><td>author</td><td>&nbsp;</td><td>Composer’s name</td></tr>
+<tr><td>author</td><td>&nbsp;</td><td>Composer name</td></tr>
 <tr><td>desc</td><td>&nbsp;</td><td>Description</td></tr>
 <tr><td>cpyrgt</td><td>&nbsp;</td><td>Copyright</td></tr>
 <tr><td>synth</td><td>sr</td><td>Sample rate</td></tr>
@@ -100,8 +100,8 @@ Tag</th><th>Attribute</th><th>Use</th></tr>
 <tr><td>&nbsp;</td><td>phs</td><td>Starting phase of this partial, in radians (optional)</td></tr>
 <tr><td>mixer</td><td>chnls</td><td>Number of mixer inputs</td></tr>
 <tr><td>&nbsp;</td><td>fxunits</td><td>Number of effects units</td></tr>
-<tr><td>&nbsp;</td><td>lft</td><td>Master volume – left</td></tr>
-<tr><td>&nbsp;</td><td>rgt</td><td>Master volume – right</td></tr>
+<tr><td>&nbsp;</td><td>lft</td><td>Master volume left</td></tr>
+<tr><td>&nbsp;</td><td>rgt</td><td>Master volume right</td></tr>
 <tr><td>chnl</td><td>cn</td><td>Mixer input channel number</td></tr>
 <tr><td>&nbsp;</td><td>on</td><td>Channel on (1) or off (0)</td></tr>
 <tr><td>&nbsp;</td><td>pan</td><td>Channel pan (-1 to +1)</td></tr>
