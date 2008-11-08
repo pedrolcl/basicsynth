@@ -33,6 +33,10 @@ public:
 	void SetAttack(FrqValue val)    { atk.SetRate(val); }
 	void SetLevel(AmpValue val)     { depth = val; lfoOn = depth > 0; } //atk.SetLevel(val);
 	void SetSigFrq(FrqValue val)    { sigFrq = val; }
+	FrqValue GetFrequency() { return osc.GetFrequency(); }
+	int GetWavetable() { return osc.GetWavetable(); }
+	FrqValue GetAttack() { return atk.GetRate(); }
+	AmpValue GetLevel() { return depth; }
 
 	void Init(int n, float *f);
 	void InitLFO(FrqValue frq, int wvf, FrqValue rt, AmpValue amp, FrqValue sig);

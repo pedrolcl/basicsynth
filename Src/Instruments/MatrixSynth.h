@@ -106,7 +106,6 @@ private:
 
 	int LoadEnv(XmlSynthElem *elem);
 	int SaveEnv(XmlSynthElem *elem, int en);
-	void SetParams(VarParamEvent *evt);
 
 public:
 	MatrixSynth();
@@ -124,6 +123,20 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	int GetParams(VarParamEvent *params);
+	int SetParams(VarParamEvent *params);
+
+	void SetSegs(int gn, int sn)
+	{
+		if (gn < MATGEN)
+			envs[gn].SetSegs(sn);
+	}
+	int GetSegs(int gn, int sn)
+	{
+		if (gn < MATGEN)
+			return envs[sn].GetSegs();
+		return 0;
+	}
 };
 
 #endif

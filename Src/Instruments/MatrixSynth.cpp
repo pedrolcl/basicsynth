@@ -136,10 +136,7 @@ void MatrixSynth::Start(SeqEvent *evt)
 	fx4On = (allFlags & TONE_FX4OUT) ? 1 : 0;
 	panOn = (allFlags & TONE_PAN) ? 1 : 0;
 	if (lfoOn)
-	{
-		lfoGen.SetSigFrq(frq);
 		lfoGen.Reset(0);
-	}
 	if (pbOn)
 		pbGen.Reset(0);
 }
@@ -161,19 +158,20 @@ void MatrixSynth::Param(SeqEvent *evt)
 		pbGen.Reset(-1);
 }
 
-void MatrixSynth::SetParams(VarParamEvent *evt)
+int MatrixSynth::SetParams(VarParamEvent *params)
 {
-	chnl = evt->chnl;
-	frq = evt->frq;
-	vol = evt->vol;
+	chnl = params->chnl;
+	frq = params->frq;
+	vol = params->vol;
 	pbGen.SetFrequency(frq);
+	lfoGen.SetSigFrq(frq);
 
 	bsInt16 idval;
 	bsInt16 gn, vn, sn, ty;
-	bsInt16 *id = evt->idParam;
-	float *vp = evt->valParam;
+	bsInt16 *id = params->idParam;
+	float *vp = params->valParam;
 	float val;
-	int n = evt->numParam;
+	int n = params->numParam;
 	while (n-- > 0)
 	{
 		// id = 0|xx[3]|vn[8] (generic)
@@ -354,7 +352,77 @@ void MatrixSynth::SetParams(VarParamEvent *evt)
 			}
 		}
 	}
+	return 0;
 }
+
+int MatrixSynth::GetParams(VarParamEvent *params)
+{
+	params->SetParam(P_CHNL, (float) chnl);
+	params->SetParam(P_FREQ, (float) frq);
+	params->SetParam(P_VOLUME, (float) vol);
+
+	params->SetParam(16, (float)lfoGen.GetFrequency());
+	params->SetParam(17, (float)lfoGen.GetWavetable());
+	params->SetParam(18, (float)lfoGen.GetAttack());
+	params->SetParam(19, (float)lfoGen.GetLevel());
+	params->SetParam(20, (float)pbGen.GetRate(0));
+	params->SetParam(21, (float)pbGen.GetRate(1));
+	params->SetParam(22, (float)pbGen.GetAmount(0));
+	params->SetParam(23, (float)pbGen.GetAmount(1));
+	params->SetParam(24, (float)pbGen.GetAmount(2));
+
+		// id = 1|on[3]|vn[8] (oscillator)
+		// id = 2|en[3]|sn[5]|vn[3] (envelope)
+
+	int idval;
+	MatrixTone *sig;
+	int ndx;
+	for (ndx = 0; ndx < MATGEN; ndx++)
+	{
+		sig = &gens[ndx];
+		idval = (1 << 11) | (ndx << 8);
+		params->SetParam(idval+0, (float) (sig->toneFlags & 0xFFFF));
+		params->SetParam(idval+1, (float) (sig->toneFlags >> 16));
+		params->SetParam(idval+2, (float) sig->osc.GetWavetable());
+		params->SetParam(idval+3, (float) sig->frqMult);
+		params->SetParam(idval+4, (float) sig->modLvl);
+		params->SetParam(idval+5, (float) sig->volLvl);
+		params->SetParam(idval+6, (float) sig->envIndex);
+		params->SetParam(idval+7, (float) sig->fx1Lvl);
+		params->SetParam(idval+8, (float) sig->fx2Lvl);
+		params->SetParam(idval+9, (float) sig->fx3Lvl);
+		params->SetParam(idval+10, (float) sig->fx4Lvl);
+		params->SetParam(idval+11, (float) sig->lfoLvl);
+		params->SetParam(idval+12, (float) ((sig->toneFlags & TONE_LFOIN) ? 1 : 0));
+		params->SetParam(idval+13, (float) ((sig->toneFlags & TONE_TREM) ? 1 : 0));
+		params->SetParam(idval+14, (float) sig->panSet.panval);
+		params->SetParam(idval+15, (float) ((sig->toneFlags & TONE_PAN) ? 1 : 0));
+		params->SetParam(idval+16, (float) ((sig->toneFlags & TONE_ON) ? 1 : 0));
+		params->SetParam(idval+17, (float) ((sig->toneFlags & TONE_OUT) ? 1 : 0));
+		params->SetParam(idval+18, (float) ((sig->toneFlags & TONE_FX1OUT) ? 1 : 0));
+		params->SetParam(idval+19, (float) ((sig->toneFlags & TONE_FX2OUT) ? 1 : 0));
+		params->SetParam(idval+20, (float) ((sig->toneFlags & TONE_FX3OUT) ? 1 : 0));
+		params->SetParam(idval+21, (float) ((sig->toneFlags & TONE_FX4OUT) ? 1 : 0));
+		params->SetParam(idval+22, (float) sig->pbLvl);
+		params->SetParam(idval+23, (float) ((sig->toneFlags & TONE_PBIN) ? 1 : 0));
+	}
+	for (ndx = 0; ndx < MATGEN; ndx++)
+	{
+		EnvGenSegSus *env = &envs[ndx];
+		idval = (2 << 11) | (ndx << 8);
+		params->SetParam(idval,   (float)env->GetStart());
+		params->SetParam(idval+1, (float)env->GetSusOn());
+		for (int sn = 0; sn < env->GetSegs(); sn++)
+		{
+			idval = (2 << 11) | (ndx << 8) | (sn << 3);
+			params->SetParam(idval+2, (float)env->GetRate(sn));
+			params->SetParam(idval+3, (float)env->GetLevel(sn));
+			params->SetParam(idval+4, (float)env->GetType(sn));
+		}
+	}
+	return 0;
+}
+
 
 void MatrixSynth::Stop()
 {

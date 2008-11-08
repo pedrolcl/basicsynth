@@ -112,95 +112,22 @@ void AddSynth::Param(SeqEvent *evt)
 
 void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 {
-	VarParamEvent *vpe = (VarParamEvent *)evt;
-	chnl = vpe->chnl;
-	vol = vpe->vol;
-	frq = vpe->frq;
-	AddSynthPart *pSig;
-	bsInt16 *id = vpe->idParam;
-	float *valp = vpe->valParam;
-	int n = vpe->numParam;
-	// [pn(6)][sn(4)][val(4)]
-	// PN = (partial number + 1) * 256
-	// SN = (segment number + 1) * 16
-	// PN+0	Frequency multiplier. 
-	// PN+1	Initial frequency for this oscillator. 
-	// PN+2	Wave table index.
-	// PN+3	Starting value for the envelope.
-	// PN+4 Sustain-on flag, 1 or 0.
-	// PN+SN+5	segment rate
-	// PN+SN+6	Level at the end of the segment.
-	// PN+SN+7	Segment curve type: 1=linear 2=exponential 3=log.
-
-	bsInt16 idval, pn, sn;
-	float val;
-
-	while (n-- > 0)
-	{
-		val = *valp++;
-		idval = *id++;
-		pn = (idval & 0x7F00) >> 8;
-		if (pn == 0)
-		{
-			switch (idval)
-			{
-			case 16:
-				lfoGen.SetFrequency(FrqValue(val));
-				break;
-			case 17:
-				lfoGen.SetWavetable((int)val);
-				break;
-			case 18:
-				lfoGen.SetAttack(FrqValue(val));
-				break;
-			case 19:
-				lfoGen.SetLevel(AmpValue(val));
-				break;
-			}
-		}
-		else if (pn <= numParts)
-		{
-			sn = (idval & 0xF0) >> 4;
-			pSig = &parts[pn-1];
-			switch (idval & 0x0F)
-			{
-			case 0:
-				pSig->mul = FrqValue(val);
-				break;
-			case 1:
-				pSig->osc.SetFrequency(FrqValue(val));
-				break;
-			case 2:
-				pSig->osc.SetWavetable((int)val);
-				break;
-			case 3:
-				pSig->env.SetStart(AmpValue(val));
-				break;
-			case 4:
-				pSig->env.SetSusOn((int)val);
-				break;
-			case 5:
-				pSig->env.SetRate(sn, FrqValue(val));
-				break;
-			case 6:
-				pSig->env.SetLevel(sn, AmpValue(val));
-				break;
-			case 7:
-				pSig->env.SetType(sn, (EGSegType) (int) val);
-				break;
-			}
-		}
-	}
+	SetParams((VarParamEvent *)evt);
 
 	FrqValue nyquist = synthParams.sampleRate / 2;
 	AddSynthPart *pEnd = &parts[numParts];
+	AddSynthPart *pSig = parts;
 	for (pSig = parts; pSig < pEnd; pSig++)
 	{
 		if (pSig->mul > 0)
 		{
-			FrqValue f = pSig->mul * frq;
-			if (f < 0 || f >= nyquist)
-				f = 0;
+			FrqValue f = frq;
+			if (pSig->mul > 0)
+			{
+				f *= pSig->mul;
+				if (f >= nyquist)
+					f = 0;
+			}
 			pSig->osc.SetFrequency(f);
 		}
 		pSig->osc.Reset(initPhs);
@@ -395,5 +322,127 @@ int AddSynth::Save(XmlSynthElem *parent)
 	lfoGen.Save(lfoElem);
 	delete lfoElem;
 
+	return 0;
+}
+
+// [pn(6)][sn(4)][val(4)]
+// PN = (partial number + 1) * 256
+// SN = (segment number + 1) * 16
+// PN+0	Frequency multiplier. 
+// PN+1	Initial frequency for this oscillator. 
+// PN+2	Wave table index.
+// PN+3	Starting value for the envelope.
+// PN+4 Sustain-on flag, 1 or 0.
+// PN+SN+5	segment rate
+// PN+SN+6	Level at the end of the segment.
+// PN+SN+7	Segment curve type: 1=linear 2=exponential 3=log.
+int AddSynth::SetParams(VarParamEvent *params)
+{
+	int err = 0;
+
+	chnl = params->chnl;
+	vol = params->vol;
+	frq = params->frq;
+	AddSynthPart *pSig;
+	bsInt16 idval, pn, sn;
+	float val;
+	bsInt16 *id = params->idParam;
+	float *valp = params->valParam;
+	int n = params->numParam;
+	while (n-- > 0)
+	{
+		val = *valp++;
+		idval = *id++;
+		pn = (idval & 0x7F00) >> 8;
+		if (pn == 0)
+		{
+			switch (idval)
+			{
+			case 16:
+				lfoGen.SetFrequency(FrqValue(val));
+				break;
+			case 17:
+				lfoGen.SetWavetable((int)val);
+				break;
+			case 18:
+				lfoGen.SetAttack(FrqValue(val));
+				break;
+			case 19:
+				lfoGen.SetLevel(AmpValue(val));
+				break;
+			default:
+				err++;
+				break;
+			}
+		}
+		else if (pn <= numParts)
+		{
+			sn = (idval & 0xF0) >> 4;
+			pSig = &parts[pn-1];
+			switch (idval & 0x0F)
+			{
+			case 0:
+				pSig->mul = FrqValue(val);
+				break;
+			case 1:
+				pSig->osc.SetFrequency(FrqValue(val));
+				break;
+			case 2:
+				pSig->osc.SetWavetable((int)val);
+				break;
+			case 3:
+				pSig->env.SetStart(AmpValue(val));
+				break;
+			case 4:
+				pSig->env.SetSusOn((int)val);
+				break;
+			case 5:
+				pSig->env.SetRate(sn, FrqValue(val));
+				break;
+			case 6:
+				pSig->env.SetLevel(sn, AmpValue(val));
+				break;
+			case 7:
+				pSig->env.SetType(sn, (EGSegType) (int) val);
+				break;
+			default:
+				err++;
+				break;
+			}
+		}
+		else
+			err++;
+	}
+	return err;
+}
+
+int AddSynth::GetParams(VarParamEvent *params)
+{
+	params->SetParam(P_FREQ, (float)frq);
+	params->SetParam(P_VOLUME, (float)vol);
+	params->SetParam(16, (float)lfoGen.GetFrequency());
+	params->SetParam(17, (float)lfoGen.GetWavetable());
+	params->SetParam(18, (float)lfoGen.GetAttack());
+	params->SetParam(19, (float)lfoGen.GetLevel());
+
+	int pn, sn, segs, idval;
+	for (pn = 0; pn < numParts; pn++)
+	{
+		AddSynthPart *pSig = &parts[pn];
+		idval = (pn+1) << 8;
+		params->SetParam(idval, (float) pSig->mul);
+		params->SetParam(idval+1, (float) pSig->osc.GetFrequency());
+		params->SetParam(idval+2, (float) pSig->osc.GetWavetable());
+		params->SetParam(idval+3, (float) pSig->env.GetStart());
+		params->SetParam(idval+4, (float) pSig->env.GetSusOn());
+		segs = pSig->env.GetSegs();
+		for (sn = 0; sn < segs; sn++)
+		{
+			idval |= (sn << 4);
+			params->SetParam(idval+5, (float) pSig->env.GetRate(sn));
+			params->SetParam(idval+6, (float) pSig->env.GetLevel(sn));
+			params->SetParam(idval+7, (float) pSig->env.GetType(sn));
+		}
+	}
 	return 0;
 }

@@ -62,6 +62,8 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	int GetParams(VarParamEvent *params);
+	int SetParams(VarParamEvent *params);
 
 	int SetNumParts(int n);
 	int GetNumParts();

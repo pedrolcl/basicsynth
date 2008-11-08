@@ -151,8 +151,6 @@ private:
 	int pbOn;
 	InstrManager *im;
 
-	void SetParams(VarParamEvent *evt);
-
 public:
 	SubSynth();
 	SubSynth(SubSynth *tp);
@@ -170,6 +168,8 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	int GetParams(VarParamEvent *params);
+	int SetParams(VarParamEvent *params);
 };
 
 #endif

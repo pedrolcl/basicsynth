@@ -13,139 +13,25 @@
 #include "LFO.h"
 #include "PitchBend.h"
 
-class ToneEvent : public NoteEvent
+class ToneBase : public Instrument  
 {
-public:
-	int waveTable;
-	int lfoWaveTable;
-	int pbOn;
-	AmpValue startLevel;
-	AmpValue atkLevel;
-	AmpValue susLevel;
-	AmpValue endLevel;
-	FrqValue atkRate;
-	FrqValue decRate;
-	FrqValue relRate;
-	EGSegType envType;
-	FrqValue lfoFreq;
-	FrqValue lfoAtkRate;
-	AmpValue lfoAmp;
-	FrqValue pbR1;
-	FrqValue pbR2;
-	FrqValue pbA1;
-	FrqValue pbA2;
-	FrqValue pbA3;
-
-	// no contsructor - init is done in ToneEventFactory,
-	// which should be the only function that instantiates
-	// this class!
-
-	virtual void Destroy()
-	{
-		delete this;
-	}
-
-	virtual bsInt16 MaxParam()
-	{
-		return 34;
-	}
-
-	virtual void SetParam(bsInt16 id, float v)
-	{
-		switch (id)
-		{
-		case 16:
-			waveTable = (int) v;
-			break;
-		case 17:
-			startLevel = AmpValue(v);
-			break;
-		case 18:
-			atkRate = FrqValue(v);
-			break;
-		case 19:
-			atkLevel = AmpValue(v);
-			break;
-		case 20:
-			decRate = FrqValue(v);
-			break;
-		case 21:
-			susLevel = AmpValue(v);
-			break;
-		case 22:
-			relRate = FrqValue(v);
-			break;
-		case 23:
-			endLevel = AmpValue(v);
-			break;
-		case 24:
-			envType = (EGSegType) (int) v;
-			break;
-		case 25:
-			lfoFreq = FrqValue(v);
-			break;
-		case 26:
-			lfoWaveTable = (int) v;
-			break;
-		case 27:
-			lfoAtkRate = FrqValue(v);
-			break;
-		case 28:
-			lfoAmp = AmpValue(v);
-			break;
-		case 29:
-			pbOn = (int) v;
-			break;
-		case 30:
-			pbR1 = FrqValue(v);
-			break;
-		case 31:
-			pbR2 = FrqValue(v);
-			break;
-		case 32:
-			pbA1 = FrqValue(v);
-			break;
-		case 33:
-			pbA2 = FrqValue(v);
-			break;
-		case 34:
-			pbA3 = FrqValue(v);
-			break;
-
-		default:
-			NoteEvent::SetParam(id, v);
-			break;
-		}
-	}
-};
-
-class ToneInstr : public Instrument  
-{
-private:
+protected:
 	int chnl;
 	int pbOn;
 	int lfoOn;
 	AmpValue vol;
-#ifdef USE_OSCILI
-	GenWaveI osc;
-#else
-	GenWaveWT osc;
-#endif
+	GenWaveWT *osc;
 	EnvGenADSR env;
 	LFO lfoGen;
 	PitchBend pbGen;
 
 	InstrManager *im;
 
-	void SetParam(ToneEvent *te);
-
 public:
-	static Instrument *ToneFactory(InstrManager *, Opaque tmplt);
-	static SeqEvent   *ToneEventFactory(Opaque tmplt);
-	ToneInstr();
-	ToneInstr(ToneInstr *tp);
-	virtual ~ToneInstr();
-	virtual void Copy(ToneInstr *tp);
+	ToneBase();
+	ToneBase(ToneBase *tp);
+	virtual ~ToneBase();
+	virtual void Copy(ToneBase *tp);
 	virtual void Start(SeqEvent *evt);
 	virtual void Param(SeqEvent *evt);
 	virtual void Stop();
@@ -153,74 +39,42 @@ public:
 	virtual int  IsFinished();
 	virtual void Destroy();
 
-	int Load(XmlSynthElem *parent);
-	int Save(XmlSynthElem *parent);
+	virtual int Load(XmlSynthElem *parent);
+	virtual int Save(XmlSynthElem *parent);
+	virtual int GetParams(VarParamEvent *params);
+	virtual int SetParams(VarParamEvent *params);
+
+	virtual int LoadOscil(XmlSynthElem *elem);
+	virtual int LoadEnv(XmlSynthElem *elem);
+	virtual int SaveOscil(XmlSynthElem *elem);
+	virtual int SaveEnv(XmlSynthElem *elem);
+	virtual int SetParam(int id, float val);
 };
 
-class ToneFMEvent : public ToneEvent
+class ToneInstr : public ToneBase
 {
 public:
-	AmpValue modIndex;
-	FrqValue modMult;
+	static Instrument *ToneFactory(InstrManager *, Opaque tmplt);
+	static SeqEvent   *ToneEventFactory(Opaque tmplt);
 
-	ToneFMEvent()
-	{
-		modIndex = 1.0;
-		modMult = 1.0;
-	}
-
-	virtual bsInt16 MaxParam()
-	{
-		return 36;
-	}
-
-	void SetParam(bsInt16 id, float v)
-	{
-		switch (id)
-		{
-		case 35:
-			modIndex = AmpValue(v);
-			break;
-		case 36:
-			modMult = FrqValue(v);
-			break;
-		default:
-			ToneEvent::SetParam(id, v);
-			break;
-		}
-	}
+	ToneInstr();
+	ToneInstr(ToneInstr *tp);
+	virtual ~ToneInstr();
 };
 
-class ToneFM : public Instrument  
+class ToneFM : public ToneBase
 {
-private:
-	int chnl;
-	int lfoOn;
-	int pbOn;
-	AmpValue vol;
-	GenWaveFM osc;
-	EnvGenADSR env;
-	LFO lfoGen;
-	PitchBend pbGen;
-
-	InstrManager *im;
-
-	void SetParam(ToneFMEvent *te);
-
 public:
 	static Instrument *ToneFMFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ToneFMEventFactory(Opaque tmplt);
 	ToneFM();
+	ToneFM(ToneFM *tp);
 	virtual ~ToneFM();
 	virtual void Copy(ToneFM *tp);
-	virtual void Start(SeqEvent *evt);
-	virtual void Param(SeqEvent *evt);
-	virtual void Stop();
-	virtual void Tick();
-	virtual int  IsFinished();
-	virtual void Destroy();
+	virtual int LoadOscil(XmlSynthElem *elem);
+	virtual int SaveOscil(XmlSynthElem *elem);
+	virtual int SetParam(int id, float val);
 
-	int Load(XmlSynthElem *parent);
-	int Save(XmlSynthElem *parent);
+	int GetParams(VarParamEvent *params);
 };
 #endif

@@ -127,13 +127,14 @@ void SubSynth::Param(SeqEvent *evt)
 	lfoGen.Reset(-1);
 }
 
-void SubSynth::SetParams(VarParamEvent *evt)
+int SubSynth::SetParams(VarParamEvent *evt)
 {
+	int err = 0;
+	chnl = evt->chnl;
 	vol = evt->vol;
 	osc.SetFrequency(evt->frq);
 	pbGen.SetFrequency(evt->frq);
 	lfoGen.SetSigFrq(evt->frq);
-	chnl = evt->chnl;
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
 	float val;
@@ -244,8 +245,51 @@ void SubSynth::SetParams(VarParamEvent *evt)
 		case 49:
 			pbGen.SetAmount(2, FrqValue(val));
 			break;
+		default:
+			err++;
+			break;
 		}
 	}
+	return err;
+}
+
+int SubSynth::GetParams(VarParamEvent *params)
+{
+	params->SetParam(P_CHNL, (float) chnl);
+	params->SetParam(P_VOLUME, (float) vol);
+	params->SetParam(P_FREQ, (float) osc.GetFrequency());
+	params->SetParam(16, (float) sigMix);
+	params->SetParam(17, (float) osc.GetWavetable());
+	params->SetParam(18, (float) fltType);
+	params->SetParam(19, (float) fltGain);
+	params->SetParam(20, (float) fltRes);
+	params->SetParam(21, (float) envSig.GetStart());
+	params->SetParam(22, (float) envSig.GetAtkRt());
+	params->SetParam(23, (float) envSig.GetAtkLvl());
+	params->SetParam(24, (float) envSig.GetDecRt());
+	params->SetParam(25, (float) envSig.GetSusLvl());
+	params->SetParam(26, (float) envSig.GetRelRt());
+	params->SetParam(27, (float) envSig.GetRelLvl());
+	params->SetParam(28, (float) envSig.GetType());
+	params->SetParam(30, (float) envFlt.GetStart());
+	params->SetParam(31, (float) envFlt.GetAtkRt());
+	params->SetParam(32, (float) envFlt.GetAtkLvl());
+	params->SetParam(33, (float) envFlt.GetDecRt());
+	params->SetParam(34, (float) envFlt.GetSusLvl());
+	params->SetParam(35, (float) envFlt.GetRelRt());
+	params->SetParam(36, (float) envFlt.GetRelLvl());
+	params->SetParam(37, (float) envFlt.GetType());
+	params->SetParam(40, (float) lfoGen.GetFrequency());
+	params->SetParam(41, (float) lfoGen.GetWavetable());
+	params->SetParam(42, (float) lfoGen.GetAttack());
+	params->SetParam(43, (float) lfoGen.GetLevel());
+	params->SetParam(44, (float) pbOn);
+	params->SetParam(45, (float) pbGen.GetRate(0));
+	params->SetParam(46, (float) pbGen.GetRate(1));
+	params->SetParam(47, (float) pbGen.GetAmount(0));
+	params->SetParam(48, (float) pbGen.GetAmount(1));
+	params->SetParam(49, (float) pbGen.GetAmount(2));
+	return 0;
 }
 
 void SubSynth::Stop()

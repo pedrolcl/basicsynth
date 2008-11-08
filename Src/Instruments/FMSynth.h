@@ -89,8 +89,6 @@ private:
 	void LoadEG(XmlSynthElem *elem, EnvDef& eg);
 	XmlSynthElem *SaveEG(XmlSynthElem *parent, char *tag, EnvDef& eg);
 
-	void SetParams(VarParamEvent *evt);
-
 public:
 	FMSynth();
 	FMSynth(FMSynth* tp);
@@ -107,6 +105,8 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	int GetParams(VarParamEvent *params);
+	int SetParams(VarParamEvent *params);
 };
 
 #endif

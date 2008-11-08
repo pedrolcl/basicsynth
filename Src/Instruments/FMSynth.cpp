@@ -229,8 +229,9 @@ void FMSynth::Param(SeqEvent *evt)
 	}
 }
 
-void FMSynth::SetParams(VarParamEvent *evt)
+int FMSynth::SetParams(VarParamEvent *evt)
 {
+	int err = 0;
 	vol = evt->vol;
 	frq = evt->frq;
 	chnl = evt->chnl;
@@ -443,9 +444,80 @@ void FMSynth::SetParams(VarParamEvent *evt)
 			pbGen.SetAmount(2, FrqValue(val));
 			break;
 		default:
+			err++;
 			break;
 		}
 	}
+	return err;
+}
+
+int FMSynth::GetParams(VarParamEvent *params)
+{
+	params->SetParam(P_CHNL, chnl);
+	params->SetParam(P_VOLUME, vol);
+	params->SetParam(P_FREQ, frq);
+	params->SetParam(16, (float) fmMix);
+	params->SetParam(17, (float) fmDly);
+	params->SetParam(18, (float) algorithm);
+	params->SetParam(19, (float) panOn);
+	params->SetParam(20, (float) panSet.panval);
+	params->SetParam(30, (float) gen1Mult);
+	params->SetParam(31, (float) gen1EnvDef.GetStart());
+	params->SetParam(32, (float) gen1EnvDef.GetRate(0));
+	params->SetParam(33, (float) gen1EnvDef.GetLevel(0));
+	params->SetParam(34, (float) gen1EnvDef.GetRate(1));
+	params->SetParam(35, (float) gen1EnvDef.GetLevel(1));
+	params->SetParam(36, (float) gen1EnvDef.GetRate(2));
+	params->SetParam(37, (float) gen1EnvDef.GetLevel(2));
+	params->SetParam(38, (float) gen1EnvDef.GetType(0));
+	params->SetParam(39, (float) gen1Wt);
+	params->SetParam(40, (float) gen2Mult);
+	params->SetParam(41, (float) gen2EnvDef.GetStart());
+	params->SetParam(42, (float) gen2EnvDef.GetRate(0));
+	params->SetParam(43, (float) gen2EnvDef.GetLevel(0));
+	params->SetParam(44, (float) gen2EnvDef.GetRate(1));
+	params->SetParam(45, (float) gen2EnvDef.GetLevel(1));
+	params->SetParam(46, (float) gen2EnvDef.GetRate(2));
+	params->SetParam(47, (float) gen2EnvDef.GetLevel(2));
+	params->SetParam(48, (float) gen2EnvDef.GetType(0));
+	params->SetParam(49, (float) gen2Wt);
+	params->SetParam(50, (float) gen3Mult);
+	params->SetParam(51, (float) gen3EnvDef.GetStart());
+	params->SetParam(52, (float) gen3EnvDef.GetRate(0));
+	params->SetParam(53, (float) gen3EnvDef.GetLevel(0));
+	params->SetParam(54, (float) gen3EnvDef.GetRate(1));
+	params->SetParam(55, (float) gen3EnvDef.GetLevel(1));
+	params->SetParam(56, (float) gen3EnvDef.GetRate(2));
+	params->SetParam(57, (float) gen3EnvDef.GetLevel(2));
+	params->SetParam(58, (float) gen3EnvDef.GetType(0));
+	params->SetParam(59, (float) gen3Wt);
+	params->SetParam(60, (float) nzMix);
+	params->SetParam(61, (float) nzDly);
+	params->SetParam(62, (float) nzFrqh);
+	params->SetParam(63, (float) nzFrqo);
+	params->SetParam(64, (float) nzEnvDef.GetStart());
+	params->SetParam(65, (float) nzEnvDef.GetRate(0));
+	params->SetParam(66, (float) nzEnvDef.GetLevel(0));
+	params->SetParam(67, (float) nzEnvDef.GetRate(1));
+	params->SetParam(68, (float) nzEnvDef.GetLevel(1));
+	params->SetParam(69, (float) nzEnvDef.GetRate(2));
+	params->SetParam(70, (float) nzEnvDef.GetLevel(2));
+	params->SetParam(71, (float) nzEnvDef.GetType(0));
+	params->SetParam(80, (float) dlyMix);
+	params->SetParam(81, (float) dlyTim);
+	params->SetParam(82, (float) dlyDec);
+	params->SetParam(90, (float) lfoGen.GetFrequency());
+	params->SetParam(91, (float) lfoGen.GetWavetable());
+	params->SetParam(92, (float) lfoGen.GetAttack());
+	params->SetParam(93, (float) lfoGen.GetLevel());
+	params->SetParam(100, (float) pbOn);
+	params->SetParam(101, (float) pbGen.GetRate(0));
+	params->SetParam(102, (float) pbGen.GetRate(1));
+	params->SetParam(103, (float) pbGen.GetAmount(0));
+	params->SetParam(104, (float) pbGen.GetAmount(1));
+	params->SetParam(105, (float) pbGen.GetAmount(2));
+
+	return 0;
 }
 
 void FMSynth::Stop()
