@@ -2,6 +2,9 @@
 // BasicSynth - 
 //
 /// @file WaveOutDirect.h Send samples to the sound card using DirectSound
+/// @note Microsoft does NOT include the DirectX SDK with the compiler by
+/// default. You have to download the separate (and huge) SDK in order to
+/// get the dsound.h and dsound.lib bits.
 //
 // We have two options:
 // 1. Indirect - samples are put into a local buffer and then
@@ -11,6 +14,7 @@
 //
 // The direct method is slightly faster, but the indirect
 // method is safer since it always has a valid buffer.
+//
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -61,6 +65,10 @@ public:
 	int Setup(HWND wnd, float leadtm, int nb = 4);
 	/// Stop the sound output.
 	void Stop();
+	/// Restart sound output.
+	void Restart();
+	/// Destroy the DirectSound buffer.
+	void Shutdown();
 	/// Flush output.
 	/// This overrides the base class method and is the point
 	/// where we need to switch to another block in the sound
@@ -86,6 +94,8 @@ public:
 	WaveOutDirectI();
 	/// @copydoc WaveOutDirect::Setup
 	int Setup(HWND wnd, float leadtm, int nb = 4);
+	/// @copydoc WaveOutDirect::Restart
+	void Restart();
 	/// @copydoc WaveOutDirect::FlushOutput
 	virtual int FlushOutput();
 };
