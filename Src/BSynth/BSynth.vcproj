@@ -24,6 +24,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="1"
 			CharacterSet="2"
 			>
@@ -45,15 +46,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc);../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="BSynth.h"
 				PrecompiledHeaderFile="$(OutDir)\BSynth.h"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -67,9 +68,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../Lib/InstrumentsD.lib ../../Lib/NotelistD.lib ../../Lib/CommonD.lib"
-				OutputFile="..\..\Bin\$(ProjectName).exe"
+				AdditionalDependencies="InstrumentsD.lib NotelistD.lib CommonD.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(BasicSynthLib)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -101,6 +103,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="1"
 			CharacterSet="2"
 			>
@@ -123,15 +126,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc);../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="BSynth.h"
 				PrecompiledHeaderFile="$(OutDir)\BSynth.h"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -145,9 +148,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../Lib$(PlatformName)/InstrumentsD.lib ../../Lib$(PlatformName)/NotelistD.lib ../../Lib$(PlatformName)/CommonD.lib"
-				OutputFile="..\..\Bin$(PlatformName)\$(ProjectName).exe"
+				AdditionalDependencies="InstrumentsD.lib NotelistD.lib CommonD.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(BasicSynthLibx64)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -179,6 +183,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -203,12 +208,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc);../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="2"
+				WarningLevel="3"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -222,9 +227,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../Lib/Instruments.lib ../../Lib/Notelist.lib ../../Lib/Common.lib"
+				AdditionalDependencies="Instruments.lib Notelist.lib Common.lib"
 				OutputFile="..\..\Bin\$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(BasicSynthLib)"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -258,6 +264,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -281,12 +288,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc);../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -300,9 +307,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../Lib$(PlatformName)/Instruments.lib ../../Lib$(PlatformName)/Notelist.lib ../../Lib$(PlatformName)/Common.lib"
+				AdditionalDependencies="Instruments.lib Notelist.lib Common.lib"
 				OutputFile="..\..\Bin$(PlatformName)\$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(BasicSynthLibx64)"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -336,6 +344,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -360,12 +369,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_MSXML;USE_OSCILI"
+				AdditionalIncludeDirectories="$(BasicSynthInc);../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_OSCILI"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="2"
+				WarningLevel="3"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -379,9 +388,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../Lib/InstrumentsI.lib ../../Lib/Notelist.lib ../../Lib/Common.lib"
+				AdditionalDependencies="InstrumentsI.lib Notelist.lib Common.lib"
 				OutputFile="..\..\Bin\$(ProjectName)I.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(BasicSynthLib)"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -415,6 +425,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -438,12 +449,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../Include;../Instruments;../Notelist"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_MSXML;USE_OSCILI"
+				AdditionalIncludeDirectories="$(BasicSynthInc);../Instruments;../Notelist"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;USE_OSCILI"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -457,9 +468,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../Lib$(PlatformName)/InstrumentsI.lib ../../Lib$(PlatformName)/Notelist.lib ../../Lib$(PlatformName)/Common.lib"
+				AdditionalDependencies="InstrumentsI.lib Notelist.lib Common.lib"
 				OutputFile="..\..\Bin$(PlatformName)\$(ProjectName)I.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(BasicSynthLibx64)"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"

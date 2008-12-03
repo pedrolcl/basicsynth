@@ -21,6 +21,7 @@ LFO::LFO()
 {
 	osc.InitWT(3.5, WT_SIN);
 	atk.InitSeg(0, 0, 0.1);
+	atkRt = 0.1;
 	depth = 0;
 	sigFrq = 0;
 	ampLvl = 1.0;

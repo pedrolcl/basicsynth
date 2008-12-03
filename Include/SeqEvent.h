@@ -38,7 +38,7 @@
 /// Index of first instrument-specific ID
 #define P_XTRA  4
 
-class InstrMapEntry;
+class InstrConfig;
 
 ///////////////////////////////////////////////////////////
 /// A sequencer event.
@@ -73,7 +73,7 @@ public:
 	bsInt32 evid;     // event ID or reference to earlier event
 	bsInt32 start;    // start time in samples
 	bsInt32 duration; // duration in samples
-	InstrMapEntry *im; //
+	InstrConfig *im;  //
 
 	SeqEvent()
 	{

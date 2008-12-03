@@ -34,6 +34,24 @@ SeqEvent *SubSynth::SubSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
+static InstrParamMap subSynthParams[] = 
+{
+	{"egfatk", 31}, {"egfdec", 33}, {"egfend", 36}, {"egfpk", 32},
+	{"egfrel", 35}, {"egfst", 30},  {"egfsus", 34}, {"egfty", 37},
+	{"egsatk", 22}, {"egsdec", 24}, {"egsend", 27}, {"egspk", 23},
+	{"egsrel", 26}, {"egsst", 21},  {"egssus", 25}, {"egsty", 28},
+	{"lfoamp", 43}, {"lfoatk", 42}, {"lfofrq", 40}, {"lfowt", 41},
+	{"oscfg", 19},  {"oscfr", 20},  {"oscfrq", 5 }, {"oscft", 18},
+	{"oscmix", 16}, {"oscvol", 6},  {"oscwt", 17},
+	{"pba1", 47},   {"pba2", 48},   {"pba3", 49},
+	{"pbon", 44},   {"pbr1", 45},   {"pbr2", 46},
+};
+
+bsInt16 SubSynth::MapParamID(const char *name)
+{
+	return SearchParamID(name, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
+}
+
 SubSynth::SubSynth()
 {
 	im = NULL;

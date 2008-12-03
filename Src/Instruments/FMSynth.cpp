@@ -43,6 +43,36 @@ SeqEvent *FMSynth::FMSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) vpe;
 }
 
+static InstrParamMap fmsynthParams[] = 
+{
+	{ "dlydec",  82 }, { "dlylen",  81 }, { "dlymix",  80 },
+
+	{ "fmalg", 18 },   { "fmdly", 17 },   { "fmmix", 16 },   { "fmpan", 20 },  { "fmpon", 19 },
+
+	{ "gen1atk", 32 }, { "gen1dec", 34 }, { "gen1end", 37 }, { "gen1mul", 30 }, { "gen1pk",  33 },
+	{ "gen1rel", 36 }, { "gen1st",  31 }, { "gen1sus", 35 }, { "gen1ty",  38 }, { "gen1wt",  39 },
+
+	{ "gen2atk", 42 }, { "gen2dec", 44 }, { "gen2end", 47 }, { "gen2mul", 40 }, { "gen2pk",  43 },
+	{ "gen2rel", 46 }, { "gen2st",  41 }, { "gen2sus", 45 }, { "gen2ty",  48 }, { "gen2wt",  49 },
+
+	{ "gen3atk", 52 }, { "gen3dec", 54 }, { "gen3end", 57 }, { "gen3mul", 50 }, { "gen3pk",  53 },
+	{ "gen3rel", 56 }, { "gen3st",  51 }, { "gen3sus", 55 }, { "gen3ty",  58 }, { "gen3wt",  59 },
+
+	{ "lfoamp",  93 }, { "lfoatk",  92 }, { "lfofrq",  90 }, { "lfowt",   91 },
+
+	{ "nzatk",   65 }, { "nzdec",   67 }, { "nzdly",   61 }, { "nzend",   70 }, { "nzfo",    63 },
+	{ "nzfr",    62 }, { "nzmix",   60 }, { "nzpk",    66 }, { "nzrel",   69 }, { "nzst",    64 },
+	{ "nzsus",   68 }, { "nzty",    71 },
+
+	{ "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 }, 
+	{ "pbon",   100 }, { "pbr1",   101 }, { "pbr2",   102 },
+};
+
+bsInt16 FMSynth::MapParamID(const char *name)
+{
+	return SearchParamID(name, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
+}
+
 FMSynth::FMSynth()
 {
 	chnl = 0;
@@ -637,19 +667,20 @@ void FMSynth::LoadEG(XmlSynthElem *elem, EnvDef& eg)
 	float rt = 0;
 	float lvl = 0;
 	short typ = 0;
+	short fix = 1;
 
 	elem->GetAttribute("st", lvl);
 	elem->GetAttribute("ty", typ);
 	eg.start = lvl;
 	elem->GetAttribute("atk", rt);
 	elem->GetAttribute("pk",  lvl);
-	eg.Set(0, rt, lvl, (EGSegType)typ);
+	eg.Set(0, rt, lvl, (EGSegType)typ, fix);
 	elem->GetAttribute("dec", rt);
 	elem->GetAttribute("sus", lvl);
-	eg.Set(1, rt, lvl, (EGSegType)typ);
+	eg.Set(1, rt, lvl, (EGSegType)typ, fix);
 	elem->GetAttribute("rel", rt);
 	elem->GetAttribute("end", lvl);
-	eg.Set(2, rt, lvl, (EGSegType)typ);
+	eg.Set(2, rt, lvl, (EGSegType)typ, fix);
 }
 
 int FMSynth::Load(XmlSynthElem *parent)
@@ -657,9 +688,9 @@ int FMSynth::Load(XmlSynthElem *parent)
 	float dval;
 	short ival;
 
-	XmlSynthElem *elem;
-	XmlSynthElem *next = parent->FirstChild();
-	while ((elem = next) != NULL)
+	XmlSynthElem node;
+	XmlSynthElem *elem = parent->FirstChild(&node);
+	while (elem != NULL)
 	{
 		if (elem->TagMatch("fm"))
 		{
@@ -730,8 +761,7 @@ int FMSynth::Load(XmlSynthElem *parent)
 				pbOn = (int) ival;
 			pbGen.Load(elem);
 		}
-		next = elem->NextSibling();
-		delete elem;
+		elem = elem->NextSibling(&node);
 	}
 	return 0;
 }

@@ -8,13 +8,16 @@ begin
 	channel 0;
 	volume 100;
 	artic percent 80;
+	write "Test OSC wavetable";
 	' OSC wavetable
-	map "Test" 16;
+	'map "Test" 16;
+	map "Test" "oscwt";
 	{C4, C4, C4, C4, C4}, %4, 100, 
 	{ 0,  1,  2,  3, 4 }; 
 	R, %4;
 	'LFO frequency, wavetable, attack, level
-	map "Test" 25, 26, 27, 28;
+	'map "Test" 25, 26, 27, 28;
+	map "Test" "lfofrq", "lfowt", "lfoatk", "lfoamp";
 	{C4, C4, C4, C4, C4, C4, C4}, %4, 100, 
 	{ 2.0, 2.5, 3.0 3.5, 4.0 4.5, 5.0},
 	{ 0, 0, 1, 1, 2, 2, 0},

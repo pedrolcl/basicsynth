@@ -97,7 +97,7 @@ int SynthProject::LoadSynth(XmlSynthElem *root, InstrManager& mgr)
 			{
 				if (FindOnPath(fullPath, fname))
 				{
-					if (LoadInstrLib(mgr, fname))
+					if (mgr.LoadInstrLib(fname))
 						errcnt++;
 				}
 				else
@@ -107,7 +107,7 @@ int SynthProject::LoadSynth(XmlSynthElem *root, InstrManager& mgr)
 		}
 		else if (child->TagMatch("instrlib"))
 		{
-			if (LoadInstrLib(mgr, child))
+			if (mgr.LoadInstrLib(child))
 				errcnt++;
 		}
 
@@ -139,7 +139,7 @@ int SynthProject::LoadProject(char *prjFname, InstrManager& mgr)
 		wtSize = 16384;
 		wtUser = 0;
 		InitSynthesizer(sampleRate, wtSize, wtUser);
-		if (LoadInstrLib(mgr, root))
+		if (mgr.LoadInstrLib(root))
 			errcnt++;
 	}
 	else

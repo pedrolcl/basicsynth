@@ -24,6 +24,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="0"
 			CharacterSet="2"
 			>
@@ -45,13 +46,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include"
-				PreprocessorDefinitions="WIN32;_DEBUG;USE_MSXML;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="1"
-				PrecompiledHeaderThrough="Includes.h"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -66,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib\$(ProjectName)D.lib"
+				OutputFile="$(BasicSynthLib)\$(ProjectName)D.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -89,6 +90,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="2"
 			CharacterSet="2"
 			>
@@ -111,13 +113,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include"
-				PreprocessorDefinitions="WIN32;_DEBUG;USE_MSXML;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="1"
-				PrecompiledHeaderThrough="Includes.h"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -132,7 +134,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib$(PlatformName)\$(ProjectName)D.lib"
+				OutputFile="$(BasicSynthLib)$(PlatformName)\$(ProjectName)D.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -155,6 +157,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -178,8 +181,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;USE_MSXML;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -197,7 +200,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib\$(ProjectName).lib"
+				OutputFile="$(BasicSynthLib)\$(ProjectName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -220,6 +223,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -244,8 +248,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;USE_MSXML;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -263,7 +267,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib$(PlatformName)\$(ProjectName).lib"
+				OutputFile="$(BasicSynthLib)$(PlatformName)\$(ProjectName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -286,6 +290,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -309,8 +314,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;USE_MSXML;USE_OSCILI_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;NDEBUG;USE_OSCILI_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -328,7 +333,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib\$(ProjectName)I.lib"
+				OutputFile="$(BasicSynthLib)\$(ProjectName)I.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -351,6 +356,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -375,8 +381,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;USE_MSXML;USE_OSCILI;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;NDEBUG;USE_OSCILI;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -394,7 +400,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib$(PlatformName)\$(ProjectName)I.lib"
+				OutputFile="$(BasicSynthLib)$(PlatformName)\$(ProjectName)I.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

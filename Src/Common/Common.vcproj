@@ -24,6 +24,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			UseOfATL="0"
 			CharacterSet="2"
 			>
@@ -45,13 +46,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../Include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -65,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib\$(ProjectName)D.lib"
+				OutputFile="$(BasicSynthLib)\$(ProjectName)D.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -88,6 +89,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -109,13 +111,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../Include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -129,7 +131,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib$(PlatformName)\$(ProjectName)D.lib"
+				OutputFile="$(BasicSynthLibx64)\$(ProjectName)D.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -152,6 +154,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -174,12 +177,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -193,7 +196,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib\$(ProjectName).lib"
+				OutputFile="$(BasicSynthLib)\$(ProjectName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -216,6 +219,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\Include\XMLSelection.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -239,12 +243,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WINDOWS;USE_MSXML"
+				AdditionalIncludeDirectories="$(BasicSynthInc)"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="1"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -258,7 +262,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\Lib$(PlatformName)\$(ProjectName).lib"
+				OutputFile="$(BasicSynthLibx64)\$(ProjectName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -314,6 +318,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tinyxml\tinystr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tinyxml\tinyxml.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tinyxml\tinyxmlerror.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tinyxml\tinyxmlparser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WaveFile.cpp"
 				>
 			</File>
@@ -323,6 +343,10 @@
 			</File>
 			<File
 				RelativePath=".\XmlWrapN.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XmlWrapT.cpp"
 				>
 			</File>
 			<File

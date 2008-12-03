@@ -38,6 +38,77 @@ SeqEvent   *MatrixSynth::MatrixSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
+// name = gen(on)param || env(en)seg(sn)param || frq || vol || lfofrq || lfowt || lfowt || lfoamp
+static InstrParamMap genParams[] = 
+{
+	{ "eg",  6 },  { "fx1", 7 },  { "fx2", 8 },  { "fx3", 9 },  { "fx4", 10 },
+	{ "lfo", 11 }, { "mnx", 4 },  { "mod", 1 },  { "mul", 3 },  { "on", 16 },
+	{ "out", 0 },  { "pan", 14 }, { "pon", 15 }, { "sig", 17 }, { "trm", 13 },
+	{ "vib", 12 }, { "vol", 5 },  { "wt",  2 },
+};
+
+static InstrParamMap envParams[] = 
+{
+	{"fix", 5}, {"fixed", 5}, {"level", 3}, {"lvl",     3}, {"rate", 2}, {"rt",   2}, {"son", 1},
+	{"st",  0}, {"start", 0}, {"sus",   1}, {"sustain", 1}, {"ty",   4}, {"type", 4}
+};
+
+static InstrParamMap globParams[] = 
+{
+	{ "frq", P_FREQ }, 
+	{ "lfoamp", 19 }, { "lfoatk", 18 }, { "lfofrq", 16 }, { "lfowt", 17 },
+	{ "matfrq", P_FREQ }, { "matvol", P_VOLUME }, { "vol", P_VOLUME },
+};
+
+static const char *ParamNum(const char *str, int *val)
+{
+	while (!isdigit(*str))
+	{
+		if (*str == 0)
+			return str;
+		str++;
+	}
+	int n = 0;
+	while (isdigit(*str))
+		n = (n * 10) + (*str++ - '0');
+	*val = n;
+	return str;
+}
+
+bsInt16 MatrixSynth::MapParamID(const char *name)
+{
+	int ty = 0;
+	int gn = 0;
+	int sn = 0;
+	int pn = 0;
+	const char *str = name;
+	if (*str == 'o' || *str == 'g')
+	{
+		ty = 1;
+		str = ParamNum(str+1, &gn);
+		if (*str == '.')
+			str++;
+		pn = SearchParamID(str, genParams, sizeof(genParams)/sizeof(InstrParamMap));
+	}
+	else if (*name == 'e')
+	{
+		ty = 2;
+		str = ParamNum(str+1, &gn);
+		if (*str == 's')
+			str = ParamNum(str+1, &sn);
+		if (*str == '.')
+			str++;
+		pn = SearchParamID(str, envParams, sizeof(envParams)/sizeof(InstrParamMap));
+	}
+	else
+	{
+		return SearchParamID(name, globParams, sizeof(globParams)/sizeof(InstrParamMap));
+	}
+	if (pn >= 0)
+		return (ty << 11) + (gn << 8) + (sn << 3) + pn;
+	return -1;
+}
+
 static PhsAccum maxPhs;
 
 MatrixSynth::MatrixSynth()
@@ -123,7 +194,10 @@ void MatrixSynth::Start(SeqEvent *evt)
 	while (envPtr < envEnd)
 	{
 		if (flgs & 1)
+		{
+			envPtr->SetDuration(evt->duration);
 			envPtr->Reset(0);
+		}
 		envPtr++;
 		flgs >>= 1;
 	}
@@ -349,6 +423,9 @@ int MatrixSynth::SetParams(VarParamEvent *params)
 			case 4:
 				env->SetType(sn, (EGSegType)(int)val);
 				break;
+			case 5:
+				env->SetFixed(sn, (int)val);
+				break;
 			}
 		}
 	}
@@ -418,6 +495,7 @@ int MatrixSynth::GetParams(VarParamEvent *params)
 			params->SetParam(idval+2, (float)env->GetRate(sn));
 			params->SetParam(idval+3, (float)env->GetLevel(sn));
 			params->SetParam(idval+4, (float)env->GetType(sn));
+			params->SetParam(idval+5, (float)env->GetFixed(sn));
 		}
 	}
 	return 0;
@@ -608,6 +686,7 @@ int MatrixSynth::LoadEnv(XmlSynthElem *elem)
 	ival = 1;
 	elem->GetAttribute("sus", ival);
 	envs[en].SetSusOn((int)ival);
+	ival = 0;
 
 	XmlSynthElem *elemEG;
 	XmlSynthElem *next = elem->FirstChild();
@@ -625,6 +704,8 @@ int MatrixSynth::LoadEnv(XmlSynthElem *elem)
 					envs[en].SetLevel(sn, AmpValue(dval));
 				if (elemEG->GetAttribute("ty", ival) == 0)
 					envs[en].SetType(sn, (EGSegType)ival);
+				if (elemEG->GetAttribute("fix", ival) == 0)
+					envs[en].SetFixed(sn, (int)ival);
 			}
 		}
 		next = elemEG->NextSibling();
@@ -653,6 +734,7 @@ int MatrixSynth::SaveEnv(XmlSynthElem *elem, int en)
 		elemEG->SetAttribute("rt",  envs[en].GetRate(sn));
 		elemEG->SetAttribute("lv",  envs[en].GetLevel(sn));
 		elemEG->SetAttribute("ty", (short) envs[en].GetType(sn));
+		elemEG->SetAttribute("fix", (short) envs[en].GetFixed(sn));
 		delete elemEG;
 	}
 

@@ -133,27 +133,26 @@ int ToneBase::Load(XmlSynthElem *parent)
 {
 	long ival;
 
-	XmlSynthElem *elem;
-	XmlSynthElem *next = parent->FirstChild();
-	while ((elem = next) != NULL)
+	XmlSynthElem elem;
+	XmlSynthElem *next = parent->FirstChild(&elem);
+	while (next != NULL)
 	{
-		if (elem->TagMatch("osc"))
-			LoadOscil(elem);
-		else if (elem->TagMatch("env"))
-			LoadEnv(elem);
-		else if (elem->TagMatch("lfo"))
+		if (elem.TagMatch("osc"))
+			LoadOscil(&elem);
+		else if (elem.TagMatch("env"))
+			LoadEnv(&elem);
+		else if (elem.TagMatch("lfo"))
 		{
-			lfoGen.Load(elem);
+			lfoGen.Load(&elem);
 			lfoOn = lfoGen.On();
 		}
-		else if (elem->TagMatch("pb"))
+		else if (elem.TagMatch("pb"))
 		{
-			if (elem->GetAttribute("on", ival) == 0)
+			if (elem.GetAttribute("on", ival) == 0)
 				pbOn = (int) ival;
-			pbGen.Load(elem);
+			pbGen.Load(&elem);
 		}
-		next = elem->NextSibling();
-		delete elem;
+		next = elem.NextSibling(&elem);
 	}
 	return 0;
 }
@@ -181,7 +180,25 @@ int ToneBase::SaveEnv(XmlSynthElem *elem)
 
 int ToneBase::Save(XmlSynthElem *parent)
 {
-	XmlSynthElem *elem = parent->AddChild("osc");
+	XmlSynthElem elem;
+	if (!parent->AddChild("osc", &elem))
+		return -1;
+	SaveOscil(&elem);
+
+	if (!parent->AddChild("env", &elem))
+		return -1;
+	SaveEnv(&elem);
+
+	if (!parent->AddChild("lfo", &elem))
+		return -1;
+	lfoGen.Save(&elem);
+
+	if (!parent->AddChild("pb", &elem))
+		return -1;
+	elem.SetAttribute("on", (short) pbOn);
+	pbGen.Save(&elem);
+
+/*	XmlSynthElem *elem = parent->AddChild("osc");
 	if (elem == NULL)
 		return -1;
 	SaveOscil(elem);
@@ -204,8 +221,7 @@ int ToneBase::Save(XmlSynthElem *parent)
 		return -1;
 	elem->SetAttribute("on", (short) pbOn);
 	pbGen.Save(elem);
-	delete elem;
-
+	delete elem;*/
 	return 0;
 }
 
@@ -225,6 +241,7 @@ int ToneBase::SetParams(VarParamEvent *params)
 	int n = params->numParam;
 	while (n-- > 0)
 		err += SetParam(*id++, *valp++);
+	lfoOn = lfoGen.On();
 	return err;
 }
 
@@ -322,6 +339,7 @@ int ToneBase::GetParams(VarParamEvent *params)
 }
 
 ////////////////////////////////////////////////////////////////
+
 Instrument *ToneInstr::ToneFactory(InstrManager *m, Opaque tmplt)
 {
 	ToneInstr *ip = new ToneInstr;
@@ -336,6 +354,21 @@ SeqEvent *ToneInstr::ToneEventFactory(Opaque tmplt)
 	VarParamEvent *ep = new VarParamEvent;
 	ep->maxParam = 35;
 	return (SeqEvent*)ep;
+}
+
+static InstrParamMap toneParams[] = 
+{
+	{"envatk", 18}, {"envdec", 20}, {"envend", 23}, {"envpk", 19},
+	{"envrel", 22}, {"envst", 17},  {"envsus", 21}, {"envty", 24},     
+	{"lfoamp", 28}, {"lfoatk", 27}, {"lfofrq", 25}, {"lfowt", 26},
+	{"oscfrq", 5 }, {"oscvol", 6},  {"oscwt", 16},
+	{"pba1", 32},   {"pba2", 33},   {"pba3", 34},
+	{"pbon", 29},   {"pbr1", 30},   {"pbr2", 31},
+};
+
+bsInt16 ToneInstr::MapParamID(const char *name)
+{
+	return SearchParamID(name, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
 }
 
 ToneInstr::ToneInstr()
@@ -367,6 +400,19 @@ SeqEvent *ToneFM::ToneFMEventFactory(Opaque tmplt)
 	VarParamEvent *evt = new VarParamEvent;
 	evt->maxParam = 37;
 	return (SeqEvent*)evt;
+}
+
+bsInt16 ToneFM::MapParamID(const char *name)
+{
+	bsInt16 id = ToneInstr::MapParamID(name);
+	if (id == -1)
+	{
+		if (strcmp(name, "oscmnx") == 0)
+			id = 35;
+		else if (strcmp(name, "oscmul") == 0)
+			id = 36;
+	}
+	return id;
 }
 
 ToneFM::ToneFM()
@@ -427,3 +473,6 @@ int ToneFM::GetParams(VarParamEvent *params)
 	params->SetParam(36, (float) ((GenWaveFM*)osc)->GetModMultiple());
 	return err;
 }
+
+
+

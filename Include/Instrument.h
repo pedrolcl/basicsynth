@@ -113,48 +113,66 @@ typedef Opaque (*TmpltFactory)(XmlSynthElem *tmplt);
 typedef void (*TmpltDump)(Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
+/// The ParamID function is a static method or non-class function
+/// used to translate a parameter name into a numeric ID.
+///////////////////////////////////////////////////////////
+typedef bsInt16 (*ParamID)(const char *name);
+
+///////////////////////////////////////////////////////////
+/// An instrument type.
 /// This class is used by the instrument manager
-/// to manage one type of instrument and a specific 
-/// configuration of an instrument. 
+/// to manage one type of instrument.
 ///////////////////////////////////////////////////////////
 class InstrMapEntry : public SynthList<InstrMapEntry>
 {
 public:
+	/// Instrument type name.
 	bsString itype;
-	bsString iname;
+	/// Instrument type description.
 	bsString idesc;
-	bsInt16 inum;
+	/// Create an instrument instance.
 	InstrFactory manufInstr;
+	/// Create an instruement event.
 	EventFactory manufEvent;
+	/// Create an instrument template.
 	TmpltFactory manufTmplt;
+	/// Destroy an instrument template.
 	TmpltDump dumpTmplt;
-	Opaque instrTmplt;
+	/// Convert parameter name to id.
+	ParamID paramToID;
+
+	/// Construct a blank instrument map
+	InstrMapEntry()
+	{
+		manufInstr = 0;
+		manufEvent = 0;
+		manufTmplt = 0;
+		paramToID = 0;
+	}
 
 	/// Construct an entry with a template (used for instrument definitions)
-	InstrMapEntry(bsInt16 ino, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
+	InstrMapEntry(const char *type, InstrFactory in, EventFactory ev)
 	{
-		inum = ino;
+		itype = type;
 		manufInstr = in;
 		manufEvent = ev;
 		manufTmplt = 0;
-		instrTmplt = tmplt;
+		paramToID = 0;
 	}
 
 	/// Construct an entry with factory functions (used for type definitions)
-	InstrMapEntry(bsInt16 ino, InstrFactory in, EventFactory ev, TmpltFactory tf, TmpltDump td)
+	InstrMapEntry(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf, TmpltDump td)
 	{
-		inum = ino;
+		itype = type;
 		manufInstr = in;
 		manufEvent = ev;
 		manufTmplt = tf;
 		dumpTmplt = td;
-		instrTmplt = 0;
+		paramToID = 0;
 	}
 
 	~InstrMapEntry()
 	{
-		if (dumpTmplt && instrTmplt)
-			dumpTmplt(instrTmplt);
 	}
 
 	/// Get the type value for the instrument 
@@ -169,18 +187,6 @@ public:
 		itype = str;
 	}
 
-	/// Get the name value for the instrument map entry.
-	const char *GetName()
-	{
-		return iname;
-	}
-
-	/// Set the name value for the instrument map entry.
-	void SetName(const char *str)
-	{
-		iname = str;
-	}
-
 	/// Get the description value for the instrument map entry.
 	const char *GetDesc()
 	{
@@ -191,6 +197,103 @@ public:
 	void SetDesc(const char *str)
 	{
 		idesc = str;
+	}
+
+	/// Get the parameter ID for a parameter name.
+	bsInt16 GetParamID(const char *name)
+	{
+		if (paramToID)
+			return paramToID(name);
+		return -1;
+	}
+};
+
+///////////////////////////////////////////////////////////
+/// An instrment instance.
+/// This class is used by the instrument manager
+/// to manage a specific configuration of an instrument
+/// type. The instance entry contains references to the
+/// type and a template used to construct instrument
+/// instances for playback.
+///////////////////////////////////////////////////////////
+class InstrConfig : public SynthList<InstrConfig>
+{
+public:
+	/// Instrument id number
+	bsInt16 inum;
+	/// Instrument name
+	bsString name;
+	/// Instrument description
+	bsString desc;
+	/// Template to create new instance.
+	Opaque instrTmplt;
+	/// Instrument type entry
+	InstrMapEntry *instrType;
+
+	InstrConfig()
+	{
+		inum = -1;
+		instrType = 0;
+		instrTmplt = 0;
+	}
+
+	InstrConfig(bsInt16 in, InstrMapEntry *type, Opaque tmplt)
+	{
+		inum = in;
+		instrType = type;
+		instrTmplt = tmplt;
+	}
+
+	~InstrConfig()
+	{
+		if (instrType && instrType->dumpTmplt && instrTmplt)
+			instrType->dumpTmplt(instrTmplt);
+	}
+
+	Instrument *MakeInstance(InstrManager *im)
+	{
+		if (instrType)
+			return instrType->manufInstr(im, instrTmplt);
+		return new Instrument;
+	}
+
+	SeqEvent *MakeEvent()
+	{
+		if (instrType)
+			return instrType->manufEvent(instrTmplt);
+		return new NoteEvent;
+	}
+
+	/// Get the name value for the instrument map entry.
+	const char *GetName()
+	{
+		return name;
+	}
+
+	/// Set the name value for the instrument map entry.
+	void SetName(const char *str)
+	{
+		name = str;
+	}
+
+	/// Get the description value for the instrument map entry.
+	const char *GetDesc()
+	{
+		return desc;
+	}
+
+	/// Set the name value for the instrument map entry.
+	void SetDesc(const char *str)
+	{
+		desc = str;
+	}
+
+	/// Get the parameter ID for a parameter name.
+	bsInt16 GetParamID(const char *name)
+	{
+		if (instrType)
+			return instrType->GetParamID(name);
+		return -1;
 	}
 };
 
@@ -228,7 +331,7 @@ public:
 class InstrManager
 {
 protected:
-	InstrMapEntry *instList;
+	InstrConfig *instList;
 	InstrMapEntry *typeList;
 	Mixer *mix;
 	WaveOutBuf *wvf;
@@ -260,7 +363,7 @@ public:
 	/// types.
 	virtual void Clear()
 	{
-		InstrMapEntry *ime;
+		InstrConfig *ime;
 		while ((ime = instList) != 0)
 		{
 			instList = ime->next;
@@ -294,8 +397,7 @@ public:
 	/// @param tf template factory
 	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf = 0)
 	{
-		InstrMapEntry *ent = new InstrMapEntry(-1, in, ev, tf, 0);
-		ent->SetType(type);
+		InstrMapEntry *ent = new InstrMapEntry(type, in, ev, tf, 0);
 		if (typeList)
 			typeList->Insert(ent);
 		else
@@ -327,47 +429,37 @@ public:
 		return ent;
 	}
 
-	/// Add an instrument definition using the instrument type entry.
+	/// Add an instrument configuration.
 	/// @param inum instrument number
 	/// @param type instrument type
 	/// @param tmplt template for instrument initialization
-	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrMapEntry *type, Opaque tmplt = 0)
-	{
-		InstrMapEntry* in = AddInstrument(inum, type->manufInstr, type->manufEvent, tmplt);
-		if (in)
-			in->dumpTmplt = type->dumpTmplt;
-		return in;
-	}
-
-	/// Add an instrument definition using factory functions.
-	/// @param inum instrument number
-	/// @param in instrument factory
-	/// @param ev event factory
-	/// @param tmplt template for instrument initialization
-	virtual InstrMapEntry* AddInstrument(bsInt16 inum, InstrFactory in, EventFactory ev, Opaque tmplt = 0)
+	virtual InstrConfig* AddInstrument(bsInt16 inum, InstrMapEntry *type, Opaque tmplt = 0)
 	{
 		if (inum < 0)
 			inum = internalID++;
-		InstrMapEntry *ent = new InstrMapEntry(inum, in, ev, tmplt);
-		InstrMapEntry *pos = instList;
+		InstrConfig *ent = new InstrConfig(inum, type, tmplt);
+		if (ent == 0)
+			return 0;
+
+		InstrConfig *pos = instList;
 		if (pos == 0)
 		{
 			instList = ent;
 			return ent;
 		}
 
-		InstrMapEntry *last = 0;
+		InstrConfig *last = 0;
 		while (pos)
 		{
-			if (pos->inum > inum)
+			if (pos->inum > ent->inum)
 			{
 				pos->InsertBefore(ent);
 				if (pos == instList)
 					instList = ent;
 				return ent;
 			}
-			if (pos->inum == inum)
-				inum = internalID++;
+			if (pos->inum == ent->inum)
+				ent->inum = internalID++;
 			last = pos;
 			pos = pos->next;
 		}
@@ -376,12 +468,16 @@ public:
 		return ent;
 	}
 
+	int LoadInstrLib(const char *fname);
+	int LoadInstrLib(XmlSynthElem *inst);
+	InstrConfig *LoadInstr(XmlSynthElem *inst);
+
 	/// Enumerate instruments. The first call should
 	/// pass NULL as an argument. Subsequent calls should
 	/// pass the previous entry.
 	/// @param p instrument map entry
 	/// @returns next instrument
-	InstrMapEntry *EnumInstr(InstrMapEntry *p)
+	InstrConfig *EnumInstr(InstrConfig *p)
 	{
 		if (p)
 			return p->next;
@@ -391,9 +487,9 @@ public:
 	/// Find instrument by number.
 	/// @param inum instrument number
 	/// @return pointer to the instrument map entry or NULL
-	virtual InstrMapEntry *FindInstr(bsInt16 inum)
+	virtual InstrConfig *FindInstr(bsInt16 inum)
 	{
-		InstrMapEntry *in;
+		InstrConfig *in;
 		for (in = instList; in; in = in->next)
 		{
 			if (in->inum == inum)
@@ -405,12 +501,12 @@ public:
 	/// Find instrument by name
 	/// @param iname instrument name
 	/// @return pointer to the instrument map entry or NULL
-	virtual InstrMapEntry *FindInstr(const char *iname)
+	virtual InstrConfig *FindInstr(const char *iname)
 	{
-		InstrMapEntry *in;
+		InstrConfig *in;
 		for (in = instList; in; in = in->next)
 		{
-			if (in->iname.CompareNC(iname) == 0)
+			if (in->name.CompareNC(iname) == 0)
 				break;
 		}
 		return in;
@@ -425,10 +521,10 @@ public:
 
 	/// Allocate an instrument instance.
 	/// @param in instrument map entry for the instrument
-	virtual Instrument *Allocate(InstrMapEntry *in)
+	virtual Instrument *Allocate(InstrConfig *in)
 	{
 		if (in)
-			return in->manufInstr(this, in->instrTmplt);
+			return in->MakeInstance(this);
 		return new Instrument;
 	}
 
@@ -446,11 +542,11 @@ public:
 
 	/// Allocate a new event for an instrument.
 	/// @param in instrument map entry
-	virtual SeqEvent *ManufEvent(InstrMapEntry *in)
+	virtual SeqEvent *ManufEvent(InstrConfig *in)
 	{
 		if (in)
 		{
-			SeqEvent *evt = in->manufEvent(in->instrTmplt);
+			SeqEvent *evt = in->MakeEvent();
 			if (evt)
 			{
 				evt->inum = in->inum;

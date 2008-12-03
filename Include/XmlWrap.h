@@ -5,7 +5,8 @@
 //
 // define USE_MSXML to use the MS Windows msxml dll
 // define USE_LIBXML to use the libxml2 library
-// define neither to create a dummy XML class
+// define USE_TINYXML to use the tinyxml library
+// define none to create a dummy XML class
 // 
 // Compile the appropriate .cpp file as well:
 //  XmlWrapW.cpp - MSXML
@@ -31,6 +32,9 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #endif
+#if defined(USE_TINYXML)
+#include <tinyxml.h>
+#endif
 
 class XmlSynthDoc;
 
@@ -50,15 +54,23 @@ private:
 	void SetNode(xmlNodePtr pnode) { pElem = pnode; }
 	xmlNodePtr NextElement(xmlNodePtr e);
 #endif
-
+#if defined(USE_TINYXML)
+	TiXmlElement *pElem;
+	void SetNode(TiXmlElement *pnode) { pElem = pnode; }
+#endif
+	
 	friend class XmlSynthDoc;
 
 public:
-	XmlSynthElem(XmlSynthDoc *p = NULL);
+	XmlSynthElem(XmlSynthDoc *p = 0);
 	~XmlSynthElem();
+	void Clear();
 	XmlSynthElem *FirstChild();
+	XmlSynthElem *FirstChild(XmlSynthElem *childElem);
 	XmlSynthElem *NextSibling();
+	XmlSynthElem *NextSibling(XmlSynthElem *childElem);
 	XmlSynthElem *AddChild(const char *childTag);
+	XmlSynthElem *AddChild(const char *childTag, XmlSynthElem *childElem);
 	const char *TagName();
 	int GetAttribute(char *attrName, short& val);
 	int GetAttribute(char *attrName, long& val);
@@ -87,13 +99,19 @@ private:
 	xmlDocPtr doc;
 	xmlNodePtr root;
 #endif
+#if defined(USE_TINYXML)
+	TiXmlDocument *doc;
+#endif
 
 public:
 	XmlSynthDoc();
 	~XmlSynthDoc();
 	XmlSynthElem *CreateElement(XmlSynthElem *parent, const char *tag);
+	XmlSynthElem *CreateElement(XmlSynthElem *parent, const char *tag, XmlSynthElem *childElem);
 	XmlSynthElem *NewDoc(char *roottag);
+	XmlSynthElem *NewDoc(char *roottag, XmlSynthElem *rootElem);
 	XmlSynthElem *Open(char *fname);
+	XmlSynthElem *Open(char *fname, XmlSynthElem *rootElem);
 	int Save(char *fname);
 	int Close();
 };

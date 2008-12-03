@@ -851,7 +851,7 @@ nlScriptNode *nlTransposeNode::Exec()
 	{
 		next->GetValue(&vox->transpose);
 		if (genPtr->GetFrequencyMode())
-			vox->transpose = pow(2, vox->transpose / 12.0);
+			vox->transpose = (int) pow(2.0, (double)vox->transpose / 12.0);
 	}
 	return ret;
 }
@@ -1297,7 +1297,7 @@ nlScriptNode *nlParamNode::Exec()
 
 nlScriptNode *nlWriteNode::Exec()
 {
-	if (next = NULL)
+	if (next == NULL)
 		return NULL;
 
 	nlScriptNode *ret = next->Exec();
@@ -1460,7 +1460,10 @@ nlScriptNode *nlMapNode::Exec()
 	while (pList != NULL)
 	{
 		pListNext = pList->Exec();
-		pList->GetValue(&tmp);
+		if (pList->GetType() == vtText)
+			tmp = (long) cvtPtr->GetParamID(inum, pList->RefStr());
+		else
+			pList->GetValue(&tmp);
 		pList = pListNext;
 		if (pList->GetToken() == T_COL)
 		{

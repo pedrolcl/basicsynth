@@ -113,6 +113,8 @@ public:
 	virtual ~MatrixSynth();
 	static Instrument *MatrixSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *MatrixSynthEventFactory(Opaque tmplt);
+	static bsInt16     MapParamID(const char *name);
+
 	void Copy(MatrixSynth *tp);
 	void Start(SeqEvent *evt);
 	void Param(SeqEvent *evt);

@@ -22,6 +22,13 @@ XmlSynthElem::~XmlSynthElem()
 	pElem.Release();
 }
 
+void XmlSynthElem::Clear()
+{
+	pElem.Release();
+	delete nodeTag;		
+	nodeTag = NULL;
+}
+
 char *WideToMulti(LPOLESTR str, UINT len)
 {
 	int need = WideCharToMultiByte(CP_UTF8, 0, str, len, NULL, 0, NULL, NULL);
@@ -53,40 +60,65 @@ void XmlSynthElem::SetNode(IUnknown *pnode)
 
 XmlSynthElem *XmlSynthElem::FirstChild()
 {
-	XmlSynthElem *newElem = NULL;
+	XmlSynthElem *childElem = new XmlSynthElem(doc);
+	if (FirstChild(childElem))
+		return childElem;
+	delete childElem;
+	return NULL;
+}
+
+XmlSynthElem *XmlSynthElem::FirstChild(XmlSynthElem *childElem)
+{
 	if (pElem)
 	{
 		CComPtr<IXMLDOMNode> pnode;
 		HRESULT hr = pElem->get_firstChild(&pnode);
 		if (hr == S_OK && pnode)
 		{
-			newElem = new XmlSynthElem(doc);
-			newElem->SetNode(pnode);
+			childElem->doc = doc;
+			childElem->SetNode(pnode);
+			return childElem;
 		}
 	}
-	return newElem;
+	return NULL;
 }
 
 XmlSynthElem *XmlSynthElem::NextSibling()
 {
-	XmlSynthElem *newElem = NULL;
+	XmlSynthElem *childElem = new XmlSynthElem(doc);
+	if (NextSibling(childElem))
+		return childElem;
+	delete childElem;
+	return 0;
+}
+
+XmlSynthElem *XmlSynthElem::NextSibling(XmlSynthElem *childElem)
+{
 	if (pElem)
 	{
 		CComPtr<IXMLDOMNode> pnode;
 		HRESULT hr = pElem->get_nextSibling(&pnode);
 		if (hr == S_OK && pnode)
 		{
-			newElem = new XmlSynthElem(doc);
-			newElem->SetNode(pnode);
+			childElem->doc = doc;
+			childElem->SetNode(pnode);
+			return childElem;
 		}
 	}
-	return newElem;
+	return NULL;
 }
 
 XmlSynthElem *XmlSynthElem::AddChild(const char *childTag)
 {
 	if (doc)
-		return doc->CreateElement(this, childTag);
+		return doc->CreateElement(this, childTag, 0);
+	return NULL;
+}
+
+XmlSynthElem *XmlSynthElem::AddChild(const char *childTag, XmlSynthElem *childElem)
+{
+	if (doc)
+		return doc->CreateElement(this, childTag, childElem);
 	return NULL;
 }
 
@@ -296,7 +328,13 @@ int XmlSynthDoc::GetXmlDoc()
 
 XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 {
-	XmlSynthElem *newElem = new XmlSynthElem(this);
+	return CreateElement(parent, tag, 0);
+}
+
+XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag, XmlSynthElem *newElem)
+{
+	if (newElem == 0)
+		newElem = new XmlSynthElem(this);
 	if (pDoc)
 	{
 		CComBSTR bsTag(tag);
@@ -304,7 +342,9 @@ XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 		CComPtr<IXMLDOMNode> pout;
 		pDoc->createElement(bsTag, &pnew);
 		parent->pElem->appendChild(pnew, &pout);
-		newElem->pElem = pout;
+		//newElem->pElem = pout;
+		newElem->doc = this;
+		newElem->SetNode(pout);
 	}
 	return newElem;
 }
@@ -312,6 +352,14 @@ XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
 {
 	XmlSynthElem *rootElem = new XmlSynthElem(this);
+	if (NewDoc(roottag, rootElem))
+		return rootElem;
+	delete rootElem;
+	return NULL;
+}
+
+XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag, XmlSynthElem *rootElem)
+{
 	if (!GetXmlDoc())
 	{
 		HRESULT hr;
@@ -330,36 +378,42 @@ XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
 		if (hr == S_OK)
 		{
 			pDoc->appendChild(pnew, &pout);
-			rootElem->pElem = pout;
+			rootElem->SetNode(pout);
+			return rootElem;
 		}
 	}
-	return rootElem;
+	return NULL;
 }
 
 XmlSynthElem *XmlSynthDoc::Open(char *fname)
 {
+	XmlSynthElem *rootElem = new XmlSynthElem(this);
+	if (Open(fname, rootElem))
+		return rootElem;
+	delete rootElem;
+	return NULL;
+}
+
+XmlSynthElem *XmlSynthDoc::Open(char *fname, XmlSynthElem *rootElem)
+{
 	if (fname == NULL || strlen(fname) == 0)
 		return NULL;
-	XmlSynthElem *rootElem = new XmlSynthElem(this);
 	if (!GetXmlDoc())
 	{
 		HRESULT hr; 
 		CComVariant vname(fname);
 		VARIANT_BOOL bSucess = 0;
+		//pDoc->put_preserveWhiteSpace(VARIANT_TRUE);
 		hr = pDoc->load(vname, &bSucess);
 		if (hr == S_OK && bSucess)
 		{
 			CComPtr<IXMLDOMElement> xmlroot;
 			pDoc->get_documentElement(&xmlroot);
 			rootElem->SetNode(xmlroot);
-		}
-		else
-		{
-			delete rootElem;
-			rootElem = NULL;
+			return rootElem;
 		}
 	}
-	return rootElem;
+	return NULL;
 }
 
 int XmlSynthDoc::Save(char *fname)
@@ -367,6 +421,7 @@ int XmlSynthDoc::Save(char *fname)
 	int rv = -1;
 	if (pDoc)
 	{
+		//pDoc->put_preserveWhiteSpace(VARIANT_TRUE);
 		CComVariant vdest(fname);
 		rv = pDoc->save(vdest) == S_OK ? 0 : -1;
 	}

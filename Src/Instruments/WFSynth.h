@@ -11,19 +11,6 @@
 
 #define WFSYNTH_MAX_WAVEFILES 100
 
-class WFSynthEvent : public NoteEvent
-{
-public:
-	FrqValue ar;
-	FrqValue rr;
-	bsInt16 id;
-	bsInt16 lp;
-	bsInt16 pa;
-
-	bsInt16 MaxParam() { return NoteEvent::MaxParam() + 5; }
-	void SetParam(bsInt16 id, float v);
-};
-
 class WFSynth : public Instrument
 {
 private:
@@ -40,14 +27,13 @@ private:
 
 	InstrManager *im;
 
-	void SetParams(WFSynthEvent *evt);
-
 public:
 	WFSynth();
 	virtual ~WFSynth();
 
 	static Instrument *WFSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *WFSynthEventFactory(Opaque tmplt);
+	static bsInt16     MapParamID(const char *name);
 	static int GetCacheCount();
 	static int AddToCache(const char *filename, bsInt16 id);
 	static void ClearCache();
@@ -72,6 +58,8 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	int GetParams(VarParamEvent *params);
+	int SetParams(VarParamEvent *params);
 };
 
 #endif

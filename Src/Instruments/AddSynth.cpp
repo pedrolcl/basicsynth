@@ -42,6 +42,56 @@ SeqEvent *AddSynth::AddSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
+static InstrParamMap addsynthParams[] = 
+{
+	{ "frq", 1 },
+	{ "lfoamp", 19 },
+	{ "lfoatk", 18 },
+	{ "lfofrq", 16 },
+	{ "lfowt", 17 },
+	{ "lvl", 6 },
+	{ "mul", 0 },
+	{ "rt",  5 },
+	{ "son", 4 },
+	{ "st",  3 },
+	{ "sus", 4 },
+	{ "ty",  7 },
+	{ "wt",  2 }
+};
+
+static const char *ParamNum(const char *str, int *val)
+{
+	while (!isdigit(*str))
+	{
+		if (*str == 0)
+			return str;
+		str++;
+	}
+	int n = 0;
+	while (isdigit(*str))
+		n = (n * 10) + (*str++ - '0');
+	*val = n;
+	return str;
+}
+
+bsInt16 AddSynth::MapParamID(const char *name)
+{
+	int pn = 0;
+	int sn = 0;
+	int vn = 0;
+	const char *str = name;
+	if (*str == 'p')
+	{
+		str = ParamNum(str+1, &pn);
+		pn++;
+		if (*str == 's')
+			str = ParamNum(str+1, &sn);
+	}
+	vn = SearchParamID(str, addsynthParams, sizeof(addsynthParams)/sizeof(InstrParamMap));
+	if (vn >= 0)
+		return (pn << 8) + (sn << 4) + vn;
+	return -1;
+}
 
 AddSynth::AddSynth()
 {

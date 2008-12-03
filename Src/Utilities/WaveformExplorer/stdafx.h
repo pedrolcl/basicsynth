@@ -27,10 +27,7 @@ extern CAppModule _Module;
 #include <stdio.h>
 #include <math.h>
 
-#include "SynthDefs.h"
-#include "EnvGen.h"
-#include "GenWaveWT.h"
-#include "WaveFile.h"
+#include <BasicSynth.h>
 
 #define WFI_MAXPART 16
 

@@ -471,7 +471,7 @@ char *MIDIFileLoad::CopyString(bsUint32 len, char *text)
 {
 	bsUint32 oldlen = 0;
 	if (text != NULL)
-		oldlen = strlen(text) + 1;
+		oldlen = (bsUint32) strlen(text) + 1;
 	char *str = (char *)realloc(text, oldlen+len+1);
 	if (str != NULL)
 	{

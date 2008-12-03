@@ -15,13 +15,17 @@
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
 #include <XmlWrap.h>
-#if !defined(USE_MSXML) && !defined(USE_LIBXML)
+#if !defined(USE_MSXML) && !defined(USE_LIBXML) && !defined(USE_TINYXML)
 
 XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 {
 }
 
 XmlSynthElem::~XmlSynthElem()
+{
+}
+
+void XmlSynthElem::Clear()
 {
 }
 
@@ -35,7 +39,22 @@ XmlSynthElem *XmlSynthElem::NextSibling()
 	return 0;
 }
 
+XmlSynthElem *XmlSynthElem::FirstChild(XmlSynthElem *p)
+{
+	return 0;
+}
+
+XmlSynthElem *XmlSynthElem::NextSibling(XmlSynthElem *p)
+{
+	return 0;
+}
+
 XmlSynthElem *XmlSynthElem::AddChild(const char *childTag)
+{
+	return 0;
+}
+
+XmlSynthElem *XmlSynthElem::AddChild(const char *childTag, XmlSynthElem *p)
 {
 	return 0;
 }
@@ -71,7 +90,7 @@ int XmlSynthElem::GetAttribute(char *attrName, double& val)
 
 int XmlSynthElem::GetAttribute(char *attrName, char **val)
 {
-	*val = NULL;
+	*val = 0;
 	return -1;
 }
 

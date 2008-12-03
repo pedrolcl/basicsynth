@@ -9,14 +9,21 @@
 
 #include <string.h>
 #include <XmlWrap.h>
+#if defined(USE_LIBXML)
 
 XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 {
 	doc = p;
+	pElem = 0;
 }
 
 XmlSynthElem::~XmlSynthElem()
 {
+}
+
+void XmlSynthElem::Clear()
+{
+	pElem = 0;
 }
 
 xmlNodePtr XmlSynthElem::NextElement(xmlNodePtr e)
@@ -25,40 +32,70 @@ xmlNodePtr XmlSynthElem::NextElement(xmlNodePtr e)
 		e = e->next;
 	return e;
 }
+
 XmlSynthElem *XmlSynthElem::FirstChild()
 {
-	XmlSynthElem *newElem = NULL;
+	if (pElem)
+	{
+		XmlSynthElem *childElem = new XmlSynthElem(doc);
+		if (FirstChild(childElem))
+			return childElem;
+		delete childElem;
+	}
+	return 0;
+}
+
+XmlSynthElem *XmlSynthElem::FirstChild(XmlSynthElem *childElem)
+{
 	if (pElem)
 	{
 		xmlNodePtr child = NextElement(pElem->children);
 		if (child)
 		{
-			newElem = new XmlSynthElem(doc);
-			newElem->SetNode(child);
+			childElem->SetNode(child);
+			return childElem;
 		}
 	}
-	return newElem;
+	return 0;
 }
 
 XmlSynthElem *XmlSynthElem::NextSibling()
 {
-	XmlSynthElem *newElem = NULL;
+	if (pElem)
+	{
+		XmlSynthElem *childElem = new XmlSynthElem(doc);
+		if (NextSibling(childElem))
+			return childElem;
+		delete childElem;
+	}
+	return 0;
+}
+
+XmlSynthElem *XmlSynthElem::NextSibling(XmlSynthElem *childElem)
+{
 	if (pElem)
 	{
 		xmlNodePtr child = NextElement(pElem->next);
 		if (child)
 		{
-			newElem = new XmlSynthElem(doc);
-			newElem->SetNode(child);
+			childElem->SetNode(child);
+			return childElem;
 		}
 	}
-	return newElem;
+	return 0;
 }
 
 XmlSynthElem *XmlSynthElem::AddChild(const char *childTag)
 {
 	if (doc)
-		return doc->CreateElement(this, childTag);
+		return doc->CreateElement(this, childTag, 0);
+	return NULL;
+}
+
+XmlSynthElem *XmlSynthElem::AddChild(const char *childTag, XmlSynthElem *childElem)
+{
+	if (doc)
+		return doc->CreateElement(this, childTag, childElem);
 	return NULL;
 }
 
@@ -246,10 +283,15 @@ XmlSynthDoc::~XmlSynthDoc()
 	Close();
 }
 
-
 XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 {
-	XmlSynthElem *newElem = new XmlSynthElem(this);
+	return CreateElement(parent, tag, 0);
+}
+
+XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag, XmlSynthElem *newElem)
+{
+	if (newElem == 0)
+		newElem = new XmlSynthElem(this);
 	if (doc)
 	{
 		xmlNodePtr newNode = xmlNewTextChild(parent->pElem, NULL, (const xmlChar *)tag, NULL);
@@ -261,6 +303,14 @@ XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
 {
 	XmlSynthElem *rootElem = new XmlSynthElem(this);
+	if (NewDoc(roottag, rootElem))
+		return rootElem;
+	delete rootElem;
+	return 0;
+}
+
+XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag, XmlSynthElem *rootElem)
+{
 	doc = xmlNewDoc((const xmlChar*)"1.0");
 	if (doc)
 	{
@@ -268,24 +318,35 @@ XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
 			roottag = "synth";
 		root = xmlNewDocNode(doc, NULL, (const xmlChar *)roottag, NULL);
 		rootElem->SetNode(root);
+		return rootElem;
 	}
-	return rootElem;
+	return 0;
 }
 
 XmlSynthElem *XmlSynthDoc::Open(char *fname)
 {
+	XmlSynthElem *rootElem = new XmlSynthElem(this);
+	if (Open(fname, rootElem))
+		return rootElem;
+	delete rootElem;
+	return 0;
+}
+
+XmlSynthElem *XmlSynthDoc::Open(char *fname, XmlSynthElem *rootElem)
+{
 	if (fname == NULL || strlen(fname) == 0)
 		return NULL;
-	XmlSynthElem *rootElem = new XmlSynthElem(this);
 	doc = xmlParseFile(fname);
 	if (doc)
 	{
 		root = xmlDocGetRootElement(doc);
 		if (root)
+		{
 			rootElem->SetNode(root);
+			return rootElem;
+		}
 	}
-
-	return rootElem;
+	return 0;
 }
 
 int XmlSynthDoc::Save(char *fname)
@@ -307,3 +368,7 @@ int XmlSynthDoc::Close()
 	root = NULL;
 	return 0;
 }
+
+#else
+int _not_using_libxml = 1;
+#endif

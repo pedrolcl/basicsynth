@@ -95,6 +95,7 @@ public:
 	virtual ~FMSynth();
 	static Instrument *FMSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *FMSynthEventFactory(Opaque tmplt);
+	static bsInt16     MapParamID(const char *name);
 	void Copy(FMSynth *tp);
 	void Start(SeqEvent *evt);
 	void Param(SeqEvent *evt);

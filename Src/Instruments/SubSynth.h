@@ -157,6 +157,8 @@ public:
 	virtual ~SubSynth();
 	static Instrument *SubSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *SubSynthEventFactory(Opaque tmplt);
+	static bsInt16    MapParamID(const char *name);
+
 	void Copy(SubSynth *tp);
 	void CreateFilter();
 	virtual void Start(SeqEvent *evt);

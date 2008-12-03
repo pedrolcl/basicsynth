@@ -120,17 +120,29 @@ public:
 
 	void Init()
 	{
-		mgr.Init(&mix, &wvf);
-		mgr.AddType("Tone", ToneInstr::ToneFactory, ToneInstr::ToneEventFactory);
-		mgr.AddType("ToneFM", ToneFM::ToneFMFactory, ToneFM::ToneFMEventFactory);
-		mgr.AddType("AddSynth", AddSynth::AddSynthFactory, AddSynth::AddSynthEventFactory);
-		mgr.AddType("SubSynth", SubSynth::SubSynthFactory, SubSynth::SubSynthEventFactory);
-		mgr.AddType("FMSynth", FMSynth::FMSynthFactory, FMSynth::FMSynthEventFactory);
-		mgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
-		mgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
 		InstrMapEntry *im = 0;
-		while ((im = mgr.EnumType(im)) != 0)
-			im->dumpTmplt = DestroyTemplate;
+		mgr.Init(&mix, &wvf);
+		im = mgr.AddType("Tone", ToneInstr::ToneFactory, ToneInstr::ToneEventFactory);
+		im->paramToID = ToneInstr::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("ToneFM", ToneFM::ToneFMFactory, ToneFM::ToneFMEventFactory);
+		im->paramToID = ToneFM::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("AddSynth", AddSynth::AddSynthFactory, AddSynth::AddSynthEventFactory);
+		im->paramToID = AddSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("SubSynth", SubSynth::SubSynthFactory, SubSynth::SubSynthEventFactory);
+		im->paramToID = SubSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("FMSynth", FMSynth::FMSynthFactory, FMSynth::FMSynthEventFactory);
+		im->paramToID = FMSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
+		im->paramToID = MatrixSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
+		im->paramToID = WFSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
 	}
 
 	int LoadProject(char *prjFname)
@@ -222,7 +234,7 @@ public:
 							mult = new bsInt32[wvParts];
 							amps = new double[wvParts];
 							phs = new double[wvParts];
-							bsUint32 ptndx;
+							long ptndx;
 							for (ptndx = 0; ptndx < wvParts; ptndx++)
 							{
 								mult[ptndx] = 0;

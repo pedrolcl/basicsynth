@@ -252,10 +252,13 @@ int main(int argc, char *argv[])
 	mix.ChannelVolume(1, 0.7);
 	mix.ChannelPan(1, panTrig, -0.4);
 
+	InstrMapEntry *ime;
 	InstrManager im;
 	im.Init(&mix, &wvf);
-	im.AddInstrument(1, Toner::Factory, Toner::ManufEvent);
-	im.AddInstrument(2, EffEm::Factory, EffEm::ManufEvent);
+	ime = im.AddType("Tone", Toner::Factory, Toner::ManufEvent);
+	im.AddInstrument(1, ime, 0);
+	ime = im.AddType("EffEm", EffEm::Factory, EffEm::ManufEvent);
+	im.AddInstrument(2, ime, 0);
 
 	Sequencer seq;
 	SequenceFile infile;

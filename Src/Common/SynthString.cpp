@@ -43,12 +43,12 @@ int bsString::SetLen(int newLen)
 		curLen = strlen(theStr);
 	else
 	{
-		if (newLen >= maxLen)
-			Allocate(newLen);
+		if ((size_t)newLen >= maxLen)
+			Allocate((size_t)newLen);
 		curLen = newLen;
 		theStr[curLen] = 0;
 	}
-	return curLen;
+	return (int) curLen;
 }
 
 bsString& bsString::Assign(const char *s)

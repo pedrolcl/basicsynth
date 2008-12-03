@@ -17,5 +17,12 @@
 #include <math.h>
 #include <BasicSynth.h>
 
+struct InstrParamMap
+{
+	char *name;
+	bsInt16 id;
+};
+
+extern bsInt16 SearchParamID(const char *name, InstrParamMap *map, int n);
 
 #endif

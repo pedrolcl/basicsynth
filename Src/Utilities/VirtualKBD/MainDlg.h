@@ -20,7 +20,7 @@ private:
 	KbdWindow kbd;
 	CComboBox instrList;
 	CTrackBarCtrl volCtrl;
-	InstrMapEntry *activeInstr;
+	InstrConfig *activeInstr;
 	bsInt32 evtID;
 	HANDLE genThreadH;
 	DWORD genThreadID;
@@ -144,7 +144,7 @@ public:
 	{
 		int sel = instrList.GetCurSel();
 		if (sel != CB_ERR)
-			activeInstr = (InstrMapEntry*)instrList.GetItemDataPtr(sel);
+			activeInstr = (InstrConfig*)instrList.GetItemDataPtr(sel);
 		else
 			activeInstr = NULL;
 		return 0;
@@ -170,7 +170,7 @@ public:
 			SynthProject prj;
 			if (prj.LoadProject(fnbuf, instrMgr) == 0)
 			{
-				InstrMapEntry *ime = 0;
+				InstrConfig *ime = 0;
 				while ((ime = instrMgr.EnumInstr(ime)) != 0)
 				{
 					const char *np = ime->GetName();
@@ -183,7 +183,7 @@ public:
 					instrList.SetItemDataPtr(ndx, ime);
 				}
 				instrList.SetCurSel(0);
-				activeInstr = (InstrMapEntry*)instrList.GetItemDataPtr(0);
+				activeInstr = (InstrConfig*)instrList.GetItemDataPtr(0);
 			}
 			else
 			{
@@ -212,7 +212,7 @@ public:
 		//evt->SetParam(P_INUM, activeInstr->inum);
 		evt->SetParam(P_CHNL, 0);
 		evt->SetParam(P_START, 0);
-		evt->SetParam(P_DUR, 0);
+		evt->SetParam(P_DUR, 1.0);
 		evt->SetParam(P_VOLUME, 1.0);
 		evt->SetParam(P_PITCH, (float) lParam+12);
 		switch (wParam)

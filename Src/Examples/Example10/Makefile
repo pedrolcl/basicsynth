@@ -1,13 +1,12 @@
 include ../../BasicSynth.cfg
 
-$(BSBIN)/example10: main.cpp
-	$(CPP) -lxml2 -lm $(CPPFLAGS) -I/usr/include/libxml2 -o $@ main.cpp $(INSTLIB) $(CMNLIB)
+$(BSBIN)/example10: main.cpp $(INSTLIB) $(CMNLIB)
+	$(CPP) -lm $(CPPFLAGS) -o $@ main.cpp $(INSTLIB) $(CMNLIB) $(XMLLIB)
 	-cp test1.wav test2.wav data.xml $(BSBIN)
 
 example10: $(BSBIN)/example10
 
 clean:
-	-rm main.o
 	-rm $(BSBIN)/example10
 	
 main.cpp: \

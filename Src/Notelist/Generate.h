@@ -97,6 +97,8 @@ public:
 	{
 		ClearValue();
 	}
+	inline vType GetType() { return vt; }
+	inline const char *RefStr() { return txtVal; }
 	virtual void ClearValue();
 	virtual void ChangeType(vType vnew);
 	virtual void SetValue(const char *p);

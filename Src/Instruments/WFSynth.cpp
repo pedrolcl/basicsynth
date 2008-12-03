@@ -70,50 +70,23 @@ Instrument *WFSynth::WFSynthFactory(InstrManager *m, Opaque tmplt)
 
 SeqEvent *WFSynth::WFSynthEventFactory(Opaque tmplt)
 {
-	WFSynthEvent *wp = new WFSynthEvent;
-	if (tmplt)
-	{
-		WFSynth *ip = (WFSynth *) tmplt;
-		wp->id = ip->fileID;
-		wp->lp = ip->looping;
-		wp->pa = ip->playAll;
-		wp->ar = ip->eg.GetAtkRt();
-		wp->rr = ip->eg.GetRelRt();
-	}
-	else
-	{
-		wp->id = 0;
-		wp->lp = 0;
-		wp->pa = 0;
-		wp->ar = 0.0;
-		wp->rr = 0.0;
-	}
-	return (SeqEvent *) wp;
+	VarParamEvent *evt = new VarParamEvent;
+	evt->maxParam = 21;
+	return (SeqEvent*)evt;
 }
 
-void WFSynthEvent::SetParam(bsInt16 idx, float v)
+static InstrParamMap wfsynthParams[] =
 {
-	switch (idx)
-	{
-	case 16:
-		id = (bsInt16) v;
-		break;
-	case 17:
-		lp = (bsInt16) v;
-		break;
-	case 18:
-		pa = (bsInt16) v;
-		break;
-	case 19:
-		ar = FrqValue(v);
-		break;
-	case 20:
-		rr = FrqValue(v);
-		break;
-	default:
-		NoteEvent::SetParam(idx, v);
-		break;
-	}
+	{"envar", 19},
+	{"envrr", 20},
+	{"wvfid", 16},
+	{"wvflp", 17},
+	{"wvfpa", 18},
+};
+
+bsInt16 WFSynth::MapParamID(const char *name)
+{
+	return SearchParamID(name, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
 }
 
 WFSynth::WFSynth()
@@ -149,7 +122,7 @@ void WFSynth::Copy(WFSynth *tp)
 
 void WFSynth::Start(SeqEvent *evt)
 {
-	SetParams((WFSynthEvent*)evt);
+	SetParams((VarParamEvent*)evt);
 
 	samples = &dummy;
 	sampleNumber = 0;
@@ -172,21 +145,61 @@ void WFSynth::Start(SeqEvent *evt)
 
 void WFSynth::Param(SeqEvent *evt)
 {
-	SetParams((WFSynthEvent*)evt);
+	SetParams((VarParamEvent*)evt);
 }
 
-void WFSynth::SetParams(WFSynthEvent *evt)
+int WFSynth::SetParams(VarParamEvent *params)
 {
+	int err = 0;
+
 	// pitch is not currently used. An improvement to this
 	// instrument is to somehow vary the sound based on the
 	// pitch and/or frequency.
-	chnl = evt->chnl;
-	fileID = evt->id;
-	looping = evt->lp;
-	playAll = evt->pa;
-	eg.SetAtkRt(evt->ar);
-	eg.SetRelRt(evt->rr);
-	eg.SetSus(evt->vol);
+
+	chnl = params->chnl;
+	eg.SetSus(params->vol);
+
+	bsInt16 *id = params->idParam;
+	float *valp = params->valParam;
+	float v;
+	int n = params->numParam;
+	while (n-- > 0)
+	{
+		v = *valp++;
+		switch (*id++)
+		{
+		case 16:
+			fileID = (bsInt16) v;
+			break;
+		case 17:
+			looping = (bsInt16) v;
+			break;
+		case 18:
+			playAll = (bsInt16) v;
+			break;
+		case 19:
+			eg.SetAtkRt(FrqValue(v));
+			break;
+		case 20:
+			eg.SetRelRt(FrqValue(v));
+			break;
+		default:
+			err++;
+			break;
+		}
+	}
+	return err;
+}
+
+int WFSynth::GetParams(VarParamEvent *params)
+{
+	params->SetParam(P_VOLUME, (float)eg.GetSus());
+	params->SetParam(16, (float) fileID);
+	params->SetParam(17, (float) looping);
+	params->SetParam(18, (float) playAll);
+	params->SetParam(19, (float) eg.GetAtkRt());
+	params->SetParam(19, (float) eg.GetRelRt());
+	return 0;
 }
 
 void WFSynth::Stop()
@@ -289,7 +302,7 @@ int WFSynth::Save(XmlSynthElem *parent)
 	for (int n = 0; n < WFSYNTH_MAX_WAVEFILES; n++)
 	{
 		short id = (short) wfCache[n].GetFileID();
-		if (wfUsed[id])
+		if (id >= 0 && wfUsed[id])
 		{
 			elem = parent->AddChild("file");
 			if (elem == NULL)

@@ -56,6 +56,7 @@ class ToneInstr : public ToneBase
 public:
 	static Instrument *ToneFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ToneEventFactory(Opaque tmplt);
+	static bsInt16     MapParamID(const char *name);
 
 	ToneInstr();
 	ToneInstr(ToneInstr *tp);
@@ -67,6 +68,8 @@ class ToneFM : public ToneBase
 public:
 	static Instrument *ToneFMFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ToneFMEventFactory(Opaque tmplt);
+	static bsInt16     MapParamID(const char *name);
+
 	ToneFM();
 	ToneFM(ToneFM *tp);
 	virtual ~ToneFM();

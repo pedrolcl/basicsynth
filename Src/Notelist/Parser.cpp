@@ -507,7 +507,7 @@ int nlParser::Map()
 		{
 			if (Expr())
 			{
-				err = Error("Invalid parameter number", skiptoend);
+				err = Error("Invalid parameter ID", skiptoend);
 				break;
 			}
 			paramCount++;

@@ -213,6 +213,7 @@ public:
 	nlSymbol *AddSymbol(const char *name);
 
 	virtual int  FindInstrNum(const char *name);
+	virtual int  GetParamID(int inum, const char *name);
 	virtual void InitParamMap(int inum);
 	virtual void SetParamMap(int inum, int pn, int mn, double sc);
 	virtual void BeginNotelist();

@@ -52,6 +52,8 @@ public:
 
 	static Instrument *AddSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *AddSynthEventFactory(Opaque tmplt);
+	static bsInt16     MapParamID(const char *name);
+
 	void Copy(AddSynth *tp);
 	virtual void Start(SeqEvent *evt);
 	virtual void Param(SeqEvent *evt);

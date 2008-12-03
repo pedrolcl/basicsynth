@@ -45,6 +45,16 @@ void WaveOutDirect::Stop()
 	outState = 0;
 }
 
+void WaveOutDirect::Restart()
+{
+	if (dirSndBuf)
+	{
+		// Lock the first block
+		dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
+		outState = 1;
+	}
+}
+
 int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
 {
 	if (dirSndObj == NULL)
@@ -104,7 +114,6 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
 	return 0;
 }
 
-
 int WaveOutDirect::Setup(HWND w, float leadtm, int nb)
 {
 	if (nb < 3)
@@ -122,6 +131,22 @@ int WaveOutDirect::Setup(HWND w, float leadtm, int nb)
 	ownBuf = 0;
 
 	return 0;
+}
+
+void WaveOutDirect::Shutdown()
+{
+	if (dirSndBuf)
+	{
+		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
+		dirSndBuf->Stop();
+		dirSndBuf->Release();
+		dirSndBuf = 0;
+	}
+	if (dirSndObj)
+	{
+		dirSndObj->Release();
+		dirSndObj = 0;
+	}
 }
 
 // NB: we always leave this function with a portion of the
@@ -191,6 +216,8 @@ int WaveOutDirect::FlushOutput()
 	return 0;
 }
 
+/////////////////////////////////////////////////////////
+
 int WaveOutDirectI::Setup(HWND w, float leadtm, int nb)
 {
 	if (nb < 3)
@@ -200,6 +227,12 @@ int WaveOutDirectI::Setup(HWND w, float leadtm, int nb)
 		return -1;
 	AllocBuf(sampleMax, 2);
 	return 0;
+}
+
+void WaveOutDirectI::Restart()
+{
+	if (dirSndBuf)
+		outState = 1;
 }
 
 int WaveOutDirectI::FlushOutput()

@@ -79,7 +79,7 @@ int WaveFile::CloseWaveFile()
 {
 	FlushOutput();
 
-	size_t byteTotal = sampleTotal * sizeof(SampleValue);
+	bsUint32 byteTotal = sampleTotal * sizeof(SampleValue);
 
 	wh.riffSize = byteTotal + sizeof(wh) - 8; // filesize - RIFF chunk
 	wh.waveSize = byteTotal;

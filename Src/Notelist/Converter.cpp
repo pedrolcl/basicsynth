@@ -124,6 +124,7 @@ void nlConverter::BeginInstr()
 		return;
 	}
 
+	curMap = mapList;
 	while (curMap)
 	{
 		if (curMap->Match(curVoice->instr))
@@ -222,10 +223,18 @@ int nlConverter::FindInstrNum(const char *name)
 	if (name == NULL || *name == 0)
 		return -1;
 
-	InstrMapEntry *ip;
+	InstrConfig *ip;
 	if ((ip = mgr->FindInstr(name)) != NULL)
 		return ip->inum;
 
+	return -1;
+}
+
+int nlConverter::GetParamID(int inum, const char *name)
+{
+	InstrConfig *ip;
+	if ((ip = mgr->FindInstr(inum)) != NULL)
+		return (int) ip->GetParamID(name);
 	return -1;
 }
 
@@ -367,16 +376,19 @@ char *FltToStr(double val, char *s, int len)
 	double ipart = floor(val);
 	s = FltIToStr(ipart, s, len);
 	int dig = len - (int) strlen(s) - 1;
-	*s++ = '.';
-	if (dig > 6)
-		dig = 6;
-	while (dig-- > 0)
+	if (dig > 0)
 	{
-		fpart -= ipart;
-		fpart *= 10.0;
-		ipart = floor(fpart); // 0 <= ipart < 10
-		*s++ = ((long)ipart) + '0';
+		*s++ = '.';
+		if (dig > 6)
+			dig = 6;
+		while (dig-- > 0)
+		{
+			fpart -= ipart;
+			fpart *= 10.0;
+			ipart = floor(fpart); // 0 <= ipart < 10
+			*s++ = ((long)ipart) + '0';
+		}
+		*s = '\0';
 	}
-	*s = '\0';
 	return s;
 }

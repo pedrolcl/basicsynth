@@ -2,16 +2,23 @@
 # Makefile for Common library
 ###########################################################
 include ../BasicSynth.cfg
+TINYXML=tinyxml
 
 OBJS=\
+	Global.o \
 	MIDISequencer.o \
 	Sequencer.o \
 	SequenceFile.o \
 	WaveFile.o \
 	SynthFileU.o \
-	XmlWrapU.o \
 	SynthString.o \
-	Global.o
+	XmlWrapU.o \
+	XmlWrapN.o \
+	XmlWrapT.o \
+	tinyxml.o \
+	tinyxmlerror.o \
+	tinyxmlparser.o \
+	tinystr.o
 
 $(CMNLIB): $(OBJS)
 	-@rm $@
@@ -23,7 +30,8 @@ clean:
 	-@rm $(OBJS)
 	-@rm $(CMNLIB)
 
-MIDISequencer.cpp: \
+MIDISequencer.o: \
+	MIDISequencer.cpp \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/WaveFile.h \
@@ -32,7 +40,8 @@ MIDISequencer.cpp: \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/MIDISequencer.h
 
-Sequencer.cpp: \
+Sequencer.o: \
+	Sequencer.cpp \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/WaveFile.h \
@@ -40,7 +49,8 @@ Sequencer.cpp: \
 	$(BSINC)/SynthList.h \
 	$(BSINC)/Sequencer.h
 
-SequenceFile.cpp: \
+SequenceFile.o:\
+	SequenceFile.cpp \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SynthList.h \
@@ -50,15 +60,32 @@ SequenceFile.cpp: \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/SequenceFile.h
 
-WaveFile.cpp: \
+WaveFile.o:\
+	WaveFile.cpp \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthFile.h \
 	$(BSINC)/WaveFile.h
 
-SynthFileU.cpp: $(BSINC)/SynthFile.h
+SynthFileU.o: SynthFileU.cpp $(BSINC)/SynthFile.h
 
-XmlWrapU.cpp: $(BSINC)/XmlWrap.h
+XmlWrapU.o: XmlWrapU.cpp $(BSINC)/XmlWrap.h
 
-SynthString.cpp: $(BSINC)/SynthString.h
+XmlWrapN.o: XmlWrapN.cpp $(BSINC)/XmlWrap.h
 
-Global.cpp: $(BSINC)/SynthDefs.h $(BSINC)/WaveTable.h
+SynthString.o: SynthString.cpp $(BSINC)/SynthString.h
+
+Global.o: Global.cpp $(BSINC)/SynthDefs.h $(BSINC)/WaveTable.h
+
+XmlWrapT.o: XmlWrapT.cpp $(BSINC)/XmlWrap.h
+
+tinyxml.o: $(TINYXML)/tinyxml.cpp
+	$(CPP) -c $(CPPFLAGS) $< 
+ 
+tinyxmlerror.o: $(TINYXML)/tinyxmlerror.cpp
+	$(CPP) -c $(CPPFLAGS) $< 
+
+tinyxmlparser.o: $(TINYXML)/tinyxmlparser.cpp
+	$(CPP) -c $(CPPFLAGS) $< 
+
+tinystr.o: $(TINYXML)/tinystr.cpp
+	$(CPP) -c $(CPPFLAGS) $< 

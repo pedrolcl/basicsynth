@@ -35,7 +35,7 @@
 // This will validate that the internal state is the same as the
 // input file contents. Note that attributes may get rearranged
 // and additional nodes or attributes may appear in the output file.
-//#define TEST_SAVE_INSTR 1
+#define TEST_SAVE_INSTR 1
 
 long evidcount = 1;
 float startTime = 0;
@@ -110,10 +110,13 @@ int main(int argc, char *argv[])
 	inMgr.AddType("FMSynth", FMSynth::FMSynthFactory, FMSynth::FMSynthEventFactory);
 	inMgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
 	inMgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
+	InstrMapEntry *ime = 0;
+	while ((ime = inMgr.EnumType(ime)) != 0)
+		ime->dumpTmplt = DestroyTemplate;
 
 	XmlSynthDoc doc;
-	XmlSynthElem *root = doc.Open(fname);
-	if (!root)
+	XmlSynthElem rootNode(&doc);
+	if (!doc.Open(fname, &rootNode))
 	{
 		printf("Cannot open file %s\n", fname);
 		exit(1);
@@ -123,23 +126,20 @@ int main(int argc, char *argv[])
 	// but we want to discover the inum values
 	// and add sequences programaticaly...
 
-	XmlSynthElem *next;
-	XmlSynthElem *inst = root->FirstChild();
+	XmlSynthElem elem(&doc);
+	XmlSynthElem *inst = rootNode.FirstChild(&elem);
 	while (inst != NULL)
 	{
 		if (inst->TagMatch("instr"))
 		{
-			InstrMapEntry *ent = LoadInstr(inMgr, inst);
-			ent->dumpTmplt = DestroyTemplate;
-			if (strcmp(ent->GetType(), "WFSynth") == 0)
+			InstrConfig *ent = inMgr.LoadInstr(inst);
+			if (strcmp(ent->instrType->GetType(), "WFSynth") == 0)
 				AddEvent(ent->inum, 48, 1.0);
 			else
 				AddSequence(ent->inum, 0.25);
 		}
 
-		next = inst->NextSibling();
-		delete inst;
-		inst = next;
+		inst = elem.NextSibling(&elem);
 	}
 	doc.Close();
 
@@ -167,22 +167,22 @@ int main(int argc, char *argv[])
 	///////////////////////////////////////////////////////////////
 	// Code to test instrument save functions...
 #ifdef TEST_SAVE_INSTR
-	root = doc.NewDoc("instrlib");
-	InstrMapEntry *ime = inMgr.EnumInstr(0);
-	while (ime)
+	doc.NewDoc("instrlib", &rootNode);
+	InstrConfig *inc = inMgr.EnumInstr(0);
+	while (inc)
 	{
-		Instrument *ip = (Instrument *)ime->instrTmplt;
+		InstrMapEntry *ime = inc->instrType;
+		Instrument *ip = (Instrument *)inc->instrTmplt;
 		if (ip)
 		{
-			inst = root->AddChild("instr");
-			inst->SetAttribute("id", ime->inum);
-			inst->SetAttribute("type", ime->itype);
-			inst->SetAttribute("name", ime->iname);
-			inst->SetAttribute("desc", ime->idesc);
-			ip->Save(inst);
-			delete inst;
+			rootNode.AddChild("instr", &elem);
+			elem.SetAttribute("id", inc->inum);
+			elem.SetAttribute("type", ime->itype);
+			elem.SetAttribute("name", inc->GetName());
+			elem.SetAttribute("desc", ime->GetDesc());
+			ip->Save(&elem);
 		}
-		ime = inMgr.EnumInstr(ime);
+		inc = inMgr.EnumInstr(inc);
 	}
 	bsString outxml;
 	outxml = "_";

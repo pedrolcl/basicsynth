@@ -357,6 +357,8 @@ struct SegVals
 	AmpValue level;
 	/// Curve type
 	EGSegType type;
+	/// Fixed/relative duration
+	int fixed;
 };
 
 ///////////////////////////////////////////////////////////
@@ -440,6 +442,13 @@ struct EnvDef
 			segs[n].type = ty; 
 	}
 
+	/// Set the fixed/relative duration flag
+	inline void SetFixed(int n, int f)
+	{
+		if (n < nsegs)
+			segs[n].fixed = f;
+	}
+
 	/// Get the starting value
 	inline AmpValue GetStart()
 	{ 
@@ -467,6 +476,14 @@ struct EnvDef
 		return nulSeg;
 	}
 
+	/// Get the fixed flag for segment \p n
+	inline int GetFixed(int n)
+	{ 
+		if (n < nsegs)
+			return segs[n].fixed; 
+		return 0;
+	}
+
 	/// Set one segment.
 	/// Set the rate, level and type for a segment.
 	/// The Alloc method must be called before setting a segment.
@@ -474,13 +491,14 @@ struct EnvDef
 	/// @param rt rate
 	/// @param lv level
 	/// @param ty type (EGSegType)
-	void Set(int n, FrqValue rt, AmpValue lv, EGSegType ty)
+	void Set(int n, FrqValue rt, AmpValue lv, EGSegType ty, int fix = 1)
 	{
 		if (n < nsegs)
 		{
 			segs[n].rate = rt;
 			segs[n].level = lv;
 			segs[n].type = ty;
+			segs[n].fixed = fix;
 		}
 	}
 
@@ -490,13 +508,14 @@ struct EnvDef
 	/// @param rt rate
 	/// @param lv end level
 	/// @param ty type (EGSegType)
-	void Get(int n, FrqValue& rt, AmpValue& lv, EGSegType& ty)
+	void Get(int n, FrqValue& rt, AmpValue& lv, EGSegType& ty, int& fix)
 	{
 		if (n < nsegs)
 		{
 			rt = segs[n].rate;
 			lv = segs[n].level;
 			ty = segs[n].type;
+			fix = segs[n].fixed;
 		}
 	}
 
@@ -604,6 +623,7 @@ protected:
 
 	AmpValue lastVal;
 	AmpValue segStart;
+	bsInt32 duration;
 
 public:
 	EnvGenSeg()
@@ -616,6 +636,7 @@ public:
 		segObj = NULL;
 		seg = NULL;
 		segRLT = NULL;
+		duration = 0;
 	}
 
 	virtual ~EnvGenSeg()
@@ -631,8 +652,9 @@ public:
 		SetStart(ap->segStart);
 		SetSegs(ap->numSeg);
 		susOn = ap->susOn;
+		duration = ap->duration;
 		for (int n = 0; n < ap->numSeg; n++)
-			SetSegN(n, ap->segRLT[n].rate, ap->segRLT[n].level, ap->segRLT[n].type);
+			SetSegN(n, ap->segRLT[n].rate, ap->segRLT[n].level, ap->segRLT[n].type, ap->segRLT[n].fixed);
 	}
 
 	/// Initialize envelope generator.
@@ -641,7 +663,7 @@ public:
 	/// one segment. The number of segments is thus (n - 1)/3
 	/// v[0] = starting level for the envelope
 	/// v[1...n] = array of rate, level, type tuples
-	//      L0,{R1,L1.T1}..{Rn,Ln,Tn}
+	//      L0,{R1,L1.T1}..{Rn,Ln,Tn,Fn}
 	/// @param n number of values
 	/// @param v array of values
 	virtual void Init(int n, float *v)
@@ -650,11 +672,11 @@ public:
 		{
 			segStart = *v++;
 			n--;
-			SetSegs(n/3);
+			SetSegs(n/4);
 			for (int i = 0; i < numSeg; i++)
 			{
-				SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2]);
-				v += 3;
+				SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2], (int) v[3]);
+				v += 4;
 			}
 		}
 		Reset();
@@ -667,7 +689,7 @@ public:
 		SetStart(def->start);
 		susOn = def->suson;
 		for (int n = 0; n < numSeg; n++)
-			SetSegN(n, def->segs[n].rate, def->segs[n].level, def->segs[n].type);
+			SetSegN(n, def->segs[n].rate, def->segs[n].level, def->segs[n].type, def->segs[n].fixed);
 	}
 
 	/// @copydoc EnvGenUnit::GetEnvDef()
@@ -708,6 +730,7 @@ public:
 			segRLT[n].level = 0;
 			segRLT[n].rate = 0;
 			segRLT[n].type = linSeg;
+			segRLT[n].fixed = 1;
 			segObj[n] = &egsLin;
 		}
 	}
@@ -731,6 +754,11 @@ public:
 		segStart = lvl; 
 	}
 
+	inline void SetDuration(bsInt32 d)
+	{
+		duration = d;
+	}
+
 	/// Set the rate for a segment. This sets the seconds
 	/// to transition to the end level for the segment.
 	/// @param segn segment number
@@ -752,6 +780,13 @@ public:
 		if (segn < numSeg)
 			segRLT[segn].level = lvl; 
 	}
+
+	inline void SetFixed(int segn, int fix)
+	{
+		if (segn < numSeg)
+			segRLT[segn].fixed = fix; 
+	}
+
 
 	/// Get the current value for the sustain on flag.
 	inline int GetSusOn()
@@ -794,6 +829,15 @@ public:
 		return nulSeg;
 	}
 
+	/// Get the value for the fixed duration flag
+	inline int GetFixed(int segn)
+	{
+		if (segn < numSeg)
+			return segRLT[segn].fixed; 
+		return 0;
+	}
+
+
 	/// Set the type of a segment. The type defines
 	/// the curve, linear, exponential, logarithmic,
 	/// or sustain.
@@ -828,13 +872,15 @@ public:
 	/// @param rt time in seconds for the segment
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
-	void GetSegN(int segn, FrqValue& rt, AmpValue& lvl, EGSegType& typ)
+	/// @param fix fixed duration flag for the segment
+	void GetSegN(int segn, FrqValue& rt, AmpValue& lvl, EGSegType& typ, int& fix)
 	{
 		if (segn >= numSeg)
 			return;
 		rt  = segRLT[segn].rate;
 		lvl = segRLT[segn].level;
 		typ = segRLT[segn].type;
+		fix = segRLT[segn].fixed;
 	}
 
 	/// Set all values for a segment. This method copies all three
@@ -843,13 +889,14 @@ public:
 	/// @param rt time in seconds for the segment
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
-	void SetSegN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg)
+	void SetSegN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg, int fix = 1)
 	{
 		if (segn >= numSeg)
 			return;
 		SetRate(segn, rt);
 		SetLevel(segn, lvl);
 		SetType(segn, typ);
+		SetFixed(segn, fix);
 	}
 
 	/// Reset the envelope. The segment number is moved back to the first
@@ -887,7 +934,13 @@ public:
 		{
 			seg = segObj[index];
 			if (seg != NULL)
-				seg->InitSeg(segRLT[index].rate, lastVal, segRLT[index].level);
+			{
+				FrqValue rt = segRLT[index].rate;
+				if (!segRLT[index].fixed)
+					seg->InitSegTick((long)(rt*duration), lastVal, segRLT[index].level);
+				else
+					seg->InitSeg(rt, lastVal, segRLT[index].level);
+			}
 			index++;
 		}
 		else
@@ -1060,12 +1113,12 @@ public:
 	/// @param rr release rate
 	/// @param son sustain on (1) or off (0)
 	/// @param t curve type (\see EGSegType)
-	virtual void InitAR(FrqValue ar, AmpValue sl, FrqValue rr, int son, EGSegType t)
+	virtual void InitAR(FrqValue ar, AmpValue sl, FrqValue rr, int son, EGSegType t, int fix = 1)
 	{
 		SetSusOn(son);
 		SetStart(0);
-		SetSegN(0, ar, sl, t);
-		SetSegN(1, rr, 0, t);
+		SetSegN(0, ar, sl, t, fix);
+		SetSegN(1, rr, 0, t, fix);
 		Reset();
 	}
 };
@@ -1190,12 +1243,12 @@ public:
 	/// @param rl release (final) level
 	/// @param t curve type (\see EGSegType)
 	virtual void InitADSR(AmpValue st, FrqValue ar, AmpValue al, FrqValue dr, 
-	                      AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = logSeg)
+	                      AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = logSeg, int fix = 1)
 	{
 		SetStart(st);
-		SetSegN(0, ar, al, t);
-		SetSegN(1, dr, sl, t);
-		SetSegN(2, rr, rl, t);
+		SetSegN(0, ar, al, t, fix);
+		SetSegN(1, dr, sl, t, fix);
+		SetSegN(2, rr, rl, t, fix);
 		Reset();
 	}
 };
@@ -1250,19 +1303,19 @@ public:
 			int atksegs = (int) *v++;
 			int decsegs = (int) *v++;
 			SetSegs(atksegs, decsegs);
-			n += 3;
+			n += 4;
 			int i;
 			for (i = 0; i < atksegs; i++)
 			{
-				atk.SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2]);
-				v += 3;
+				atk.SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2], (int) v[3]);
+				v += 4;
 				start = v[1];
 			}
 			dec.SetStart(start);
 			for (i = 0; i < decsegs; i++)
 			{
-				dec.SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2]);
-				v += 3;
+				dec.SetSegN(i, FrqValue(v[0]), AmpValue(v[1]), (EGSegType) (int) v[2], (int) v[4]);
+				v += 4;
 			}
 		}
 		Reset();
@@ -1289,9 +1342,9 @@ public:
 	/// @param rt rate in seconds
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
-	void SetAtkN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg)
+	void SetAtkN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg, int fix = 1)
 	{
-		atk.SetSegN(segn, rt, lvl, typ);
+		atk.SetSegN(segn, rt, lvl, typ, fix);
 	}
 
 	/// Set values for one decay segment.
@@ -1299,9 +1352,9 @@ public:
 	/// @param rt rate in seconds
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
-	void SetDecN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg)
+	void SetDecN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg, int fix = 1)
 	{
-		dec.SetSegN(segn, rt, lvl, typ);
+		dec.SetSegN(segn, rt, lvl, typ, fix);
 	}
 
 	/// @copydoc EnvGenSeg::Reset
