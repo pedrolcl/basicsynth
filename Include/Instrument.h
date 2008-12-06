@@ -250,6 +250,9 @@ public:
 			instrType->dumpTmplt(instrTmplt);
 	}
 
+	/// Create an instance object of this instrument configuration.
+	/// @param im instrument manager
+	/// @return pointer to the instrument
 	Instrument *MakeInstance(InstrManager *im)
 	{
 		if (instrType)
@@ -257,6 +260,8 @@ public:
 		return new Instrument;
 	}
 
+	/// Create an event object for this instrument.
+	/// @return pointer to the event.
 	SeqEvent *MakeEvent()
 	{
 		if (instrType)
@@ -395,6 +400,7 @@ public:
 	/// @param in instrument factory
 	/// @param ev event factory
 	/// @param tf template factory
+	/// @return new instrument map entry for this type
 	virtual InstrMapEntry *AddType(const char *type, InstrFactory in, EventFactory ev, TmpltFactory tf = 0)
 	{
 		InstrMapEntry *ent = new InstrMapEntry(type, in, ev, tf, 0);
@@ -409,6 +415,7 @@ public:
 	/// The first call should pass NULL for the argument. Subsequent calls
 	/// should pass the last returned value.
 	/// @param p previous entry
+	/// @return pointer to next instrument map entry
 	InstrMapEntry *EnumType(InstrMapEntry *p)
 	{
 		if (p)
@@ -418,6 +425,7 @@ public:
 
 	/// Find the instrument map entry for a specific type.
 	/// @param type name for the instrument type
+	/// @return pointer to instrument map entry for this type
 	virtual InstrMapEntry *FindType(const char *type)
 	{
 		InstrMapEntry *ent;
@@ -433,6 +441,7 @@ public:
 	/// @param inum instrument number
 	/// @param type instrument type
 	/// @param tmplt template for instrument initialization
+	/// @return pointer to new instrument configuration object
 	virtual InstrConfig* AddInstrument(bsInt16 inum, InstrMapEntry *type, Opaque tmplt = 0)
 	{
 		if (inum < 0)
@@ -464,12 +473,32 @@ public:
 			pos = pos->next;
 		}
 		if (last)
-			last->Insert(ent);
+			last->Insert(ent); 
 		return ent;
 	}
 
+	/// Load instrument library file.
+	/// This method opens the file, reads all instrument conifgurations
+	/// and adds each instrument configuration to this instrument
+	/// manager. The file must be an XML file.
+	/// @param fname path to the file
+	/// @returns 0 on success, -1 on error
 	int LoadInstrLib(const char *fname);
+
+	/// Load instrument library file.
+	/// This method reads all instrument conifgurations from the
+	/// XML tree and adds each instrument configuration to this instrument
+	/// manager. The argument must be the root node with tag instrlib.
+	/// @param inst root node for the instrument library
+	/// @returns 0 on success, -1 on error
 	int LoadInstrLib(XmlSynthElem *inst);
+
+	/// Load instrument configuration.
+	/// This method reads one instrument conifgurations from the
+	/// XML tree and adds the instrument configuration to this instrument
+	/// manager. The argument must be the node with tag instr.
+	/// @param inst node for the instrument configuration
+	/// @returns pointer to the new instrument config object
 	InstrConfig *LoadInstr(XmlSynthElem *inst);
 
 	/// Enumerate instruments. The first call should
@@ -521,6 +550,7 @@ public:
 
 	/// Allocate an instrument instance.
 	/// @param in instrument map entry for the instrument
+	/// @return pointer to the instrument instance.
 	virtual Instrument *Allocate(InstrConfig *in)
 	{
 		if (in)
@@ -528,6 +558,8 @@ public:
 		return new Instrument;
 	}
 
+	/// Deallocate an instrument instance.
+	/// @param ip pointer to the instrument object
 	virtual void Deallocate(Instrument *ip)
 	{
 		ip->Destroy();
@@ -542,6 +574,7 @@ public:
 
 	/// Allocate a new event for an instrument.
 	/// @param in instrument map entry
+	/// @return pointer to the event object
 	virtual SeqEvent *ManufEvent(InstrConfig *in)
 	{
 		if (in)

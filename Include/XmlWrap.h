@@ -3,10 +3,10 @@
 //
 /// @file XmlWrap.h Wrapper classes to provide a portable abstraction over the XML DOM.
 //
-// define USE_MSXML to use the MS Windows msxml dll
-// define USE_LIBXML to use the libxml2 library
-// define USE_TINYXML to use the tinyxml library
-// define none to create a dummy XML class
+///  - define USE_MSXML to use the MS Windows msxml dll
+///  - define USE_LIBXML to use the libxml2 library
+///  - define USE_TINYXML to use the tinyxml library
+///  - define none to create a dummy XML class
 // 
 // Compile the appropriate .cpp file as well:
 //  XmlWrapW.cpp - MSXML
@@ -65,11 +65,26 @@ public:
 	XmlSynthElem(XmlSynthDoc *p = 0);
 	~XmlSynthElem();
 	void Clear();
+	/// Get the first child element of this element.
+	/// This method allocates a new wrapper object.
 	XmlSynthElem *FirstChild();
+	/// Get the first child element of this element.
+	/// This method reuses an existing wrapper object.
 	XmlSynthElem *FirstChild(XmlSynthElem *childElem);
+	/// Get the next sibling element of this element.
+	/// This method allocates a new wrapper object.
 	XmlSynthElem *NextSibling();
+	/// Get the next sibling element of this element.
+	/// This method reuses an existing wrapper object.
 	XmlSynthElem *NextSibling(XmlSynthElem *childElem);
+	/// Add a child element to this element.
+	/// This method allocates a new wrapper object for the child.
+	/// @param childTag tag for the new child element
 	XmlSynthElem *AddChild(const char *childTag);
+	/// Add a child element to this element.
+	/// This method reuses an existing wrapper object.
+	/// @param childTag tag for the new child element
+	/// @param childElem wrapper object for the new child.
 	XmlSynthElem *AddChild(const char *childTag, XmlSynthElem *childElem);
 	const char *TagName();
 	int GetAttribute(char *attrName, short& val);
@@ -106,13 +121,28 @@ private:
 public:
 	XmlSynthDoc();
 	~XmlSynthDoc();
+	/// Create a new XML element.
+	/// The new element is added as a child of parent with the given tag
 	XmlSynthElem *CreateElement(XmlSynthElem *parent, const char *tag);
+	/// Create a new element.
+	/// The new element is added as a child of parent with the given tag
 	XmlSynthElem *CreateElement(XmlSynthElem *parent, const char *tag, XmlSynthElem *childElem);
+	/// Create a new XML doc.
 	XmlSynthElem *NewDoc(char *roottag);
+	/// Create a new XML doc.
 	XmlSynthElem *NewDoc(char *roottag, XmlSynthElem *rootElem);
+	/// Open an XML file.
+	/// @param fname path to the XML file
+	/// @return the root node of the XML document.
 	XmlSynthElem *Open(char *fname);
+	/// Open an XML file.
+	/// @param fname path to the XML file
+	/// @param rootElem wrapper to hold the root element
+	/// @return the root node of the XML document.
 	XmlSynthElem *Open(char *fname, XmlSynthElem *rootElem);
+	/// Save the XML file
 	int Save(char *fname);
+	/// Close the XML file.
 	int Close();
 };
 

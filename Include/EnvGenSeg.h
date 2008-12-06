@@ -491,6 +491,7 @@ struct EnvDef
 	/// @param rt rate
 	/// @param lv level
 	/// @param ty type (EGSegType)
+	/// @param fix fixed time or relative to duration
 	void Set(int n, FrqValue rt, AmpValue lv, EGSegType ty, int fix = 1)
 	{
 		if (n < nsegs)
@@ -508,6 +509,7 @@ struct EnvDef
 	/// @param rt rate
 	/// @param lv end level
 	/// @param ty type (EGSegType)
+	/// @param fix fixed time or relative to duration
 	void Get(int n, FrqValue& rt, AmpValue& lv, EGSegType& ty, int& fix)
 	{
 		if (n < nsegs)
@@ -781,6 +783,12 @@ public:
 			segRLT[segn].level = lvl; 
 	}
 
+	/// Set the fixed duration flag.
+	/// When fix is true the time for the indicated segment
+	/// is a fixed duration. When fix is false, the time
+	/// is relative to the duration of a note.
+	/// @param segn segment number
+	/// @param fix fixed or relative duration
 	inline void SetFixed(int segn, int fix)
 	{
 		if (segn < numSeg)
@@ -889,6 +897,7 @@ public:
 	/// @param rt time in seconds for the segment
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
+	/// @param fix fixed time or relative to duration
 	void SetSegN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg, int fix = 1)
 	{
 		if (segn >= numSeg)
@@ -1113,6 +1122,7 @@ public:
 	/// @param rr release rate
 	/// @param son sustain on (1) or off (0)
 	/// @param t curve type (\see EGSegType)
+	/// @param fix fixed time or relative to duration
 	virtual void InitAR(FrqValue ar, AmpValue sl, FrqValue rr, int son, EGSegType t, int fix = 1)
 	{
 		SetSusOn(son);
@@ -1242,6 +1252,7 @@ public:
 	/// @param rr release rate
 	/// @param rl release (final) level
 	/// @param t curve type (\see EGSegType)
+	/// @param fix fixed or relative duration
 	virtual void InitADSR(AmpValue st, FrqValue ar, AmpValue al, FrqValue dr, 
 	                      AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = logSeg, int fix = 1)
 	{
@@ -1342,6 +1353,7 @@ public:
 	/// @param rt rate in seconds
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
+	/// @param fix fixed time or relative to duration
 	void SetAtkN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg, int fix = 1)
 	{
 		atk.SetSegN(segn, rt, lvl, typ, fix);
@@ -1352,6 +1364,7 @@ public:
 	/// @param rt rate in seconds
 	/// @param lvl end level for the segment
 	/// @param typ curve type for the segment
+	/// @param fix fixed time or relative to duration
 	void SetDecN(int segn, FrqValue rt, AmpValue lvl, EGSegType typ = linSeg, int fix = 1)
 	{
 		dec.SetSegN(segn, rt, lvl, typ, fix);

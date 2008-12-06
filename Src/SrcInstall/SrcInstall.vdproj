@@ -147,12 +147,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0D7495D0BFCC4A4EB4ADE744C8BC9E8A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0DF1A9EEF652441EAC47BD054ACBFA6F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -178,6 +172,12 @@
         "Entry"
         {
         "MsmKey" = "8:_11DC6B86681044E994F4687711336620"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1220D99B50204EF685B80C5DD1C630F0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -244,6 +244,12 @@
         "Entry"
         {
         "MsmKey" = "8:_1C27398C350347CCB0DBC893C3A77561"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1C5DF4B8D83B4C8A95BC326FC3503AB4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -339,6 +345,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_28CFD067381D4722B5A98611BEED3801"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2AACC8C3644F4088A47AA6BAC83158A2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -364,6 +376,12 @@
         "Entry"
         {
         "MsmKey" = "8:_2E20892AB39840CA99048A48D8BD53A4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2F67097FDFFE4909B536DF1E2B412121"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -951,6 +969,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6D5F5EA46D744BB2AAAD8D2586C3E24C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6FAAF8D9B5D84955A13DBF5B1D69EEE7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1041,6 +1065,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7BB416D267E6460B99B0C47285BA8C42"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7DCE482049A24E3BB5A2C4BFFF2F85C2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1084,6 +1114,12 @@
         "Entry"
         {
         "MsmKey" = "8:_84EFA6DFC80547BF986DA410FBFAA934"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_85B287871717481D8849B2B91CF62390"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1191,6 +1227,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_916E44A7A20344D79C4E1CDAAB97169A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_927ED97135D94928B8A42390D5619DEF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1216,6 +1258,12 @@
         "Entry"
         {
         "MsmKey" = "8:_98C88AC3BE234A6ABE9A2F0839B5F454"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_996680B541CD400A92A403DE6C967146"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1269,6 +1317,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A00932CDC29D4606AE899C52FF8AAA15"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A02F939DB8284C52A4970C3D28D31225"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1282,6 +1336,12 @@
         "Entry"
         {
         "MsmKey" = "8:_A2B7BB5818F547BFBE83D2DC2F4F9103"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A2E0FC2FF9E2415A84A61AC01439F893"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1461,7 +1521,31 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C0B04AC1EF5E4E6DA9957CFBFCBF304D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C14471536B504EDCB577E5B3F8F1F842"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C2C83ED487424844971F1AA0147402A7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C2D996CFBADD4D3BABCE7B376033EEC7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C3A80C8497FD47C8AD5AF291C7215554"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1533,6 +1617,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CDD4653BA7F4408DA50FF4F0DD877070"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CDDE509BBF4243648414C75DC5EA99E1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1588,6 +1678,12 @@
         "Entry"
         {
         "MsmKey" = "8:_D82A13ED2BFF46EDB8FF258E6766236A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DA35D238648C4211BB0D2E89586710E0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1791,6 +1887,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F490712AD4EA4924A9F797FFE2A06073"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F5556F9475044BBEB2CC3716122A54EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1886,6 +1988,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5"
+                    {
+                    "Name" = "8:.NET Framework 3.5"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
         "Release"
@@ -1893,7 +2008,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\Bin\\BasicSynthSrc-1-0-0.msi"
+        "OutputFilename" = "8:..\\..\\Bin\\basicsynth-src-1-0-1.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -2385,26 +2500,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0D7495D0BFCC4A4EB4ADE744C8BC9E8A"
-            {
-            "SourcePath" = "8:..\\..\\Documents\\structure.jpg"
-            "TargetName" = "8:structure.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_03CAE5BB8FD045B38C29262F1866A306"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0DF1A9EEF652441EAC47BD054ACBFA6F"
             {
             "SourcePath" = "8:..\\..\\Include\\Instrument.h"
@@ -2491,6 +2586,26 @@
             "TargetName" = "8:Flanger.h"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1220D99B50204EF685B80C5DD1C630F0"
+            {
+            "SourcePath" = "8:SrcInstall.vdproj"
+            "TargetName" = "8:SrcInstall.vdproj"
+            "Tag" = "8:"
+            "Folder" = "8:_8270F24A88D14546BCE236795B38B199"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2711,6 +2826,26 @@
             "TargetName" = "8:stdafx.h"
             "Tag" = "8:"
             "Folder" = "8:_694817F3C9E8410ABA34959E2D4EDA65"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1C5DF4B8D83B4C8A95BC326FC3503AB4"
+            {
+            "SourcePath" = "8:..\\..\\Include\\tinystr.h"
+            "TargetName" = "8:tinystr.h"
+            "Tag" = "8:"
+            "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3025,6 +3160,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_28CFD067381D4722B5A98611BEED3801"
+            {
+            "SourcePath" = "8:..\\..\\Include\\XMLSelection.vsprops"
+            "TargetName" = "8:XMLSelection.vsprops"
+            "Tag" = "8:"
+            "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2AACC8C3644F4088A47AA6BAC83158A2"
             {
             "SourcePath" = "8:..\\Examples\\Example02b\\Makefile"
@@ -3111,6 +3266,26 @@
             "TargetName" = "8:Example07c.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_DC8EB99138AC4105A0D08094F2177660"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F67097FDFFE4909B536DF1E2B412121"
+            {
+            "SourcePath" = "8:..\\..\\Include\\Docpages.h"
+            "TargetName" = "8:Docpages.h"
+            "Tag" = "8:"
+            "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5065,6 +5240,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6D5F5EA46D744BB2AAAD8D2586C3E24C"
+            {
+            "SourcePath" = "8:..\\Common\\tinyxml\\tinyxmlparser.cpp"
+            "TargetName" = "8:tinyxmlparser.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_50928941363641B58C1175245490922D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6FAAF8D9B5D84955A13DBF5B1D69EEE7"
             {
             "SourcePath" = "8:..\\Examples\\Example10\\data.xml"
@@ -5365,6 +5560,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7BB416D267E6460B99B0C47285BA8C42"
+            {
+            "SourcePath" = "8:..\\Common\\tinyxml\\tinyxml.cpp"
+            "TargetName" = "8:tinyxml.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_50928941363641B58C1175245490922D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DCE482049A24E3BB5A2C4BFFF2F85C2"
             {
             "SourcePath" = "8:..\\Instruments\\FMSynth.cpp"
@@ -5511,6 +5726,26 @@
             "TargetName" = "8:SequenceFile.h"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_85B287871717481D8849B2B91CF62390"
+            {
+            "SourcePath" = "8:..\\Common\\tinyxml\\tinystr.cpp"
+            "TargetName" = "8:tinystr.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_50928941363641B58C1175245490922D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5865,6 +6100,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_916E44A7A20344D79C4E1CDAAB97169A"
+            {
+            "SourcePath" = "8:..\\Common\\tinyxml\\tinyxmlerror.cpp"
+            "TargetName" = "8:tinyxmlerror.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_50928941363641B58C1175245490922D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_927ED97135D94928B8A42390D5619DEF"
             {
             "SourcePath" = "8:..\\Utilities\\FMExplorer\\res\\disk.ico"
@@ -5951,6 +6206,26 @@
             "TargetName" = "8:Makefile"
             "Tag" = "8:"
             "Folder" = "8:_2C50EE84D6034D39880E450F5308E50F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_996680B541CD400A92A403DE6C967146"
+            {
+            "SourcePath" = "8:..\\BSynth\\tsttonesynth.xml"
+            "TargetName" = "8:tsttonesynth.xml"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6125,6 +6400,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A00932CDC29D4606AE899C52FF8AAA15"
+            {
+            "SourcePath" = "8:SrcInstall.sln"
+            "TargetName" = "8:SrcInstall.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_8270F24A88D14546BCE236795B38B199"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A02F939DB8284C52A4970C3D28D31225"
             {
             "SourcePath" = "8:..\\Common\\XmlWrapU.cpp"
@@ -6171,6 +6466,26 @@
             "TargetName" = "8:LFO.h"
             "Tag" = "8:"
             "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2E0FC2FF9E2415A84A61AC01439F893"
+            {
+            "SourcePath" = "8:..\\Common\\tinyxml\\changes.txt"
+            "TargetName" = "8:changes.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_50928941363641B58C1175245490922D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6765,12 +7080,92 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C0B04AC1EF5E4E6DA9957CFBFCBF304D"
+            {
+            "SourcePath" = "8:..\\Common\\tinyxml\\readme.txt"
+            "TargetName" = "8:readme.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_50928941363641B58C1175245490922D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C14471536B504EDCB577E5B3F8F1F842"
+            {
+            "SourcePath" = "8:..\\..\\Documents\\Structure.jpg"
+            "TargetName" = "8:Structure.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_03CAE5BB8FD045B38C29262F1866A306"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2C83ED487424844971F1AA0147402A7"
             {
             "SourcePath" = "8:..\\Utilities\\WaveformExplorer\\AboutDlg.h"
             "TargetName" = "8:AboutDlg.h"
             "Tag" = "8:"
             "Folder" = "8:_F314B6D9D74C46E1BCBC26E4558D9BF3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2D996CFBADD4D3BABCE7B376033EEC7"
+            {
+            "SourcePath" = "8:..\\..\\Documents\\architecture.jpg"
+            "TargetName" = "8:architecture.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_03CAE5BB8FD045B38C29262F1866A306"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C3A80C8497FD47C8AD5AF291C7215554"
+            {
+            "SourcePath" = "8:..\\..\\Include\\tinyxml.h"
+            "TargetName" = "8:tinyxml.h"
+            "Tag" = "8:"
+            "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7005,6 +7400,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDD4653BA7F4408DA50FF4F0DD877070"
+            {
+            "SourcePath" = "8:..\\BSynth\\tsttonesynth.nl"
+            "TargetName" = "8:tsttonesynth.nl"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDDE509BBF4243648414C75DC5EA99E1"
             {
             "SourcePath" = "8:..\\Utilities\\ReverbExplorer\\res\\play.ico"
@@ -7191,6 +7606,26 @@
             "TargetName" = "8:waveform.bmp"
             "Tag" = "8:"
             "Folder" = "8:_BF48E45E94704BB08895982F338B80AB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA35D238648C4211BB0D2E89586710E0"
+            {
+            "SourcePath" = "8:..\\..\\Documents\\sequencer.jpg"
+            "TargetName" = "8:sequencer.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_03CAE5BB8FD045B38C29262F1866A306"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7865,6 +8300,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F490712AD4EA4924A9F797FFE2A06073"
+            {
+            "SourcePath" = "8:..\\Common\\XmlWrapT.cpp"
+            "TargetName" = "8:XmlWrapT.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_CF3557AED3954329B58501BEE3A14773"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F5556F9475044BBEB2CC3716122A54EA"
             {
             "SourcePath" = "8:..\\Utilities\\FMExplorer\\FMExplorer.h"
@@ -8504,6 +8959,17 @@
                                     }
                                 }
                             }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_8270F24A88D14546BCE236795B38B199"
+                            {
+                            "Name" = "8:SrcInstall"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_F460FE07073E4AB38F572F236075D725"
+                                "Folders"
+                                {
+                                }
+                            }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_CF3557AED3954329B58501BEE3A14773"
                             {
                             "Name" = "8:Common"
@@ -8513,6 +8979,17 @@
                             "Property" = "8:_E8972BF529BE49259E15CB2F8E269B7B"
                                 "Folders"
                                 {
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_50928941363641B58C1175245490922D"
+                                    {
+                                    "Name" = "8:tinyxml"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_7CEB1280A3404890910812ED44109336"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -8613,7 +9090,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth"
         "ProductCode" = "8:{42F3A5AE-5162-459C-88A1-3E8C295BB185}"
-        "PackageCode" = "8:{65555306-9763-4BAF-847E-5B0110A31B23}"
+        "PackageCode" = "8:{E8998EA2-2E03-46B0-BFF0-D3874C879392}"
         "UpgradeCode" = "8:{865019E4-B125-4E69-B245-40B51A725EB2}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -8627,7 +9104,7 @@
         "Subject" = "8:"
         "ARPCONTACT" = "8:Daniel R. Mitchell"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:BasicSynth source code"
+        "ARPCOMMENTS" = "8:Source code and documentation to BasicSynth."
         "ARPURLINFOABOUT" = "8:http://basicsynth.com"
         "ARPPRODUCTICON" = "8:_AC4749E6D9974BBF807BC5B335C1702B"
         "ARPIconIndex" = "3:0"

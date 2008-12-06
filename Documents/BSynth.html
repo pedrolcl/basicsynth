@@ -1,44 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-<html>
-
-<head>
-<title>BSynth Synthesizer</title>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-<meta name="author" content="Daniel Mitchell">
-<meta name="keywords" content="synthesizers, electronic music, music notation">
-</head>
-
-<style>
-<!--
- /* Style Definitions */
-h1
-	{margin-right:0in;
-	margin-left:0in;
-	font-family:"Arial";}
-h2
-	{margin-right:0in;
-	margin-left:0in;
-	font-family:"Arial";}
-p
-	{margin-top:.25in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:0in;
-	margin-bottom:.0001pt;
-	text-align:justify;
-	font-family:"Times New Roman";}
--->
-</style>
-
-<body style="padding: 15px 40px 15px 30px;" lang="en-us">
-
-<h1>BSynth</h1>
-
 <p><em>BSynth</em> is a command line program that implements a complete synthesizer using the 
-<em>BasicSynth</em> <a href="Library.html"><em>Common</em></a>, <a href="Instruments.html"><em>Instrument</em></a>, and
-<a href="Notelist.html"><em>Notelist</em></a> libraries.
+<em>BasicSynth</em> <em>Common</em>, <em>Instrument</em>, and <em>Notelist</em> libraries.
 <em>BSynth</em> takes a single command line argument that specifies a project file containing instrument configurations and 
-<a href="Notelist.html"><em>Notelist</em></a> scripts, and produces a .WAV file as output. 
+<em>Notelist</em> scripts, and produces a .WAV file as output. 
 An optional argument (-s) turns off output to the console while the program is running.</p>
 
 <p style="padding-left:0.25in;">BSynth [-s] <em>project.xml</em></p>
@@ -81,6 +44,9 @@ about the composition, synthesizer settings, instrument definitions, score files
 &lt;/synthprj&gt;
 </pre>
 
+<p>The <em>Bin</em> directory contains an example project, <em>jig.xml</em> and associated score file <em>jig.nl</em>.</p>
+
+
 <table border=1 style="border:solid black 1.0pt;" >
 <tr style='background:#CCC;border:solid black 1.0pt;'><th>
 Tag</th><th>Attribute</th><th>Use</th></tr>
@@ -122,7 +88,7 @@ Tag</th><th>Attribute</th><th>Use</th></tr>
 <tr><td>libdir</td><td>&nbsp;</td><td>Path to libraries</td></tr>
 <tr><td>libfile</td><td>&nbsp;</td><td>Instrument library</td></tr>
 <tr><td>instrlib</td><td>&nbsp;</td><td>In-line instrument library</td></tr>
-<tr><td>instr</td><td>*</td><td>See the definition of each instrument in the <a href="Instruments.html">Instrument Library</a></td></tr>
+<tr><td>instr</td><td>*</td><td>See the definition of each instrument in the >Instrument Library</td></tr>
 <tr><td>seq</td><td>&nbsp;</td><td>A sequencer file, may be path relative to a libdir entry</td></tr>
 <tr><td>&nbsp;</td><td>name</td><td>Display name for the file</td></tr>
 <tr><td>score</td><td>&nbsp;</td><td>A Notelist file, may be path relative to a libdir entry</td></tr>
@@ -143,19 +109,3 @@ processing score or sequence files. The <em>BSynth</em> program insures the prop
 of the project file. The first scan looks for synth and mixer nodes. The second scan loads instruments and 
 instrument libraries. The third scan processes score and sequence files.</p>
 
-<p>The <em>Bin</em> directory contains an example project, <em>jig.xml</em> and associated score file <em>jig.nl</em>.</p>
-
-<!-- Creative Commons License -->
-
-<p>
-<a href="http://creativecommons.org/licenses/GPL/2.0/">
-<span style='text-decoration:none'>
-<img border=0 width=88 height=62 src="http://creativecommons.org/images/public/cc-GPL-a.png" alt="CC-GNU GPL">
-</span></a><br>
-The <em>BasicSynth</em> library, instrument library, example and utility
-programs are licensed under the <a href="http://creativecommons.org/licenses/GPL/2.0/">CC-GNU GPL</a>.
-</p>
-
-</body>
-
-</html>
