@@ -56,12 +56,9 @@ class InstrConfig;
 /// the instrument needs. The event is passed to the instrument
 /// for the START or PARAM signals.
 ///
-/// A parameter number is a monotonically increasing value that
-/// is an index into the array of parameters. A parameter ID value
-/// is the actual value used by the instrument to identify the 
-/// parameter. For a fixed number of parameters, the two values
-/// are the same. For variable number of parameters, the index and ID
-/// will usually be different.
+/// A parameter ID value is the value used by the instrument
+/// to identify the parameter. The first five parameter IDs
+/// (P_INUM-P_XTRA) are reserved for the sequencer.
 ///////////////////////////////////////////////////////////
 class SeqEvent : public SynthList<SeqEvent>
 {
@@ -135,6 +132,33 @@ public:
 	{
 		SetParam(id, (float) atof(s));
 	}
+
+	virtual float GetParam(bsInt16 id)
+	{
+		switch (id)
+		{
+		case P_INUM:
+			return (float) inum;
+		case P_CHNL:
+			return (float) chnl;
+		case P_START:
+			return (float) start / synthParams.sampleRate;
+		case P_DUR:
+			return (float) duration / synthParams.sampleRate;
+		case P_XTRA:
+			return (float) xtra;
+		}
+		return 0;
+	}
+
+	virtual void Reset()
+	{
+		inum = 0;
+		chnl = 0;
+		start = 0;
+		duration = 0;
+		xtra = 0;
+	}
 };
 
 /// The pitch value (0-127)
@@ -192,6 +216,23 @@ public:
 			break;
 		}
 	}
+
+	virtual float GetParam(bsInt16 id)
+	{
+		switch (id)
+		{
+		case P_PITCH:
+			return (float) pitch;
+			break;
+		case P_FREQ:
+			return (float) frq;
+			break;
+		case P_VOLUME:
+			return (float) vol;
+			break;
+		}
+		return SeqEvent::GetParam(id);
+	}
 };
 
 
@@ -200,9 +241,8 @@ public:
 /// Instruments that have variable number of parameters,
 /// or have a very large number of parameters, can use
 /// VarParamEvent as a class for events. The event
-/// factory should set the maxParam member to the number
-/// of unique parameters, not the maximum instrument parameter
-/// ID value. 
+/// factory should set the maxParam member to the largest
+/// possible ID value. 
 /// @sa SeqEvent
 ///////////////////////////////////////////////////////////
 class VarParamEvent : public NoteEvent
@@ -271,7 +311,7 @@ public:
 	{
 		if (id <= NoteEvent::MaxParam())
 			NoteEvent::SetParam(id, v);
-		else if (id < maxParam)
+		else if (id <= maxParam)
 		{
 			if (numParam >= allParam)
 			{
@@ -282,6 +322,22 @@ public:
 			valParam[numParam] = v;
 			numParam++;
 		}
+	}
+
+	void Reset()
+	{
+		numParam = 0;
+	}
+
+	float GetParam(bsInt16 id)
+	{
+		bsInt16 *pp = idParam;
+		for (int n = 0; n < numParam; n++, pp++)
+		{
+			if (*pp == id)
+				return valParam[n];
+		}
+		return NoteEvent::GetParam(id);
 	}
 };
 //@}
