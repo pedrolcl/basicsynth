@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_00740B741B6E4306AFFDAED102349BBD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_01305EEEAED446039602BA6D95B025A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -22,6 +28,12 @@
         "Entry"
         {
         "MsmKey" = "8:_01395A8AA9A0499988F0705D6ADA7688"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_01EE8F4126614447949DEE6EF10B9791"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -40,6 +52,12 @@
         "Entry"
         {
         "MsmKey" = "8:_0271FF5CE5E648B5BE460D7D47C3E69B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0432BDD07BFF4014BDF019CCA2F34FC1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -105,6 +123,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_09854F67AB6540D18339360F0C991BBC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0AE7D011C5584D8793D7CFB1809BBD25"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -153,6 +177,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0E098A066BC54465AFF52879503BF15C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0E2DA218435B431CB07DBE2A859E0DD4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -166,6 +196,12 @@
         "Entry"
         {
         "MsmKey" = "8:_100550B9095B4A2F8A51CF094419F6CF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_10ACE67BEF51402D8DCBFE6EBF3C95CA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -207,6 +243,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1553C674C7BA4638850CD4F21C1188F9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_159486FAA24945DE95D9F2137126F0D8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_15C25B1B878A41F3A719F1C4BCFA2F05"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -225,7 +273,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_180528745F9B4AAC8314801B476F2A17"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_18C02720C0F742C58F5ECE1F564AEC72"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1A600540E59941BAAE0A886C9311ADE3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -327,6 +387,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_27BE835B44D745739D04DD49E38C0F09"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_28825CBF031546B48FE2F0E1D958388F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -346,6 +412,24 @@
         "Entry"
         {
         "MsmKey" = "8:_28CFD067381D4722B5A98611BEED3801"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_295E432798B3456C916847763DE191B4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_29A02ECDB1554C6FBAF7141B713527F5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_29DE30F1E6FD4A6F91B9FE41E6B25CB6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -382,6 +466,12 @@
         "Entry"
         {
         "MsmKey" = "8:_2F67097FDFFE4909B536DF1E2B412121"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2F9C213D5BFC4BB0A84C72E171F06FA4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -471,13 +561,31 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3A27FEDC5D7F4B8A9E1FF4F2ED348A8B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3AB350908415428FB530C15395765339"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_3AEEE95257244E32BCA9B130AD599CBA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3B0FF710E7344DE28F4A81B3FC8FF1E9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3B2E15558D8C47689BC6B56FCBFC8D63"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -490,6 +598,12 @@
         "Entry"
         {
         "MsmKey" = "8:_3DB2E6DC6F834B02B113F34AB466A3BE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_40F67F828CC9438FA85DF7BA986897D8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -687,6 +801,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_519F8525693248FCA3F889C729C6BDD7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_51BDD1A4C34941FAB72051256F2C2500"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_51D179DAB88F4FB281D39F0E727F6459"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -717,6 +843,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_544491F6A970437E847B43EEFC0AA7AE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5481FF6114E348739FB0B103CB6D4420"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -735,6 +867,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_54C8F8B997614692B164C71EDA594AAA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_56703AD3C35D4CA58B2AF23E20FD594E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -742,6 +880,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5708FD5702D54559994E2E0EA16685B2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_589277882AFF4FD592E945C58EB5CF6F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -766,6 +910,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5BE58759C1104B0F9328E5137D5E1B4A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5C08617550894CE79A720E4C15014A9B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -885,6 +1035,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_65F3DA799D204244A3A583C50AB79A50"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_65FB2C6074AA4ABDB1E36F4D9F9DD814"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -922,6 +1078,12 @@
         "Entry"
         {
         "MsmKey" = "8:_69DE3B97683B4E4784A0D0C5227F0890"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6A269535ED6E4EDE866B2039D0CB2F45"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -981,6 +1143,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6FBDC14CB42D42C8BB85F477B0416211"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_70A6C7823DC24DA888ED411BC7EA0AC8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1011,13 +1179,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_737FF1336D4C4DA98CF4392CD5429515"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7444B8EAC13847129D01F9C880BFDF2B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_75C58518A8E44C8F933457A423566264"
+        "MsmKey" = "8:_74D79E09073A4A37AB8D53FCA1C14BFF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1047,7 +1221,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_790F64580C2A4BA8A83E05E994525D9C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_799A821CFFCE4953A5308DCFFBE09445"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_79AC9F5EFF8549E7AB7F7B2A6CD2F1F7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7A4A35345A9E491C8E6A990C4DB72278"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1066,6 +1258,24 @@
         "Entry"
         {
         "MsmKey" = "8:_7BB416D267E6460B99B0C47285BA8C42"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BDC32AED12749378D45F90A3128D2F9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7D7933FF78F04AF387B57AB797B705FF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7D8ECEE7997140ACB4B7CC7E46D5AFFA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1221,6 +1431,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9058291BF2BF47BB8B374853D64C0324"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_90C920EB3F144E659421880316B8DC09"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1245,6 +1461,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_939DC60E142C4E188E23AED325A6CF06"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_95701F44FB2B4CCCA2714AE413859EA3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1264,6 +1486,12 @@
         "Entry"
         {
         "MsmKey" = "8:_996680B541CD400A92A403DE6C967146"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9A1CA2B6B8A5406491783350853A9929"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1329,6 +1557,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A16D39B2E31241928E3D46697C93758E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A1A2D6EB2B0E498A9247843F4B423E4F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1348,6 +1582,12 @@
         "Entry"
         {
         "MsmKey" = "8:_A2F17B04F9044B8B8A4FDBDEA1A4BB91"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A3414A5892D3462E89586D6BFB1843A1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1390,6 +1630,24 @@
         "Entry"
         {
         "MsmKey" = "8:_ACAABE93B07749E3BA5683D0A845321D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AD9FCAD0FF8F4740879BA376D425B690"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AE14DD84874042DF94BC441A4EF350F4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AE1D8E0756534F7B904DD9BA9737B532"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1455,6 +1713,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B3FF44EF95A34445AE07992057873A29"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B45A17968E814F3087C3D827D1B84812"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1509,6 +1773,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BF1F1918E2E841A885ADC33F0461F514"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BF4754B7ED784913A5B689F9C008AF15"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1516,6 +1786,12 @@
         "Entry"
         {
         "MsmKey" = "8:_BF8FE9E13E364756B93EFE11C178A080"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C09A11677BB349ADBB5E349FEFCE6033"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1563,6 +1839,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C6A1BF2F5274421AB83015EA2DF72A12"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C6D74EBD8BD14D77A45DA582B79EB974"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1605,7 +1887,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CCBB07B961D74081B81397EBFA1440D0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CD0AB2EE2E00454FAE42E795DBF835DC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CD3AE0E9ED224CBDAC9492E700FF0BE0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1630,6 +1924,12 @@
         "Entry"
         {
         "MsmKey" = "8:_CE163C0B839748C5AB23FD22C42F88B0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CEA2D92BDC244C0FA6017C8AB3CE4516"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1671,6 +1971,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D658D6E233C44C27B96BE7737DFA6CC1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D6C482CAABFF405494A3071844AD7068"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1696,6 +2002,12 @@
         "Entry"
         {
         "MsmKey" = "8:_DBEE7AA667CA421EB091CFA11CF56C0A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DC2B39F7C582484FA1847E4E31258EEE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1743,6 +2055,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E080EC7DBFFA4EBEAE945930087138F1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E08A44D166024E6A87AE2C0DA77AD723"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1750,6 +2068,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E0E18BA8AD33496AADBE2D1B30F27B6D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E1C22F0B35744D6281EEA6DCBB541B56"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1785,6 +2109,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E69C4776F11E4ACF87DDC6B27030675C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E6EA111456B4498EBED2698F3F0328F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1798,6 +2128,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E8341FB9F2944FE9BCB07B9FDCB9F502"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EA84A2B022DF473085BA34F2B74A40A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1821,6 +2157,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EB48AA619B094DAD94F91A55F08689C2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_ED47108D033845B48C60BEC94310BDEA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1828,6 +2170,12 @@
         "Entry"
         {
         "MsmKey" = "8:_EDA2B4E3397D46FE811EEA799EAB33C0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EE3E5B14182E4817A68F0C612185FD52"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1905,6 +2253,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F69FF257BF2040929BB8B67E1E9FE2F4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F6B23A40510F4F4897A8C7FF9BCAFDC0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F6E0C10C0E8B4F4BAEC39DC66E88B3B3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1941,6 +2301,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FBBC1E501C024A9892673D3D4319F091"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FC7A51AE0C4046058233D64E9CB6EF70"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1948,6 +2314,12 @@
         "Entry"
         {
         "MsmKey" = "8:_FD3FC635848C46159D5099925DB48A44"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FDACB3B864E945D48314BDDC89F42914"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2060,6 +2432,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00740B741B6E4306AFFDAED102349BBD"
+            {
+            "SourcePath" = "8:..\\Examples\\Example08\\Example08-2005.vcproj"
+            "TargetName" = "8:Example08-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_D5C3B08E4D314DDC878CC5E9624A2C9F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_01305EEEAED446039602BA6D95B025A8"
             {
             "SourcePath" = "8:..\\Utilities\\VirtualKBD\\KbdWindow.h"
@@ -2086,6 +2478,26 @@
             "TargetName" = "8:Parser.h"
             "Tag" = "8:"
             "Folder" = "8:_33DB14F029A44507B60A2BBE81D26834"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_01EE8F4126614447949DEE6EF10B9791"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments2005.vcproj"
+            "TargetName" = "8:Instruments2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2146,6 +2558,26 @@
             "TargetName" = "8:StdAfx.cpp"
             "Tag" = "8:"
             "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0432BDD07BFF4014BDF019CCA2F34FC1"
+            {
+            "SourcePath" = "8:..\\BSynth\\BSynth2005.vcproj"
+            "TargetName" = "8:BSynth2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2360,6 +2792,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_09854F67AB6540D18339360F0C991BBC"
+            {
+            "SourcePath" = "8:..\\Examples\\Example10\\Example10-2005.vcproj"
+            "TargetName" = "8:Example10-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_BE1542531D534808AE33A1A0832C4A54"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AE7D011C5584D8793D7CFB1809BBD25"
             {
             "SourcePath" = "8:..\\Utilities\\Install\\Install.vdproj"
@@ -2520,6 +2972,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E098A066BC54465AFF52879503BF15C"
+            {
+            "SourcePath" = "8:..\\Utilities\\VirtualKBD\\VirtualKBD2005.vcproj"
+            "TargetName" = "8:VirtualKBD2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_FEE7109AF47C4832A457454B60B4AFC6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E2DA218435B431CB07DBE2A859E0DD4"
             {
             "SourcePath" = "8:..\\Utilities\\VirtualKBD\\Project.h"
@@ -2566,6 +3038,26 @@
             "TargetName" = "8:FMExplorer.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_B8F4289F9B3949BD9CB547F63FB0EE0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_10ACE67BEF51402D8DCBFE6EBF3C95CA"
+            {
+            "SourcePath" = "8:..\\Common\\Common2005.vcproj"
+            "TargetName" = "8:Common2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_CF3557AED3954329B58501BEE3A14773"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2700,6 +3192,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1553C674C7BA4638850CD4F21C1188F9"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07a\\Example07a-2005.vcproj"
+            "TargetName" = "8:Example07a-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_2C50EE84D6034D39880E450F5308E50F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_159486FAA24945DE95D9F2137126F0D8"
+            {
+            "SourcePath" = "8:..\\Examples\\Example04\\Example04.dsp"
+            "TargetName" = "8:Example04.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_648AE8345BFA44DEBFB60E4564A49E5A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15C25B1B878A41F3A719F1C4BCFA2F05"
             {
             "SourcePath" = "8:..\\..\\Include\\DelayLine.h"
@@ -2760,12 +3292,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_180528745F9B4AAC8314801B476F2A17"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments2005.sln"
+            "TargetName" = "8:Instruments2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_33DB14F029A44507B60A2BBE81D26834"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18C02720C0F742C58F5ECE1F564AEC72"
             {
             "SourcePath" = "8:..\\..\\Include\\GenWave.h"
             "TargetName" = "8:GenWave.h"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A600540E59941BAAE0A886C9311ADE3"
+            {
+            "SourcePath" = "8:..\\Examples\\Example06\\Example06.dsp"
+            "TargetName" = "8:Example06.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_EA4EC8C4F67C4EDABB9BDF2509FC6515"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3100,6 +3672,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27BE835B44D745739D04DD49E38C0F09"
+            {
+            "SourcePath" = "8:..\\Examples\\Example02\\Example02-2005.vcproj"
+            "TargetName" = "8:Example02-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_29B9DD2E197F4A0699D403D37868C9CF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_28825CBF031546B48FE2F0E1D958388F"
             {
             "SourcePath" = "8:..\\..\\Documents\\bias1.jpg"
@@ -3166,6 +3758,66 @@
             "TargetName" = "8:XMLSelection.vsprops"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_295E432798B3456C916847763DE191B4"
+            {
+            "SourcePath" = "8:..\\Examples\\Examples-2005.sln"
+            "TargetName" = "8:Examples-2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_6490724AD26D4AC0BD7E0240D0C09D7B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29A02ECDB1554C6FBAF7141B713527F5"
+            {
+            "SourcePath" = "8:..\\Utilities\\ReverbExplorer\\ReverbExplorer2005.vcproj"
+            "TargetName" = "8:ReverbExplorer2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_694817F3C9E8410ABA34959E2D4EDA65"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29DE30F1E6FD4A6F91B9FE41E6B25CB6"
+            {
+            "SourcePath" = "8:..\\BSynth\\BSynth2005.sln"
+            "TargetName" = "8:BSynth2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3286,6 +3938,26 @@
             "TargetName" = "8:Docpages.h"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F9C213D5BFC4BB0A84C72E171F06FA4"
+            {
+            "SourcePath" = "8:..\\Utilities\\VirtualKBD\\VirtualKBD2005.sln"
+            "TargetName" = "8:VirtualKBD2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_FEE7109AF47C4832A457454B60B4AFC6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3580,6 +4252,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A27FEDC5D7F4B8A9E1FF4F2ED348A8B"
+            {
+            "SourcePath" = "8:..\\Examples\\Example02a\\Example02a-2005.vcproj"
+            "TargetName" = "8:Example02a-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_1C6100A229164B71B7668434A33EFFB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AB350908415428FB530C15395765339"
             {
             "SourcePath" = "8:..\\BSynth\\tstaddsynth.xml"
@@ -3600,12 +4292,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AEEE95257244E32BCA9B130AD599CBA"
+            {
+            "SourcePath" = "8:..\\Utilities\\FlangerExplorer\\FlangerExplorer.dsp"
+            "TargetName" = "8:FlangerExplorer.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_F8E033ABCC554EF3802F89988C69C12E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B0FF710E7344DE28F4A81B3FC8FF1E9"
             {
             "SourcePath" = "8:..\\Examples\\Example07a\\Example07a.vcproj"
             "TargetName" = "8:Example07a.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_2C50EE84D6034D39880E450F5308E50F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B2E15558D8C47689BC6B56FCBFC8D63"
+            {
+            "SourcePath" = "8:..\\Examples\\Example10\\Example10.dsp"
+            "TargetName" = "8:Example10.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_BE1542531D534808AE33A1A0832C4A54"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3646,6 +4378,26 @@
             "TargetName" = "8:WaveformExplorer.rc"
             "Tag" = "8:"
             "Folder" = "8:_F314B6D9D74C46E1BCBC26E4558D9BF3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40F67F828CC9438FA85DF7BA986897D8"
+            {
+            "SourcePath" = "8:..\\BSynth\\BSynth.dsp"
+            "TargetName" = "8:BSynth.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4300,6 +5052,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_519F8525693248FCA3F889C729C6BDD7"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07\\Example07-2005.vcproj"
+            "TargetName" = "8:Example07-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_0AA8F1CAB6C04694A43514FBAA4D72C6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51BDD1A4C34941FAB72051256F2C2500"
+            {
+            "SourcePath" = "8:..\\Examples\\Example08\\Example08.dsp"
+            "TargetName" = "8:Example08.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_D5C3B08E4D314DDC878CC5E9624A2C9F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51D179DAB88F4FB281D39F0E727F6459"
             {
             "SourcePath" = "8:..\\..\\Doxygen\\Doxyfile.txt"
@@ -4400,6 +5192,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_544491F6A970437E847B43EEFC0AA7AE"
+            {
+            "SourcePath" = "8:..\\Utilities\\VirtualKBD\\VirtualKBD.dsp"
+            "TargetName" = "8:VirtualKBD.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_FEE7109AF47C4832A457454B60B4AFC6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5481FF6114E348739FB0B103CB6D4420"
             {
             "SourcePath" = "8:..\\Utilities\\WaveformExplorer\\WavePlot.h"
@@ -4460,6 +5272,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_54C8F8B997614692B164C71EDA594AAA"
+            {
+            "SourcePath" = "8:..\\Examples\\Example05\\Example05-2005.vcproj"
+            "TargetName" = "8:Example05-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_206AA5571D0D4A0DBE9120F5FBD21BFA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_56703AD3C35D4CA58B2AF23E20FD594E"
             {
             "SourcePath" = "8:..\\BasicSynth.sln"
@@ -4486,6 +5318,26 @@
             "TargetName" = "8:main.cpp"
             "Tag" = "8:"
             "Folder" = "8:_1D233DAC9F7F4733BC2E8C9D0C79D1F8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_589277882AFF4FD592E945C58EB5CF6F"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments.dsp"
+            "TargetName" = "8:Instruments.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_33DB14F029A44507B60A2BBE81D26834"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4566,6 +5418,26 @@
             "TargetName" = "8:Example02b.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_36F5A02B7D094F83B86C936E5D4002D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5C08617550894CE79A720E4C15014A9B"
+            {
+            "SourcePath" = "8:..\\BasicSynth2005.sln"
+            "TargetName" = "8:BasicSynth2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_13644FD49A58401B9321084B2C121B26"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4960,6 +5832,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65F3DA799D204244A3A583C50AB79A50"
+            {
+            "SourcePath" = "8:..\\Examples\\Example03\\Example03.dsp"
+            "TargetName" = "8:Example03.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_4EF8B44C89BF4AD082C3964A1936393E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65FB2C6074AA4ABDB1E36F4D9F9DD814"
             {
             "SourcePath" = "8:..\\Examples\\Example08\\Example08.vcproj"
@@ -5086,6 +5978,26 @@
             "TargetName" = "8:kbd.bmp"
             "Tag" = "8:"
             "Folder" = "8:_D7EF83E5A2EC458790660486C7FD0C65"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A269535ED6E4EDE866B2039D0CB2F45"
+            {
+            "SourcePath" = "8:..\\Examples\\Example05\\Example05.dsp"
+            "TargetName" = "8:Example05.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_206AA5571D0D4A0DBE9120F5FBD21BFA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5280,6 +6192,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6FBDC14CB42D42C8BB85F477B0416211"
+            {
+            "SourcePath" = "8:..\\Utilities\\FMExplorer\\FMExplorer.dsp"
+            "TargetName" = "8:FMExplorer.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_B8F4289F9B3949BD9CB547F63FB0EE0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70A6C7823DC24DA888ED411BC7EA0AC8"
             {
             "SourcePath" = "8:..\\Utilities\\FMExplorer\\res\\wvfile.ico"
@@ -5380,6 +6312,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_737FF1336D4C4DA98CF4392CD5429515"
+            {
+            "SourcePath" = "8:..\\BSynth\\BSynth.dsw"
+            "TargetName" = "8:BSynth.dsw"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7444B8EAC13847129D01F9C880BFDF2B"
             {
             "SourcePath" = "8:..\\Utilities\\WaveformExplorer\\WaveformExplorer.vcproj"
@@ -5400,12 +6352,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75C58518A8E44C8F933457A423566264"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74D79E09073A4A37AB8D53FCA1C14BFF"
             {
-            "SourcePath" = "8:..\\..\\Documents\\Library.html"
-            "TargetName" = "8:Library.html"
+            "SourcePath" = "8:..\\Examples\\Example04\\Example04-2005.vcproj"
+            "TargetName" = "8:Example04-2005.vcproj"
             "Tag" = "8:"
-            "Folder" = "8:_03CAE5BB8FD045B38C29262F1866A306"
+            "Folder" = "8:_648AE8345BFA44DEBFB60E4564A49E5A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5500,12 +6452,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_790F64580C2A4BA8A83E05E994525D9C"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments2005.sln"
+            "TargetName" = "8:Instruments2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_799A821CFFCE4953A5308DCFFBE09445"
             {
             "SourcePath" = "8:..\\Instruments\\FMSynth.h"
             "TargetName" = "8:FMSynth.h"
             "Tag" = "8:"
             "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_79AC9F5EFF8549E7AB7F7B2A6CD2F1F7"
+            {
+            "SourcePath" = "8:..\\Examples\\Example01\\Example01-2005.vcproj"
+            "TargetName" = "8:Example01-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_8AD4A3E1EF3E496DA03799A5F45976D4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7A4A35345A9E491C8E6A990C4DB72278"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07c\\Example07c-2005.vcproj"
+            "TargetName" = "8:Example07c-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_DC8EB99138AC4105A0D08094F2177660"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5566,6 +6578,66 @@
             "TargetName" = "8:tinyxml.cpp"
             "Tag" = "8:"
             "Folder" = "8:_50928941363641B58C1175245490922D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7BDC32AED12749378D45F90A3128D2F9"
+            {
+            "SourcePath" = "8:..\\Utilities\\WaveformExplorer\\WaveformExplorer.dsp"
+            "TargetName" = "8:WaveformExplorer.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_F314B6D9D74C46E1BCBC26E4558D9BF3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D7933FF78F04AF387B57AB797B705FF"
+            {
+            "SourcePath" = "8:..\\Utilities\\Utilities.dsw"
+            "TargetName" = "8:Utilities.dsw"
+            "Tag" = "8:"
+            "Folder" = "8:_5B9AE9AF35C64FABAE473FF83E941134"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D8ECEE7997140ACB4B7CC7E46D5AFFA"
+            {
+            "SourcePath" = "8:..\\Examples\\Examples.dsw"
+            "TargetName" = "8:Examples.dsw"
+            "Tag" = "8:"
+            "Folder" = "8:_6490724AD26D4AC0BD7E0240D0C09D7B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6080,6 +7152,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9058291BF2BF47BB8B374853D64C0324"
+            {
+            "SourcePath" = "8:..\\Utilities\\FMExplorer\\FMExplorer2005.vcproj"
+            "TargetName" = "8:FMExplorer2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_B8F4289F9B3949BD9CB547F63FB0EE0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90C920EB3F144E659421880316B8DC09"
             {
             "SourcePath" = "8:..\\Utilities\\ReverbExplorer\\MainDlg.cpp"
@@ -6160,6 +7252,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_939DC60E142C4E188E23AED325A6CF06"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07b\\Example07b-2005.vcproj"
+            "TargetName" = "8:Example07b-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_1D233DAC9F7F4733BC2E8C9D0C79D1F8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_95701F44FB2B4CCCA2714AE413859EA3"
             {
             "SourcePath" = "8:..\\Utilities\\ReverbExplorer\\res\\help.txt"
@@ -6226,6 +7338,26 @@
             "TargetName" = "8:tsttonesynth.xml"
             "Tag" = "8:"
             "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A1CA2B6B8A5406491783350853A9929"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07c\\Example07c.dsp"
+            "TargetName" = "8:Example07c.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_DC8EB99138AC4105A0D08094F2177660"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6440,6 +7572,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A16D39B2E31241928E3D46697C93758E"
+            {
+            "SourcePath" = "8:..\\Examples\\Example09\\Example09.dsp"
+            "TargetName" = "8:Example09.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_8FFE30D169E04AAC9E2CE6C224C011A0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A1A2D6EB2B0E498A9247843F4B423E4F"
             {
             "SourcePath" = "8:..\\Utilities\\VirtualKBD\\Project.cpp"
@@ -6506,6 +7658,26 @@
             "TargetName" = "8:loop.ico"
             "Tag" = "8:"
             "Folder" = "8:_BF48E45E94704BB08895982F338B80AB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A3414A5892D3462E89586D6BFB1843A1"
+            {
+            "SourcePath" = "8:..\\Utilities\\WaveformExplorer\\WaveformExplorer2005.vcproj"
+            "TargetName" = "8:WaveformExplorer2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_F314B6D9D74C46E1BCBC26E4558D9BF3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6646,6 +7818,66 @@
             "TargetName" = "8:VirtualKBD.rc"
             "Tag" = "8:"
             "Folder" = "8:_FEE7109AF47C4832A457454B60B4AFC6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD9FCAD0FF8F4740879BA376D425B690"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07b\\Example07b.dsp"
+            "TargetName" = "8:Example07b.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_1D233DAC9F7F4733BC2E8C9D0C79D1F8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AE14DD84874042DF94BC441A4EF350F4"
+            {
+            "SourcePath" = "8:..\\Utilities\\FlangerExplorer\\FlangerExplorer2005.vcproj"
+            "TargetName" = "8:FlangerExplorer2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_F8E033ABCC554EF3802F89988C69C12E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AE1D8E0756534F7B904DD9BA9737B532"
+            {
+            "SourcePath" = "8:..\\Examples\\Example03\\Example03-2005.vcproj"
+            "TargetName" = "8:Example03-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_4EF8B44C89BF4AD082C3964A1936393E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6860,6 +8092,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B3FF44EF95A34445AE07992057873A29"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments.dsw"
+            "TargetName" = "8:Instruments.dsw"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B45A17968E814F3087C3D827D1B84812"
             {
             "SourcePath" = "8:..\\Instruments\\MatrixSynth.h"
@@ -7040,6 +8292,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF1F1918E2E841A885ADC33F0461F514"
+            {
+            "SourcePath" = "8:..\\Examples\\Example02a\\Example02a.dsp"
+            "TargetName" = "8:Example02a.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_1C6100A229164B71B7668434A33EFFB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF4754B7ED784913A5B689F9C008AF15"
             {
             "SourcePath" = "8:..\\Utilities\\FMExplorer\\res\\delta.bmp"
@@ -7066,6 +8338,26 @@
             "TargetName" = "8:main.cpp"
             "Tag" = "8:"
             "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C09A11677BB349ADBB5E349FEFCE6033"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments.dsw"
+            "TargetName" = "8:Instruments.dsw"
+            "Tag" = "8:"
+            "Folder" = "8:_33DB14F029A44507B60A2BBE81D26834"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7220,6 +8512,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C6A1BF2F5274421AB83015EA2DF72A12"
+            {
+            "SourcePath" = "8:..\\Utilities\\ReverbExplorer\\ReverbExplorer.dsp"
+            "TargetName" = "8:ReverbExplorer.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_694817F3C9E8410ABA34959E2D4EDA65"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C6D74EBD8BD14D77A45DA582B79EB974"
             {
             "SourcePath" = "8:..\\Notelist\\Generate.h"
@@ -7360,12 +8672,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CCBB07B961D74081B81397EBFA1440D0"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments.dsp"
+            "TargetName" = "8:Instruments.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD0AB2EE2E00454FAE42E795DBF835DC"
             {
             "SourcePath" = "8:..\\..\\Include\\GenWave64.h"
             "TargetName" = "8:GenWave64.h"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD3AE0E9ED224CBDAC9492E700FF0BE0"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07a\\Example07a.dsp"
+            "TargetName" = "8:Example07a.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_2C50EE84D6034D39880E450F5308E50F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7446,6 +8798,26 @@
             "TargetName" = "8:Utilities.sln"
             "Tag" = "8:"
             "Folder" = "8:_5B9AE9AF35C64FABAE473FF83E941134"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CEA2D92BDC244C0FA6017C8AB3CE4516"
+            {
+            "SourcePath" = "8:..\\BSynth\\testprj.wav"
+            "TargetName" = "8:testprj.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_000A79B1DA4A474A9DE649748230BBA9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7580,6 +8952,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D658D6E233C44C27B96BE7737DFA6CC1"
+            {
+            "SourcePath" = "8:..\\Examples\\Example06\\Example06-2005.vcproj"
+            "TargetName" = "8:Example06-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_EA4EC8C4F67C4EDABB9BDF2509FC6515"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D6C482CAABFF405494A3071844AD7068"
             {
             "SourcePath" = "8:..\\BSynth\\BSynth.h"
@@ -7666,6 +9058,26 @@
             "TargetName" = "8:BasicSynth.cfg"
             "Tag" = "8:"
             "Folder" = "8:_13644FD49A58401B9321084B2C121B26"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DC2B39F7C582484FA1847E4E31258EEE"
+            {
+            "SourcePath" = "8:..\\Common\\Common.dsw"
+            "TargetName" = "8:Common.dsw"
+            "Tag" = "8:"
+            "Folder" = "8:_CF3557AED3954329B58501BEE3A14773"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7820,6 +9232,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E080EC7DBFFA4EBEAE945930087138F1"
+            {
+            "SourcePath" = "8:..\\Examples\\Example02b\\Example02b-2005.vcproj"
+            "TargetName" = "8:Example02b-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_36F5A02B7D094F83B86C936E5D4002D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E08A44D166024E6A87AE2C0DA77AD723"
             {
             "SourcePath" = "8:..\\BSynth\\tstmatsynth.xml"
@@ -7846,6 +9278,26 @@
             "TargetName" = "8:WaveOutDirect.h"
             "Tag" = "8:"
             "Folder" = "8:_332B728EEDD547FAB6F96669ADAA71D0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E1C22F0B35744D6281EEA6DCBB541B56"
+            {
+            "SourcePath" = "8:..\\Utilities\\Utilities2005.sln"
+            "TargetName" = "8:Utilities2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_5B9AE9AF35C64FABAE473FF83E941134"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7960,6 +9412,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E69C4776F11E4ACF87DDC6B27030675C"
+            {
+            "SourcePath" = "8:..\\Examples\\Example02b\\Example02b.dsp"
+            "TargetName" = "8:Example02b.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_36F5A02B7D094F83B86C936E5D4002D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E6EA111456B4498EBED2698F3F0328F3"
             {
             "SourcePath" = "8:..\\..\\Include\\SynthDefs.h"
@@ -8006,6 +9478,26 @@
             "TargetName" = "8:main.cpp"
             "Tag" = "8:"
             "Folder" = "8:_36F5A02B7D094F83B86C936E5D4002D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA84A2B022DF473085BA34F2B74A40A8"
+            {
+            "SourcePath" = "8:..\\Examples\\Example07\\Example07.dsp"
+            "TargetName" = "8:Example07.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_0AA8F1CAB6C04694A43514FBAA4D72C6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8080,6 +9572,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB48AA619B094DAD94F91A55F08689C2"
+            {
+            "SourcePath" = "8:..\\Examples\\Example09\\Example09-2005.vcproj"
+            "TargetName" = "8:Example09-2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_8FFE30D169E04AAC9E2CE6C224C011A0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ED47108D033845B48C60BEC94310BDEA"
             {
             "SourcePath" = "8:..\\Utilities\\FMExplorer\\resource.h"
@@ -8106,6 +9618,26 @@
             "TargetName" = "8:ScriptEngine.h"
             "Tag" = "8:"
             "Folder" = "8:_33DB14F029A44507B60A2BBE81D26834"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE3E5B14182E4817A68F0C612185FD52"
+            {
+            "SourcePath" = "8:..\\Examples\\Example01\\Example01.dsp"
+            "TargetName" = "8:Example01.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_8AD4A3E1EF3E496DA03799A5F45976D4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8360,6 +9892,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F69FF257BF2040929BB8B67E1E9FE2F4"
+            {
+            "SourcePath" = "8:..\\Common\\Common2005.sln"
+            "TargetName" = "8:Common2005.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_CF3557AED3954329B58501BEE3A14773"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6B23A40510F4F4897A8C7FF9BCAFDC0"
+            {
+            "SourcePath" = "8:..\\Common\\Common.dsp"
+            "TargetName" = "8:Common.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_CF3557AED3954329B58501BEE3A14773"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6E0C10C0E8B4F4BAEC39DC66E88B3B3"
             {
             "SourcePath" = "8:..\\Utilities\\FMExplorer\\MetafileDisplay.h"
@@ -8480,6 +10052,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FBBC1E501C024A9892673D3D4319F091"
+            {
+            "SourcePath" = "8:..\\Instruments\\Instruments2005.vcproj"
+            "TargetName" = "8:Instruments2005.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_33DB14F029A44507B60A2BBE81D26834"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC7A51AE0C4046058233D64E9CB6EF70"
             {
             "SourcePath" = "8:..\\Utilities\\FlangerExplorer\\res\\ReverbExplorer.ico"
@@ -8506,6 +10098,26 @@
             "TargetName" = "8:ReverbExplorer.ico"
             "Tag" = "8:"
             "Folder" = "8:_AC103A28666947AABEC2509DE6226A29"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FDACB3B864E945D48314BDDC89F42914"
+            {
+            "SourcePath" = "8:..\\Examples\\Example02\\Example02.dsp"
+            "TargetName" = "8:Example02.dsp"
+            "Tag" = "8:"
+            "Folder" = "8:_29B9DD2E197F4A0699D403D37868C9CF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

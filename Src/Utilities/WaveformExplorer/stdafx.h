@@ -6,10 +6,17 @@
 #pragma once
 
 // Change these values to use different versions
+#if _MSC_VER > 1200
 #define WINVER		0x0500
 #define _WIN32_WINNT	0x0501
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
+#else
+#define WINVER		0x0400
+#define _WIN32_WINNT	0x0400
+#define _WIN32_IE	0x0400
+#define _RICHEDIT_VER	0x0100
+#endif
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -31,6 +38,7 @@ extern CAppModule _Module;
 
 #define WFI_MAXPART 16
 
+#if _MSC_VER > 1200
 #if defined _M_IX86
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #elif defined _M_IA64
@@ -40,3 +48,5 @@ extern CAppModule _Module;
 #else
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
+#endif
+
