@@ -426,6 +426,9 @@ int MatrixSynth::SetParams(VarParamEvent *params)
 			case 5:
 				env->SetFixed(sn, (int)val);
 				break;
+			case 6:
+				env->SetSegs((int)val);
+				break;
 			}
 		}
 	}
@@ -489,6 +492,7 @@ int MatrixSynth::GetParams(VarParamEvent *params)
 		idval = (2 << 11) | (ndx << 8);
 		params->SetParam(idval,   (float)env->GetStart());
 		params->SetParam(idval+1, (float)env->GetSusOn());
+		params->SetParam(idval+6, (float)env->GetSegs());
 		for (int sn = 0; sn < env->GetSegs(); sn++)
 		{
 			idval = (2 << 11) | (ndx << 8) | (sn << 3);
@@ -732,7 +736,7 @@ int MatrixSynth::SaveEnv(XmlSynthElem *elem, int en)
 			return -1;
 		elemEG->SetAttribute("sn", sn);
 		elemEG->SetAttribute("rt",  envs[en].GetRate(sn));
-		elemEG->SetAttribute("lv",  envs[en].GetLevel(sn));
+		elemEG->SetAttribute("lvl",  envs[en].GetLevel(sn));
 		elemEG->SetAttribute("ty", (short) envs[en].GetType(sn));
 		elemEG->SetAttribute("fix", (short) envs[en].GetFixed(sn));
 		delete elemEG;

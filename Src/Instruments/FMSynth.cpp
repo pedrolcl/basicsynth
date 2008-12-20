@@ -39,7 +39,7 @@ SeqEvent *FMSynth::FMSynthEventFactory(Opaque tmplt)
 {
 	FMSynth *ip = (FMSynth *)tmplt;
 	VarParamEvent *vpe = new VarParamEvent;
-	vpe->maxParam = 106;
+	vpe->maxParam = 105;
 	return (SeqEvent *) vpe;
 }
 

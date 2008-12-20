@@ -30,7 +30,7 @@ Instrument *SubSynth::SubSynthFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *SubSynth::SubSynthEventFactory(Opaque tmplt)
 {
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = 50;
+	ep->maxParam = 49;
 	return (SeqEvent *) ep;
 }
 

@@ -34,16 +34,13 @@ SeqEvent *AddSynth::AddSynthEventFactory(Opaque tmplt)
 	VarParamEvent *ep = new VarParamEvent;
 	ep->frq = 440.0;
 	ep->vol = 1.0;
-	AddSynth *ap = (AddSynth *)tmplt;
-	if (ap)
-		ep->maxParam  = ((ap->numParts + 1) * 512) + 8;
-	else
-		ep->maxParam  = 4616; // default: 8 partials
+	ep->maxParam = 0x3FFF; // max 63 partials, 16 envelope segments
 	return (SeqEvent *) ep;
 }
 
 static InstrParamMap addsynthParams[] = 
 {
+	{ "fix", 8 },
 	{ "frq", 1 },
 	{ "lfoamp", 19 },
 	{ "lfoatk", 18 },
@@ -281,14 +278,13 @@ int AddSynth::Load(XmlSynthElem *parent)
 					if (partElem->TagMatch("env"))
 					{
 						EnvGenSeg *pe = &pn->env;
-						long son;
 						long nseg = 0;
 						if (partElem->GetAttribute("segs", nseg) == 0)
 							pe->SetSegs((int)nseg);
 						if (partElem->GetAttribute("st", lvl) == 0)
 							pe->SetStart(AmpValue(lvl));
-						if (partElem->GetAttribute("sus", son) == 0)
-							pe->SetSusOn((int)son);
+						if (partElem->GetAttribute("sus", ival) == 0)
+							pe->SetSusOn((int)ival);
 						XmlSynthElem *segElem = partElem->FirstChild();
 						while (segElem != NULL)
 						{
@@ -302,6 +298,8 @@ int AddSynth::Load(XmlSynthElem *parent)
 										pe->SetLevel((int)nseg, AmpValue(lvl));
 									if (segElem->GetAttribute("ty", ival) == 0)
 										pe->SetType((int)nseg, (EGSegType)ival);
+									if (segElem->GetAttribute("fix", ival) == 0)
+										pe->SetFixed((int)nseg, (int)ival);
 								}
 							}
 							next = segElem->NextSibling();
@@ -360,6 +358,7 @@ int AddSynth::Save(XmlSynthElem *parent)
 			segElem->SetAttribute("rt", pe->GetRate(sn));
 			segElem->SetAttribute("lvl", pe->GetLevel(sn));
 			segElem->SetAttribute("ty", (short) pe->GetType(sn));
+			segElem->SetAttribute("fix", (short) pe->GetFixed(sn));
 			delete segElem;
 		}
 		delete subElem;
@@ -377,7 +376,7 @@ int AddSynth::Save(XmlSynthElem *parent)
 
 // [pn(6)][sn(4)][val(4)]
 // PN = (partial number + 1) * 256
-// SN = (segment number + 1) * 16
+// SN = segment number * 16
 // PN+0	Frequency multiplier. 
 // PN+1	Initial frequency for this oscillator. 
 // PN+2	Wave table index.
@@ -386,6 +385,7 @@ int AddSynth::Save(XmlSynthElem *parent)
 // PN+SN+5	segment rate
 // PN+SN+6	Level at the end of the segment.
 // PN+SN+7	Segment curve type: 1=linear 2=exponential 3=log.
+// PN+SN+8  Fixed (1) or relative (0) rate
 int AddSynth::SetParams(VarParamEvent *params)
 {
 	int err = 0;
@@ -419,6 +419,9 @@ int AddSynth::SetParams(VarParamEvent *params)
 				break;
 			case 19:
 				lfoGen.SetLevel(AmpValue(val));
+				break;
+			case 20:
+				// num segs not settable
 				break;
 			default:
 				err++;
@@ -455,6 +458,12 @@ int AddSynth::SetParams(VarParamEvent *params)
 			case 7:
 				pSig->env.SetType(sn, (EGSegType) (int) val);
 				break;
+			case 8:
+				pSig->env.SetFixed(sn, (int) val);
+				break;
+			case 9:
+				pSig->env.SetSegs((int) val);
+				break;
 			default:
 				err++;
 				break;
@@ -474,6 +483,7 @@ int AddSynth::GetParams(VarParamEvent *params)
 	params->SetParam(17, (float)lfoGen.GetWavetable());
 	params->SetParam(18, (float)lfoGen.GetAttack());
 	params->SetParam(19, (float)lfoGen.GetLevel());
+	params->SetParam(20, (float)numParts);
 
 	int pn, sn, segs, idval;
 	for (pn = 0; pn < numParts; pn++)
@@ -486,12 +496,14 @@ int AddSynth::GetParams(VarParamEvent *params)
 		params->SetParam(idval+3, (float) pSig->env.GetStart());
 		params->SetParam(idval+4, (float) pSig->env.GetSusOn());
 		segs = pSig->env.GetSegs();
+		params->SetParam(idval+9, (float) segs);
 		for (sn = 0; sn < segs; sn++)
 		{
-			idval |= (sn << 4);
+			idval = ((pn+1) << 8) + (sn << 4);
 			params->SetParam(idval+5, (float) pSig->env.GetRate(sn));
 			params->SetParam(idval+6, (float) pSig->env.GetLevel(sn));
 			params->SetParam(idval+7, (float) pSig->env.GetType(sn));
+			params->SetParam(idval+8, (float) pSig->env.GetFixed(sn));
 		}
 	}
 	return 0;

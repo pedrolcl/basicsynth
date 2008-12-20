@@ -71,7 +71,7 @@ Instrument *WFSynth::WFSynthFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *WFSynth::WFSynthEventFactory(Opaque tmplt)
 {
 	VarParamEvent *evt = new VarParamEvent;
-	evt->maxParam = 21;
+	evt->maxParam = 20;
 	return (SeqEvent*)evt;
 }
 

@@ -133,10 +133,11 @@ public:
 		if (gn < MATGEN)
 			envs[gn].SetSegs(sn);
 	}
-	int GetSegs(int gn, int sn)
+
+	int GetSegs(int gn)
 	{
 		if (gn < MATGEN)
-			return envs[sn].GetSegs();
+			return envs[gn].GetSegs();
 		return 0;
 	}
 };
