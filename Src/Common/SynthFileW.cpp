@@ -14,6 +14,13 @@
 #include <SynthDefs.h>
 #include <SynthFile.h>
 
+#ifndef INVALID_SET_FILE_POINTER
+#define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#endif
+#ifndef INVALID_FILE_ATTRIBUTES
+#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+#endif
+
 FileWriteUnBuf::FileWriteUnBuf()
 {
 	fh = INVALID_HANDLE_VALUE;
