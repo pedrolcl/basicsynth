@@ -98,7 +98,7 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
 
 	DSBUFFERDESC dsbd;
 	dsbd.dwSize = sizeof(dsbd);
-	dsbd.dwFlags = DSBCAPS_GETCURRENTPOSITION2; 
+	dsbd.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS; 
 	dsbd.dwBufferBytes = bufLen;
 	dsbd.dwReserved = 0; 
 	dsbd.lpwfxFormat = &wf;
