@@ -305,12 +305,14 @@ public:
 		if (n < 0 || n >= wavTblMax || amp == NULL)
 			return -1;
 
-		AmpValue *wavTable = new AmpValue[synthParams.itableLength+1];
-		if (wavTable == NULL)
-			return -1;
-		if (wavSet[n])
-			delete wavSet[n];
-		wavSet[n] = wavTable;
+		AmpValue *wavTable = wavSet[n];
+		if (wavTable == 0)
+		{
+			wavTable = new AmpValue[synthParams.itableLength+1];
+			if (wavTable == NULL)
+				return -1;
+			wavSet[n] = wavTable;
+		}
 
 		double *phsVal = new double[nparts];
 		double *phsInc = new double[nparts];
