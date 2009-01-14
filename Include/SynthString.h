@@ -192,6 +192,11 @@ public:
 	/// Convert to lower case.
 	bsString& Lower();
 
+	/// Find the first instance of ch after start
+	int Find(int start, int ch);
+
+	/// Extract the sub-string
+	size_t SubString(bsString& out, int start, size_t len);
 };
 /*@}*/
 #endif

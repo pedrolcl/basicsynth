@@ -214,7 +214,7 @@ public:
 	/// @copydoc EnvSeg::Gen()
 	virtual AmpValue Gen()
 	{
-		if (--count >= 0)
+		if (--count > 0)
 			return value += incr;
 		return end;
 	}
@@ -285,7 +285,7 @@ public:
 	/// @copydoc EnvSeg::Gen()
 	virtual AmpValue Gen()
 	{
-		if (--count >= 0)
+		if (--count > 0)
 		{
 			value *= incr;
 			return ((value - bias) * range) + offs;
@@ -339,7 +339,7 @@ public:
 	/// @copydoc EnvSeg::Gen
 	virtual AmpValue Gen()
 	{
-		if (--count >= 0)
+		if (--count > 0)
 		{
 			value *= incr;
 			return ((1.0 - (value - bias)) * range) + offs;

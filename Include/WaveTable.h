@@ -39,6 +39,12 @@
 /// Index for user-defined waveform
 #define WT_USR(n) ((n)+10)
 
+struct WaveTable
+{
+	AmpValue *wavTbl;
+	bsInt32   wavID;
+};
+
 /// Global, pre-calculated waveform tables.
 /// These waveforms are used by wavetable oscillators.
 /// The first nine entries are pre-defined. Additional
@@ -49,7 +55,8 @@
 /// Since wavetables are public members, it is allowable to initialize
 /// the wavetable directly. Memory should be allocated using 
 /// @code
-/// wavSet[n] = new AmpValue[synthParams.itableLength+1].
+/// int n = wavSet.GetFreeWavetable(id);
+/// wavSet[n].wavTbl = new AmpValue[synthParams.itableLength+1];
 /// @endcode
 /// Although possible to replace the default waveforms,
 /// this is not a good idea, especially for WT_SIN.
@@ -77,7 +84,7 @@ public:
 	/// pointer to the positive only triangle wave table created by direct calculation (WT_TRIP)
 	AmpValue *posTri;
 	/// array of wavetables, wavTblMax in length
-	AmpValue **wavSet;
+	WaveTable *wavSet;
 	/// number of wavetables
 	bsInt32 wavTblMax;
 
@@ -108,13 +115,89 @@ public:
 		if (wavSet)
 		{
 			for (bsInt32 i = 0; i < wavTblMax; i++)
-			{
-				if (wavSet[i] != NULL)
-					delete wavSet[i];
-			}
-			delete wavSet;
+				delete wavSet[i].wavTbl;
+			delete[] wavSet;
 		}
 		wavSet = NULL;
+		wavTblMax = 0;
+	}
+
+	/// Set the number of wavetables.
+	/// The wavetable array is reallocated and copied if needed.
+	/// @param newSize number of wavetable entries (must be > WT_USR(0))
+	/// @returns 0 on success, -1 on failure to allocate memory.
+	int SetMax(bsInt32 newSize)
+	{
+		if (newSize < WT_USR(0))
+			newSize = WT_USR(0);
+		WaveTable *sav = wavSet;
+		wavSet = new WaveTable[newSize];
+		if (!wavSet)
+		{
+			wavSet = sav;
+			return -1;
+		}
+		if (sav)
+		{
+			for (int n = 0; n < wavTblMax && n < newSize; n++)
+			{
+				wavSet[n].wavTbl = sav[n].wavTbl;
+				wavSet[n].wavID  = sav[n].wavID;
+			}
+			delete[] sav;
+		}
+		while (wavTblMax < newSize)
+		{
+			wavSet[wavTblMax].wavTbl = 0;
+			wavSet[wavTblMax].wavID = -1;
+			wavTblMax++;
+		}
+		return 0;
+	}
+
+	/// Get the next available wavetable spot.
+	/// This method does not check for duplicate entries.
+	/// Use FindWavetable() first to determine if the ID
+	/// has already been established.
+	/// @param id ID of wavetable
+	/// @returns index of empty wavetable or -1 if full
+	bsInt32 GetFreeWavetable(bsInt32 id)
+	{
+		for (bsInt32 n = 0; n < wavTblMax; n++)
+		{
+			if (wavSet[n].wavID == -1)
+			{
+				wavSet[n].wavID = id;
+				return n;
+			}
+		}
+		return -1;
+	}
+
+	/// Find a wavetable index by ID.
+	/// @param id wavetable ID
+	/// @returns index of wavetable or -1 if not found
+	bsInt32 FindWavetable(bsInt32 id)
+	{
+		for (bsInt32 n = 0; n < wavTblMax; n++)
+		{
+			if (wavSet[n].wavID == id)
+				return n;
+		}
+		return -1;
+	}
+
+	/// Set wavetable by index.
+	/// If the requested wavetable is not allocated the sin wave table is returned.
+	/// @param ndx wave table index
+	AmpValue *GetWavetable(bsInt32 ndx)
+	{
+		AmpValue *wt = 0;
+		if (ndx >= 0 && ndx < wavTblMax)
+			wt = wavSet[ndx].wavTbl;
+		if (wt)
+			return wt;
+		return wavSin;
 	}
 
 	/// Initialize the default wavetables. 
@@ -139,12 +222,7 @@ public:
 	void Init(bsInt32 wtUsr = 0)
 	{
 		DestroyTables();
-
-		wavTblMax = WT_USR(wtUsr);
-		wavSet = new AmpValue*[wavTblMax];
-		bsInt32 index;
-		for (index = 0; index < wavTblMax; index++)
-			wavSet[index] = NULL;
+		SetMax(WT_USR(wtUsr));
 
 		size_t allocSize = synthParams.itableLength+1;
 		wavSin = new AmpValue[allocSize];
@@ -194,6 +272,7 @@ public:
 		double value;
 		double partP1;
 
+		bsInt16 index;
 		for (index = 0; index < synthParams.itableLength; index++)
 		{
 			value = sin(phsVal[0]);
@@ -276,16 +355,26 @@ public:
 		posSaw[synthParams.itableLength] = posSaw[0];
 		posTri[synthParams.itableLength] = posTri[0];
 
-		wavSet[WT_SIN] = wavSin;
-		wavSet[WT_SAW] = wavSaw;
-		wavSet[WT_SQR] = wavSqr;
-		wavSet[WT_TRI] = wavTri;
-		wavSet[WT_PLS] = wavPls;
-		wavSet[WT_SAWL] = lfoSaw;
-		wavSet[WT_SQRL] = lfoSqr;
-		wavSet[WT_TRIL] = lfoTri;
-		wavSet[WT_SAWP] = posSaw;
-		wavSet[WT_TRIP] = posTri;
+		wavSet[WT_SIN].wavTbl = wavSin;
+		wavSet[WT_SIN].wavID = WT_SIN;
+		wavSet[WT_SAW].wavTbl = wavSaw;
+		wavSet[WT_SAW].wavID = WT_SAW;
+		wavSet[WT_SQR].wavTbl = wavSqr;
+		wavSet[WT_SQR].wavID = WT_SQR;
+		wavSet[WT_TRI].wavTbl = wavTri;
+		wavSet[WT_TRI].wavID = WT_TRI;
+		wavSet[WT_PLS].wavTbl = wavPls;
+		wavSet[WT_PLS].wavID = WT_PLS;
+		wavSet[WT_SAWL].wavTbl = lfoSaw;
+		wavSet[WT_SAWL].wavID = WT_SAWL;
+		wavSet[WT_SQRL].wavTbl = lfoSqr;
+		wavSet[WT_SQRL].wavID = WT_SQRL;
+		wavSet[WT_TRIL].wavTbl = lfoTri;
+		wavSet[WT_TRIL].wavID = WT_TRIL;
+		wavSet[WT_SAWP].wavTbl = posSaw;
+		wavSet[WT_SAWP].wavID = WT_SAWP;
+		wavSet[WT_TRIP].wavTbl = posTri;
+		wavSet[WT_TRIP].wavID = WT_TRIP;
 	}
 
 	/// Set an indexed wave table. This is the method to fill in a user wavetable
@@ -305,13 +394,13 @@ public:
 		if (n < 0 || n >= wavTblMax || amp == NULL)
 			return -1;
 
-		AmpValue *wavTable = wavSet[n];
+		AmpValue *wavTable = wavSet[n].wavTbl;
 		if (wavTable == 0)
 		{
 			wavTable = new AmpValue[synthParams.itableLength+1];
 			if (wavTable == NULL)
 				return -1;
-			wavSet[n] = wavTable;
+			wavSet[n].wavTbl = wavTable;
 		}
 
 		double *phsVal = new double[nparts];

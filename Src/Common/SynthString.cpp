@@ -160,3 +160,36 @@ bsString& bsString::Lower()
 	}
 	return *this;
 }
+
+int bsString::Find(int start, int ch)
+{
+	if (theStr == 0)
+		return -1;
+	const char *p1 = strchr(&theStr[start], ch);
+	if (p1)
+		return (int) (p1 - theStr);
+	return -1;
+}
+
+size_t bsString::SubString(bsString& out, int start, size_t len)
+{
+	if (len < 0 || len > curLen)
+		len = curLen;
+	if (start < 0)
+		start = 0;
+	out.Allocate(len);
+	out.curLen = 0;
+	if (start < (int)curLen)
+	{
+		char *p1 = &theStr[start];
+		char *p2 = out.theStr;
+		while (len > 0)
+		{
+			*p2++ = *p1++;
+			len--;
+			out.curLen++;
+		}
+		*p2 = 0;
+	}
+	return out.curLen;
+}

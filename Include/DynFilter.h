@@ -41,7 +41,7 @@ private:
 public:
 	DynFilterLP()
 	{
-		sinTable = wtSet.wavSet[WT_SIN];
+		sinTable = wtSet.GetWavetable(WT_SIN);
 		// this is for PI / sampleRate conversion...
 		frqTI = (synthParams.ftableLength / 2) / synthParams.sampleRate;
 		cosOffs = synthParams.itableLength / 4;

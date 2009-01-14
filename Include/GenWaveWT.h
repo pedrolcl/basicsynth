@@ -34,7 +34,7 @@ public:
 	GenWaveWT()
 	{
 		wtIndex = WT_SIN;
-		waveTable = wtSet.wavSet[wtIndex];
+		waveTable = wtSet.GetWavetable(wtIndex);
 	}
 
 	/// @copydoc GenWave::Reset()
@@ -95,16 +95,12 @@ public:
 	}
 
 	/// Set the wavetable. The wavetable index is used to
-	/// get one of the wavetables allocated in wtSet.
+	/// get one of the wavetables allocated in wtSet. If
+	/// the index is invalid, the SIN wave table is used.
 	/// @param wti wavetable index
 	inline void SetWavetable(int wti)
 	{
-		if (wti >= 0 && wti < wtSet.wavTblMax)
-		{
-			waveTable = wtSet.wavSet[wtIndex = wti];
-			if (waveTable == NULL)
-				waveTable = wtSet.wavSet[WT_SIN];
-		}
+		waveTable = wtSet.GetWavetable(wtSet.FindWavetable(wtIndex = wti));
 	}
 
 	/// Get the wavetable index

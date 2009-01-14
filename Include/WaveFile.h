@@ -22,6 +22,8 @@ extern bsInt16 Swap16(bsInt16 x);
 extern bsInt32 Swap32(bsInt32 x);
 #else
 #define SwapSample(x) x
+#define Swap16(x) x
+#define Swap32(x) x
 #endif
 
 /// Size of RIFF chunk
@@ -41,7 +43,7 @@ struct RiffChunk
 /// PCM file format data.
 struct FmtData
 {
-	/// Format code 1 = PCM
+	/// Format code 1 = PCM, 3 = IEEE float
 	bsInt16 fmtCode;
 	/// Number of channles, 1 = mono, 2 = stereo
 	bsInt16 channels;
@@ -75,13 +77,43 @@ struct WavHDR
 	bsInt32 waveSize;    // size of chunk in bytes
 };
 
+class WaveOut
+{
+public:
+	/// Put value directly to the output. This function bypasses
+	/// range checking or scaling or duplication into mutiple channels.
+	/// @param value the sample
+	virtual void OutS(SampleValue value) = 0;
+
+	/// Put one value into the buffer. The value is assumed normalized [-1,+1]
+	/// and is checked for range then scaled to the output sample size.
+	/// The value is placed directly into the buffer, not duplicated for
+	/// each channel.
+	/// @param value the sample
+	virtual void Output(AmpValue value) = 0;
+
+	/// Put one sample into the buffer. Write one value to all channels. This
+	/// function will duplicate the sample for two channel output.
+	/// Values are assumed normalized to [-1,+1] and are scaled appropriately
+	/// @param value the sample
+	virtual void Output1(AmpValue value) = 0;
+
+	/// Put two values into the buffer. This function copies the values to
+	/// left and right channels, or combines then into one channel as
+	/// appropriate. Values are assumed normalized to [-1,+1] and are
+	/// scaled appropriately.
+	/// @param vleft left channel sample
+	/// @param vright right channel sample
+	virtual void Output2(AmpValue vleft, AmpValue vright) = 0;
+};
+
 /// Base class for sample output. Samples are
 /// stored in a buffer until the buffer is filled, at which time
 /// a flush routine is called. For file output, the flush routine
 /// dumps the samples to disk and resets the buffer. For a live
 /// playback system, a derived class should send the filled buffer
 /// to the DAC.
-class WaveOutBuf
+template<class ST> class WaveOutBufBase : public WaveOut
 {
 protected:
 	bsInt32 sampleTotal;
@@ -89,13 +121,13 @@ protected:
 	bsInt32 sampleMax;
 	bsInt32 sampleOOR;
 	bsInt16 channels;
-	SampleValue *samples;
-	SampleValue *nxtSamp;
-	SampleValue *endSamp;
+	ST *samples;
+	ST *nxtSamp;
+	ST *endSamp;
 	int   ownBuf;
 
 public:
-	WaveOutBuf()
+	WaveOutBufBase()
 	{
 		channels = 0;
 		sampleTotal = 0;
@@ -108,7 +140,7 @@ public:
 		ownBuf = 0;
 	}
 
-	~WaveOutBuf()
+	~WaveOutBufBase()
 	{
 		if (ownBuf)
 			DeallocBuf();
@@ -118,7 +150,7 @@ public:
 	/// this should be treated as volatile since the buffer can get reallocated
 	/// by derived classes.
 	/// @return pointer to start of sample buffer
-	SampleValue *GetBuf()
+	ST *GetBuf()
 	{
 		return samples;
 	}
@@ -133,7 +165,7 @@ public:
 	virtual int AllocBuf(long length, bsInt16 ch)
 	{
 		DeallocBuf();
-		samples = new SampleValue[length];
+		samples = new ST[length];
 		if (samples == NULL)
 		{
 			sampleMax = 0;
@@ -141,7 +173,7 @@ public:
 		}
 		channels = ch;
 		sampleMax = length;
-		memset(samples, 0, length * sizeof(SampleValue));
+		memset(samples, 0, length * sizeof(ST));
 		sampleNumber = 0;
 		sampleTotal = 0;
 		nxtSamp = samples;
@@ -169,7 +201,7 @@ public:
 	/// @param length size of the buffer in samples
 	/// @param ch number of output channels
 	/// @param bp pointer to the buffer
-	virtual void SetBuf(long length, bsInt16 ch, SampleValue *bp)
+	virtual void SetBuf(long length, bsInt16 ch, ST *bp)
 	{
 		DeallocBuf();
 		sampleMax = length;
@@ -177,49 +209,6 @@ public:
 		samples = bp;
 		nxtSamp = samples;
 		endSamp = samples + length;
-	}
-
-	/// Put value directly into the buffer. This function bypasses
-	/// range checking or scaling or duplication into mutiple channels.
-	/// @param value the sample
-	void OutS(SampleValue value)
-	{
-	//	if (sampleNumber >= sampleMax)
-	//		FlushOutput();
-	//	samples[sampleNumber++] = SwapSample(value);
-		if (nxtSamp >= endSamp)
-			FlushOutput();
-		*nxtSamp++ = SwapSample(value);
-		sampleTotal++;
-	}
-
-	/// Put one value into the buffer. The value is assumed normalized [-1,+1]
-	/// and is checked for range then scaled to the output sample size.
-	/// The value is placed directly into the buffer, not duplicated for
-	/// each channel.
-	/// @param value the sample
-	virtual void Output(AmpValue value)
-	{
-		// the out-of-range test can be removed to gain a
-		// slight performance increase if you are sure
-		// the values cannot go overrange, or just don't care...
-		if (value > 1.0)
-		{
-			sampleOOR++;
-			value = 1.0;
-		}
-		else if (value < -1.0)
-		{
-			value = -1.0;
-			sampleOOR++;
-		}
-		//if (sampleNumber >= sampleMax)
-		//	FlushOutput();
-		//samples[sampleNumber++] = SwapSample((SampleValue) (value * synthParams.sampleScale));
-		if (nxtSamp >= endSamp)
-			FlushOutput();
-		*nxtSamp++ = SwapSample((SampleValue) (value * synthParams.sampleScale));
-		sampleTotal++;
 	}
 
 	/// Put one sample into the buffer. Write one value to all channels. This
@@ -267,7 +256,70 @@ public:
 	long GetOOR() { return sampleOOR; }
 };
 
-/// Wave file writer. WaveFile manages output to a WAV file.
+/// Wave output class for 16-bit PCM sample output.
+class WaveOutBuf : public WaveOutBufBase<SampleValue>
+{
+public:
+	/// @copydoc OutS
+	void OutS(SampleValue value)
+	{
+	//	if (sampleNumber >= sampleMax)
+	//		FlushOutput();
+	//	samples[sampleNumber++] = SwapSample(value);
+		if (nxtSamp >= endSamp)
+			FlushOutput();
+		*nxtSamp++ = SwapSample(value);
+		sampleTotal++;
+	}
+
+	/// @copydoc Output
+	virtual void Output(AmpValue value)
+	{
+		// the out-of-range test can be removed to gain a
+		// slight performance increase if you are sure
+		// the values cannot go overrange, or just don't care...
+		if (value > 1.0)
+		{
+			sampleOOR++;
+			value = 1.0;
+		}
+		else if (value < -1.0)
+		{
+			value = -1.0;
+			sampleOOR++;
+		}
+		//if (sampleNumber >= sampleMax)
+		//	FlushOutput();
+		//samples[sampleNumber++] = SwapSample((SampleValue) (value * synthParams.sampleScale));
+		if (nxtSamp >= endSamp)
+			FlushOutput();
+		*nxtSamp++ = SwapSample((SampleValue) (value * synthParams.sampleScale));
+		sampleTotal++;
+	}
+};
+
+/// Wave output class for 32-bit float sample output.
+class WaveOutBufIEEE : public WaveOutBufBase<float>
+{
+public:
+	/// @copydoc
+	virtual void OutS(SampleValue value)
+	{
+		Output((float)value / 32767.0);
+	}
+
+	/// @copydoc
+	virtual void Output(AmpValue value)
+	{
+		if (nxtSamp >= endSamp)
+			FlushOutput();
+		*nxtSamp++ = (float)value;
+		sampleTotal++;
+	}
+
+};
+
+/// Wave file writer (PCM). WaveFile manages output to a WAV file.
 /// The wave file header is automatically updated as needed.
 /// A simplified model of a wave file is used. Only two chunks
 /// are defined, fmt and data, and are always at the first of the
@@ -280,7 +332,7 @@ private:
 	WavHDR wh;
 	int   bufSecs;
 
-	void SetupWH();
+	void SetupWH(int ch);
 
 public:
 	WaveFile()
@@ -315,8 +367,7 @@ public:
 	int CloseWaveFile();
 
 	/// Write output to WAVE file. This does not need to be called directly.
-	/// The WaveOutBuf base class will call this method each time the buffer
-	/// is filled.
+	/// The base class will call this method each time the buffer is filled.
 	int FlushOutput();
 };
 
@@ -335,6 +386,7 @@ private:
 	bsInt16 fileID;
 	AmpValue *samples;
 	bsInt32 sampleTotal;
+	FmtData fmt;
 
 public:
 	WaveFileIn()
@@ -343,6 +395,7 @@ public:
 		samples = NULL;
 		sampleTotal = 0;
 		fileID = -1;
+		memset(&fmt, 0, sizeof(fmt));
 	}
 
 	~WaveFileIn()
@@ -365,6 +418,13 @@ public:
 	bsInt16 GetFileID()
 	{
 		return fileID;
+	}
+
+	/// Get the sample rate of the loaded file
+	/// @returns sample rate
+	bsInt32 GetSampleRate()
+	{
+		return fmt.sampleRate;
 	}
 
 	/// Get direct access to the samples.

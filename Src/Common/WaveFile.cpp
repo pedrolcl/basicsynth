@@ -14,7 +14,7 @@
 #include <SynthDefs.h>
 #include <WaveFile.h>
 
-void WaveFile::SetupWH()
+void WaveFile::SetupWH(int ch)
 {
 	wh.riffId[0] = 'R';
 	wh.riffId[1] = 'I';
@@ -31,7 +31,7 @@ void WaveFile::SetupWH()
 	wh.fmtId[3] = ' ';
 	wh.fmtSize = 16; // TODO: allow other sample sizes, 8, 24, 32 ?
 	wh.fmtCode = 1;    // 1 = PCM
-	wh.channels = 1;    // 1 = mono, 2 = stereo
+	wh.channels = ch;    // 1 = mono, 2 = stereo
 	wh.sampleRate = synthParams.isampleRate;
 	wh.bits = sizeof(SampleValue) * 8;
 	wh.align = (wh.channels * wh.bits) / 8;
@@ -53,13 +53,8 @@ int WaveFile::OpenWaveFile(char *fname, int chnls)
 	if (AllocBuf(synthParams.isampleRate * bufSecs * chnls, chnls))
 		return -3;
 
-	SetupWH();
-	//sampleNumber = 0;
+	SetupWH(chnls);
 	sampleTotal = 0;
-
-	wh.channels = chnls;
-	wh.align = (wh.channels * wh.bits) / 8;
-	wh.avgbps = (wh.sampleRate * wh.align);
 
 	if (wfp.FileOpen(fname))
 		return -1;
@@ -102,8 +97,6 @@ int WaveFile::FlushOutput()
 		wfp.FileWrite(samples, sizeof(SampleValue)*(nxtSamp - samples));
 		nxtSamp = samples;
 	}
-	//wfp.FileWrite(samples, sizeof(SampleValue)*sampleNumber);
-	//sampleNumber = 0;
 	return 0;
 }
 
@@ -150,6 +143,7 @@ static int ReadFmt(FileReadBuf& wfp, FmtData& fmt)
 #define ReadFmt(wfp,fmt) (wfp.FileRead(&fmt, 16) == 16)
 #endif
 
+
 int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 {
 	if (fname == 0 || *fname == 0)
@@ -168,8 +162,12 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 
 	sampleTotal = 0;
 
+	bsString path;
+	if (!synthParams.FindOnPath(path, fname))
+		return -1;
+
 	FileReadBuf wfp;
-	if (wfp.FileOpen(fname) != 0)
+	if (wfp.FileOpen(path) != 0)
 		return -1;
 
 	RiffChunk chunk;
@@ -180,6 +178,7 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 		return -2;
 	}
 	long fileSize = chunk.chunkSize;
+	long wavePos = 0;
 
 	wfp.FileRead(chunk.chunkId, 4);
 	if (memcmp(chunk.chunkId, "WAVE", 4) != 0)
@@ -188,27 +187,31 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 		return -2;
 	}
 	fileSize -= 4;
+	wavePos += 4;
 
 	int foundFmt = 0;
 	int foundWav = 0;
 	
 	int dataSize = 0;
-	FmtData fmt;
 	// Find the format and data chunks.
-	// Note that this requires the format to come first!
-	while (!(foundFmt && foundWav) && fileSize > 0) 
+	while (fileSize > 0)
 	{
 		if (!ReadChunk(wfp, chunk))
 			break;
 		fileSize -= 8;
-		if (memcmp(chunk.chunkId, "fmt ", 4) == 0 && chunk.chunkSize == 16)
+		if (!foundWav)
+			wavePos += 8;
+		if (memcmp(chunk.chunkId, "fmt ", 4) == 0 && chunk.chunkSize >= 16)
 		{
 			if (!ReadFmt(wfp,fmt))
 				break;
-			fileSize -= 16;
-			if (fmt.fmtCode == 1 
-			 && fmt.bits == 16
-			 && fmt.sampleRate == synthParams.sampleRate)
+			if (chunk.chunkSize > 16)
+				wfp.FileSkip(chunk.chunkSize-16);
+			fileSize -= chunk.chunkSize;
+			if (!foundWav)
+				wavePos += chunk.chunkSize;
+			if ((fmt.fmtCode == 1 && fmt.bits == 16) 
+			 || (fmt.fmtCode == 3 && fmt.bits == 32))
 			{
 				foundFmt = 1;
 			}
@@ -217,15 +220,25 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 		{
 			foundWav = 1;
 			dataSize = chunk.chunkSize;
+			wfp.FileSkip(chunk.chunkSize);
+			fileSize -= chunk.chunkSize;
 			// we must break here since the code below
 			// assumes the file is positioned at the
 			// beginning of the sample data block. 
-			break;
+			//break;
+		}
+		else if (memcmp(chunk.chunkId, "fact", 4) == 0)
+		{
+			wfp.FileRead(&sampleTotal, 4);
+			if (!foundWav)
+				wavePos += 4;
 		}
 		else 
 		{
 			wfp.FileSkip(chunk.chunkSize);
 			fileSize -= chunk.chunkSize;
+			if (!foundWav)
+				wavePos += chunk.chunkSize;
 		}
 	}
 
@@ -235,10 +248,15 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 		return -2;
 	}
 
+	wfp.FileRewind(wavePos);
+
 	filename = new char[strlen(fname)+1];
 	if (filename)
 		strcpy(filename, fname);
-	sampleTotal = dataSize / fmt.align;
+	if (sampleTotal == 0)
+		sampleTotal = dataSize / fmt.align;
+	else
+		sampleTotal *= fmt.channels;
 	samples = new AmpValue[sampleTotal];
 	if (samples == NULL)
 	{
@@ -247,30 +265,54 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 		return -3;
 	}
 
-	bsInt16 *in16 = new bsInt16[fmt.align/2];
 	AmpValue *sp = samples;
 	AmpValue peak = 0;
 	AmpValue val = 0;
 	long count;
-	for (count = sampleTotal; count > 0; count--)
+	if (fmt.fmtCode == 1)
 	{
-		if (wfp.FileRead(in16, fmt.align) != fmt.align)
+		bsInt16 *in16 = new bsInt16[fmt.align/2];
+		for (count = sampleTotal; count > 0; count--)
 		{
-			while (count-- > 0)
-				*sp++ = 0;
-			break;
+			if (wfp.FileRead(in16, fmt.align) != fmt.align)
+			{
+				while (count-- > 0)
+					*sp++ = 0;
+				break;
+			}
+			val = (AmpValue) SwapSample(in16[0]);
+			if (fmt.channels > 1)
+				val += (AmpValue) SwapSample(in16[1]);
+			*sp++ = val;
+			val = fabs(val);
+			if (val > peak)
+				peak = val;
 		}
-		val = (AmpValue) SwapSample(in16[0]);
-		if (fmt.channels > 1)
-			val += (AmpValue) SwapSample(in16[1]);
-		*sp++ = val;
-		val = fabs(val);
-		if (val > peak)
-			peak = val;
+		delete in16;
+	}
+	else if (fmt.fmtCode == 3)
+	{
+		float *inflp = new float[fmt.align/4];
+		for (count = sampleTotal; count > 0; count--)
+		{
+			if (wfp.FileRead(inflp, fmt.align) != fmt.align)
+			{
+				while (count-- > 0)
+					*sp++ = 0;
+				break;
+			}
+			val = (AmpValue) inflp[0];
+			if (fmt.channels > 1)
+				val += (AmpValue) inflp[1];
+			*sp++ = val;
+			val = fabs(val);
+			if (val > peak)
+				peak = val;
+		}
+		delete inflp;
 	}
 
 	wfp.FileClose();
-	delete in16;
 
 	if (peak != 0)
 	{

@@ -154,6 +154,7 @@ int FileReadBuf::FileSkip(int n)
 		inpos = 0;
 		inread = 0;
 	}
+	doneAll = 0;
 	return (int) (inpos + lseek(fd, skip, SEEK_CUR));
 }
 
@@ -163,6 +164,7 @@ int FileReadBuf::FileRewind(int pos)
 		return -1;
 	inpos = 0;
 	inread = 0;
+	doneAll = 0
 	return (int) lseek(fd, (off_t) pos, SEEK_SET);
 }
 

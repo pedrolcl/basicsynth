@@ -339,7 +339,7 @@ protected:
 	InstrConfig *instList;
 	InstrMapEntry *typeList;
 	Mixer *mix;
-	WaveOutBuf *wvf;
+	WaveOut *wvf;
 	bsInt16 internalID;
 
 public:
@@ -382,7 +382,7 @@ public:
 	/// things will go very wrong very quickly.
 	/// @param m mixer object
 	/// @param w wave output buffer
-	virtual void Init(Mixer *m, WaveOutBuf *w)
+	virtual void Init(Mixer *m, WaveOut *w)
 	{
 		mix =  m;
 		wvf = w;
@@ -390,8 +390,8 @@ public:
 
 	inline void SetMixer(Mixer *m) { mix = m; }
 	inline Mixer *GetMixer() { return mix; }
-	inline void SetWaveOut(WaveOutBuf *w) { wvf = w; }
-	inline WaveOutBuf *GetWaveOut() { return wvf; }
+	inline void SetWaveOut(WaveOut *w) { wvf = w; }
+	inline WaveOut *GetWaveOut() { return wvf; }
 
 	/// Add an entry to the instrument type list.
 	/// This method constructs the instrument type object
@@ -500,6 +500,12 @@ public:
 	/// @param inst node for the instrument configuration
 	/// @returns pointer to the new instrument config object
 	InstrConfig *LoadInstr(XmlSynthElem *inst);
+
+	/// Load a wavetable
+	/// This loads a wavetable from a configuration file.
+	/// @param wvnode root node for the wavetable definition
+	/// @returns 0 on success, -1 on error
+	int LoadWavetable(XmlSynthElem *wvnode);
 
 	/// Enumerate instruments. The first call should
 	/// pass NULL as an argument. Subsequent calls should

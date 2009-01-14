@@ -13,6 +13,7 @@
 #include <math.h>
 #include <SynthDefs.h>
 #include <SynthString.h>
+#include <WaveTable.h>
 #include <WaveFile.h>
 #include <Mixer.h>
 #include <SynthList.h>
@@ -263,6 +264,11 @@ int InstrManager::LoadInstrLib(XmlSynthElem *root)
 			if (LoadInstr(instr) == 0)
 				err++;
 		}
+		else if (instr->TagMatch("wvtable"))
+		{
+			if (LoadWavetable(instr))
+				err++;
+		}
 		next = instr->NextSibling();
 		delete instr;
 		instr = next;
@@ -320,3 +326,82 @@ InstrConfig *InstrManager::LoadInstr(XmlSynthElem *instr)
 	return instEnt;
 }
 
+int InstrManager::LoadWavetable(XmlSynthElem *wvnode)
+{
+	long wvID = -1;
+	long wvNdx = -1;
+	long wvParts = 0;
+	long gibbs = 0;
+	bsInt32 *mult;
+	double *amps;
+	double *phs;
+
+	if (wvnode->GetAttribute("parts", wvParts))
+		return -1;
+	if (wvParts <= 0)
+		return -1;
+
+	if (wvnode->GetAttribute("id", wvID) == 0)
+	{
+		wvNdx = wtSet.FindWavetable(wvID);
+		if (wvNdx == -1)
+		{
+			wvNdx = wtSet.GetFreeWavetable(wvID);
+			if (wvNdx == -1)
+				wvNdx = wtSet.wavTblMax;
+		}
+	}
+	else
+	{
+		if (wvnode->GetAttribute("ndx", wvNdx))
+			return -1;
+		wvID = wvNdx;
+	}
+
+	if (wvNdx >= wtSet.wavTblMax)
+		wtSet.SetMax(wvNdx+4);
+	wtSet.wavSet[wvNdx].wavID = wvID;
+
+	wvnode->GetAttribute("gibbs", gibbs);
+	mult = new bsInt32[wvParts];
+	if (mult == 0)
+		return -1;
+	amps = new double[wvParts];
+	if (amps == 0)
+	{
+		delete[] mult;
+		return -1;
+	}
+	phs = new double[wvParts];
+	if (phs == 0)
+	{
+		delete[] amps;
+		delete[] mult;
+		return -1;
+	}
+	long ptndx = 0;
+	XmlSynthElem *ptnode = wvnode->FirstChild();
+	XmlSynthElem *sib;
+	while (ptnode && ptndx < wvParts)
+	{
+		if (ptnode->TagMatch("part"))
+		{
+			long m;
+			ptnode->GetAttribute("mul", m);
+			mult[ptndx] = (bsInt32) m;
+			ptnode->GetAttribute("amp", amps[ptndx]);
+			ptnode->GetAttribute("phs", phs[ptndx]);
+			ptndx++;
+		}
+		sib = ptnode->NextSibling();
+		delete ptnode;
+		ptnode = sib;
+	}
+
+	wtSet.SetWaveTable(wvNdx, ptndx, mult, amps, phs, gibbs);
+	delete[] mult;
+	delete[] amps;
+	delete[] phs;
+
+	return 0;
+}

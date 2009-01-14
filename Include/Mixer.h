@@ -506,7 +506,17 @@ public:
 			fxBuf[f].FxInit(fx, mixInputs, lvl);
 	}
 
-	/// Initialize the effects input level.
+	/// Initialize the effects channel receive (output) level.
+	/// This can only be set affter the number of input channels is set.
+	/// @param f effects channel
+	/// @param lvl output level
+	void FxReceive(int f, AmpValue lvl)
+	{
+		if (f < fxUnits)
+			fxBuf[f].FxOutSet(lvl);
+	}
+
+	/// Initialize the effects channel send (input) level.
 	/// @param f effects channel
 	/// @param ch input channel
 	/// @param lvl send level
@@ -561,7 +571,6 @@ public:
 					}
 				}
 				pin->Out(lvalOut, rvalOut);
-
 			}
 			pin++;
 		}

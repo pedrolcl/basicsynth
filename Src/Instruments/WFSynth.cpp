@@ -95,6 +95,7 @@ WFSynth::WFSynth()
 	samples = &dummy;
 	sampleNumber = 0;
 	sampleTotal = 0;
+	sampleIncr = 1.0;
 	looping = 0;
 	playAll = 0;
 	fileID = -1;
@@ -114,6 +115,7 @@ void WFSynth::Copy(WFSynth *tp)
 	fileID = tp->fileID;
 	sampleTotal = tp->sampleTotal;
 	sampleNumber = tp->sampleNumber;
+	sampleIncr = tp->sampleIncr;
 	samples = tp->samples;
 	looping = tp->looping;
 	playAll = tp->playAll;
@@ -123,9 +125,10 @@ void WFSynth::Copy(WFSynth *tp)
 void WFSynth::Start(SeqEvent *evt)
 {
 	SetParams((VarParamEvent*)evt);
-
+	
 	samples = &dummy;
 	sampleNumber = 0;
+	sampleIncr = 1;
 	sampleTotal = 0;
 
 	WaveFileIn *wfp = &wfCache[0];
@@ -136,6 +139,7 @@ void WFSynth::Start(SeqEvent *evt)
 		{
 			samples = wfp->GetSampleBuffer();
 			sampleTotal = wfp->GetInputLength();
+			sampleIncr = (PhsAccum) wfp->GetSampleRate() / (PhsAccum) synthParams.sampleRate;
 			break;
 		}
 		wfp++;
@@ -152,12 +156,9 @@ int WFSynth::SetParams(VarParamEvent *params)
 {
 	int err = 0;
 
-	// pitch is not currently used. An improvement to this
-	// instrument is to somehow vary the sound based on the
-	// pitch and/or frequency.
-
 	chnl = params->chnl;
 	eg.SetSus(params->vol);
+
 
 	bsInt16 *id = params->idParam;
 	float *valp = params->valParam;
@@ -198,7 +199,7 @@ int WFSynth::GetParams(VarParamEvent *params)
 	params->SetParam(17, (float) looping);
 	params->SetParam(18, (float) playAll);
 	params->SetParam(19, (float) eg.GetAtkRt());
-	params->SetParam(19, (float) eg.GetRelRt());
+	params->SetParam(20, (float) eg.GetRelRt());
 	return 0;
 }
 
@@ -215,9 +216,10 @@ void WFSynth::Tick()
 	{
 		if (!looping)
 			return;
-		sampleNumber = 0;
+		sampleNumber -= sampleTotal;
 	}
-	im->Output(chnl, samples[sampleNumber++] * eg.Gen());
+	im->Output(chnl, samples[(int)sampleNumber] * eg.Gen());
+	sampleNumber += sampleIncr;
 }
 
 int  WFSynth::IsFinished()
@@ -302,7 +304,7 @@ int WFSynth::Save(XmlSynthElem *parent)
 	for (int n = 0; n < WFSYNTH_MAX_WAVEFILES; n++)
 	{
 		short id = (short) wfCache[n].GetFileID();
-		if (id >= 0 && wfUsed[id])
+		if (id >= 0 && wfUsed[n])
 		{
 			elem = parent->AddChild("file");
 			if (elem == NULL)

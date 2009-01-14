@@ -18,6 +18,8 @@
 #ifndef _SYNTHDEFS_H_
 #define _SYNTHDEFS_H_
 
+#include <SynthString.h>
+
 // This pragma gets rid of the irritating MSVC warning about 
 // "double truncation to float" because the little 'f' is not 
 // at the end of the constant. You might leave the warning on
@@ -94,6 +96,8 @@ public:
 	AmpValue sqrttbl[PANTBLLEN];
 	/// pan table index scaling
 	bsInt32  sqNdx;
+	/// wave file path (semi-colon separated)
+	bsString wvPath;
 
 	/// Constructor. The constructor for \p SynthConfig initializes
 	/// member variables to default values by calling \p Init().
@@ -164,6 +168,9 @@ public:
 	{
 		return tuning[pitch & 0x7F];
 	}
+
+	int FindOnPath(bsString& fullPath, const char *fname);
+
 };
 
 /// Global synthesizer parameteres object

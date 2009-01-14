@@ -15,8 +15,9 @@ class WFSynth : public Instrument
 {
 private:
 	AmpValue *samples;
-	bsInt32 sampleNumber;
-	bsInt32 sampleTotal;
+	PhsAccum sampleNumber;
+	PhsAccum sampleTotal;
+	PhsAccum sampleIncr;
 	bsInt16 fileID;
 	bsInt16 looping;
 	bsInt16 playAll;
@@ -37,7 +38,7 @@ public:
 	static int GetCacheCount();
 	static int AddToCache(const char *filename, bsInt16 id);
 	static void ClearCache();
-	WaveFileIn *GetCacheEntry(int n);
+	static WaveFileIn *GetCacheEntry(int n);
 
 	void Copy(WFSynth *tp);
 	virtual void Start(SeqEvent *evt);
@@ -46,6 +47,11 @@ public:
 	virtual void Tick();
 	virtual int  IsFinished();
 	virtual void Destroy();
+
+	int IsUsed(int n)
+	{
+		return wfUsed[n];
+	}
 
 	void UseWavefile(int n, int yn)
 	{

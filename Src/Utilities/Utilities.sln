@@ -13,6 +13,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install", "Install\Install.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualKBD", "VirtualKBD\VirtualKBD.vcproj", "{C872FF18-7C75-4939-B761-FA835838581C}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Install64", "Install64\Install64.vdproj", "{4631EEBF-F670-4B27-A2B2-BA4A14799A58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -63,6 +65,10 @@ Global
 		{C872FF18-7C75-4939-B761-FA835838581C}.Release|Win32.ActiveCfg = Release|Win32
 		{C872FF18-7C75-4939-B761-FA835838581C}.Release|Win32.Build.0 = Release|Win32
 		{C872FF18-7C75-4939-B761-FA835838581C}.Release|x64.ActiveCfg = Release|Win32
+		{4631EEBF-F670-4B27-A2B2-BA4A14799A58}.Debug|Win32.ActiveCfg = Debug
+		{4631EEBF-F670-4B27-A2B2-BA4A14799A58}.Debug|x64.ActiveCfg = Debug
+		{4631EEBF-F670-4B27-A2B2-BA4A14799A58}.Release|Win32.ActiveCfg = Release
+		{4631EEBF-F670-4B27-A2B2-BA4A14799A58}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

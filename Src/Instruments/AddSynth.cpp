@@ -115,7 +115,7 @@ AddSynth::~AddSynth()
 
 int AddSynth::SetNumParts(int n)
 {
-	delete parts;
+	delete[] parts;
 	numParts = 0;
 	parts = new AddSynthPart[n];
 	if (parts == NULL)
