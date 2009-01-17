@@ -1,18 +1,9 @@
-This directory contains stuff for automated source code documentation using Doxygen.
+This directory contains files for automated source code documentation using Doxygen.
 
 Doxyfile.txt - Doxygen project file
 BasicSynthLaout.xml - layout file for BasicSynth documentation
 
 You can edit these files as desired to customize the documentation as you see fit.
-
-Edit Doxyfile.txt and set the path names to the correct directories for your 
-installation of BasicSynth. In general, replace:
-"C:/Documents and Settings/Dan Mitchell/My Documents/BasicSynth"
-with the root directory for BasicSynth (e.g., $HOME/basicsynth).
-
-The default versions only scan the Include directory. If you want to document
-the example instruments and/or notelist source, add those directories to the 
-Doxyfile.txt line for INPUT=...
 
 Output is produced in the BasicSynth/Doxygen/html directory by default.
 
