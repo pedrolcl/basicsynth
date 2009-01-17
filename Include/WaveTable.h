@@ -39,6 +39,7 @@
 /// Index for user-defined waveform
 #define WT_USR(n) ((n)+10)
 
+/// Structure to hold information about a wavetable.
 struct WaveTable
 {
 	AmpValue *wavTbl;
@@ -49,10 +50,9 @@ struct WaveTable
 /// These waveforms are used by wavetable oscillators.
 /// The first nine entries are pre-defined. Additional
 /// entries can be defined by calling the SetWaveTable()
-/// method. Access to wavetables is through the public
-/// member variable wavSet.
+/// method. 
 ///
-/// Since wavetables are public members, it is allowable to initialize
+/// Since the wavetable array is a public member, it is allowable to initialize
 /// the wavetable directly. Memory should be allocated using 
 /// @code
 /// int n = wavSet.GetFreeWavetable(id);
