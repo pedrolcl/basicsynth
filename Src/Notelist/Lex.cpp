@@ -137,8 +137,8 @@ int nlLex::Next()
 	case '&':
 	case '|':
 	case '~':
-	case '#':
 	case ':':
+	//case '#':
 		return theToken = inch;
 	case '<':
 		if ((inch = in->Getc()) == '>')
@@ -188,8 +188,8 @@ int nlLex::Next()
 
 	inch = in->Getc();
 	// read the rest of the token. Note: characters in the following string
-	// are order from most common to least common (more or less)
-	while (inch != EOF && strchr(" \t\n\r;:,(){}[]*/-+^&|#=<>\"'!", inch) == NULL)
+	// are ordered from most common to least common (more or less)
+	while (inch != EOF && strchr(" \t\n\r;,(){}[]+-*/^&|=<>\"'!:", inch) == NULL)
 	{
 		if (bp < be && inch)
 			*bp++ = inch;
@@ -210,7 +210,7 @@ int nlLex::Next()
 		inch = ((int)*++bp) & 0xFF;
 		if (inch == '\0')
 			return T_PIT;
-		if (strchr("#xbdn", inch) != NULL)
+		if (strchr("s#xbdn", inch) != NULL)
 			inch = ((int)*++bp) & 0xFF;
 		while (isdigit(inch))
 			inch = ((int)*++bp) & 0xFF;

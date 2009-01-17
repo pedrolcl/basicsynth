@@ -432,7 +432,7 @@ int nlParser::MiddleC()
 	theToken = lexPtr->Next();
 	if (theToken == T_NUM)
 	{
-		octMiddleC = atoi(lexPtr->Tokbuf());
+		octMiddleC = 4 - atoi(lexPtr->Tokbuf());
 		theToken = lexPtr->Next();
 	}
 	else
@@ -1137,7 +1137,7 @@ int nlParser::Expr()
 	return Catenate();
 }
 
-// catenate = logical ('#' logical)*
+// catenate = logical (':' logical)*
 int nlParser::Catenate()
 {
 	int nSavTok;
@@ -1385,7 +1385,7 @@ long nlParser::PitVal(const char *pStr)
 
 	long pch = ltrpch[c - 'A'];
 	c = *++pStr;
-	if (c == '#')
+	if (c == '#' || c == 's')
 	{
 		pch++;
 		pStr++;

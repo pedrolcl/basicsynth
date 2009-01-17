@@ -34,11 +34,11 @@
 #define T_STRLIT  '"'
 #define T_QUERY   '?'
 #define T_EXPOP   '^'
-#define T_CATOP   '#'
 #define T_AND     '&'
 #define T_OR      '|'
 #define T_NOT     '~'
 #define T_COL     ':'
+#define T_CATOP   T_COL
 
 #define T_LTOP    367
 #define T_LEOP    368
