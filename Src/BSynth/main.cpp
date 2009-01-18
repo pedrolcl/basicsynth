@@ -109,10 +109,11 @@ public:
 		wtSize = 16384;
 		wtUser = 0;
 		mixChnl = 0;
+		fxChnl = 0;
 		mixVolLft = 1.0;
 		mixVolRgt = 1.0;
 		lead = 0.0;
-		tail = 0.1;
+		tail = 0.0;
 	}
 	~SynthProject()
 	{
@@ -215,20 +216,35 @@ public:
 				child->GetAttribute("wt", wtSize);
 				child->GetAttribute("usr", wtUser);
 				InitSynthesizer((bsInt32)sampleRate, (bsInt32)wtSize, (bsInt32)wtUser);
+				int wvCount = 0;
 				XmlSynthElem *wvnode = child->FirstChild();
 				while (wvnode)
 				{
 					if (wvnode->TagMatch("wvtable"))
-						mgr.LoadWavetable(wvnode);
+					{
+						wvCount++;
+						if (mgr.LoadWavetable(wvnode))
+						{
+							fprintf(stderr, "Error loading wavetable %d\n", wvCount);
+							errcnt++;
+						}
+					}
 					sib = wvnode->NextSibling();
 					delete wvnode;
 					wvnode = sib;
+				}
+				if (wvCount < wtUser)
+				{
+					fprintf(stderr, "Not all waveforms are initialized (%d of %d)\n", wvCount, wtUser);
+					errcnt++;
 				}
 			}
 			else if (child->TagMatch("mixer"))
 			{
 				child->GetAttribute("chnls", mixChnl);
 				child->GetAttribute("fxunits", fxChnl);
+				int fxCount = 0;
+				int mixCount = 0;
 
 				if (mixChnl > 0)
 				{
@@ -262,6 +278,7 @@ public:
 						}
 						else if (mixElem->TagMatch("reverb"))
 						{
+							fxCount++;
 							float rvt;
 							mixElem->GetAttribute("unit", fxu);
 							mixElem->GetAttribute("vol", vol);
@@ -287,6 +304,7 @@ public:
 						}
 						else if (mixElem->TagMatch("flanger"))
 						{
+							fxCount++;
 							float flngMix = 0.5;
 							float flngFb = 0.0;
 							float flngCenter = 0.005;
@@ -323,6 +341,11 @@ public:
 						delete mixElem;
 						mixElem = sib;
 					}
+					if (fxCount < fxChnl)
+					{
+						fprintf(stderr, "Not all fx units are configured (only %d of %d)\n", fxCount, fxChnl);
+						errcnt++;
+					}
 				}
 			}
 			sib = child->NextSibling();
@@ -332,9 +355,12 @@ public:
 		if (!gotSynth)
 		{
 			fprintf(stderr, "The project does not contain a <synth> tag.\n");
-			delete root;
-			doc.Close();
-			return -1;
+			errcnt++;
+		}
+		if (mixChnl < 1)
+		{
+			fprintf(stderr, "The project does not have any mixer channels\n", mixChnl);
+			errcnt++;
 		}
 		if (!silent)
 		{

@@ -198,30 +198,6 @@ int ToneBase::Save(XmlSynthElem *parent)
 	elem.SetAttribute("on", (short) pbOn);
 	pbGen.Save(&elem);
 
-/*	XmlSynthElem *elem = parent->AddChild("osc");
-	if (elem == NULL)
-		return -1;
-	SaveOscil(elem);
-	delete elem;
-
-	elem = parent->AddChild("env");
-	if (elem == NULL)
-		return -1;
-	SaveEnv(elem);
-	delete elem;
-
-	elem = parent->AddChild("lfo");
-	if (elem == NULL)
-		return -1;
-	lfoGen.Save(elem);
-	delete elem;
-
-	elem = parent->AddChild("pb");
-	if (elem == NULL)
-		return -1;
-	elem->SetAttribute("on", (short) pbOn);
-	pbGen.Save(elem);
-	delete elem;*/
 	return 0;
 }
 

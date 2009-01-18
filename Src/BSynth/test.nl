@@ -96,7 +96,7 @@ begin
   loop (20)
   begin
     set val1 = val1 + rand(-12,12);
-    'write "Pitch: " # val1;
+    'write "Pitch: " : val1;
     while val1 > C5 do
       set val1 = val1 - 12;
     while val1 < C3 do

@@ -1626,6 +1626,13 @@ nlScriptNode *nlNoteNode::Exec()
 				vox->lastDur = dRemainDur;
 			}
 		}
+		else if (add)
+		{
+			if (isFirst)
+				totalDur = vox->lastDur;
+			else
+				offsetDur += vox->lastDur;
+		}
 
 		for (int np = 0; np < numParms; np++)
 		{
@@ -1649,7 +1656,7 @@ nlScriptNode *nlNoteNode::Exec()
 			else
 				thisVol = vox->lastVol * vox->volMul;
 
-			if (!add)
+			if (!add || isFirst)
 			{
 				double thisDur = vox->lastDur;
 				switch (vox->articType)
@@ -1678,13 +1685,10 @@ nlScriptNode *nlNoteNode::Exec()
 			if (vox->lastDur > totalDur)
 				totalDur = vox->lastDur;
 		}
-		else if (!sus)
+		else if (!sus && !add)
 		{
 			offsetDur += vox->lastDur;
-			if (!add)
-				totalDur += vox->lastDur;
-			else
-				totalDur = vox->lastDur;
+			totalDur += vox->lastDur;
 		}
 
 		isFirst = 0;

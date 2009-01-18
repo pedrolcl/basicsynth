@@ -260,7 +260,6 @@ public:
 class WaveOutBuf : public WaveOutBufBase<SampleValue>
 {
 public:
-	/// @copydoc OutS
 	void OutS(SampleValue value)
 	{
 	//	if (sampleNumber >= sampleMax)
@@ -272,7 +271,6 @@ public:
 		sampleTotal++;
 	}
 
-	/// @copydoc Output
 	virtual void Output(AmpValue value)
 	{
 		// the out-of-range test can be removed to gain a
@@ -302,13 +300,11 @@ public:
 class WaveOutBufIEEE : public WaveOutBufBase<float>
 {
 public:
-	/// @copydoc
 	virtual void OutS(SampleValue value)
 	{
 		Output((float)value / 32767.0);
 	}
 
-	/// @copydoc
 	virtual void Output(AmpValue value)
 	{
 		if (nxtSamp >= endSamp)
