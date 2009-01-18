@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<synthprj>
+  <name>Ecstacy In Yellow</name>
+  <author>Daniel R. Mitchell</author>
+  <cpyrgt>Copyright 2006, Daniel R. Mitchell</cpyrgt>
+  <out type="1" lead="0" tail="2">eiy.wav</out>
+  <score>eiy.nl</score>
+  <synth sr="44100" wt="16384" usr="1" >
+   <wvtable ndx="10" parts="5">
+    <part mul="1" amp="1.000" />
+    <part mul="2" amp="0.300" />
+    <part mul="3" amp="0.100" />
+    <part mul="5" amp="0.050" />
+    <part mul="7" amp="0.025" />
+   </wvtable>
+  </synth>
+  <mixer chnls="4" fxunits="1" lft="1.0" rgt="1.0">
+   <chnl cn="0" on="1" vol="0.25" pan="-0.1" />
+   <chnl cn="1" on="1" vol="0.25" pan="0.1" />
+   <chnl cn="2" on="1" vol="0.50" pan="0.1" />
+   <chnl cn="3" on="1" vol="0.50" pan="-0.1" />
+   <reverb unit="0" vol="0.7" rvt="2" pan="0">
+    <send cn="0" amt="0.1" />
+    <send cn="1" amt="0.1" />
+    <send cn="2" amt="0.1" />
+    <send cn="3" amt="0.1" />
+   </reverb>
+  </mixer>
+  <instrlib>
+    <instr id="1" type="MatrixSynth" name="Bass" desc="Bass instrument">
+      <mat frq="440.0" vol="1.0" />
+      <gen gn="0" out="1110000000000000" mod="01000000" wt="10" mul="1.0" mnx="1" vol="1.0" eg="0" pan="0" lfo="1.0" />
+      <gen gn="1" out="1000000000000000" mod="00000000" wt="0"  mul="2.0" mnx="1" vol="0.0" eg="1" pan="0" lfo="0.0" />
+      <env en="0" segs="2" st="0" sus="1">
+        <seg sn="0" rt="0.01" lvl="1.0" ty="1" fix="1"/>
+        <seg sn="1" rt="0.2" lvl="0.0" ty="1" fix="1"/>
+      </env>
+      <env en="1" segs="2" st="1.0" sus="1">
+        <seg sn="0" rt="0.2" lvl="0.4" ty="1" fix="1" />
+        <seg sn="1" rt="1.0" lvl="0.0" ty="1" fix="0"/>
+      </env>
+      <lfo frq="4.5" wt="0" atk="1.0" amp="0.02" />
+    </instr>
+    <instr id="2" type="MatrixSynth" name="Bell" desc="Bell instrument">
+      <mat frq="440.0" vol="1.0" />
+      <gen gn="0" out="11000000000000001" mod="01000000" wt="10" mul="1.0" mnx="1" vol="1.0" eg="0" pan="0" lfo="1.0" />
+      <gen gn="1" out="10000000000000000" mod="00000000" wt="0" mul="2.67" mnx="1" vol="0.0" eg="1" pan="0" lfo="0" />
+      <env en="0" segs="2" st="0" sus="0">
+        <seg sn="0" rt="0.001" lvl="1.0" ty="1" fix="1"/>
+        <seg sn="1" rt="2.0" lvl="0.0" ty="1" fix="1"/>
+      </env>
+      <env en="1" segs="3" st="0" sus="0">
+        <seg sn="0" rt="0.001" lvl="0.17" ty="1" fix="1"/>
+        <seg sn="1" rt="0.025" lvl="0.12" ty="1" fix="1"/>
+        <seg sn="2" rt="2.0" lvl="0.0" ty="1" fix="2"/>
+      </env>
+      <lfo frq="4.5" wt="0" atk="0.5" amp="0.1" />
+    </instr>
+    <instr id="3" type="MatrixSynth" name="Harmon" desc="Melody instrument #1">
+      <mat frq="440.0" vol="1.0" />
+      <gen gn="0" out="11000000000000001" mod="01000000" wt="10" mul="1.0" mnx="0" vol="0.5" eg="0" pan="0" lfo="1.0" />
+      <gen gn="1" out="1000000000000000" mod="00000000" wt="0"  mul="2.0" mnx="1" vol="0.0" eg="1" pan="0" lfo="0.0" />
+      <env en="0" segs="2" st="0" sus="1">
+        <seg sn="0" rt="0.2" lvl="1.0" ty="1" fix="1"/>
+        <seg sn="1" rt="0.2" lvl="0.0" ty="1" fix="1"/>
+      </env>
+      <env en="1" segs="2" st="0.25" sus="0">
+        <seg sn="0" rt="0.5" lvl="2.5" ty="1" fix="0"/>
+        <seg sn="1" rt="0.5" lvl="0.0" ty="1" fix="0"/>
+      </env>
+      <lfo frq="4.5" wt="0" atk="1.0" amp="0.05" />
+    </instr>
+  </instrlib>
+</synthprj>
