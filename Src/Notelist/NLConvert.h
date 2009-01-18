@@ -38,7 +38,6 @@
 #define T_OR      '|'
 #define T_NOT     '~'
 #define T_COL     ':'
-#define T_CATOP   T_COL
 
 #define T_LTOP    367
 #define T_LEOP    368
@@ -111,6 +110,7 @@
 #define T_OPTION 386
 #define T_FREQ 387
 #define T_VOLDB 388
+#define T_CATOP 389
 
 #define MAXPARAM 10
 #define MAXFGEN  10

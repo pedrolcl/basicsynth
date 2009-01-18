@@ -1137,7 +1137,7 @@ int nlParser::Expr()
 	return Catenate();
 }
 
-// catenate = logical (':' logical)*
+// catenate = logical ('::' logical)*
 int nlParser::Catenate()
 {
 	int nSavTok;

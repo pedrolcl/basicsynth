@@ -137,9 +137,12 @@ int nlLex::Next()
 	case '&':
 	case '|':
 	case '~':
-	case ':':
-	//case '#':
 		return theToken = inch;
+	case ':':
+		if ((inch = in->Getc()) == ':')
+			return T_CATOP;
+		in->Ungetc(inch);
+		return T_COL;
 	case '<':
 		if ((inch = in->Getc()) == '>')
 		{
