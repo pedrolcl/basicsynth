@@ -164,7 +164,7 @@ int FileReadBuf::FileRewind(int pos)
 		return -1;
 	inpos = 0;
 	inread = 0;
-	doneAll = 0
+	doneAll = 0;
 	return (int) lseek(fd, (off_t) pos, SEEK_SET);
 }
 

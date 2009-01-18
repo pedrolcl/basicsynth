@@ -2,7 +2,7 @@
   <name>Test Jig</name>
   <author>Dan Mitchell</author>
   <cpyrgt>(C) 2008, Daniel R. Mitchell</cpyrgt>
-  <synth sr="44100" wt="16384" usr="1" />
+  <synth sr="44100" wt="16384" usr="0" />
   <mixer chnls="4" fxunits="1" lft="1" rgt="1">
     <chnl cn="0" on="1" vol="0.5" pan="0"/>
     <chnl cn="1" on="1" vol="0.5" pan="-0.5"/>

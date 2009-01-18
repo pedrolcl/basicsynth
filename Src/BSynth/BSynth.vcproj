@@ -192,7 +192,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy testnl.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testnl.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test2.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstaddsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstfmsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstmatsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstsubsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tsttonesynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
+				CommandLine="copy testnl.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testnl.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test2.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstaddsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstfmsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstmatsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstsubsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tsttonesynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
 				Outputs="$(TargetDir)/test.nl"
 			/>
 			<Tool
@@ -353,7 +353,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy testnl.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testnl.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test2.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy jig.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstaddsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstfmsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstmatsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstsubsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tsttonesynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
+				CommandLine="copy testnl.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testnl.nl &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testinst.xml &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy testprj.xml  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy test2.nl  &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstaddsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstfmsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstmatsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tstsubsynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;copy tsttonesynth.* &quot;$(TargetDir)&quot;&#x0D;&#x0A;"
 				Outputs="$(TargetDir)/test.nl"
 			/>
 			<Tool
@@ -572,14 +572,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<File
-			RelativePath=".\jig.nl"
-			>
-		</File>
-		<File
-			RelativePath=".\jig.xml"
-			>
-		</File>
 		<File
 			RelativePath=".\test.nl"
 			>
