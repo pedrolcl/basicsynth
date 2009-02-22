@@ -393,86 +393,85 @@ int AddSynth::SetParams(VarParamEvent *params)
 	chnl = params->chnl;
 	vol = params->vol;
 	frq = params->frq;
-	AddSynthPart *pSig;
-	bsInt16 idval, pn, sn;
-	float val;
 	bsInt16 *id = params->idParam;
 	float *valp = params->valParam;
 	int n = params->numParam;
 	while (n-- > 0)
-	{
-		val = *valp++;
-		idval = *id++;
-		pn = (idval & 0x7F00) >> 8;
-		if (pn == 0)
-		{
-			switch (idval)
-			{
-			case 16:
-				lfoGen.SetFrequency(FrqValue(val));
-				break;
-			case 17:
-				lfoGen.SetWavetable((int)val);
-				break;
-			case 18:
-				lfoGen.SetAttack(FrqValue(val));
-				break;
-			case 19:
-				lfoGen.SetLevel(AmpValue(val));
-				break;
-			case 20:
-				// num segs not settable
-				break;
-			default:
-				err++;
-				break;
-			}
-		}
-		else if (pn <= numParts)
-		{
-			sn = (idval & 0xF0) >> 4;
-			pSig = &parts[pn-1];
-			switch (idval & 0x0F)
-			{
-			case 0:
-				pSig->mul = FrqValue(val);
-				break;
-			case 1:
-				pSig->osc.SetFrequency(FrqValue(val));
-				break;
-			case 2:
-				pSig->osc.SetWavetable((int)val);
-				break;
-			case 3:
-				pSig->env.SetStart(AmpValue(val));
-				break;
-			case 4:
-				pSig->env.SetSusOn((int)val);
-				break;
-			case 5:
-				pSig->env.SetRate(sn, FrqValue(val));
-				break;
-			case 6:
-				pSig->env.SetLevel(sn, AmpValue(val));
-				break;
-			case 7:
-				pSig->env.SetType(sn, (EGSegType) (int) val);
-				break;
-			case 8:
-				pSig->env.SetFixed(sn, (int) val);
-				break;
-			case 9:
-				pSig->env.SetSegs((int) val);
-				break;
-			default:
-				err++;
-				break;
-			}
-		}
-		else
-			err++;
-	}
+		err += SetParam(*id++, *valp++);
 	return err;
+}
+
+int AddSynth::SetParam(bsInt16 idval, float val)
+{
+	AddSynthPart *pSig;
+	bsInt16 pn, sn;
+	pn = (idval & 0x7F00) >> 8;
+	if (pn == 0)
+	{
+		switch (idval)
+		{
+		case 16:
+			lfoGen.SetFrequency(FrqValue(val));
+			break;
+		case 17:
+			lfoGen.SetWavetable((int)val);
+			break;
+		case 18:
+			lfoGen.SetAttack(FrqValue(val));
+			break;
+		case 19:
+			lfoGen.SetLevel(AmpValue(val));
+			break;
+		case 20:
+			// num segs not settable
+			//break;
+		default:
+			return 1;
+		}
+	}
+	else if (pn <= numParts)
+	{
+		sn = (idval & 0xF0) >> 4;
+		pSig = &parts[pn-1];
+		switch (idval & 0x0F)
+		{
+		case 0:
+			pSig->mul = FrqValue(val);
+			break;
+		case 1:
+			pSig->osc.SetFrequency(FrqValue(val));
+			break;
+		case 2:
+			pSig->osc.SetWavetable((int)val);
+			break;
+		case 3:
+			pSig->env.SetStart(AmpValue(val));
+			break;
+		case 4:
+			pSig->env.SetSusOn((int)val);
+			break;
+		case 5:
+			pSig->env.SetRate(sn, FrqValue(val));
+			break;
+		case 6:
+			pSig->env.SetLevel(sn, AmpValue(val));
+			break;
+		case 7:
+			pSig->env.SetType(sn, (EGSegType) (int) val);
+			break;
+		case 8:
+			pSig->env.SetFixed(sn, (int) val);
+			break;
+		case 9:
+			pSig->env.SetSegs((int) val);
+			break;
+		default:
+			return 1;
+		}
+	}
+	else
+		return 1;
+	return 0;
 }
 
 int AddSynth::GetParams(VarParamEvent *params)

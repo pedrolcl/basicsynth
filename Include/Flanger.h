@@ -40,11 +40,13 @@ public:
 		dlyFeedback = 0;
 	}
 
+	/// Clear the delay line buffer to zero
 	void Clear()
 	{
 		dlv.Clear();
 	}
 
+	/// Copy the settings
 	void Copy(Flanger *fp)
 	{
 		dlyLvl = fp->dlyLvl;
@@ -56,6 +58,13 @@ public:
 		dlv.Copy(&fp->dlv);
 	}
 
+	/// Return the flanger settings
+	/// @param inlvl input lelvel
+	/// @param mix mix of dry/wet signal
+	/// @param fb feedback value
+	/// @param center nominal delay time
+	/// @param depth variation in delay time
+	/// @param sweep sweep oscillator frequency
 	void GetSettings(AmpValue& inlvl, AmpValue& mix, AmpValue& fb, FrqValue& center, FrqValue& depth, FrqValue& sweep)
 	{
 		inlvl = dlyLvl;
@@ -66,18 +75,27 @@ public:
 		sweep = wv.GetFrequency();
 	}
 
+	/// Initialize the flanger from an array of values.
 	void Init(int n, float *v)
 	{
 		if (n >= 5)
 			InitFlanger(AmpValue(v[0]), AmpValue(v[1]), AmpValue(v[2]), FrqValue(v[3]), FrqValue(v[4]), FrqValue(v[5]));
 	}
 
+	/// Reset to an initial state
 	void Reset(float initPhs = 0)
 	{
 		dlv.Reset(initPhs);
 		wv.Reset(initPhs);
 	}
 
+	/// Initialize the flanger
+	/// @param inlvl input lelvel
+	/// @param mix mix of dry/wet signal
+	/// @param fb feedback value
+	/// @param center nominal delay time
+	/// @param depth variation in delay time
+	/// @param sweep sweep oscillator frequency
 	void InitFlanger(AmpValue inlvl, AmpValue mix, AmpValue fb, FrqValue center, FrqValue depth, FrqValue sweep)
 	{
 		wv.InitWT(sweep, WT_SIN);
@@ -91,6 +109,9 @@ public:
 		dlyCenter = (center * synthParams.sampleRate);
 	}
 
+	/// Pass the sample through the flanger unit.
+	/// @param inval current sample
+	/// @returns processed sample
 	AmpValue Sample(AmpValue inval)
 	{
 		if (dlyFeedback != 0)

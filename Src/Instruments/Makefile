@@ -3,6 +3,7 @@ include ../BasicSynth.cfg
 OBJS=\
 LoadInstrLib.o \
 AddSynth.o \
+Chuffer.o \
 FMSynth.o \
 LFO.o \
 PitchBend.o \
@@ -22,6 +23,8 @@ clean:
 	-@rm $(INSTLIB)
 
 AddSynth.cpp: AddSynth.h Includes.h
+
+Chuffer.cpp: Chuffer.h Includes.h
 
 FMSynth.cpp: FMSynth.h Includes.h
 

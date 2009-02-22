@@ -39,7 +39,7 @@ SeqEvent *FMSynth::FMSynthEventFactory(Opaque tmplt)
 {
 	FMSynth *ip = (FMSynth *)tmplt;
 	VarParamEvent *vpe = new VarParamEvent;
-	vpe->maxParam = 105;
+	vpe->maxParam = 108;
 	return (SeqEvent *) vpe;
 }
 
@@ -64,8 +64,9 @@ static InstrParamMap fmsynthParams[] =
 	{ "nzfr",    62 }, { "nzmix",   60 }, { "nzpk",    66 }, { "nzrel",   69 }, { "nzst",    64 },
 	{ "nzsus",   68 }, { "nzty",    71 },
 
-	{ "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 }, 
-	{ "pbon",   100 }, { "pbr1",   101 }, { "pbr2",   102 },
+	{ "pbamp",  106 }, { "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 }, 
+	{ "pbfrq",  108 }, { "pbon",   100 }, { "pbr1",   101 }, { "pbr2",   102 },
+	{ "pbwt",   107 }
 };
 
 bsInt16 FMSynth::MapParamID(const char *name)
@@ -164,6 +165,7 @@ void FMSynth::Copy(FMSynth *ip)
 	lfoGen.Copy(&ip->lfoGen);
 	pbGen.Copy(&ip->pbGen);
 	pbOn = ip->pbOn;
+	pbWT.Copy(&ip->pbWT);
 	panSet.Set(panTrig, ip->panSet.panval);
 	panOn = ip->panOn;
 
@@ -224,17 +226,28 @@ void FMSynth::Start(SeqEvent *evt)
 	dlyOn = dlyMix > 0 && (fmDly > 0 || nzDly > 0);
 	if (dlyOn)
 		apd.InitDLR(dlyTim, dlyDec, 0.001);
-	lfoGen.SetSigFrq(frq);
-	lfoGen.Reset();
+	if (lfoGen.On())
+	{
+		lfoGen.SetSigFrq(frq);
+		lfoGen.Reset();
+	}
 	if (pbOn)
 	{
 		pbGen.SetFrequency(frq);
 		pbGen.Reset();
 	}
+	if (pbWT.On())
+	{
+		pbWT.SetSigFrq(frq);
+		pbWT.SetDurationS(evt->duration);
+		pbWT.Reset();
+	}
 }
 
 void FMSynth::Param(SeqEvent *evt)
 {
+	lfoGen.SetSigFrq(frq);
+	pbWT.SetSigFrq(frq);
 	SetParams((VarParamEvent*)evt);
 	// The only changeable things are the oscillators, i.e. pitch
 	// and signal/noise/delay mixture.
@@ -250,8 +263,8 @@ void FMSynth::Param(SeqEvent *evt)
 	gen1Osc.Reset(-1);
 	gen2Osc.Reset(-1);
 	gen3Osc.Reset(-1);
-	lfoGen.SetSigFrq(frq);
 	lfoGen.Reset(-1);
+	pbWT.Reset(-1);
 	if (nzOn)
 	{
 		nzi.Reset(-1);
@@ -267,218 +280,228 @@ int FMSynth::SetParams(VarParamEvent *evt)
 	chnl = evt->chnl;
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
-	float val;
-	EGSegType segType;
-	int n;
-	for (n = evt->numParam; n > 0; n--)
-	{
-		val = *valp++;
-		switch (*id++)
-		{
-		case 16: //mix
-			fmMix = val;
-			break;
-		case 17: //dly
-			fmDly = val;
-			break;
-		case 18: //alg
-			algorithm = (bsInt16) val;
-			break;
-		case 19:
-			panOn = (bsInt16) val;
-			break;
-		case 20:
-			panSet.Set(panTrig, AmpValue(val));
-			break;
-		case 30: //mul
-			gen1Mult = val;
-			break;
-		case 31: //st
-			gen1EnvDef.SetStart(AmpValue(val));
-			break;
-		case 32: //atk
-			gen1EnvDef.SetRate(0, FrqValue(val));
-			break;
-		case 33: //pk
-			gen1EnvDef.SetLevel(0, AmpValue(val));
-			break;
-		case 34: //dec
-			gen1EnvDef.SetRate(1, FrqValue(val));
-			break;
-		case 35: //sus
-			gen1EnvDef.SetLevel(1, AmpValue(val));
-			break;
-		case 36: //rel
-			gen1EnvDef.SetRate(2, FrqValue(val));
-			break;
-		case 37: //end
-			gen1EnvDef.SetLevel(2, AmpValue(val));
-			break;
-		case 38: //ty
-			segType = (EGSegType)(int)val;
-			gen1EnvDef.SetType(0, segType);
-			gen1EnvDef.SetType(1, segType);
-			gen1EnvDef.SetType(2, segType);
-			break;
-		case 39: // wt
-			gen1Wt = (int) val;
-			break;
-		//gen2: 
-		case 40: //mul
-			gen2Mult = val;
-			break;
-		case 41: //st
-			gen2EnvDef.SetStart(AmpValue(val));
-			break;
-		case 42: //atk
-			gen2EnvDef.SetRate(0, FrqValue(val));
-			break;
-		case 43: //pk
-			gen2EnvDef.SetLevel(0, AmpValue(val));
-			break;
-		case 44: //dec
-			gen2EnvDef.SetRate(1, FrqValue(val));
-			break;
-		case 45: //sus
-			gen2EnvDef.SetLevel(1, AmpValue(val));
-			break;
-		case 46: //rel
-			gen2EnvDef.SetRate(2, FrqValue(val));
-			break;
-		case 47: //end
-			gen2EnvDef.SetLevel(2, AmpValue(val));
-			break;
-		case 48: //ty
-			segType = (EGSegType)(int)val;
-			gen2EnvDef.SetType(0, segType);
-			gen2EnvDef.SetType(1, segType);
-			gen2EnvDef.SetType(2, segType);
-			break;
-		case 49: // wt
-			gen2Wt = (int) val;
-			break;
-		// gen3:
-		case 50: //mul
-			gen3Mult = val;
-			break;
-		case 51: //st
-			gen3EnvDef.SetStart(AmpValue(val));
-			break;
-		case 52: //atk
-			gen3EnvDef.SetRate(0, FrqValue(val));
-			break;
-		case 53: //pk
-			gen3EnvDef.SetLevel(0, AmpValue(val));
-			break;
-		case 54: //dec
-			gen3EnvDef.SetRate(1, FrqValue(val));
-			break;
-		case 55: //sus
-			gen3EnvDef.SetLevel(1, AmpValue(val));
-			break;
-		case 56: //rel
-			gen3EnvDef.SetRate(2, FrqValue(val));
-			break;
-		case 57: //end
-			gen3EnvDef.SetLevel(2, AmpValue(val));
-			break;
-		case 58: //ty
-			segType = (EGSegType)(int)val;
-			gen3EnvDef.SetType(0, segType);
-			gen3EnvDef.SetType(1, segType);
-			gen3EnvDef.SetType(2, segType);
-			break;
-		case 59: // wt
-			gen3Wt = (int) val;
-			break;
-		//nz: 
-		case 60: //mix
-			nzMix = val;
-			break;
-		case 61: //dly
-			nzDly = val;
-			break;
-		case 62: //nz frq
-			nzFrqh = FrqValue(val);
-			break;
-		case 63: //osc frq
-			nzFrqo = FrqValue(val);
-			break;
-		case 64: //st
-			nzEnvDef.SetStart(AmpValue(val));
-			break;
-		case 65: //atk
-			nzEnvDef.SetRate(0, FrqValue(val));
-			break;
-		case 66: //pk
-			nzEnvDef.SetLevel(0, AmpValue(val));
-			break;
-		case 67: //dec
-			nzEnvDef.SetRate(1, FrqValue(val));
-			break;
-		case 68: //sus
-			nzEnvDef.SetLevel(1, AmpValue(val));
-			break;
-		case 69: //rel
-			nzEnvDef.SetRate(2, FrqValue(val));
-			break;
-		case 70: //end
-			nzEnvDef.SetLevel(2, AmpValue(val));
-			break;
-		case 71: //ty
-			segType = (EGSegType)(int)val;
-			nzEnvDef.SetType(0, segType);
-			nzEnvDef.SetType(1, segType);
-			nzEnvDef.SetType(2, segType);
-			break;
-		//dlyn: 
-		case 80: //mix
-			dlyMix = val;
-			break;
-		case 81: //dly
-			dlyTim = val;
-			break;
-		case 82: //dec
-			dlyDec = val;
-			break;
-		//lfo: 
-		case 90: //frq
-			lfoGen.SetFrequency(FrqValue(val));
-			break;
-		case 91: //wt
-			lfoGen.SetWavetable((int)val);
-			break;
-		case 92: //rt
-			lfoGen.SetAttack(FrqValue(val));
-			break;
-		case 93: //amp
-			lfoGen.SetLevel(AmpValue(val));
-			break;
-		// pitchbend
-		case 100:
-			pbOn = (int) val;
-			break;
-		case 101:
-			pbGen.SetRate(0, FrqValue(val));
-			break;
-		case 102:
-			pbGen.SetRate(1, FrqValue(val));
-			break;
-		case 103:
-			pbGen.SetAmount(0, FrqValue(val));
-			break;
-		case 104:
-			pbGen.SetAmount(1, FrqValue(val));
-			break;
-		case 105:
-			pbGen.SetAmount(2, FrqValue(val));
-			break;
-		default:
-			err++;
-			break;
-		}
-	}
+	int n = evt->numParam;
+	while (n-- > 0)
+		err += SetParam(*id++, *valp++);
 	return err;
+}
+
+int FMSynth::SetParam(bsInt16 id, float val)
+{
+	EGSegType segType;
+	switch (id)
+	{
+	case 16: //mix
+		fmMix = val;
+		break;
+	case 17: //dly
+		fmDly = val;
+		break;
+	case 18: //alg
+		algorithm = (bsInt16) val;
+		break;
+	case 19:
+		panOn = (bsInt16) val;
+		break;
+	case 20:
+		panSet.Set(panTrig, AmpValue(val));
+		break;
+	case 30: //mul
+		gen1Mult = val;
+		break;
+	case 31: //st
+		gen1EnvDef.SetStart(AmpValue(val));
+		break;
+	case 32: //atk
+		gen1EnvDef.SetRate(0, FrqValue(val));
+		break;
+	case 33: //pk
+		gen1EnvDef.SetLevel(0, AmpValue(val));
+		break;
+	case 34: //dec
+		gen1EnvDef.SetRate(1, FrqValue(val));
+		break;
+	case 35: //sus
+		gen1EnvDef.SetLevel(1, AmpValue(val));
+		break;
+	case 36: //rel
+		gen1EnvDef.SetRate(2, FrqValue(val));
+		break;
+	case 37: //end
+		gen1EnvDef.SetLevel(2, AmpValue(val));
+		break;
+	case 38: //ty
+		segType = (EGSegType)(int)val;
+		gen1EnvDef.SetType(0, segType);
+		gen1EnvDef.SetType(1, segType);
+		gen1EnvDef.SetType(2, segType);
+		break;
+	case 39: // wt
+		gen1Wt = (int) val;
+		break;
+	//gen2: 
+	case 40: //mul
+		gen2Mult = val;
+		break;
+	case 41: //st
+		gen2EnvDef.SetStart(AmpValue(val));
+		break;
+	case 42: //atk
+		gen2EnvDef.SetRate(0, FrqValue(val));
+		break;
+	case 43: //pk
+		gen2EnvDef.SetLevel(0, AmpValue(val));
+		break;
+	case 44: //dec
+		gen2EnvDef.SetRate(1, FrqValue(val));
+		break;
+	case 45: //sus
+		gen2EnvDef.SetLevel(1, AmpValue(val));
+		break;
+	case 46: //rel
+		gen2EnvDef.SetRate(2, FrqValue(val));
+		break;
+	case 47: //end
+		gen2EnvDef.SetLevel(2, AmpValue(val));
+		break;
+	case 48: //ty
+		segType = (EGSegType)(int)val;
+		gen2EnvDef.SetType(0, segType);
+		gen2EnvDef.SetType(1, segType);
+		gen2EnvDef.SetType(2, segType);
+		break;
+	case 49: // wt
+		gen2Wt = (int) val;
+		break;
+	// gen3:
+	case 50: //mul
+		gen3Mult = val;
+		break;
+	case 51: //st
+		gen3EnvDef.SetStart(AmpValue(val));
+		break;
+	case 52: //atk
+		gen3EnvDef.SetRate(0, FrqValue(val));
+		break;
+	case 53: //pk
+		gen3EnvDef.SetLevel(0, AmpValue(val));
+		break;
+	case 54: //dec
+		gen3EnvDef.SetRate(1, FrqValue(val));
+		break;
+	case 55: //sus
+		gen3EnvDef.SetLevel(1, AmpValue(val));
+		break;
+	case 56: //rel
+		gen3EnvDef.SetRate(2, FrqValue(val));
+		break;
+	case 57: //end
+		gen3EnvDef.SetLevel(2, AmpValue(val));
+		break;
+	case 58: //ty
+		segType = (EGSegType)(int)val;
+		gen3EnvDef.SetType(0, segType);
+		gen3EnvDef.SetType(1, segType);
+		gen3EnvDef.SetType(2, segType);
+		break;
+	case 59: // wt
+		gen3Wt = (int) val;
+		break;
+	//nz: 
+	case 60: //mix
+		nzMix = val;
+		break;
+	case 61: //dly
+		nzDly = val;
+		break;
+	case 62: //nz frq
+		nzFrqh = FrqValue(val);
+		break;
+	case 63: //osc frq
+		nzFrqo = FrqValue(val);
+		break;
+	case 64: //st
+		nzEnvDef.SetStart(AmpValue(val));
+		break;
+	case 65: //atk
+		nzEnvDef.SetRate(0, FrqValue(val));
+		break;
+	case 66: //pk
+		nzEnvDef.SetLevel(0, AmpValue(val));
+		break;
+	case 67: //dec
+		nzEnvDef.SetRate(1, FrqValue(val));
+		break;
+	case 68: //sus
+		nzEnvDef.SetLevel(1, AmpValue(val));
+		break;
+	case 69: //rel
+		nzEnvDef.SetRate(2, FrqValue(val));
+		break;
+	case 70: //end
+		nzEnvDef.SetLevel(2, AmpValue(val));
+		break;
+	case 71: //ty
+		segType = (EGSegType)(int)val;
+		nzEnvDef.SetType(0, segType);
+		nzEnvDef.SetType(1, segType);
+		nzEnvDef.SetType(2, segType);
+		break;
+	//dlyn: 
+	case 80: //mix
+		dlyMix = val;
+		break;
+	case 81: //dly
+		dlyTim = val;
+		break;
+	case 82: //dec
+		dlyDec = val;
+		break;
+	//lfo: 
+	case 90: //frq
+		lfoGen.SetFrequency(FrqValue(val));
+		break;
+	case 91: //wt
+		lfoGen.SetWavetable((int)val);
+		break;
+	case 92: //rt
+		lfoGen.SetAttack(FrqValue(val));
+		break;
+	case 93: //amp
+		lfoGen.SetLevel(AmpValue(val));
+		break;
+	// pitchbend
+	case 100:
+		pbOn = (int) val;
+		break;
+	case 101:
+		pbGen.SetRate(0, FrqValue(val));
+		break;
+	case 102:
+		pbGen.SetRate(1, FrqValue(val));
+		break;
+	case 103:
+		pbGen.SetAmount(0, FrqValue(val));
+		break;
+	case 104:
+		pbGen.SetAmount(1, FrqValue(val));
+		break;
+	case 105:
+		pbGen.SetAmount(2, FrqValue(val));
+		break;
+	case 106:
+		pbWT.SetLevel(AmpValue(val));
+		break;
+	case 107:
+		pbWT.SetWavetable((int)val);
+		break;
+	case 108:
+		pbWT.SetDuration(FrqValue(val));
+		break;
+	default:
+		return 1;
+	}
+	return 0;
 }
 
 int FMSynth::GetParams(VarParamEvent *params)
@@ -546,6 +569,9 @@ int FMSynth::GetParams(VarParamEvent *params)
 	params->SetParam(103, (float) pbGen.GetAmount(0));
 	params->SetParam(104, (float) pbGen.GetAmount(1));
 	params->SetParam(105, (float) pbGen.GetAmount(2));
+	params->SetParam(106, (float) pbWT.GetLevel());
+	params->SetParam(107, (float) pbWT.GetWavetable());
+	params->SetParam(108, (float) pbWT.GetDuration());
 
 	return 0;
 }
@@ -578,34 +604,20 @@ void FMSynth::Tick()
 	AmpValue gen3Out;
 	AmpValue nzOut;
 	AmpValue dlyOut;
-	AmpValue lfoOut;
+	AmpValue lfoOut = 0;
 	AmpValue gen1Mod;
 	AmpValue gen2Mod;
 	AmpValue gen3Mod;
 
-	int lfoOn = lfoGen.On();
-	if (lfoOn)
-	{
+	if (lfoGen.On())
 		lfoOut = lfoGen.Gen() * synthParams.frqTI;
-		if (pbOn)
-			lfoOut += pbGen.Gen() * synthParams.frqTI;
-		gen3Mod = lfoOut * gen3Mult;
-		gen2Mod = lfoOut * gen2Mult;
-		gen1Mod = lfoOut * gen1Mult;
-	}
-	else if (pbOn)
-	{
-		lfoOut = pbGen.Gen() * synthParams.frqTI;
-		gen3Mod = lfoOut * gen3Mult;
-		gen2Mod = lfoOut * gen2Mult;
-		gen1Mod = lfoOut * gen1Mult;
-	}
-	else
-	{
-		gen3Mod = 0;
-		gen2Mod = 0;
-		gen1Mod = 0;
-	}
+	if (pbOn)
+		lfoOut += pbGen.Gen() * synthParams.frqTI;
+	if (pbWT.On())
+		lfoOut += pbWT.Gen() * synthParams.frqTI;
+	gen3Mod = lfoOut * gen3Mult;
+	gen2Mod = lfoOut * gen2Mult;
+	gen1Mod = lfoOut * gen1Mult;
 
 	gen1Out = gen1Osc.Gen() * gen1EG.Gen();
 	gen2Out = gen2Osc.Gen() * gen2EG.Gen();
@@ -760,6 +772,10 @@ int FMSynth::Load(XmlSynthElem *parent)
 			if (elem->GetAttribute("on", ival) == 0)
 				pbOn = (int) ival;
 			pbGen.Load(elem);
+			if (elem->GetAttribute("pbamp", dval) == 0)
+				pbWT.SetLevel(AmpValue(dval));
+			if (elem->GetAttribute("pbwt", ival) == 0)
+				pbWT.SetWavetable((int)ival);
 		}
 		elem = elem->NextSibling(&node);
 	}
@@ -846,6 +862,8 @@ int FMSynth::Save(XmlSynthElem *parent)
 		return -1;
 	elem->SetAttribute("on", (short) pbOn);
 	pbGen.Save(elem);
+	elem->SetAttribute("pbamp", (float) pbWT.GetLevel());
+	elem->SetAttribute("pbwt", (short) pbWT.GetWavetable());
 	delete elem;
 
 	return 0;

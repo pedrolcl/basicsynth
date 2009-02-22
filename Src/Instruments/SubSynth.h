@@ -19,12 +19,16 @@ protected:
 	EnvGenADSR *egFilt;
 	AmpValue res;
 	AmpValue gain;
+	bsInt32 coefRate;
+	bsInt32 coefCount;
 public:
 	SubFilt()
 	{
 		egFilt = 0;
 		res = 0;
 		gain = 0;
+		coefRate = 0;
+		coefCount = 0;
 	}
 	virtual ~SubFilt() { }
 	virtual AmpValue Sample(AmpValue in) { return in; }
@@ -35,7 +39,11 @@ public:
 		res = r;
 	}
 	virtual void Reset(float ) { }
-	virtual void Copy(SubFilt *tp) { }
+	virtual void Copy(SubFilt *tp) { coefRate = tp->coefRate; }
+	virtual void SetCalcRate(float f)
+	{
+		coefRate = (bsInt32) (f * 0.001 * synthParams.sampleRate);
+	}
 };
 
 class SubFiltLP : public SubFilt
@@ -45,17 +53,24 @@ private:
 public:
 	virtual AmpValue Sample(AmpValue in)
 	{
-		filt.Init(egFilt->Gen(), gain);
+		AmpValue f = egFilt->Gen();
+		if (--coefCount <= 0)
+		{
+			filt.Init(f, gain);
+			coefCount = coefRate;
+		}
 		return filt.Sample(in);
 	}
 	virtual void Reset(float initPhs)
 	{
 		if (initPhs >= 0)
 			filt.Init(egFilt->GetStart(), gain);
+		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
 	virtual void Copy(SubFilt *tp)
 	{
+		SubFilt::Copy(tp);
 		filt.Copy(&((SubFiltLP*)tp)->filt);
 	}
 };
@@ -67,17 +82,24 @@ private:
 public:
 	virtual AmpValue Sample(AmpValue in)
 	{
-		filt.Init(egFilt->Gen(), gain);
+		AmpValue f = egFilt->Gen();
+		if (--coefCount <= 0)
+		{
+			filt.Init(f, gain);
+			coefCount = coefRate;
+		}
 		return filt.Sample(in);
 	}
 	virtual void Reset(float initPhs)
 	{
 		if (initPhs >= 0)
 			filt.Init(egFilt->GetStart(), gain);
+		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
 	virtual void Copy(SubFilt *tp)
 	{
+		SubFilt::Copy(tp);
 		filt.Copy(&((SubFiltHP*)tp)->filt);
 	}
 };
@@ -89,17 +111,24 @@ private:
 public:
 	virtual AmpValue Sample(AmpValue in)
 	{
-		filt.Init(egFilt->Gen(), gain, res);
+		AmpValue f = egFilt->Gen();
+		if (--coefCount <= 0)
+		{
+			filt.Init(f, gain, res);
+			coefCount = coefRate;
+		}
 		return filt.Sample(in);
 	}
 	virtual void Reset(float initPhs)
 	{
 		if (initPhs >= 0)
 			filt.Init(egFilt->GetStart(), gain, res);
+		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
 	virtual void Copy(SubFilt *tp)
 	{
+		SubFilt::Copy(tp);
 		filt.Copy(&((SubFiltBP*)tp)->filt);
 	}
 };
@@ -111,17 +140,24 @@ private:
 public:
 	virtual AmpValue Sample(AmpValue in)
 	{
-		filt.InitRes(egFilt->Gen(), gain, res);
+		AmpValue f = egFilt->Gen();
+		if (--coefCount <= 0)
+		{
+			filt.Init(f, res);
+			coefCount = coefRate;
+		}
 		return filt.Sample(in);
 	}
 	virtual void Reset(float initPhs)
 	{
 		if (initPhs >= 0)
 			filt.InitRes(egFilt->GetStart(), gain, res);
+		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
 	virtual void Copy(SubFilt *tp)
 	{
+		SubFilt::Copy(tp);
 		filt.Copy(&((SubFiltRES*)tp)->filt);
 	}
 };
@@ -140,12 +176,14 @@ private:
 	EnvGenADSR   envFlt;
 	LFO lfoGen;
 	PitchBend pbGen;
+	PitchBendWT pbWT;
 	AmpValue vol;
 	AmpValue sigMix;
 	AmpValue nzMix;
 	AmpValue fltGain;
 	AmpValue fltRes; // only if Reson filter
 	short fltType; // 0=LP, 1=HP, 2=BP, 3=RES
+	float coefRate;
 	int chnl;
 	int nzOn;
 	int pbOn;
@@ -172,6 +210,7 @@ public:
 	int Save(XmlSynthElem *parent);
 	int GetParams(VarParamEvent *params);
 	int SetParams(VarParamEvent *params);
+	int SetParam(bsInt16 id, float val);
 };
 
 #endif

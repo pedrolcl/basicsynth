@@ -103,7 +103,10 @@ public:
 	bsString& Assign(const bsString& s)
 	{
 		if (Allocate(s.Length()))
+		{
 			strcpy(theStr, s.theStr);
+			curLen = s.curLen;
+		}
 		return *this;
 	}
 

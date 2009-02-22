@@ -138,6 +138,17 @@ public:
 			ap[n-4].InitDLR(lt, rt, 0.001);
 	}
 
+	/// Clear all delay lines to zero
+	void Clear()
+	{
+		dlr[0].Clear();
+		dlr[1].Clear();
+		dlr[2].Clear();
+		dlr[3].Clear();
+		ap[0].Clear();
+		ap[1].Clear();
+	}
+
 	/// Process the current sample.
 	/// The input value is passed to the reverb.
 	/// The reverberated sample is returned.

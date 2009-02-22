@@ -30,7 +30,7 @@
         <lfo frq="4.400000" wt="0" atk="0.100000" amp="0.050000" />
         <pb on="0" r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" />
     </instr>
-    <instr id="106" type="TFM" name="TFMString" desc="Waveform: 1, 0.33, 0.25, 0.1">
+    <instr id="106" type="ToneFM" name="TFMString" desc="Waveform: 1, 0.33, 0.25, 0.1">
         <osc frq="261.625580" wt="10" vol="1.000000" mnx="0.600000" mul="4.000000" />
         <env st="0.000000" atk="0.375000" pk="1.000000" dec="0.100000" sus="0.950000" rel="0.275000" end="0.000000" ty="1" />
         <lfo frq="4.725000" wt="0" atk="0.100000" amp="0.018000" />

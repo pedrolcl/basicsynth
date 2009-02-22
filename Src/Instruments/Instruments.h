@@ -8,4 +8,5 @@
 #include <FMSynth.h>
 #include <MatrixSynth.h>
 #include <WFSynth.h>
+#include <Chuffer.h>
 #include <LoadInstrLib.h>

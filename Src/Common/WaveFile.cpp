@@ -13,34 +13,37 @@
 #include <math.h>
 #include <SynthDefs.h>
 #include <WaveFile.h>
+#if _DEBUG
+#include <stdio.h>
+#endif
 
 void WaveFile::SetupWH(int ch)
 {
-	wh.riffId[0] = 'R';
-	wh.riffId[1] = 'I';
-	wh.riffId[2] = 'F';
-	wh.riffId[3] = 'F';
-	wh.riffSize = 0;
+	wh.riff.chunkId[0] = 'R';
+	wh.riff.chunkId[1] = 'I';
+	wh.riff.chunkId[2] = 'F';
+	wh.riff.chunkId[3] = 'F';
+	wh.riff.chunkSize = 0;
 	wh.waveType[0] = 'W';
 	wh.waveType[1] = 'A';
 	wh.waveType[2] = 'V';
 	wh.waveType[3] = 'E';
-	wh.fmtId[0] = 'f';
-	wh.fmtId[1] = 'm';
-	wh.fmtId[2] = 't';
-	wh.fmtId[3] = ' ';
-	wh.fmtSize = 16; // TODO: allow other sample sizes, 8, 24, 32 ?
-	wh.fmtCode = 1;    // 1 = PCM
-	wh.channels = ch;    // 1 = mono, 2 = stereo
-	wh.sampleRate = synthParams.isampleRate;
-	wh.bits = sizeof(SampleValue) * 8;
-	wh.align = (wh.channels * wh.bits) / 8;
-	wh.avgbps = (wh.sampleRate * wh.align);
-	wh.waveId[0] = 'd';
-	wh.waveId[1] = 'a';
-	wh.waveId[2] = 't';
-	wh.waveId[3] = 'a';
-	wh.waveSize = 0;
+	wh.fmt.chunkId[0] = 'f';
+	wh.fmt.chunkId[1] = 'm';
+	wh.fmt.chunkId[2] = 't';
+	wh.fmt.chunkId[3] = ' ';
+	wh.fmt.chunkSize = 16;
+	wh.fmtdata.fmtCode = 1;    // 1 = PCM
+	wh.fmtdata.channels = ch;    // 1 = mono, 2 = stereo
+	wh.fmtdata.sampleRate = synthParams.isampleRate;
+	wh.fmtdata.bits = sizeof(short) * 8;
+	wh.fmtdata.align = (wh.fmtdata.channels * wh.fmtdata.bits) / 8;
+	wh.fmtdata.avgbps = (wh.fmtdata.sampleRate * wh.fmtdata.align);
+	wh.data.chunkId[0] = 'd';
+	wh.data.chunkId[1] = 'a';
+	wh.data.chunkId[2] = 't';
+	wh.data.chunkId[3] = 'a';
+	wh.data.chunkSize = 0;
 }
 
 
@@ -76,8 +79,8 @@ int WaveFile::CloseWaveFile()
 
 	bsUint32 byteTotal = sampleTotal * sizeof(SampleValue);
 
-	wh.riffSize = byteTotal + sizeof(wh) - 8; // filesize - RIFF chunk
-	wh.waveSize = byteTotal;
+	wh.riff.chunkSize = byteTotal + sizeof(wh) - 8; // filesize - RIFF chunk
+	wh.data.chunkSize = byteTotal;
 
 	int err = 0;
 	wfp.FileRewind();
@@ -95,6 +98,93 @@ int WaveFile::FlushOutput()
 	if (nxtSamp > samples)
 	{
 		wfp.FileWrite(samples, sizeof(SampleValue)*(nxtSamp - samples));
+		nxtSamp = samples;
+	}
+	return 0;
+}
+
+void WaveFileIEEE::SetupWH(short chn)
+{
+	wh.riff.chunkId[0] = 'R';
+	wh.riff.chunkId[1] = 'I';
+	wh.riff.chunkId[2] = 'F';
+	wh.riff.chunkId[3] = 'F';
+	wh.riff.chunkSize = 0;
+	wh.waveType[0] = 'W';
+	wh.waveType[1] = 'A';
+	wh.waveType[2] = 'V';
+	wh.waveType[3] = 'E';
+	wh.fmt.chunkId[0] = 'f';
+	wh.fmt.chunkId[1] = 'm';
+	wh.fmt.chunkId[2] = 't';
+	wh.fmt.chunkId[3] = ' ';
+	wh.fmt.chunkSize = 18;
+	wh.fmtdata.fmtCode = 3; // WAVE_FORMAT_IEEE_FLOAT;
+	wh.fmtdata.channels = chn;    // 1 = mono, 2 = stereo
+	wh.fmtdata.sampleRate = synthParams.isampleRate;
+	wh.fmtdata.bits = sizeof(float) * 8;
+	wh.fmtdata.align = (wh.fmtdata.channels * wh.fmtdata.bits) / 8;
+	wh.fmtdata.avgbps = (wh.fmtdata.sampleRate * wh.fmtdata.align);
+	wh.cbsize = 0;
+	wh.fact.chunkId[0] = 'f';
+	wh.fact.chunkId[1] = 'a';
+	wh.fact.chunkId[2] = 'c';
+	wh.fact.chunkId[3] = 't';
+	wh.fact.chunkSize = 4;
+	wh.sampleLength = 0;
+	wh.data.chunkId[0] = 'd';
+	wh.data.chunkId[1] = 'a';
+	wh.data.chunkId[2] = 't';
+	wh.data.chunkId[3] = 'a';
+	wh.data.chunkSize = 0;
+}
+
+int WaveFileIEEE::OpenWaveFile(char *fname, int chnls)
+{
+	wfp.FileClose();
+	if (AllocBuf(synthParams.isampleRate * bufSecs * chnls, chnls))
+		return -3;
+
+	SetupWH(chnls);
+	sampleTotal = 0;
+
+	if (wfp.FileOpen(fname))
+		return -1;
+
+	if (wfp.FileWrite(&wh, sizeof(wh)) != sizeof(wh))
+	{
+		wfp.FileClose();
+		return -2;
+	}
+
+	sampleOOR = 0;
+	return 0;
+}
+
+int WaveFileIEEE::CloseWaveFile()
+{
+	FlushOutput();
+
+	bsUint32 byteTotal = sampleTotal * sizeof(float);
+
+	wh.riff.chunkSize = byteTotal + sizeof(wh) - 8; // filesize - RIFF chunk
+	wh.data.chunkSize = byteTotal;
+	wh.sampleLength = sampleTotal / wh.fmtdata.channels;
+
+	int err = 0;
+	wfp.FileRewind();
+	if (wfp.FileWrite(&wh, sizeof(wh)) != sizeof(wh))
+		err = -1;
+	wfp.FileClose();
+	DeallocBuf();
+	return err;
+}
+
+int WaveFileIEEE::FlushOutput()
+{
+	if (nxtSamp > samples)
+	{
+		wfp.FileWrite(samples, sizeof(float)*(nxtSamp - samples));
 		nxtSamp = samples;
 	}
 	return 0;
@@ -178,7 +268,7 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 		return -2;
 	}
 	long fileSize = chunk.chunkSize;
-	long wavePos = 0;
+	long wavePos = 8;
 
 	wfp.FileRead(chunk.chunkId, 4);
 	if (memcmp(chunk.chunkId, "WAVE", 4) != 0)

@@ -40,6 +40,7 @@
 #define WT_USR(n) ((n)+10)
 
 /// Structure to hold information about a wavetable.
+/// The wavID member is used to lookup the table.
 struct WaveTable
 {
 	AmpValue *wavTbl;
@@ -187,7 +188,7 @@ public:
 		return -1;
 	}
 
-	/// Set wavetable by index.
+	/// Get wavetable by index.
 	/// If the requested wavetable is not allocated the sin wave table is returned.
 	/// @param ndx wave table index
 	AmpValue *GetWavetable(bsInt32 ndx)
@@ -383,24 +384,24 @@ public:
 	/// E.G., you can set amplitudes as 10,5,1 etc. and still produce a wavetable
 	/// with amplitudes in the range [-1,+1]. Phase values, if given, are in radians.
 	///
-	/// @param n table index
+	/// @param ti table index
 	/// @param nparts number of partials
 	/// @param mul array of partial numbers, cann be NULL if all partials 1 through n included
 	/// @param amp array of partial relative amplitudes (required)
 	/// @param phs array of phase offsets, NULL for all 0 phase
 	/// @param gibbs turn gibbs correction on/off
-	int SetWaveTable(bsInt32 n, bsInt32 nparts, bsInt32 *mul, double *amp, double *phs, int gibbs)
+	int SetWaveTable(bsInt32 ti, bsInt32 nparts, bsInt32 *mul, double *amp, double *phs, int gibbs)
 	{
-		if (n < 0 || n >= wavTblMax || amp == NULL)
+		if (ti < 0 || ti >= wavTblMax || amp == NULL)
 			return -1;
 
-		AmpValue *wavTable = wavSet[n].wavTbl;
+		AmpValue *wavTable = wavSet[ti].wavTbl;
 		if (wavTable == 0)
 		{
 			wavTable = new AmpValue[synthParams.itableLength+1];
 			if (wavTable == NULL)
 				return -1;
-			wavSet[n].wavTbl = wavTable;
+			wavSet[ti].wavTbl = wavTable;
 		}
 
 		double *phsVal = new double[nparts];
@@ -474,6 +475,55 @@ public:
 		delete phsInc;
 		delete sigma;
 
+		return 0;
+	}
+
+	/// Set an indexed wave table. This is the method to fill in a user wavetable
+	/// from a set of linear segments. Each segment is defined by a length and
+	/// a level. The length is a fraction of the table length, i.e., 0.25 indicates
+	/// one-fourth of the table length. The total values of the lengths must sum to 1.0.
+	/// The level values are used as-is. Generally the levels should range [-1,+1] but
+	/// can be specified as any values. The start value is 0, but a different start can
+	/// be created by setting the length of the first segment to 0.
+	///
+	/// @param ti table index
+	/// @param nsegs number of segments
+	/// @param len array of lengths
+	/// @param val array of levels
+	int SegWaveTable(bsInt32 ti, bsInt32 nsegs, double *len, double *val)
+	{
+		if (ti < 0 || ti >= wavTblMax || val == 0 || len == 0)
+			return -1;
+
+		AmpValue *wavTable = wavSet[ti].wavTbl;
+		if (wavTable == 0)
+		{
+			wavTable = new AmpValue[synthParams.itableLength+1];
+			if (wavTable == NULL)
+				return -1;
+			wavSet[ti].wavTbl = wavTable;
+		}
+
+		bsInt32 index = 0;
+		double level = 0.0;
+		for (int ns = 0; ns < nsegs; ns++)
+		{
+			bsInt32 count = (bsInt32) (synthParams.ftableLength * len[ns]);
+			if (count > 0)
+			{
+				double incr = (val[ns] - level) / (double) count;
+				while (count > 0 && index < synthParams.itableLength)
+				{
+					wavTable[index++] = level;
+					level += incr;
+					count--;
+				}
+			}
+			level = val[ns];
+		}
+		while (index < synthParams.itableLength)
+			wavTable[index++] = level;
+		wavTable[synthParams.itableLength] = wavTable[0];
 		return 0;
 	}
 };

@@ -13,6 +13,15 @@
 
 #pragma once
 
+class nlSyntaxErr
+{
+public:
+	bsString file;
+	bsString msg;
+	bsString token;
+	long lineno;
+};
+
 // prototype for the error and debug output callbacks
 class nlErrOut
 {
@@ -26,8 +35,36 @@ public:
 	{
 	}
 
+	virtual void OutputError(nlSyntaxErr *e)
+	{
+		char lnstr[80];
+		IntToStr(e->lineno, lnstr);
+		bsString msg;
+		msg = e->file;
+		msg += '(';
+		msg += lnstr;
+		msg += ')';
+		msg += " : ";
+		msg += e->msg;
+		msg += " : ";
+		msg += e->token;
+		OutputError((const char *)msg);
+	}
+
 	virtual void OutputMessage(const char *s)
 	{
+	}
+};
+
+class nlParamMapEntry : public SynthList<nlParamMapEntry>
+{
+public:
+	int   id;
+	double scale;
+	nlParamMapEntry(int n, double s)
+	{
+		id = n;
+		scale = s;
 	}
 };
 
@@ -37,8 +74,7 @@ class nlParamMap : public SynthList<nlParamMap>
 public:
 	int  maxEnt;
 	int  mapSiz; // maximum in the map
-	int *mapPtr;   // map of index values
-	float *mapScl; // map of scaling values
+	nlParamMapEntry **mapPtr;   // map of index and scale values
 	int  instr;  // instrument number
 	int  growBy;
 
@@ -47,15 +83,14 @@ public:
 		growBy = 8;
 		instr = -1;
 		mapPtr = 0;
-		mapScl = 0;
 		mapSiz = 0;
 		maxEnt = 0;
 	}
 
 	~nlParamMap()
 	{
+		Clear();
 		delete mapPtr;
-		delete mapScl;
 	}
 
 	inline void SetInstr(int n)
@@ -70,11 +105,16 @@ public:
 
 	void Clear()
 	{
-		int pn;
-		for (pn = 0; pn < mapSiz; pn++)
+		for (int pn = 0; pn < mapSiz; pn++)
 		{
+			nlParamMapEntry *p1 = mapPtr[pn];
+			while (p1)
+			{
+				nlParamMapEntry *p2 = p1->next;
+				delete p1;
+				p1 = p2;
+			}
 			mapPtr[pn] = 0;
-			mapScl[pn] = 1.0;
 		}
 		maxEnt = 0;
 	}
@@ -83,42 +123,42 @@ public:
 	{
 		if (pn >= mapSiz)
 		{
-			int *newmap = new int[mapSiz+growBy];
-			float *newscl = new float[mapSiz+growBy];
-			if (newmap == NULL || newscl == NULL)
+			nlParamMapEntry **newmap = new nlParamMapEntry*[mapSiz+growBy];
+			if (newmap == NULL)
 				return;
 			if (mapSiz)
 			{
-				memcpy(newmap, mapPtr, mapSiz*sizeof(int));
+				memcpy(newmap, mapPtr, mapSiz*sizeof(nlParamMapEntry*));
 				delete mapPtr;
-				memcpy(newscl, mapScl, mapSiz*sizeof(float));
-				delete mapScl;
 			}
-			memset(&newmap[mapSiz], 0, growBy*sizeof(int));
-			memset(&newscl[mapSiz], 0, growBy*sizeof(float));
+			memset(&newmap[mapSiz], 0, growBy*sizeof(nlParamMapEntry*));
 			mapPtr = newmap;
-			mapScl = newscl;
 			mapSiz += growBy;
 		}
-		mapPtr[pn] = mn;
-		mapScl[pn] = scl;
+		nlParamMapEntry *pe = new nlParamMapEntry(mn, scl);
+		if (mapPtr[pn])
+			mapPtr[pn]->Insert(pe);
+		else
+			mapPtr[pn] = pe;
 		if (pn > maxEnt)
 			maxEnt = pn;
 	}
 
-	int MapParam(int pn)
+	void MapParam(SeqEvent *evt, int pn, double val)
 	{
 		if (pn <= maxEnt)
-			return mapPtr[pn];
-		return pn + P_VOLUME + 1;
+		{
+			nlParamMapEntry *pe = mapPtr[pn];
+			while (pe)
+			{
+				evt->SetParam(pe->id, (float) (pe->scale * val));
+				pe = pe->next;
+			}
+		}
+		else
+			evt->SetParam(P_VOLUME+pn, (float) val);
 	}
 
-	double ScaleValue(int pn, double val)
-	{
-		if (pn <= maxEnt)
-			return mapScl[pn] * val;
-		return val;
-	}
 };
 
 // the convert class. 
@@ -201,6 +241,12 @@ public:
 	{
 		if (debugLevel >= n && eout)
 			eout->OutputDebug(s);
+	}
+
+	virtual void ShowError(nlSyntaxErr *s)
+	{
+		if (eout)
+			eout->OutputError(s);
 	}
 
 	virtual void ShowError(const char *s)

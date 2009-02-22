@@ -55,6 +55,10 @@ public:
 	/// @param pv pan setting value
 	void Set(int pm, AmpValue pv)
 	{
+		if (pv > 1.0)
+			pv = 1.0;
+		else if (pv < -1.0)
+			pv = -1.0;
 		panval = pv;
 		if (pm == panOff)
 		{
@@ -62,6 +66,7 @@ public:
 			panrgt = 0.5;
 			return;
 		}
+
 		panlft = (1 - pv) / 2;
 		panrgt = (1 + pv) / 2;
 		// optional: range 0-1
@@ -372,6 +377,8 @@ private:
 	FxChannel *fxBuf;
 	AmpValue lvol;
 	AmpValue rvol;
+	AmpValue lpeak;
+	AmpValue rpeak;
 
 public:
 	Mixer()
@@ -380,6 +387,8 @@ public:
 		fxUnits = 0;
 		lvol = 1.0;
 		rvol = 1.0;
+		lpeak = 0.0;
+		rpeak = 0.0;
 		inBuf = 0;
 		fxBuf = 0;
 	}
@@ -587,6 +596,22 @@ public:
 
 		*lval = lvalOut * lvol;
 		*rval = rvalOut * rvol;
+		if (*lval > lpeak)
+			lpeak = *lval;
+		if (*rval > rpeak)
+			rpeak = *rval;
+	}
+
+	/// Get the peak value.
+	/// The peak value is reset to zero
+	/// @param lval left channel peak
+	/// @param rval right channel peak
+	void Peak(AmpValue& lval, AmpValue& rval)
+	{
+		lval = lpeak;
+		rval = rpeak;
+		lpeak = 0;
+		rpeak = 0;
 	}
 
 	/// Reset the mixer. This does not delete channels and effects,
@@ -598,6 +623,8 @@ public:
 			inBuf[n].Clear();
 		for (n = 0; n < fxUnits; n++)
 			fxBuf[n].Clear();
+		lpeak = 0.0;
+		rpeak = 0.0;
 	}
 };
 //@}

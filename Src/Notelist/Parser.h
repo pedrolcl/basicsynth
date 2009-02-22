@@ -78,6 +78,7 @@ public:
 	int Error(char *s, int *skiplist);
 	int SkipTo(int *skiplist);
 	int SkipBlock();
+	int CheckEnd(int err);
 
 	int Parse();
 	int Score();
@@ -95,6 +96,7 @@ public:
 	int MiddleC();
 	int MaxParam();
 	int Map();
+	int MapExpr();
 	int Mark();
 	int Sync();
 	int Write();

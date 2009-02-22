@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release6"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX- /O2 /I "../../Include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "USE_TINYXML" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "../../Include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "USE_TINYXML" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -65,7 +65,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug6"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX- /ZI /Od /I "../../Include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "USE_TINYXML" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /I "../../Include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "USE_TINYXML" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -88,6 +88,10 @@ LIB32=link.exe -lib
 # Begin Source File
 
 SOURCE=.\AddSynth.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Chuffer.cpp
 # End Source File
 # Begin Source File
 
@@ -128,6 +132,10 @@ SOURCE=.\WFSynth.cpp
 # Begin Source File
 
 SOURCE=.\AddSynth.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Chuffer.h
 # End Source File
 # Begin Source File
 

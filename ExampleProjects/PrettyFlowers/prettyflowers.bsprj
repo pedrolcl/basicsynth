@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<synthprj>
+    <name>Pretty Flowers</name>
+    <descr>Wildflower blues: Music for the Pretty Flowers video</descr>
+    <author>Daniel R. Mitchell</author>
+    <cpyrgt>2005</cpyrgt>
+    <out type="1" fmt="0" lead="0.000000" tail="0.000000">prettyflowers.wav</out>
+    <synth sr="44100" wt="16384" usr="4">
+        <wvtable name="#10" ndx="10" type="1" parts="5" gibbs="0">
+            <part mul="1.000000" amp="1.000000" phs="0.000000" />
+            <part mul="2.000000" amp="0.300000" phs="0.000000" />
+            <part mul="3.000000" amp="0.100000" phs="0.000000" />
+            <part mul="5.000000" amp="0.050000" phs="0.000000" />
+            <part mul="7.000000" amp="0.025000" phs="0.000000" />
+        </wvtable>
+        <wvtable name="#11" ndx="11" type="1" parts="2" gibbs="0">
+            <part mul="1.000000" amp="1.000000" phs="0.000000" />
+            <part mul="3.000000" amp="0.200000" phs="0.000000" />
+        </wvtable>
+        <wvtable name="#12" ndx="12" type="2" parts="3" gibbs="0">
+            <part mul="1.000000" amp="0.000000" phs="0.500000" />
+            <part mul="1.000000" amp="1.000000" phs="0.250000" />
+            <part mul="1.000000" amp="0.000000" phs="0.250000" />
+        </wvtable>
+        <wvtable name="#13" ndx="13" type="2" parts="3" gibbs="0">
+            <part mul="1.000000" amp="1.000000" phs="0.250000" />
+            <part mul="2.000000" amp="0.000000" phs="0.500000" />
+            <part mul="3.000000" amp="0.000000" phs="0.250000" />
+        </wvtable>
+    </synth>
+    <mixer chnls="8" fxunits="1" lft="0.740000" rgt="0.740000" pan="2">
+        <chnl cn="0" on="1" vol="0.600000" pan="-0.200000" />
+        <chnl cn="1" on="1" vol="0.500000" pan="0.200000" />
+        <chnl cn="2" on="1" vol="0.500000" pan="0.000000" />
+        <chnl cn="3" on="1" vol="0.795000" pan="0.000000" />
+        <chnl cn="4" on="1" vol="0.795000" pan="0.000000" />
+        <chnl cn="5" on="1" vol="0.795000" pan="-0.040000" />
+        <chnl cn="6" on="1" vol="0.500000" pan="0.080000" />
+        <chnl cn="7" on="1" vol="0.325000" pan="-0.150000" />
+        <reverb name="Revrb1" unit="0" vol="0.730000" pan="0.000000" rvt="2.000000" lt1="0.043700" lt2="0.041100" lt3="0.037100" lt4="0.029700">
+            <send chnl="0" amt="0.050000" />
+            <send chnl="1" amt="0.050000" />
+            <send chnl="2" amt="0.050000" />
+            <send chnl="3" amt="0.050000" />
+            <send chnl="4" amt="0.050000" />
+            <send chnl="5" amt="0.045000" />
+            <send chnl="6" amt="0.045000" />
+            <send chnl="7" amt="0.045000" />
+        </reverb>
+    </mixer>
+    <wvdir></wvdir>
+    <wvfile id="4" name="Kick drum">11385_atomwrath_KD_BD.wav</wvfile>
+    <wvfile id="5" name="Snare drum">11386_atomwrath_KD_Sn.wav</wvfile>
+    <wvfile id="6" name="Tom-tom 1" desc="">11397_atomwrath_KD_tom1.wav</wvfile>
+    <wvfile id="7" name="Tom-tom 2" desc="">11398_atomwrath_KD_tom2.wav</wvfile>
+    <wvfile id="8" name="Snare ring">11387_atomwrath_KD_Snrim.wav</wvfile>
+    <wvfile id="9" name="Tight hat" desc="">11394_atomwrath_KD_hhped.wav</wvfile>
+    <wvfile id="10" name="Foot hat" desc="">11392_atomwrath_KD_hhcl.wav</wvfile>
+    <wvfile id="11" name="Cymbal" desc="">11391_atomwrath_KD_cym1b.wav</wvfile>
+    <instrlib>
+        <instr id="1" type="MatrixSynth" name="PFBass" desc="">
+            <mat frq="440.000000" vol="1.000000" />
+            <gen gn="0" wt="10" mul="1.000000" mnx="0.000000" eg="0" out="1101000000000000" mod="01000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="1" wt="0" mul="2.000000" mnx="0.750000" eg="1" out="1001000000000000" mod="00000000" vol="0.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="2" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="3" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="4" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="5" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="6" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="7" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <env en="0" segs="3" st="0.000000" sus="1">
+                <seg sn="0" rt="0.010000" lvl="0.996000" ty="2" fix="1" />
+                <seg sn="1" rt="1.000000" lvl="0.000000" ty="2" fix="1" />
+                <seg sn="2" rt="0.200000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="1" segs="3" st="1.000000" sus="1">
+                <seg sn="0" rt="0.200000" lvl="0.250000" ty="2" fix="1" />
+                <seg sn="1" rt="0.800000" lvl="0.000000" ty="2" fix="1" />
+                <seg sn="2" rt="0.200000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="2" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="3" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="4" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="5" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="6" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="7" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <lfo frq="3.500000" wt="0" atk="0.100000" amp="0.000000" />
+            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.000000" pbwt="12" />
+        </instr>
+        <instr id="2" type="MatrixSynth" name="PFKbd" desc="">
+            <mat frq="440.000000" vol="1.000000" />
+            <gen gn="0" wt="10" mul="1.000000" mnx="0.000000" eg="0" out="1100000000000000" mod="01000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="1" wt="0" mul="4.000000" mnx="0.313000" eg="1" out="1000000000000000" mod="00000000" vol="0.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="2" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="3" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="4" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="5" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="6" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="7" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <env en="0" segs="3" st="0.000000" sus="1">
+                <seg sn="0" rt="0.010000" lvl="1.000000" ty="1" fix="1" />
+                <seg sn="1" rt="1.500000" lvl="0.000000" ty="1" fix="1" />
+                <seg sn="2" rt="0.154000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="1" segs="3" st="1.000000" sus="0">
+                <seg sn="0" rt="0.200000" lvl="0.262000" ty="1" fix="1" />
+                <seg sn="1" rt="1.500000" lvl="0.000000" ty="1" fix="1" />
+                <seg sn="2" rt="0.161000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="2" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="3" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="4" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="5" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="6" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="7" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <lfo frq="3.500000" wt="0" atk="0.100000" amp="0.000000" />
+            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.000000" pbwt="13" />
+        </instr>
+        <instr id="3" type="MatrixSynth" name="PFGuit" desc="">
+            <mat frq="440.000000" vol="1.000000" />
+            <gen gn="0" wt="11" mul="1.000000" mnx="0.000000" eg="0" out="1101000000000000" mod="01000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="1" wt="0" mul="4.000000" mnx="0.200000" eg="1" out="1001000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="2" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="3" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="4" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="5" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="6" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <gen gn="7" wt="0" mul="1.000000" mnx="1.000000" eg="0" out="0000000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
+            <env en="0" segs="2" st="0.000000" sus="0">
+                <seg sn="0" rt="0.010000" lvl="1.000000" ty="1" fix="1" />
+                <seg sn="1" rt="1.054000" lvl="0.000000" ty="1" fix="0" />
+            </env>
+            <env en="1" segs="1" st="1.000000" sus="0">
+                <seg sn="0" rt="1.054000" lvl="0.000000" ty="1" fix="0" />
+            </env>
+            <env en="2" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="3" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="4" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="5" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="6" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <env en="7" segs="1" st="0.000000" sus="0">
+                <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
+            </env>
+            <lfo frq="3.500000" wt="0" atk="0.100000" amp="0.000000" />
+            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.120000" pbwt="13" />
+        </instr>
+        <instr id="4" type="WFSynth" name="PFDrum" desc="">
+            <wvf fn="9" lp="0" pa="1" />
+            <env ar="0.000000" rr="0.000000" />
+        </instr>
+    </instrlib>
+    <score inc="1" name="Pretty Flowers" desc="">prettyflowers.nl</score>
+</synthprj>

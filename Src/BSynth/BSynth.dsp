@@ -54,7 +54,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy test projects
-PostBuild_Cmds=copy *.xml ..\..\Bin\jig.xml	copy *.nl ..\..\Bin\jig.nl	copy testprj.wav ..\..\Bin\testprj.wav
+PostBuild_Cmds=copy  *.xml  ..\..\Bin\ 	copy  *.nl  ..\..\Bin\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "BSynth - Win32 Debug"
@@ -93,32 +93,12 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\main.cpp
-
-!IF  "$(CFG)" == "BSynth - Win32 Release"
-
 # ADD CPP /Yu"BSynth.h"
-
-!ELSEIF  "$(CFG)" == "BSynth - Win32 Debug"
-
-# ADD CPP /Yu"BSynth.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\PreComp.cpp
-
-!IF  "$(CFG)" == "BSynth - Win32 Release"
-
 # ADD CPP /Yc"BSynth.h"
-
-!ELSEIF  "$(CFG)" == "BSynth - Win32 Debug"
-
-# ADD CPP /Yc"BSynth.h"
-
-!ENDIF 
-
 # End Source File
 # End Group
 # Begin Group "Header Files"

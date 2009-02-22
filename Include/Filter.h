@@ -7,6 +7,7 @@
 //  FilterFIR - 1st order (one-zero) FIR filter
 //  FilterIIR - 1st order (one-pole) IIR filter
 //  FilterIIR2 - one-pole, two-zero filter
+//  FilterIIR2p - two-pole filter
 //  FilterFIRn - n-order FIR filter using convolution
 //  FilterAVGn - n-delay running average filter
 //
@@ -15,7 +16,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
-// @addtogroup grpFilter
+/// @addtogroup grpFilter
 //@{
 #ifndef _FILTER_H_
 #define _FILTER_H_
@@ -79,7 +80,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-/// IIR, one-zero filter. This filter implements the equation:
+/// IIR, one-pole filter. This filter implements the equation:
 /// @code
 /// y[n] = b * x[n] - a * y[n-1]
 /// @endcode
@@ -234,6 +235,99 @@ public:
 		delayX = val;
 		return delayY;
 
+	}
+};
+
+///////////////////////////////////////////////////////////
+/// Two-pole recursive filter. This filter implements the equation
+/// @code
+/// y[n] = a0 * x[n] - b1 * y[n-1] - b2 * y[n-2]
+/// @endcode
+///////////////////////////////////////////////////////////
+class FilterIIR2p : public GenUnit
+{
+protected:
+	AmpValue delayY1; // one sample delay
+	AmpValue delayY2; // two sample delay
+	AmpValue inAmp0;  // a0
+	AmpValue dlyAmp1; // b1
+	AmpValue dlyAmp2; // b2
+public:
+	FilterIIR2p()
+	{
+		delayY1 = 0;
+		delayY2 = 0;
+		inAmp0 = 0;
+		dlyAmp1 = 0;
+		dlyAmp2 = 0;
+	}
+
+	/// Initialize the filter. Set the three coefficients from the 
+	/// value array.
+	/// @param n number of values (3)
+	/// @param v values, v[0] = a0, v[1] = b0, v[2] = b1
+	void Init(int n, float *v)
+	{
+		if (n > 2)
+			InitFilter(AmpValue(v[0]), AmpValue(v[1]), AmpValue(v[2]));
+	}
+
+	/// Reset the filter. This merely clears the delay buffer. The phase argument is ignored.
+	/// @param initPhs not used
+	void Reset(float initPhs = 0)
+	{
+		delayY1 = 0;
+		delayY2 = 0;
+	}
+
+	/// Initialize the filter. The three arguments are the coefficients 
+	/// @param in0 input sample coefficient (a0)
+	/// @param out1 delayed sample coefficient (b1)
+	/// @param out2 delayed sample coefficient (b2)
+	void InitFilter(AmpValue in0, AmpValue out1, AmpValue out2)
+	{
+		inAmp0 = in0;
+		dlyAmp1 = out1;
+		dlyAmp2 = out2;
+	}
+
+	/// Calculate coefficients. The coefficients are calculate to produce the indicated
+	/// cutoff frequency for a band-pass filter with resonance Q
+	/// @param fc cutoff frequency
+	/// @param q  1/bandwidth
+	void CalcCoef(FrqValue fc, FrqValue q)
+	{
+		if (q == 0)
+		{
+			dlyAmp1 = 0;
+			dlyAmp2 = 0;
+			inAmp0 = 0;
+			return;
+		}
+		// Dodge & Jerse
+		// b2 = exp(-twoPI * BW / sampleRate);
+		double rad = synthParams.frqRad * fc;
+		dlyAmp2 = exp(-rad / q);
+		double tmp = dlyAmp2 * 4.0;
+		dlyAmp1 = (-tmp / (1.0 + dlyAmp2)) * cos(rad);
+		inAmp0 = (1.0 - dlyAmp2) * sqrt(1.0 - ((dlyAmp1*dlyAmp1)/tmp));
+
+		// alternate - derived from CSound source (Hal Chamberlin's equation?)
+		//double tmp = -PI * fc / (q * synthParams.sampleRate);
+		//dlyAmp1 = -2.0 * cos(synthParams.frqRad * fc) * exp(tmp);
+		//dlyAmp2 = exp(tmp+tmp);
+		//inAmp0 = 1.0 - tdlyAmp1 - tdlyAmp2;
+	}
+
+	/// Process the current sample. The input sample is stored in the delay
+	/// buffer and the filtered sample is calculated and returned.
+	/// @param val current sample value
+	AmpValue Sample(AmpValue val)
+	{
+		AmpValue out = (inAmp0 * val) - (dlyAmp1 * delayY1) - (dlyAmp2 * delayY2);
+		delayY2 = delayY1;
+		delayY1 = out;
+		return out;
 	}
 };
 

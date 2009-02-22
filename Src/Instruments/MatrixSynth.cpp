@@ -43,8 +43,8 @@ static InstrParamMap genParams[] =
 {
 	{ "eg",  6 },  { "fx1", 7 },  { "fx2", 8 },  { "fx3", 9 },  { "fx4", 10 },
 	{ "lfo", 11 }, { "mnx", 4 },  { "mod", 1 },  { "mul", 3 },  { "on", 16 },
-	{ "out", 0 },  { "pan", 14 }, { "pon", 15 }, { "sig", 17 }, { "trm", 13 },
-	{ "vib", 12 }, { "vol", 5 },  { "wt",  2 },
+	{ "out", 0 },  { "pan", 14 }, { "pon", 15 }, 
+	{ "sig", 17 }, { "trm", 13 }, { "vib", 12 }, { "vol", 5 },  { "wt",  2 }
 };
 
 static InstrParamMap envParams[] = 
@@ -57,7 +57,10 @@ static InstrParamMap globParams[] =
 {
 	{ "frq", P_FREQ }, 
 	{ "lfoamp", 19 }, { "lfoatk", 18 }, { "lfofrq", 16 }, { "lfowt", 17 },
-	{ "matfrq", P_FREQ }, { "matvol", P_VOLUME }, { "vol", P_VOLUME },
+	{ "matfrq", P_FREQ }, { "matvol", P_VOLUME },
+	{ "pbamp", 25 }, { "pba1", 22 }, { "pba2", 23 }, { "pba3", 24 },
+	{ "pbfrq", 27 }, { "pbr1", 20 }, { "pbr2", 21 }, { "pbwt", 26 },
+	{ "vol", P_VOLUME }
 };
 
 static const char *ParamNum(const char *str, int *val)
@@ -121,6 +124,7 @@ MatrixSynth::MatrixSynth()
 	lfoOn = 0;
 	panOn = 0;
 	pbOn = 0;
+	pbWTOn = 0;
 	fx1On = 0;
 	fx2On = 0;
 	fx3On = 0;
@@ -151,6 +155,7 @@ void MatrixSynth::Copy(MatrixSynth *tp)
 
 	lfoOn = tp->lfoOn;
 	pbOn  = tp->pbOn;
+	pbWTOn = tp->pbWTOn;
 	panOn = tp->panOn;
 	fx1On = tp->fx1On;
 	fx2On = tp->fx2On;
@@ -168,6 +173,7 @@ void MatrixSynth::Copy(MatrixSynth *tp)
 
 	lfoGen.Copy(&tp->lfoGen);
 	pbGen.Copy(&tp->pbGen);
+	pbWT.Copy(&tp->pbWT);
 }
 
 void MatrixSynth::Start(SeqEvent *evt)
@@ -195,15 +201,16 @@ void MatrixSynth::Start(SeqEvent *evt)
 	{
 		if (flgs & 1)
 		{
-			envPtr->SetDuration(evt->duration);
+			envPtr->SetDuration(evt->duration / synthParams.sampleRate);
 			envPtr->Reset(0);
 		}
 		envPtr++;
 		flgs >>= 1;
 	}
 
-	lfoOn = (allFlags & (TONE_LFOIN|TONE_TREM)) ? 1 : 0;
+	lfoOn = (allFlags & (TONE_LFOIN|TONE_TREM)) ? lfoGen.On() : 0;
 	pbOn  = (allFlags & TONE_PBIN) ? 1 : 0;
+	pbWTOn = pbOn && pbWT.On();
 	fx1On = (allFlags & TONE_FX1OUT) ? 1 : 0;
 	fx2On = (allFlags & TONE_FX2OUT) ? 1 : 0;
 	fx3On = (allFlags & TONE_FX3OUT) ? 1 : 0;
@@ -213,6 +220,8 @@ void MatrixSynth::Start(SeqEvent *evt)
 		lfoGen.Reset(0);
 	if (pbOn)
 		pbGen.Reset(0);
+	if (pbWTOn)
+		pbWT.Reset(0);
 }
 
 void MatrixSynth::Param(SeqEvent *evt)
@@ -230,6 +239,8 @@ void MatrixSynth::Param(SeqEvent *evt)
 		lfoGen.Reset(-1);
 	if (pbOn)
 		pbGen.Reset(-1);
+	if (pbWTOn)
+		pbWT.Reset(-1);
 }
 
 int MatrixSynth::SetParams(VarParamEvent *params)
@@ -239,197 +250,208 @@ int MatrixSynth::SetParams(VarParamEvent *params)
 	vol = params->vol;
 	pbGen.SetFrequency(frq);
 	lfoGen.SetSigFrq(frq);
+	pbWT.SetSigFrq(frq);
+	pbWT.SetDurationS(params->duration);
 
-	bsInt16 idval;
-	bsInt16 gn, vn, sn, ty;
 	bsInt16 *id = params->idParam;
 	float *vp = params->valParam;
-	float val;
 	int n = params->numParam;
 	while (n-- > 0)
+		SetParam(*id++, *vp++);
+	return 0;
+}
+
+int MatrixSynth::SetParam(bsInt16 idval, float val)
+{
+	bsInt16 gn, vn, sn, ty;
+	// id = 0|xx[3]|vn[8] (generic)
+	// id = 1|on[3]|vn[8] (oscillator)
+	// id = 2|en[3]|sn[5]|vn[3] (envelope)
+	gn = (idval >> 8)  & 7;
+	ty = (idval >> 11) & 3;
+	if (ty == 0)
 	{
-		// id = 0|xx[3]|vn[8] (generic)
-		// id = 1|on[3]|vn[8] (oscillator)
-		// id = 2|en[3]|sn[5]|vn[3] (envelope)
-		val = *vp++;
-		idval = *id++;
-		gn = (idval >> 8)  & 7;
-		ty = (idval >> 11) & 3;
-		if (ty == 0)
+		vn = idval & 0xFF;
+		switch (vn)
 		{
-			vn = idval & 0xFF;
-			switch (vn)
-			{
-			case 16:
-				lfoGen.SetFrequency(FrqValue(val));
-				break;
-			case 17:
-				lfoGen.SetWavetable((int) val);
-				break;
-			case 18:
-				lfoGen.SetAttack(FrqValue(val));
-				break;
-			case 19:
-				lfoGen.SetLevel(AmpValue(val));
-				break;
-			case 20:
-				pbGen.SetRate(0, FrqValue(val));
-				break;
-			case 21:
-				pbGen.SetRate(1, FrqValue(val));
-				break;
-			case 22:
-				pbGen.SetAmount(0, FrqValue(val));
-				break;
-			case 23:
-				pbGen.SetAmount(1, FrqValue(val));
-				break;
-			case 24:
-				pbGen.SetAmount(2, FrqValue(val));
-				break;
-			}
+		case 16:
+			lfoGen.SetFrequency(FrqValue(val));
+			break;
+		case 17:
+			lfoGen.SetWavetable((int) val);
+			break;
+		case 18:
+			lfoGen.SetAttack(FrqValue(val));
+			break;
+		case 19:
+			lfoGen.SetLevel(AmpValue(val));
+			break;
+		case 20:
+			pbGen.SetRate(0, FrqValue(val));
+			break;
+		case 21:
+			pbGen.SetRate(1, FrqValue(val));
+			break;
+		case 22:
+			pbGen.SetAmount(0, FrqValue(val));
+			break;
+		case 23:
+			pbGen.SetAmount(1, FrqValue(val));
+			break;
+		case 24:
+			pbGen.SetAmount(2, FrqValue(val));
+			break;
+		case 25:
+			pbWT.SetLevel(AmpValue(val));
+			break;
+		case 26:
+			pbWT.SetWavetable((int)val);
+			break;
+		case 27:
+			pbWT.SetDuration(FrqValue(val));
+			break;
 		}
-		else if (ty == 1)
+	}
+	else if (ty == 1)
+	{
+		// oscillator
+		vn = idval & 0xFF;
+		MatrixTone *sig = &gens[gn];
+		switch (vn)
 		{
-			// oscillator
-			vn = idval & 0xFF;
-			MatrixTone *sig = &gens[gn];
-			switch (vn)
-			{
-			case 0: // output flags
-				sig->toneFlags = (sig->toneFlags & TONE_MOD_BITS) | (((bsUint32) val) & TONE_OUT_BITS);
-				break;
-			case 1: // modulator flags
-				sig->toneFlags = (sig->toneFlags & TONE_OUT_BITS) | (((bsUint32) val) << 16);
-				break;
-			case 2:
-				sig->osc.SetWavetable((int)val);
-				break;
-			case 3:
-				sig->frqMult = FrqValue(val);
-				break;
-			case 4:
-				sig->modLvl = AmpValue(val);
-				break;
-			case 5:
-				sig->volLvl = AmpValue(val);
-				break;
-			case 6:
-				sig->envIndex = (bsUint16) val;
-				break;
-			case 7:
-				sig->fx1Lvl = AmpValue(val);
-				break;
-			case 8:
-				sig->fx2Lvl = AmpValue(val);
-				break;
-			case 9:
-				sig->fx3Lvl = AmpValue(val);
-				break;
-			case 10:
-				sig->fx4Lvl = AmpValue(val);
-				break;
-			case 11:
-				sig->lfoLvl = AmpValue(val);
-				break;
-			case 12: // vibrato
-				if (val)
-					sig->toneFlags |= TONE_LFOIN;
-				else
-					sig->toneFlags &= ~TONE_LFOIN;
-				break;
-			case 13: // tremolo
-				if (val)
-					sig->toneFlags |= TONE_TREM;
-				else
-					sig->toneFlags &= ~TONE_TREM;
-				break;
-			case 14:
-				sig->panSet.Set(panTrig, AmpValue(val));
-				break;
-			case 15: // pan on/off
-				if (val)
-					sig->toneFlags |= TONE_PAN;
-				else
-					sig->toneFlags &= ~TONE_PAN;
-				break;
-			case 16: // oscil on
-				if (val)
-					sig->toneFlags |= TONE_ON;
-				else
-					sig->toneFlags &= ~TONE_ON;
-				break;
-			case 17: // audio out
-				if (val)
-					sig->toneFlags |= TONE_OUT;
-				else
-					sig->toneFlags &= ~TONE_OUT;
-				break;
-			case 18: // Fx1 out
-				if (val)
-					sig->toneFlags |= TONE_FX1OUT;
-				else
-					sig->toneFlags &= ~TONE_FX2OUT;
-				break;
-			case 19: // Fx2 out
-				if (val)
-					sig->toneFlags |= TONE_FX2OUT;
-				else
-					sig->toneFlags &= ~TONE_FX2OUT;
-				break;
-			case 20: // Fx3 out
-				if (val)
-					sig->toneFlags |= TONE_FX3OUT;
-				else
-					sig->toneFlags &= ~TONE_FX3OUT;
-				break;
-			case 21: // Fx4 out
-				if (val)
-					sig->toneFlags |= TONE_FX4OUT;
-				else
-					sig->toneFlags &= ~TONE_FX4OUT;
-				break;
-			case 22: // pitch bend amount
-				sig->pbLvl = AmpValue(val);
-				break;
-			case 23: // pitch bend on/off
-				if (val)
-					sig->toneFlags |= TONE_PBIN;
-				else
-					sig->toneFlags &= ~TONE_PBIN;
-				break;
-			}
+		case 0: // output flags
+			sig->toneFlags = (sig->toneFlags & TONE_MOD_BITS) | (((bsUint32) val) & TONE_OUT_BITS);
+			break;
+		case 1: // modulator flags
+			sig->toneFlags = (sig->toneFlags & TONE_OUT_BITS) | (((bsUint32) val) << 16);
+			break;
+		case 2:
+			sig->osc.SetWavetable((int)val);
+			break;
+		case 3:
+			sig->frqMult = FrqValue(val);
+			break;
+		case 4:
+			sig->modLvl = AmpValue(val);
+			break;
+		case 5:
+			sig->volLvl = AmpValue(val);
+			break;
+		case 6:
+			sig->envIndex = (bsUint16) val;
+			break;
+		case 7:
+			sig->fx1Lvl = AmpValue(val);
+			break;
+		case 8:
+			sig->fx2Lvl = AmpValue(val);
+			break;
+		case 9:
+			sig->fx3Lvl = AmpValue(val);
+			break;
+		case 10:
+			sig->fx4Lvl = AmpValue(val);
+			break;
+		case 11:
+			sig->lfoLvl = AmpValue(val);
+			break;
+		case 12: // vibrato
+			if (val)
+				sig->toneFlags |= TONE_LFOIN;
+			else
+				sig->toneFlags &= ~TONE_LFOIN;
+			break;
+		case 13: // tremolo
+			if (val)
+				sig->toneFlags |= TONE_TREM;
+			else
+				sig->toneFlags &= ~TONE_TREM;
+			break;
+		case 14:
+			sig->panSet.Set(panTrig, AmpValue(val));
+			break;
+		case 15: // pan on/off
+			if (val)
+				sig->toneFlags |= TONE_PAN;
+			else
+				sig->toneFlags &= ~TONE_PAN;
+			break;
+		case 16: // oscil on
+			if (val)
+				sig->toneFlags |= TONE_ON;
+			else
+				sig->toneFlags &= ~TONE_ON;
+			break;
+		case 17: // audio out
+			if (val)
+				sig->toneFlags |= TONE_OUT;
+			else
+				sig->toneFlags &= ~TONE_OUT;
+			break;
+		case 18: // Fx1 out
+			if (val)
+				sig->toneFlags |= TONE_FX1OUT;
+			else
+				sig->toneFlags &= ~TONE_FX2OUT;
+			break;
+		case 19: // Fx2 out
+			if (val)
+				sig->toneFlags |= TONE_FX2OUT;
+			else
+				sig->toneFlags &= ~TONE_FX2OUT;
+			break;
+		case 20: // Fx3 out
+			if (val)
+				sig->toneFlags |= TONE_FX3OUT;
+			else
+				sig->toneFlags &= ~TONE_FX3OUT;
+			break;
+		case 21: // Fx4 out
+			if (val)
+				sig->toneFlags |= TONE_FX4OUT;
+			else
+				sig->toneFlags &= ~TONE_FX4OUT;
+			break;
+		case 22: // pitch bend amount
+			sig->pbLvl = AmpValue(val);
+			break;
+		case 23: // pitch bend on/off
+			if (val)
+				sig->toneFlags |= TONE_PBIN;
+			else
+				sig->toneFlags &= ~TONE_PBIN;
+			break;
 		}
-		else if (ty == 2)
+	}
+	else if (ty == 2)
+	{
+		// envelope
+		EnvGenSegSus *env = &envs[gn];
+		sn = (idval >> 3) & 0x1F;
+		vn = idval & 7;
+		switch (vn)
 		{
-			// envelope
-			EnvGenSegSus *env = &envs[gn];
-			sn = (idval >> 3) & 0x1F;
-			vn = idval & 7;
-			switch (vn)
-			{
-			case 0:
-				env->SetStart(AmpValue(val));
-				break;
-			case 1:
-				env->SetSusOn((int)val);
-				break;
-			case 2:
-				env->SetRate(sn, FrqValue(val));
-				break;
-			case 3:
-				env->SetLevel(sn, AmpValue(val));
-				break;
-			case 4:
-				env->SetType(sn, (EGSegType)(int)val);
-				break;
-			case 5:
-				env->SetFixed(sn, (int)val);
-				break;
-			case 6:
-				env->SetSegs((int)val);
-				break;
-			}
+		case 0:
+			env->SetStart(AmpValue(val));
+			break;
+		case 1:
+			env->SetSusOn((int)val);
+			break;
+		case 2:
+			env->SetRate(sn, FrqValue(val));
+			break;
+		case 3:
+			env->SetLevel(sn, AmpValue(val));
+			break;
+		case 4:
+			env->SetType(sn, (EGSegType)(int)val);
+			break;
+		case 5:
+			env->SetFixed(sn, (int)val);
+			break;
+		case 6:
+			env->SetSegs((int)val);
+			break;
 		}
 	}
 	return 0;
@@ -450,6 +472,9 @@ int MatrixSynth::GetParams(VarParamEvent *params)
 	params->SetParam(22, (float)pbGen.GetAmount(0));
 	params->SetParam(23, (float)pbGen.GetAmount(1));
 	params->SetParam(24, (float)pbGen.GetAmount(2));
+	params->SetParam(25, (float)pbWT.GetLevel());
+	params->SetParam(26, (float)pbWT.GetWavetable());
+	params->SetParam(27, (float)pbWT.GetDuration());
 
 		// id = 1|on[3]|vn[8] (oscillator)
 		// id = 2|en[3]|sn[5]|vn[3] (envelope)
@@ -551,6 +576,8 @@ void MatrixSynth::Tick()
 	}
 	if (pbOn)
 		pbRad = pbGen.Gen() * synthParams.frqTI;
+	if (pbWTOn)
+		pbRad = pbWT.Gen() * synthParams.frqTI;
 
 	// Run the envelope generators
 	envFlgs = envUsed;
@@ -619,7 +646,7 @@ void MatrixSynth::Tick()
 				else
 					phs = 0;
 				if (flgs & TONE_PBIN)
-					phs += pbRad * tSig->pbLvl;
+					phs += pbRad * tSig->frqMult;
 				out = outVal;
 				mask = TONE_MOD1IN;
 				for (tMod = gens; tMod < tEnd; tMod++)
@@ -780,6 +807,10 @@ int MatrixSynth::Load(XmlSynthElem *parent)
 		else if (elem->TagMatch("pb"))
 		{
 			pbGen.Load(elem);
+			if (elem->GetAttribute("pbamp", dval) == 0)
+				pbWT.SetLevel(dval);
+			if (elem->GetAttribute("pbwt", ival) == 0)
+				pbWT.SetWavetable((int)ival);
 		}
 		next = elem->NextSibling();
 		delete elem;
@@ -827,6 +858,8 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	err |= pbGen.Save(elem);
+	err |= elem->SetAttribute("pbamp", (float) pbWT.GetLevel());
+	err |= elem->SetAttribute("pbwt", (short) pbWT.GetWavetable());
 	delete elem;
 
 	return err;

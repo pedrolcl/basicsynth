@@ -124,3 +124,93 @@ int PitchBend::Save(XmlSynthElem *elem)
 	elem->SetAttribute("a3", amnt[2]);
 	return 0;
 }
+
+///////////////////////////////////////////////////////////
+PitchBendWT::PitchBendWT()
+{
+	index = 0;
+	indexIncr = 0;
+	count = 0;
+	durSec = 0;
+	depth = 0;
+	ampLvl = 0;
+	sigFrq = 0;
+	pbOn = 0;
+	lastVal = 0;
+	wave = 0;
+	wtID = WT_TRIP;
+}
+
+PitchBendWT::~PitchBendWT()
+{
+}
+
+void PitchBendWT::Copy(PitchBendWT *tp)
+{
+	index = tp->index;
+	indexIncr = tp->indexIncr;
+	count = tp->count;
+	durSec = tp->durSec;
+	depth = tp->depth;
+	ampLvl = tp->ampLvl;
+	lastVal = tp->lastVal;
+	sigFrq = tp->sigFrq;
+	pbOn = tp->pbOn;
+	wave = tp->wave;
+	wtID = tp->wtID;
+}
+
+void PitchBendWT::Init(int n, float *f)
+{
+	if (n > 0)
+		SetLevel(AmpValue(f[0]));
+	if (n > 1)
+		SetWavetable((int) f[1]);
+	Reset(0);
+}
+
+void PitchBendWT::Reset(float initPhs)
+{
+	wave = wtSet.GetWavetable(wtSet.FindWavetable(wtID));
+	if (wave && count > 0)
+	{
+		indexIncr = synthParams.ftableLength / count;
+		lastVal = wave[0];
+		if (initPhs >= 0)
+			index = synthParams.radTI * initPhs;
+	}
+	else
+	{
+		lastVal = 0;
+		index = synthParams.ftableLength;
+		indexIncr = 0;
+	}
+	if (sigFrq)
+	{
+		FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
+		ampLvl = AmpValue(fabs(f1 - sigFrq));
+	}
+	else
+		ampLvl = depth;
+}
+
+AmpValue PitchBendWT::Gen()
+{
+	if (index >= synthParams.ftableLength)
+		return lastVal;
+	lastVal = ampLvl * wave[(int)index];
+	index += indexIncr;
+	return lastVal;
+}
+
+int PitchBendWT::Load(XmlSynthElem *elem)
+{
+	return 0;
+}
+
+int PitchBendWT::Save(XmlSynthElem *elem)
+{
+	return 0;
+}
+
+

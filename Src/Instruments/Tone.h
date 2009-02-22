@@ -18,12 +18,12 @@ class ToneBase : public Instrument
 protected:
 	int chnl;
 	int pbOn;
-	int lfoOn;
 	AmpValue vol;
 	GenWaveWT *osc;
 	EnvGenADSR env;
 	LFO lfoGen;
 	PitchBend pbGen;
+	PitchBendWT pbWT;
 
 	InstrManager *im;
 

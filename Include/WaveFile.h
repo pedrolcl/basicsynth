@@ -31,6 +31,9 @@ extern bsInt32 Swap32(bsInt32 x);
 /// Size of RIFF chunk ID
 #define CHUNK_ID   4
 
+#pragma pack(push)
+#pragma pack(2)
+
 /// One chunk in a RIFF file.
 struct RiffChunk
 {
@@ -53,7 +56,7 @@ struct FmtData
 	bsInt32 avgbps;
 	/// Sample alignment (channels*bits)/8
 	bsInt16 align; 
-	/// Bits per sample (16)
+	/// Bits per sample
 	bsInt16 bits;
 };
 
@@ -62,20 +65,26 @@ struct FmtData
 /// @see RiffChunk FmtData
 struct WavHDR
 {
-	bsInt8  riffId[4];   // 'RIFF' chunk
-	bsInt32 riffSize;    // filesize - 8
+	RiffChunk riff;      // 'RIFF' chunk
 	bsInt8  waveType[4]; // 'WAVE' type of file
-	bsInt8  fmtId[4];    // 'fmt ' format chunk
-	bsInt32 fmtSize;     // size of format chunk (16)
-	bsInt16 fmtCode;     // 1 = PCM
-	bsInt16 channels;    // 1 = mono, 2 = stereo
-	bsInt32 sampleRate;  // 44100
-	bsInt32 avgbps;      // samplerate * align
-	bsInt16 align;       // (channels*bits)/8;
-	bsInt16 bits;        // bits per sample (16 or 24)
-	bsInt8  waveId[4];   // 'data' chunk
-	bsInt32 waveSize;    // size of chunk in bytes
+	RiffChunk fmt;       // 'fmt ' chunk
+	FmtData fmtdata;
+	RiffChunk data;      // 'data' chunk
 };
+
+struct WavHDR32
+{
+	RiffChunk riff;      // 'RIFF' chunk
+	bsInt8  waveType[4]; // 'WAVE' type of file
+	RiffChunk fmt;       // 'fmt ' chunk
+	FmtData fmtdata;
+	bsInt16 cbsize;      // extra data = 0
+	RiffChunk fact;      // 'fact' chunk
+	bsInt32 sampleLength;
+	RiffChunk data;      // 'data' chunk
+};
+
+#pragma pack(pop)
 
 class WaveOut
 {
@@ -105,6 +114,9 @@ public:
 	/// @param vleft left channel sample
 	/// @param vright right channel sample
 	virtual void Output2(AmpValue vleft, AmpValue vright) = 0;
+
+	virtual long GetOOR()  = 0;
+
 };
 
 /// Base class for sample output. Samples are
@@ -253,7 +265,7 @@ public:
 	}
 
 	/// Get the number of out-of-range samples
-	long GetOOR() { return sampleOOR; }
+	virtual long GetOOR() { return sampleOOR; }
 };
 
 /// Wave output class for 16-bit PCM sample output.
@@ -286,9 +298,6 @@ public:
 			value = -1.0;
 			sampleOOR++;
 		}
-		//if (sampleNumber >= sampleMax)
-		//	FlushOutput();
-		//samples[sampleNumber++] = SwapSample((SampleValue) (value * synthParams.sampleScale));
 		if (nxtSamp >= endSamp)
 			FlushOutput();
 		*nxtSamp++ = SwapSample((SampleValue) (value * synthParams.sampleScale));
@@ -307,6 +316,8 @@ public:
 
 	virtual void Output(AmpValue value)
 	{
+		if (value > 1.0 || value < -1.0)
+			sampleOOR++;
 		if (nxtSamp >= endSamp)
 			FlushOutput();
 		*nxtSamp++ = (float)value;
@@ -337,6 +348,58 @@ public:
 	}
 
 	~WaveFile()
+	{
+		wfp.FileClose();
+	}
+
+	/// Set buffer size. The size of the buffer in specified in seconds, not samples.
+	/// The buffer size must be set before the wave file is opened. Changing the size
+	/// afterword has no effect.
+	/// @param secs buffer size
+	void SetBufSize(int secs)
+	{
+		bufSecs = secs;
+	}
+
+	/// Open wave output file. The file is created if it does not exist. 
+	/// Existing files are truncated.
+	/// @param fname path to the output file
+	/// @param chnls number of output channels, 1 or 2
+	/// @returns 0 on success, negative value on error
+	int OpenWaveFile(char *fname, int chnls = 1);
+
+	/// Close the wave file. Closing the file will flush remaining output, update
+	/// the header and then close the file.
+	/// @return 0 on success, negative on error
+	int CloseWaveFile();
+
+	/// Write output to WAVE file. This does not need to be called directly.
+	/// The base class will call this method each time the buffer is filled.
+	int FlushOutput();
+};
+
+/// Wave file writer (32-bit float). WaveFileIEEE manages output to a WAV file.
+/// The wave file header is automatically updated as needed.
+/// A simplified model of a wave file is used. Only three chunks
+/// are defined, fmt, fact and data, and are always at the first of the
+/// file. This allows us to treat the file as a fixed length
+/// header followed by sample data. Sample data and is always 32-bit float, 1 or 2 channel.
+class WaveFileIEEE : public WaveOutBufIEEE
+{
+private:
+	FileWriteUnBuf wfp;
+	WavHDR32 wh;
+	int   bufSecs;
+
+	void SetupWH(short ch);
+
+public:
+	WaveFileIEEE()
+	{
+		bufSecs = 5;
+	}
+
+	~WaveFileIEEE()
 	{
 		wfp.FileClose();
 	}

@@ -69,24 +69,12 @@ nlParser::~nlParser()
 
 int nlParser::Error(char *s, int *skiplist)
 {
-	char lnstr[80];
-	IntToStr((long)lexPtr->Lineno(), lnstr);
-	size_t len = strlen(filename) + strlen(lnstr) + strlen(s) + strlen(lexPtr->Tokbuf());
-	char *ebuf = new char[len+10];
-	if (ebuf)
-	{
-		strcpy(ebuf, filename);
-		strcat(ebuf, "(");
-		strcat(ebuf, lnstr);
-		strcat(ebuf, ") : ");
-		strcat(ebuf, s);
-		strcat(ebuf, ": ");
-		strcat(ebuf, lexPtr->Tokbuf());
-		cvtPtr->ShowError(ebuf);
-		delete ebuf;
-	}
-	else
-		cvtPtr->ShowError(s);
+	nlSyntaxErr errBuf;
+	errBuf.file = filename;
+	errBuf.msg  = s;
+	errBuf.token = lexPtr->Tokbuf();
+	errBuf.lineno = lexPtr->Lineno();
+	cvtPtr->ShowError(&errBuf);
 	if (skiplist)
 		SkipTo(skiplist);
 
@@ -141,6 +129,15 @@ int nlParser::SkipBlock()
 		theToken = lexPtr->Next();
 	}
 	return 0;
+}
+
+int nlParser::CheckEnd(int err)
+{
+	if (theToken == T_ENDSTMT)
+		theToken = lexPtr->Next();
+	else if (!err)
+		err = Error("Expected ';'", 0);
+	return err;
 }
 
 int nlParser::Parse()
@@ -245,10 +242,7 @@ int nlParser::Include()
 	else
 		err = Error("Missing include file name", skiptoend);
 
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return err;
+	return CheckEnd(err);
 }
 
 // system = 'system' strlit ';'
@@ -265,10 +259,7 @@ int nlParser::System()
 	else
 		err = Error("Missing exec command", skiptoend);
 
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return err;
+	return CheckEnd(err);
 }
 
 // script ::= 'script' strlit ';'
@@ -288,10 +279,7 @@ int nlParser::Script()
 	else
 		err = Error("Missing script name", skiptoend);
 
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return err;
+	return CheckEnd(err);
 }
 
 // write = 'write' expr ';'
@@ -320,9 +308,7 @@ int nlParser::Declare()
 		if (theToken == T_COMMA)
 			theToken = lexPtr->Next();
 	}
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // set = 'set' VAR '=' expr ';'
@@ -349,9 +335,7 @@ int nlParser::Set()
 	}
 	else
 		err = Error("Expected variable name", skiptoend);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // option = 'option' optname ('on'|'off')
@@ -375,9 +359,7 @@ int nlParser::Option()
 	}
 	else
 		err = Error("Unknown option", skiptoend);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // version = 'version' numstr ';'
@@ -394,9 +376,7 @@ int nlParser::Version()
 	}
 	else
 		err = Error("Missing or invalid value for VERSION", skiptoend);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // common method for parsing a single parameter: expr ';'
@@ -421,10 +401,9 @@ int nlParser::Param1(char *whererr)
 		Error(msg, skiptoend);
 		genPtr->AddNode(T_NUM, 0L);
 	}
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
+
 // middlec = 'middlec' num ';'
 int nlParser::MiddleC()
 {
@@ -437,9 +416,7 @@ int nlParser::MiddleC()
 	}
 	else
 		err = Error("Invalid value for MIDDLEC", skiptoend);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // tempo = 'tempo' expr ',' expr ';'
@@ -461,9 +438,7 @@ int nlParser::Tempo()
 	}
 	if (err)
 		Error("Missing value(s) for TEMPO", skiptoend);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // For future use...
@@ -482,11 +457,11 @@ int nlParser::MaxParam()
 
 
 // map = 'map' id mapval (',' mapval)* ';'
-// mapval = expr ('=' expr)?
-// id = NUMBER | STRING
+// mapval = mapexpr | '{' mapexpr (',' mapexpr)* '}' 
 int nlParser::Map()
 {
 	int err = 0;
+	int inGroup = 0;
 
 	nlMapNode *mapNode = new nlMapNode;
 	genPtr->AddNode(mapNode);
@@ -505,22 +480,36 @@ int nlParser::Map()
 		long paramCount = 0;
 		while (theToken != EOF)
 		{
-			if (Expr())
+			if (theToken == T_OBRACE)
 			{
-				err = Error("Invalid parameter ID", skiptoend);
-				break;
-			}
-			paramCount++;
-			if (theToken == T_COL)
-			{
-				genPtr->AddNode(T_COL, 0L);
+				genPtr->AddNode(T_OBRACE, 0L);
 				theToken = lexPtr->Next();
-				if (Expr())
+				while (theToken != EOF)
 				{
-					err = Error("Invalid scale value", skiptoend);
+					if (MapExpr())
+						break;
+					if (theToken == T_COMMA)
+					{
+						genPtr->AddNode(T_COMMA, 0L);
+						theToken = lexPtr->Next();
+					}
+					else
+						break;
+				}
+				if (theToken != T_CBRACE)
+				{
+					err = Error("Missing } in paramaeter map", skiptoend);
 					break;
 				}
+				genPtr->AddNode(T_CBRACE, 0L);
+				theToken = lexPtr->Next();
 			}
+			else
+			{
+				if (MapExpr())
+					break;
+			}
+			paramCount++;
 			if (theToken == T_COMMA)
 			{
 				genPtr->AddNode(T_COMMA, 0L);
@@ -532,10 +521,22 @@ int nlParser::Map()
 		mapNode->SetValue(paramCount);
 	}
 
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
+	return CheckEnd(err);
+}
 
-	return err;
+// mapexpr = expr (':' expr)?
+int nlParser::MapExpr()
+{
+	if (Expr())
+		return Error("Invalid parameter ID", skiptoend);
+	if (theToken == T_COL)
+	{
+		genPtr->AddNode(T_COL, 0L);
+		theToken = lexPtr->Next();
+		if (Expr())
+			return Error("Invalid parameter scale value", skiptoend);
+	}
+	return 0;
 }
 
 // sequence = 'seq' id notelist
@@ -617,8 +618,7 @@ int nlParser::InitFn()
 	if (theToken != T_NUM)
 	{
 		Error("Expected function number for INIT", skiptoend);
-		if (theToken == T_ENDSTMT)
-			theToken = lexPtr->Next();
+		return CheckEnd(-1);
 	}
 
 	long fn = atol(lexPtr->Tokbuf());
@@ -655,15 +655,11 @@ int nlParser::InitFn()
 	if (Expr())
 		goto badparam;
 
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return 0;
+	return CheckEnd(0);
 
 badparam:
 	Error("Invalid parameters for INIT", skiptoend);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return -1;
+	return CheckEnd(-1);
 }
 
 // instrument = 'instr' expr ';'
@@ -728,9 +724,7 @@ int nlParser::Double()
 			}
 		}
 	}
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // call = 'call' expr ';'
@@ -789,9 +783,7 @@ int nlParser::Artic()
 		break;
 	default:
 		Error("Invalid argument to ARTIC", skiptoend);
-		if (theToken == T_ENDSTMT)
-			theToken = lexPtr->Next();
-		return -1;
+		return CheckEnd(-1);
 	}
 	nlScriptNode *p = genPtr->AddNode(new nlArticNode);
 	p->SetValue((long)theToken);
@@ -814,9 +806,7 @@ int nlParser::Artic()
 				err = Error("Invalid parameter to ARTIC", skiptoend);
 		}
 	}
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // note = include | system | script | write
@@ -936,9 +926,7 @@ int nlParser::Note()
 		}
 	}
 	genPtr->AddNode(T_ENDSTMT, 0L);
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-	return err;
+	return CheckEnd(err);
 }
 
 // param = 'param' expr ',' expr ';'
@@ -966,10 +954,7 @@ int nlParser::Param()
 			Error("Missing or invalid parameter value.", skiptoend);
 	}
 
-	if (theToken == T_ENDSTMT)
-		theToken = lexPtr->Next();
-
-	return err;
+	return CheckEnd(err);
 }
 
 // play = 'play' expr ';'

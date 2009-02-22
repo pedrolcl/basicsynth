@@ -162,34 +162,35 @@ int WFSynth::SetParams(VarParamEvent *params)
 
 	bsInt16 *id = params->idParam;
 	float *valp = params->valParam;
-	float v;
 	int n = params->numParam;
 	while (n-- > 0)
-	{
-		v = *valp++;
-		switch (*id++)
-		{
-		case 16:
-			fileID = (bsInt16) v;
-			break;
-		case 17:
-			looping = (bsInt16) v;
-			break;
-		case 18:
-			playAll = (bsInt16) v;
-			break;
-		case 19:
-			eg.SetAtkRt(FrqValue(v));
-			break;
-		case 20:
-			eg.SetRelRt(FrqValue(v));
-			break;
-		default:
-			err++;
-			break;
-		}
-	}
+		err += SetParam(*id++, *valp++);
 	return err;
+}
+
+int WFSynth::SetParam(bsInt16 id, float v)
+{
+	switch (id)
+	{
+	case 16:
+		fileID = (bsInt16) v;
+		break;
+	case 17:
+		looping = (bsInt16) v;
+		break;
+	case 18:
+		playAll = (bsInt16) v;
+		break;
+	case 19:
+		eg.SetAtkRt(FrqValue(v));
+		break;
+	case 20:
+		eg.SetRelRt(FrqValue(v));
+		break;
+	default:
+		return 1;
+	}
+	return 0;
 }
 
 int WFSynth::GetParams(VarParamEvent *params)

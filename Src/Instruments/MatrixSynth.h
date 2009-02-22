@@ -92,10 +92,12 @@ private:
 
 	LFO lfoGen;
 	PitchBend pbGen;
+	PitchBendWT pbWT;
 
 	int lfoOn;
 	int panOn;
 	int pbOn;
+	int pbWTOn;
 	int fx1On;
 	int fx2On;
 	int fx3On;
@@ -127,6 +129,7 @@ public:
 	int Save(XmlSynthElem *parent);
 	int GetParams(VarParamEvent *params);
 	int SetParams(VarParamEvent *params);
+	int SetParam(bsInt16 idval, float val);
 
 	void SetSegs(int gn, int sn)
 	{

@@ -432,6 +432,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Chuffer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FMSynth.cpp"
 				>
 			</File>
@@ -471,6 +475,10 @@
 			>
 			<File
 				RelativePath=".\AddSynth.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Chuffer.h"
 				>
 			</File>
 			<File

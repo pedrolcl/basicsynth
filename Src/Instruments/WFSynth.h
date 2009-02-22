@@ -66,6 +66,7 @@ public:
 	int Save(XmlSynthElem *parent);
 	int GetParams(VarParamEvent *params);
 	int SetParams(VarParamEvent *params);
+	int SetParam(bsInt16 id, float val);
 };
 
 #endif

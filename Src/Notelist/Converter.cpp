@@ -179,32 +179,24 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 	evt->SetParam(P_VOLUME, (float) amp);
 
 	double val;
-	int pn, mn;
+	int pn;
 	int px = P_VOLUME + 1;
 	for (pn = 0; pn < pcount; pn++, px++)
 	{
 		val = params[pn];
 		if (curMap)
-		{
-			mn = curMap->MapParam(pn);
-			val = curMap->ScaleValue(pn, val);
-		}
+			curMap->MapParam(evt, pn, val);
 		else
-			mn = px;
-		evt->SetParam(mn, (float) val);
+			evt->SetParam(px, (float) val);
 	}
 
 	for ( ; pn < curVoice->cntParam; pn++, px++)
 	{
 		val = curVoice->lastParam[pn];
 		if (curMap)
-		{
-			mn = curMap->MapParam(pn);
-			val = curMap->ScaleValue(pn, val);
-		}
+			curMap->MapParam(evt, pn, val);
 		else
-			mn = px;
-		evt->SetParam(mn, (float) val);
+			evt->SetParam(px, (float) val);
 	}
 
 	seq->AddEvent(evt);

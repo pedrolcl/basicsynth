@@ -80,4 +80,49 @@ public:
 	int Save(XmlSynthElem *elem);
 };
 
+class PitchBendWT : public GenUnit
+{
+private:
+	AmpValue *wave;
+	PhsAccum indexIncr;
+	PhsAccum index;
+	FrqValue durSec;
+	AmpValue depth;
+	AmpValue ampLvl;
+	AmpValue lastVal;
+	FrqValue sigFrq;
+	bsInt32  count;
+	int wtID;
+	int pbOn;
+
+public:
+	PitchBendWT();
+	virtual ~PitchBendWT();
+	void Copy(PitchBendWT *tp);
+	
+	void SetDuration(FrqValue d)    { durSec = d; count = (bsInt32) (d * synthParams.sampleRate); }
+	void SetDurationS(bsInt32 d)    { count = d; } // only used at runtime.
+	void SetWavetable(int wt)       { wtID = wt; }
+	void SetLevel(AmpValue val)     { depth = val; pbOn = depth > 0; } //atk.SetLevel(val);
+	void SetSigFrq(FrqValue val)    { sigFrq = val; }
+	FrqValue GetDuration() { return durSec; }
+	int GetWavetable() { return wtID; }
+	AmpValue GetLevel() { return depth; }
+	int On() { return pbOn; }
+
+	void Init(int n, float *f);
+	void Reset(float initPhs = 0);
+
+	AmpValue Sample(AmpValue in)
+	{
+		return Gen() * in;
+	}
+
+	AmpValue Gen();
+
+	int Load(XmlSynthElem *elem);
+	int Save(XmlSynthElem *elem);
+};
+
+
 #endif

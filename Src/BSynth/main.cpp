@@ -48,9 +48,9 @@ public:
 	char *cpyrgt; // copyright
 	char *title;
 	char *outFile;
-	ProjectFileList *wvPath;
 	ProjectFileList *libPath;
 	long sampleRate;
+	long sampleFormat;
 	long wtSize;
 	long wtUser;
 	long mixChnl;
@@ -64,7 +64,9 @@ public:
 	long outType;
 	long lastOOR;
 
+	WaveOut *wvp;
 	WaveFile wvf;
+	WaveFileIEEE wvf32;
 	Sequencer seq;
 	Mixer mix;
 	InstrManager mgr;
@@ -84,10 +86,12 @@ public:
 
 	void Update(bsInt32 cnt)
 	{
-		long oor = wvf.GetOOR();
+		AmpValue lftPk, rgtPk;
+		mix.Peak(lftPk, rgtPk);
+		long oor = wvp->GetOOR();
 		if (oor > lastOOR)
 		{
-			fprintf(stdout, " %ld samples out-of-range\n", oor-lastOOR);
+			fprintf(stdout, " %ld samples out-of-range, peak: left=%f, right=%f\n", oor-lastOOR, lftPk, rgtPk);
 			lastOOR = oor;
 		}
 		fprintf(stdout, "\r%d:%02d", cnt / 60, cnt % 60);
@@ -103,9 +107,9 @@ public:
 		cpyrgt = 0;
 		title = 0;
 		outFile = 0;
-		wvPath = 0;
 		libPath = 0;
 		sampleRate = 44100;
+		sampleFormat = 0; // PCM
 		wtSize = 16384;
 		wtUser = 0;
 		mixChnl = 0;
@@ -114,6 +118,7 @@ public:
 		mixVolRgt = 1.0;
 		lead = 0.0;
 		tail = 0.0;
+		wvp = &wvf;
 	}
 	~SynthProject()
 	{
@@ -122,7 +127,6 @@ public:
 	void Init()
 	{
 		InstrMapEntry *im = 0;
-		mgr.Init(&mix, &wvf);
 		im = mgr.AddType("Tone", ToneInstr::ToneFactory, ToneInstr::ToneEventFactory);
 		im->paramToID = ToneInstr::MapParamID;
 		im->dumpTmplt = DestroyTemplate;
@@ -143,6 +147,9 @@ public:
 		im->dumpTmplt = DestroyTemplate;
 		im = mgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
 		im->paramToID = WFSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
+		im->paramToID = Chuffer::MapParamID;
 		im->dumpTmplt = DestroyTemplate;
 	}
 
@@ -187,18 +194,35 @@ public:
 			else if (child->TagMatch("out"))
 			{
 				child->GetAttribute("type", outType);
+				child->GetAttribute("fmt", sampleFormat);
 				child->GetAttribute("lead", lead);
 				child->GetAttribute("tail", tail);
 				child->GetContent(&outFile);
 			}
 			else if (child->TagMatch("wvdir"))
 			{
-				ProjectFileList *lib = new ProjectFileList;
-				child->GetContent(&lib->str);
-				if (wvPath)
-					wvPath->Insert(lib);
-				else
-					wvPath = lib;
+				char *file = 0;
+				if (child->GetContent(&file) == 0)
+				{
+					if (*file)
+						synthParams.wvPath = file;
+					delete file;
+				}
+			}
+			else if (child->TagMatch("wvfile"))
+			{
+				char *file = 0;
+				short id = -1;
+				child->GetContent(&file);
+				child->GetAttribute("id", id);
+				if (file)
+				{
+					if (!silent)
+						printf("Load wavefile '%s' as ID %d\n", file, id);
+					if (WFSynth::AddToCache(file, id) == -1)
+						fprintf(stderr, "Error loading wave file '%s'\n", file);
+					delete file;
+				}
 			}
 			else if (child->TagMatch("libpath"))
 			{
@@ -254,12 +278,10 @@ public:
 					child->GetAttribute("rgt", mixVolRgt);
 					mix.MasterVolume(mixVolLft, mixVolRgt);
 					XmlSynthElem *mixElem = child->FirstChild();
-					XmlSynthElem *fxElem;
 					while (mixElem)
 					{
-						long cn;
-						long fxu;
-						long on;
+						short cn;
+						short on;
 						float pan;
 						float vol;
 						if (mixElem->TagMatch("chnl"))
@@ -280,27 +302,10 @@ public:
 						{
 							fxCount++;
 							float rvt;
-							mixElem->GetAttribute("unit", fxu);
-							mixElem->GetAttribute("vol", vol);
 							mixElem->GetAttribute("rvt", rvt);
 							Reverb2 *rvb = new Reverb2;
 							rvb->InitReverb(1.0, FrqValue(rvt));
-							mix.FxInit(fxu, rvb, vol);
-							if (mixElem->GetAttribute("pan", pan) == 0)
-								mix.FxPan(fxu, panTrig, pan);
-							fxElem = mixElem->FirstChild();
-							while (fxElem)
-							{
-								if (fxElem->TagMatch("send"))
-								{
-									fxElem->GetAttribute("cn", cn);
-									fxElem->GetAttribute("amt", vol);
-									mix.FxLevel(fxu, cn, vol);
-								}
-								sib = fxElem->NextSibling();
-								delete fxElem;
-								fxElem = sib;
-							}
+							LoadFX(mixElem, rvb);
 						}
 						else if (mixElem->TagMatch("flanger"))
 						{
@@ -310,8 +315,6 @@ public:
 							float flngCenter = 0.005;
 							float flngDepth = 0.001;
 							float flngSweep = 0.15;
-							mixElem->GetAttribute("unit", cn);
-							mixElem->GetAttribute("lvl", vol);
 							mixElem->GetAttribute("mix", flngMix);
 							mixElem->GetAttribute("fb", flngFb);
 							mixElem->GetAttribute("cntr", flngCenter);
@@ -319,23 +322,18 @@ public:
 							mixElem->GetAttribute("sweep", flngSweep);
 							Flanger *flng = new Flanger;
 							flng->InitFlanger(1.0, flngMix, flngFb, flngCenter, flngDepth, flngSweep);
-							mix.FxInit(fxu, flng, vol);
-							if (mixElem->GetAttribute("pan", pan) == 0)
-								mix.FxPan(cn, panTrig, pan);
-
-							fxElem = mixElem->FirstChild();
-							while (fxElem)
-							{
-								if (mixElem->TagMatch("send"))
-								{
-									mixElem->GetAttribute("chnl", cn);
-									mixElem->GetAttribute("amt", vol);
-									mix.FxLevel(fxu, cn, vol);
-								}
-								sib = fxElem->NextSibling();
-								delete fxElem;
-								fxElem = sib;
-							}
+							LoadFX(mixElem, flng);
+						}
+						else if (mixElem->TagMatch("echo"))
+						{
+							fxCount++;
+							float tm = 0;
+							float dec = 0;
+							mixElem->GetAttribute("tm", tm);
+							mixElem->GetAttribute("dec", dec);
+							DelayLine *dl = new DelayLine;
+							dl->InitDL(tm, dec);
+							LoadFX(mixElem, dl);
 						}
 						sib = mixElem->NextSibling();
 						delete mixElem;
@@ -501,6 +499,36 @@ public:
 		return gotFile;
 	}
 
+	void LoadFX(XmlSynthElem *mixElem, GenUnit *gen)
+	{
+		short fxu;
+		short cn;
+		float vol;
+		float pan;
+
+		mixElem->GetAttribute("unit", fxu);
+		mixElem->GetAttribute("vol", vol);
+		mix.FxInit(fxu, gen, vol);
+
+		if (mixElem->GetAttribute("pan", pan) == 0)
+			mix.FxPan(fxu, panTrig, pan);
+
+		XmlSynthElem *sib;
+		XmlSynthElem *fxElem = mixElem->FirstChild();
+		while (fxElem)
+		{
+			if (fxElem->TagMatch("send"))
+			{
+				fxElem->GetAttribute("chnl", cn);
+				fxElem->GetAttribute("amt", vol);
+				mix.FxLevel(fxu, cn, vol);
+			}
+			sib = fxElem->NextSibling();
+			delete fxElem;
+			fxElem = sib;
+		}						
+	}
+
 	int Generate()
 	{
 		AmpValue lv, rv;
@@ -512,11 +540,22 @@ public:
 		{
 			if (!silent)
 				fprintf(stdout, "Generate wavefile %s\n", outFile);
-			wvf.SetBufSize(30);
-			wvf.OpenWaveFile(outFile, 2);
+			if (sampleFormat == 1)
+			{
+				wvf32.SetBufSize(30);
+				wvf32.OpenWaveFile(outFile, 2);
+				wvp = &wvf32;
+			}
+			else
+			{
+				wvf.SetBufSize(30);
+				wvf.OpenWaveFile(outFile, 2);
+				wvp = &wvf;
+			}
+			mgr.Init(&mix, wvp);
 			pad = (long) (synthParams.isampleRate * lead);
 			while (pad-- > 0)
-				wvf.Output2(0.0, 0.0);
+				wvp->Output2(0.0, 0.0);
 			lastOOR = 0;
 			if (!silent)
 				seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
@@ -525,12 +564,15 @@ public:
 			while (pad-- > 0)
 			{
 				mix.Out(&lv, &rv);
-				wvf.Output2(lv, rv);
+				wvp->Output2(lv, rv);
 			}
-			wvf.CloseWaveFile();
+			if (sampleFormat == 1)
+				wvf32.CloseWaveFile();
+			else
+				wvf.CloseWaveFile();
 			if (!silent)
 			{
-				lastOOR = wvf.GetOOR() - lastOOR;
+				lastOOR = wvp->GetOOR() - lastOOR;
 				if (lastOOR > 0)
 					fprintf(stdout, " %ld samples out-of-range\r", lastOOR);
 				fprintf(stdout, "\nDone.\n");
@@ -542,11 +584,33 @@ public:
 
 SynthProject prj;
 
+void GetDefault()
+{
+	char *env = getenv("BSYNTHWAVEIN");
+	if (env)
+		synthParams.wvPath = env;
+
+#ifdef _WIN32
+	HKEY rk;
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\BasicSynth", 0, KEY_ALL_ACCESS, &rk) == ERROR_SUCCESS)
+	{
+		DWORD len = MAX_PATH;
+		DWORD type = REG_SZ;
+		char path[MAX_PATH];
+		if (RegQueryValueEx(rk, "WaveIn", 0, &type, (LPBYTE) path, &len) == ERROR_SUCCESS)
+			synthParams.wvPath = path;
+		RegCloseKey(rk);
+	}
+#endif
+}
+
 int main(int argc, char *argv[])
 {
 #if defined(USE_MSXML)
 	CoInitialize(0);
 #endif
+
+	GetDefault();
 
 	if (argc < 2)
 	{

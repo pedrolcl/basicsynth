@@ -158,8 +158,8 @@ public:
 		memset(&ofn, 0, sizeof(ofn));
 		ofn.lStructSize = sizeof(ofn);
 		ofn.hwndOwner = m_hWnd;
-		ofn.lpstrFilter = "Projects (*.xml)\0*.xml\0All files (*.*)\0*.*\0";
-		ofn.lpstrDefExt = "*.xml";
+		ofn.lpstrFilter = "Projects\0*.bsprj\0Libraries\0*.bslib\0XML Files\0*.xml\0All files (*.*)\0*.*\0";
+		ofn.lpstrDefExt = "bsprj";
 		ofn.lpstrFile = fnbuf;
 		ofn.nMaxFile = MAX_PATH;
 
@@ -168,28 +168,22 @@ public:
 			instrList.ResetContent();
 			instrMgr.Clear();
 			SynthProject prj;
-			if (prj.LoadProject(fnbuf, instrMgr) == 0)
+			if (prj.LoadProject(fnbuf, instrMgr) != 0)
+				MessageBox("Something didn't work. Not all instruments were loaded.", "Oooops...", MB_OK);
+			InstrConfig *ime = 0;
+			while ((ime = instrMgr.EnumInstr(ime)) != 0)
 			{
-				InstrConfig *ime = 0;
-				while ((ime = instrMgr.EnumInstr(ime)) != 0)
+				const char *np = ime->GetName();
+				if (!np || *np == 0)
 				{
-					const char *np = ime->GetName();
-					if (!np || *np == 0)
-					{
-						np = fnbuf;
-						sprintf(fnbuf, "#%d", ime->inum);
-					}
-					int ndx = instrList.AddString(np);
-					instrList.SetItemDataPtr(ndx, ime);
+					np = fnbuf;
+					sprintf(fnbuf, "#%d", ime->inum);
 				}
-				instrList.SetCurSel(0);
-				activeInstr = (InstrConfig*)instrList.GetItemDataPtr(0);
+				int ndx = instrList.AddString(np);
+				instrList.SetItemDataPtr(ndx, ime);
 			}
-			else
-			{
-				MessageBox("Error loading instrument file.", "Oooops...", MB_OK);
-				activeInstr = 0;
-			}
+			instrList.SetCurSel(0);
+			activeInstr = (InstrConfig*)instrList.GetItemDataPtr(0);
 		}
 		return 0;
 	}

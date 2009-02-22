@@ -1433,6 +1433,7 @@ nlScriptNode *nlMapNode::Exec()
 	nlScriptNode *pListNext;
 	long tmp;
 	int pn = 0;
+	int inGroup = 0;
 	int inum = -1;
 	double scale;
 
@@ -1459,24 +1460,40 @@ nlScriptNode *nlMapNode::Exec()
 	pList = pList->GetNext();
 	while (pList != NULL)
 	{
-		pListNext = pList->Exec();
-		if (pList->GetType() == vtText)
-			tmp = (long) cvtPtr->GetParamID(inum, pList->RefStr());
-		else
-			pList->GetValue(&tmp);
-		pList = pListNext;
-		if (pList->GetToken() == T_COL)
+		if (pList->GetToken() == T_OBRACE)
 		{
-			pListNext = pList->GetNext();
-			pList = pListNext->Exec();
-			pListNext->GetValue(&scale);
+			inGroup++;
+			pList = pList->GetNext();
+		}
+		else if (pList->GetToken() == T_CBRACE)
+		{
+			inGroup--;
+			pn++;
+			pList = pList->GetNext();
 		}
 		else
-			scale = 1.0;
-		cvtPtr->SetParamMap(inum, pn++, (int)tmp, scale);
+		{
+			pListNext = pList->Exec();
+			if (pList->GetType() == vtText)
+				tmp = (long) cvtPtr->GetParamID(inum, pList->RefStr());
+			else
+				pList->GetValue(&tmp);
+			pList = pListNext;
+			if (pList->GetToken() == T_COL)
+			{
+				pListNext = pList->GetNext();
+				pList = pListNext->Exec();
+				pListNext->GetValue(&scale);
+			}
+			else
+				scale = 1.0;
+			cvtPtr->SetParamMap(inum, pn, (int)tmp, scale);
+			if (!inGroup)
+				pn++;
+		}
 		if (pList->GetToken() == T_COMMA)
 			pList = pList->GetNext();
-		else
+		else if (!inGroup)
 			break;
 	}
 

@@ -75,6 +75,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
 
+	HKEY rk;
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\BasicSynth", 0, KEY_ALL_ACCESS, &rk) == ERROR_SUCCESS)
+	{
+		DWORD len = MAX_PATH;
+		DWORD type = REG_SZ;
+		char path[MAX_PATH];
+		if (RegQueryValueEx(rk, "WaveIn", 0, &type, (LPBYTE) path, &len) == ERROR_SUCCESS)
+			synthParams.wvPath = path;
+		RegCloseKey(rk);
+	}
+
 	instrMgr.AddType("Tone", ToneInstr::ToneFactory, ToneInstr::ToneEventFactory);
 	instrMgr.AddType("ToneFM", ToneFM::ToneFMFactory, ToneFM::ToneFMEventFactory);
 	instrMgr.AddType("AddSynth", AddSynth::AddSynthFactory, AddSynth::AddSynthEventFactory);
@@ -82,6 +93,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	instrMgr.AddType("FMSynth", FMSynth::FMSynthFactory, FMSynth::FMSynthEventFactory);
 	instrMgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
 	instrMgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
+	instrMgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
 	InstrMapEntry *im = 0;
 	while ((im = instrMgr.EnumType(im)) != 0)
 		im->dumpTmplt = DestroyTemplate;

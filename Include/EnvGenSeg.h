@@ -359,6 +359,8 @@ struct SegVals
 	EGSegType type;
 	/// Fixed/relative duration
 	int fixed;
+	/// calculated rate
+	FrqValue crt;
 };
 
 ///////////////////////////////////////////////////////////
@@ -500,6 +502,7 @@ struct EnvDef
 			segs[n].level = lv;
 			segs[n].type = ty;
 			segs[n].fixed = fix;
+			segs[n].crt = rt;
 		}
 	}
 
@@ -625,7 +628,7 @@ protected:
 
 	AmpValue lastVal;
 	AmpValue segStart;
-	bsInt32 duration;
+	FrqValue duration;
 
 public:
 	EnvGenSeg()
@@ -733,6 +736,7 @@ public:
 			segRLT[n].rate = 0;
 			segRLT[n].type = linSeg;
 			segRLT[n].fixed = 1;
+			segRLT[n].crt = 0;
 			segObj[n] = &egsLin;
 		}
 	}
@@ -756,7 +760,7 @@ public:
 		segStart = lvl; 
 	}
 
-	inline void SetDuration(bsInt32 d)
+	inline void SetDuration(FrqValue d)
 	{
 		duration = d;
 	}
@@ -784,9 +788,11 @@ public:
 	}
 
 	/// Set the fixed duration flag.
-	/// When fix is true the time for the indicated segment
-	/// is a fixed duration. When fix is false, the time
-	/// is relative to the duration of a note.
+	/// When fix is 1 the time for the indicated segment
+	/// is a fixed duration. When fix is 0, the time
+	/// is relative to the duration of a note. When fix
+	/// is 2, the duration is the total duration minus
+	/// all other segments.
 	/// @param segn segment number
 	/// @param fix fixed or relative duration
 	inline void SetFixed(int segn, int fix)
@@ -916,6 +922,39 @@ public:
 	{
 		if (initPhs >= 0)
 		{
+			int n1, n2;
+			FrqValue rt;
+			SegVals *rlt = &segRLT[0];
+			for (n1 = 0; n1 < numSeg; n1++)
+			{
+				switch (rlt->fixed)
+				{
+				case 0:
+					// relative to duration
+					rt = duration * rlt->rate;
+					break;
+				case 1:
+					// fixed rate
+					rt = rlt->rate;
+					break;
+				case 2:
+					// duration minus all other rates
+					rt = duration;
+					for (n2 = 0; n2 < numSeg; n2++)
+					{
+						if (n2 != n1)
+							rt -= segRLT[n2].rate;
+					}
+					if (rt < 0)
+						rt = 0;
+					break;
+				default:
+					rt = 0;
+					break;
+				}
+				rlt->crt = rt;
+				rlt++;
+			}
 			index = 0;
 			lastVal = segStart;
 			NextSeg();
@@ -944,11 +983,8 @@ public:
 			seg = segObj[index];
 			if (seg != NULL)
 			{
-				FrqValue rt = segRLT[index].rate;
-				if (!segRLT[index].fixed)
-					seg->InitSegTick((long)(rt*duration), lastVal, segRLT[index].level);
-				else
-					seg->InitSeg(rt, lastVal, segRLT[index].level);
+				SegVals *rlt = &segRLT[index];
+				seg->InitSeg(rlt->crt, lastVal, rlt->level);
 			}
 			index++;
 		}

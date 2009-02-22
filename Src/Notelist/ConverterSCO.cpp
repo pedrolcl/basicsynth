@@ -81,8 +81,6 @@ void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit,
 	for (pn = 0; pn < pcount; pn++)
 	{
 		val = params[pn];
-		if (curMap)
-			val = curMap->ScaleValue(pn, val);
 		fprintf(fpOutput, " %g", val);
 	}
 

@@ -55,7 +55,7 @@ available:
  - define none to create a dummy XML class
 
 The default is to use the TINYXML code, included in the library source. To use libxml2, you must
-have the library available on the library path.
+have the library available on the linker library path.
 
 \section secBuildW Building the Source on Windows
 
@@ -107,7 +107,17 @@ Output is to the directories Bin and Lib under the BasicSynth install directory.
 
 There is a Doxygen project file in the Doxygen directory that can be used to generate
 a new copy of this documentation if you modify the library. Check the paths to insure
-they point to the correct locations.
+they point to the correct locations. The instrument diagram files in the Documents 
+directory must be manually copied to the output directory indicated in the doxygen project file.
+
+\section license License
+The source code to BasicSynth is &copy; 2008,2009, Daniel R. Mitchell and is licensed under the
+Creative Commons/GNU-GPL (http://creativecommons.org/licenses/GPL/2.0/). Source code may be
+used for non-commercial purposes without further restrictions.
+
+Compositions in the ExampleProjects directory are &copy; Daniel R. Mitchell and are licensed
+under the Creative Commons Attribution-Noncommercial-No Derivitave Works license. 
+(http://creativecommons.org/licenses/by-nc-nd/3.0/us/</a>)
 
 \page architecture BasicSynth Archtecture
  The BasicSynth library can be used in a variety of contexts with as little or as much
@@ -115,16 +125,23 @@ they point to the correct locations.
  the architecture used by the BSynth program.
 
 \section archover Overview
-This system is intended to be used as a compositional environment. Thus it centers around
+BasicSynth is a component-based system intended to be used as a compositional environment. Thus it centers around
 the sequencing of a series of events defined by the score and allows a variable set of 
 instrument definitions. The sequencer reads the score and invokes one or more synthesis 
 instruments to generate samples. Samples are passed through a common mixer and then to the 
 output, either a wave file or a sound output device (DAC). The project information and 
 parameters component contains general synthesizer information and also allows the sequencer 
-to discover the available instruments and scores that are to be used. Editors are provided 
-to create the score, instruments, and project parameters.
+to discover the available instruments and scores that are to be used. 
 
 \image html architecture.jpg
+
+Because it is a component architecture, it is possible to replace any of the components in the 
+system with custom versions. So long as the interface to the component is maintained, the
+remainder of the system will work without modification.
+
+The editors shown in the diagram are not included in the source distribution. Since all configuration files are
+in XML format, a simple text editor may be used. Typically, a complete system will include
+custom GUI editors for instruments, score, and project paramters.
 
 <table border="1" cellspacing="0">
 <tr style="background-color:black;color:white;"><td>Module</td><td>Description</td></tr>

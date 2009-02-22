@@ -242,7 +242,23 @@ int main(int argc, char *argv[])
 	}
 
 	/////////////////////////////////////////////////
-	// 21 - Dynamic calculation of IIR HP filter
+	// 21 - Dynamic calculation of IIR BP filter
+	/////////////////////////////////////////////////
+	FilterIIR2p iir2p;
+	FrqValue q = 1;
+	cu = 100.0;
+	eg.Reset();
+	for (fn = 0; fn < fstep; fn++)
+	{
+		iir2p.CalcCoef(cu, q);
+		for (nf = 0; nf < sn; nf++)
+			wvf.Output1(eg.Gen() * iir2p.Sample(nz.Gen()));
+		cu += custep;
+		q += 0.1;
+	}
+
+	/////////////////////////////////////////////////
+	// 22 - Dynamic calculation of IIR HP filter
 	/////////////////////////////////////////////////
 	cu = 100.0;
 	eg.Reset();
@@ -255,7 +271,7 @@ int main(int argc, char *argv[])
 	}
 
 	/////////////////////////////////////////////////
-	// 22 Variable Reson LP filter
+	// 23 Variable Reson LP filter
 	/////////////////////////////////////////////////
 	eg.Reset();
 	cu = 0.0;
@@ -269,7 +285,7 @@ int main(int argc, char *argv[])
 	}
 
 	/////////////////////////////////////////////////
-	// 23 - Variable Reson HP filter
+	// 24 - Variable Reson HP filter
 	/////////////////////////////////////////////////
 	eg.Reset();
 	custep = 1.0 / (float) fstep;

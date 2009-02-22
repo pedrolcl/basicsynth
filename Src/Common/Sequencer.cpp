@@ -328,6 +328,7 @@ InstrConfig *InstrManager::LoadInstr(XmlSynthElem *instr)
 
 int InstrManager::LoadWavetable(XmlSynthElem *wvnode)
 {
+	short sumParts = 1;
 	long wvID = -1;
 	long wvNdx = -1;
 	long wvParts = 0;
@@ -336,6 +337,8 @@ int InstrManager::LoadWavetable(XmlSynthElem *wvnode)
 	double *amps;
 	double *phs;
 
+	if (wvnode->GetAttribute("type", sumParts))
+		sumParts = 1;
 	if (wvnode->GetAttribute("parts", wvParts))
 		return -1;
 	if (wvParts <= 0)
@@ -398,7 +401,11 @@ int InstrManager::LoadWavetable(XmlSynthElem *wvnode)
 		ptnode = sib;
 	}
 
-	wtSet.SetWaveTable(wvNdx, ptndx, mult, amps, phs, gibbs);
+	if (sumParts == 1)
+		wtSet.SetWaveTable(wvNdx, ptndx, mult, amps, phs, gibbs);
+	else if (sumParts == 2)
+		wtSet.SegWaveTable(wvNdx, ptndx, phs, amps);
+
 	delete[] mult;
 	delete[] amps;
 	delete[] phs;

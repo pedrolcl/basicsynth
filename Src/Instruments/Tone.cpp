@@ -30,7 +30,6 @@ ToneBase::ToneBase()
 	vol = 1.0;
 	im = NULL;
 	pbOn = 0;
-	lfoOn = 0;
 }
 
 ToneBase::~ToneBase()
@@ -44,10 +43,10 @@ void ToneBase::Copy(ToneBase *tp)
 	env.Copy(&tp->env);
 	osc->SetFrequency(tp->osc->GetFrequency());
 	osc->SetWavetable(tp->osc->GetWavetable());
-	lfoOn = tp->lfoOn;
 	lfoGen.Copy(&tp->lfoGen);
 	pbOn = tp->pbOn;
 	pbGen.Copy(&tp->pbGen);
+	pbWT.Copy(&tp->pbWT);
 }
 
 void ToneBase::Start(SeqEvent *evt)
@@ -55,10 +54,12 @@ void ToneBase::Start(SeqEvent *evt)
 	SetParams((VarParamEvent*)evt);
 	osc->Reset(0);
 	env.Reset(0);
-	if (lfoOn)
+	if (lfoGen.On())
 		lfoGen.Reset(0);
 	if (pbOn)
 		pbGen.Reset(0);
+	if (pbWT.On())
+		pbWT.Reset(0);
 }
 
 void ToneBase::Param(SeqEvent *evt)
@@ -66,10 +67,12 @@ void ToneBase::Param(SeqEvent *evt)
 	SetParams((VarParamEvent*)evt);
 	osc->Reset(-1);
 	env.Reset(-1);
-	if (lfoOn)
+	if (lfoGen.On())
 		lfoGen.Reset(-1);
 	if (pbOn)
 		pbGen.Reset(-1);
+	if (pbWT.On())
+		pbWT.Reset(-1);
 }
 
 
@@ -80,10 +83,12 @@ void ToneBase::Stop()
 
 void ToneBase::Tick()
 {
-	if (lfoOn)
+	if (lfoGen.On())
 		osc->PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
 	if (pbOn)
 		osc->PhaseModWT(pbGen.Gen() * synthParams.frqTI);
+	if (pbWT.On())
+		osc->PhaseModWT(pbWT.Gen() * synthParams.frqTI);
 	im->Output(chnl, vol * env.Gen() * osc->Gen());
 }
 
@@ -131,7 +136,8 @@ int ToneBase::LoadEnv(XmlSynthElem *elem)
 
 int ToneBase::Load(XmlSynthElem *parent)
 {
-	long ival;
+	short ival;
+	float dval;
 
 	XmlSynthElem elem;
 	XmlSynthElem *next = parent->FirstChild(&elem);
@@ -144,13 +150,16 @@ int ToneBase::Load(XmlSynthElem *parent)
 		else if (elem.TagMatch("lfo"))
 		{
 			lfoGen.Load(&elem);
-			lfoOn = lfoGen.On();
 		}
 		else if (elem.TagMatch("pb"))
 		{
 			if (elem.GetAttribute("on", ival) == 0)
 				pbOn = (int) ival;
 			pbGen.Load(&elem);
+			if (elem.GetAttribute("pbamp", dval) == 0)
+				pbWT.SetLevel(dval);
+			if (elem.GetAttribute("pbwt", ival) == 0)
+				pbWT.SetWavetable((int)ival);
 		}
 		next = elem.NextSibling(&elem);
 	}
@@ -197,6 +206,8 @@ int ToneBase::Save(XmlSynthElem *parent)
 		return -1;
 	elem.SetAttribute("on", (short) pbOn);
 	pbGen.Save(&elem);
+	elem.SetAttribute("pbamp", (float) pbWT.GetLevel());
+	elem.SetAttribute("pbwt",  (short) pbWT.GetWavetable());
 
 	return 0;
 }
@@ -211,13 +222,14 @@ int ToneBase::SetParams(VarParamEvent *params)
 	osc->SetFrequency(frq);
 	lfoGen.SetSigFrq(frq);
 	pbGen.SetFrequency(frq);
+	pbWT.SetSigFrq(frq);
+	pbWT.SetDurationS(params->duration);
 
 	bsInt16 *id = params->idParam;
 	float *valp = params->valParam;
 	int n = params->numParam;
 	while (n-- > 0)
 		err += SetParam(*id++, *valp++);
-	lfoOn = lfoGen.On();
 	return err;
 }
 
@@ -282,6 +294,15 @@ int ToneBase::SetParam(int idval, float val)
 	case 34:
 		pbGen.SetAmount(2, AmpValue(val));
 		break;
+	case 40:
+		pbWT.SetLevel(AmpValue(val));
+		break;
+	case 41:
+		pbWT.SetWavetable((int)val);
+		break;
+	case 42:
+		pbWT.SetDuration(FrqValue(val));
+		break;
 	default:
 		return 1;
 	}
@@ -311,6 +332,9 @@ int ToneBase::GetParams(VarParamEvent *params)
 	params->SetParam(32, (float) pbGen.GetAmount(0));
 	params->SetParam(33, (float) pbGen.GetAmount(1));
 	params->SetParam(34, (float) pbGen.GetAmount(2));
+	params->SetParam(40, (float) pbWT.GetLevel());
+	params->SetParam(41, (float) pbWT.GetWavetable());
+	params->SetParam(42, (float) pbWT.GetDuration());
 	return 0;
 }
 
@@ -328,7 +352,7 @@ Instrument *ToneInstr::ToneFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *ToneInstr::ToneEventFactory(Opaque tmplt)
 {
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = 35;
+	ep->maxParam = 42;
 	return (SeqEvent*)ep;
 }
 
@@ -338,8 +362,9 @@ static InstrParamMap toneParams[] =
 	{"envrel", 22}, {"envst", 17},  {"envsus", 21}, {"envty", 24},     
 	{"lfoamp", 28}, {"lfoatk", 27}, {"lfofrq", 25}, {"lfowt", 26},
 	{"oscfrq", 5 }, {"oscvol", 6},  {"oscwt", 16},
-	{"pba1", 32},   {"pba2", 33},   {"pba3", 34},
-	{"pbon", 29},   {"pbr1", 30},   {"pbr2", 31},
+	{"pba1", 32},   {"pba2", 33},   {"pba3", 34},   {"pbamp", 40},
+	{"pbfrq", 42},  {"pbon", 29},   {"pbr1", 30},   {"pbr2", 31},
+	{"pbwt", 41}
 };
 
 bsInt16 ToneInstr::MapParamID(const char *name)
@@ -449,6 +474,3 @@ int ToneFM::GetParams(VarParamEvent *params)
 	params->SetParam(36, (float) ((GenWaveFM*)osc)->GetModMultiple());
 	return err;
 }
-
-
-

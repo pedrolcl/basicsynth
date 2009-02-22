@@ -35,7 +35,7 @@
 // This will validate that the internal state is the same as the
 // input file contents. Note that attributes may get rearranged
 // and additional nodes or attributes may appear in the output file.
-#define TEST_SAVE_INSTR 1
+//#define TEST_SAVE_INSTR 1
 
 long evidcount = 1;
 float startTime = 0;
