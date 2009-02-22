@@ -38,13 +38,14 @@ Notelist.</p>
 <p>Rhythm can be represented as absolute time in seconds or by a rhythm value.
 A rhythm value represents a fraction of a whole-note at the current tempo and
 is indicated by a &lsquo;%&rsquo; followed by a number. For example, &lsquo;%4&rsquo; is a quarter-note
-and &lsquo;%8&rsquo; is an eighth-note. The number in a rhythm value does not required to
-be a standard sub-division of the beat. Thus, %10 would be 1/10 of a whole
-note, and %2.5 would represent 4/10 of a whole-note. </p>
+and &lsquo;%8&rsquo; is an eighth-note. The number in a rhythm value is not required to
+be a standard sub-division of the beat. Thus, %10 represents 1/10 of a whole
+note, and %2.5 represents 1/2.5 or 4/10 of a whole-note. </p>
 
 <p>Because a rhythm value is relative to the duration of a whole note, the
 actual duration will vary depending on the current tempo. Using absolute time
-values is useful when the exact time of the note is important. In general, it
+values is useful when the exact time of the note is important, but makes it
+difficult to globally alter the duration of notes. In general, it
 is better to use rhythm values so that durations can be changed globally using
 a tempo change rather than having to retype the duration for each note.</p>
 
@@ -52,7 +53,9 @@ a tempo change rather than having to retype the duration for each note.</p>
 
 <p>Dynamics (i.e., volume levels) are specified with a number in the range 0 to
 100. A value of 0 represents silence and 100 represents maximum amplitude
-available in the synthesizer. Dynamics can be controlled on a note-by-note
+available in the synthesizer. However, values can exceed 100 if needed since
+the final volume level may be attenuated by subsequent signal processing or the synthesizer's mixer.</p>
+<p>Dynamics can be controlled on a note-by-note
 basis. In addition, a <i>volume </i>statement can be used to modify the
 per-note volume levels for all subsequent notes in a voice. Volume levels are
 linear amplitude values, not decibels.</p>
