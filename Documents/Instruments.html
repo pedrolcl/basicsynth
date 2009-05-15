@@ -1919,8 +1919,13 @@ can be applied to the noise signal to produce a variety of effects. When set at 
 and a sine wave, it produces a sweeping sound, such as wind, helicopter, etc. When the LFO
 is set to higher rates and using square or sawtooth waveforms, it can produce a "chopped" output
 that simumlates rattle-like sounds.</p>
-<p>Both the center frequency and 'Q' for the filter can be dynamic. Each is specified by a start value,
-end value, and rate in seconds. The start value for the filter frequency can be set to follow the
+<p>The filter is a two-pole lowpass filter with a resonant peak around the cutoff frequency. 
+Filter Q is defined as Fc/BW so that a higher value for Q produces a smaller frequency band in the 
+resonant area around the cutoff frequency. Since Q is relative to the cutoff frequency,
+the resonance varies proportionally to the center frequency. Typically, Q varies between 1 and a maximum around 50.
+Both the center frequency and Q for the filter can be dynamic. 
+Each is specified by a start value, end value, and rate in seconds. 
+The start value for the filter frequency can be set to follow the
 pitch of the note. The end values for frequency and Q can be set as a multiple (or fraction) of 
 the start value so that as the start value changes from note to note the end value will track the changes.
 In addition, a LFO oscillator can be added to the center frequency value to produce dynamic
@@ -1928,8 +1933,8 @@ filter sweeps, simulating sounds such as wind or a fan.</p>
 <p>The <i>Chuffer</i> includes a settable rate for recalculation of the filter
 coefficients. Since this calculation is time consuming, and filter frequencies may not
 change quickly, setting this rate can significantly reduce the processing time taken
-to generate each sample. The coefficient rate indicates the number of milliseconds between re-calculation. 
-A value of 0 causes coefficients to be recalculated on each sample if required.</p>
+to generate each sample. The coefficient rate indicates the number of samples between re-calculation. 
+A value of 0 causes coefficients to be recalculated on each sample.</p>
 <p>The <i>Chuffer</i> class is defined in the file <i>Src/Instruments/Chuffer.h</i>
 with the implementation in <i>Src/Instruments/Chuffer.cpp</i>.</p>
 
@@ -1984,9 +1989,9 @@ with the implementation in <i>Src/Instruments/Chuffer.cpp</i>.</p>
   <td><p>&nbsp;</p></td>
   <td><p>hrate</p></td>
   <td><p>hrate</p></td>
-  <td><p>Hold period for noise samples (in samples). A value of 1 produces 'white' noise. 
-  Higher values reduce the high-frequency content of the signal.
-  The maximum value is the sample rate.</p></td>
+  <td><p>Hold period for noise samples as a fraction of the sample rate. A value of 1 produces 'white' noise. 
+  Lower values reduce the high-frequency content of the signal.
+  The maximum value is 1.</p></td>
  </tr>
  <tr valign="top">
   <td><p>21</p></td>
@@ -2086,6 +2091,13 @@ with the implementation in <i>Src/Instruments/Chuffer.cpp</i>.</p>
   <td><p>trkd</p></td>
   <td><p>ftrkd</p></td>
   <td><p>Filter frequency change rate tracks note duration (1) or is fixed (0).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>50</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>cr</p></td>
+  <td><p>cr</p></td>
+  <td><p>Coeffecient recalc rate in samples.</p></td>
  </tr>
  <tr valign="top">
   <td><p>40</p></td>

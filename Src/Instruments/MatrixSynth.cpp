@@ -38,6 +38,11 @@ SeqEvent   *MatrixSynth::MatrixSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
+VarParamEvent *MatrixSynth::AllocParams()
+{
+	return (VarParamEvent *)MatrixSynthEventFactory(0);
+}
+
 // name = gen(on)param || env(en)seg(sn)param || frq || vol || lfofrq || lfowt || lfowt || lfoamp
 static InstrParamMap genParams[] = 
 {
@@ -78,7 +83,7 @@ static const char *ParamNum(const char *str, int *val)
 	return str;
 }
 
-bsInt16 MatrixSynth::MapParamID(const char *name)
+bsInt16 MatrixSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	int ty = 0;
 	int gn = 0;
@@ -110,6 +115,55 @@ bsInt16 MatrixSynth::MapParamID(const char *name)
 	if (pn >= 0)
 		return (ty << 11) + (gn << 8) + (sn << 3) + pn;
 	return -1;
+}
+
+static void FormatNum(bsInt16 n, char *pdig)
+{
+	if (n >= 100)
+		*pdig++ = (n / 100) + '0';
+	if (n >= 10)
+		*pdig++ = ((n / 10) % 10) + '0';
+	*pdig++ = (n % 10) + '0';
+	*pdig = '\0';
+}
+
+const char *MatrixSynth::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	static bsString paramNameBuf;
+
+	bsInt16 ty = (id >> 11) & 3;
+	if (ty == 0)
+		return SearchParamName(id, globParams, sizeof(globParams)/sizeof(InstrParamMap));
+
+	paramNameBuf = "";
+	char dig[6];
+	bsInt16 gn = (id >> 8) & 0xff;
+	if (ty == 1)
+	{
+		dig[0] = 'g';
+		FormatNum(gn, &dig[1]);
+		paramNameBuf += dig;
+		paramNameBuf += '.';
+		paramNameBuf += SearchParamName(id & 0xff, genParams, sizeof(genParams)/sizeof(InstrParamMap));
+	}
+	else if (ty == 2)
+	{
+		dig[0] = 'e';
+		FormatNum(gn, &dig[1]);
+		paramNameBuf += dig;
+		bsInt16 sn = (id >> 3) & 0x1f;
+		bsInt16 vn = id & 7;
+		if (vn > 1 && vn < 6)
+		{
+			dig[0] = 's';
+			FormatNum(sn, &dig[1]);
+			paramNameBuf += dig;
+		}
+		paramNameBuf += '.';
+		paramNameBuf += SearchParamName(vn, envParams, sizeof(envParams)/sizeof(InstrParamMap));
+	}
+
+	return paramNameBuf;
 }
 
 static PhsAccum maxPhs;
@@ -525,6 +579,172 @@ int MatrixSynth::GetParams(VarParamEvent *params)
 			params->SetParam(idval+3, (float)env->GetLevel(sn));
 			params->SetParam(idval+4, (float)env->GetType(sn));
 			params->SetParam(idval+5, (float)env->GetFixed(sn));
+		}
+	}
+	return 0;
+}
+
+int MatrixSynth::GetParam(bsInt16 idval, float *val)
+{
+	bsInt16 gn, vn, sn, ty;
+	// id = 0|xx[3]|vn[8] (generic)
+	// id = 1|on[3]|vn[8] (oscillator)
+	// id = 2|en[3]|sn[5]|vn[3] (envelope)
+	gn = (idval >> 8)  & 7;
+	ty = (idval >> 11) & 3;
+	if (ty == 0)
+	{
+		vn = idval & 0xFF;
+		switch (vn)
+		{
+		case 16:
+			*val = (float) lfoGen.GetFrequency();
+			break;
+		case 17:
+			*val = (float) lfoGen.GetWavetable();
+			break;
+		case 18:
+			*val = (float) lfoGen.GetAttack();
+			break;
+		case 19:
+			*val = (float) lfoGen.GetLevel();
+			break;
+		case 20:
+			*val = (float) pbGen.GetRate(0);
+			break;
+		case 21:
+			*val = (float) pbGen.GetRate(1);
+			break;
+		case 22:
+			*val = (float) pbGen.GetAmount(0);
+			break;
+		case 23:
+			*val = (float) pbGen.GetAmount(1);
+			break;
+		case 24:
+			*val = (float) pbGen.GetAmount(2);
+			break;
+		case 25:
+			*val = (float) pbWT.GetLevel();
+			break;
+		case 26:
+			*val = (float) pbWT.GetWavetable();
+			break;
+		case 27:
+			*val = (float) pbWT.GetDuration();
+			break;
+		}
+	}
+	else if (ty == 1)
+	{
+		// oscillator
+		vn = idval & 0xFF;
+		MatrixTone *sig = &gens[gn];
+		switch (vn)
+		{
+		case 0: // output flags
+			*val = (float) (sig->toneFlags & TONE_MOD_BITS);
+			break;
+		case 1: // modulator flags
+			*val = (float) (sig->toneFlags & TONE_OUT_BITS);
+			break;
+		case 2:
+			*val = (float) sig->osc.GetWavetable();
+			break;
+		case 3:
+			*val = (float) sig->frqMult;
+			break;
+		case 4:
+			*val = (float) sig->modLvl;
+			break;
+		case 5:
+			*val = (float) sig->volLvl;
+			break;
+		case 6:
+			*val = (float) sig->envIndex;
+			break;
+		case 7:
+			*val = (float) sig->fx1Lvl;
+			break;
+		case 8:
+			*val = (float) sig->fx2Lvl;
+			break;
+		case 9:
+			*val = (float) sig->fx3Lvl;
+			break;
+		case 10:
+			*val = (float) sig->fx4Lvl;
+			break;
+		case 11:
+			*val = (float) sig->lfoLvl;
+			break;
+		case 12: // vibrato
+			*val = (sig->toneFlags & TONE_LFOIN) ? 1.0f : 0.0f;
+			break;
+		case 13: // tremolo
+			*val = (sig->toneFlags & TONE_TREM) ? 1.0f : 0.0f;
+			break;
+		case 14:
+			*val = (float) sig->panSet.panval;
+			break;
+		case 15: // pan on/off
+			*val = (sig->toneFlags & TONE_PAN) ? 1.0f : 0.0f;
+			break;
+		case 16: // oscil on
+			*val = (sig->toneFlags & TONE_ON) ? 1.0f : 0.0f;
+			break;
+		case 17: // audio out
+			*val = (sig->toneFlags & TONE_OUT) ? 1.0f : 0.0f;
+			break;
+		case 18: // Fx1 out
+			*val = (sig->toneFlags & TONE_FX1OUT) ? 1.0f : 0.0f;
+			break;
+		case 19: // Fx2 out
+			*val = (sig->toneFlags & TONE_FX2OUT) ? 1.0f : 0.0f;
+			break;
+		case 20: // Fx3 out
+			*val = (sig->toneFlags & TONE_FX3OUT) ? 1.0f : 0.0f;
+			break;
+		case 21: // Fx4 out
+			*val = (sig->toneFlags & TONE_FX4OUT) ? 1.0f : 0.0f;
+			break;
+		case 22: // pitch bend amount
+			*val = (float) sig->pbLvl;
+			break;
+		case 23: // pitch bend on/off
+			*val = (sig->toneFlags & TONE_PBIN) ? 1.0f : 0.0f;
+			break;
+		}
+	}
+	else if (ty == 2)
+	{
+		// envelope
+		EnvGenSegSus *env = &envs[gn];
+		sn = (idval >> 3) & 0x1F;
+		vn = idval & 7;
+		switch (vn)
+		{
+		case 0:
+			*val = (float) env->GetStart();
+			break;
+		case 1:
+			*val = (float) env->GetSusOn();
+			break;
+		case 2:
+			*val = (float) env->GetRate(sn);
+			break;
+		case 3:
+			*val = (float) env->GetLevel(sn);
+			break;
+		case 4:
+			*val = (float) env->GetType(sn);
+			break;
+		case 5:
+			*val = (float) env->GetFixed(sn);
+			break;
+		case 6:
+			*val = (float) env->GetSegs();
+			break;
 		}
 	}
 	return 0;

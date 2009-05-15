@@ -37,10 +37,14 @@ Instrument *FMSynth::FMSynthFactory(InstrManager *m, Opaque tmplt)
 
 SeqEvent *FMSynth::FMSynthEventFactory(Opaque tmplt)
 {
-	FMSynth *ip = (FMSynth *)tmplt;
 	VarParamEvent *vpe = new VarParamEvent;
 	vpe->maxParam = 108;
 	return (SeqEvent *) vpe;
+}
+
+VarParamEvent *FMSynth::AllocParams()
+{
+	return (VarParamEvent *) FMSynthEventFactory(0);
 }
 
 static InstrParamMap fmsynthParams[] = 
@@ -69,9 +73,13 @@ static InstrParamMap fmsynthParams[] =
 	{ "pbwt",   107 }
 };
 
-bsInt16 FMSynth::MapParamID(const char *name)
+bsInt16 FMSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	return SearchParamID(name, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
+}
+const char *FMSynth::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	return SearchParamName(id, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
 }
 
 FMSynth::FMSynth()
@@ -131,23 +139,20 @@ FMSynth::~FMSynth()
 
 void FMSynth::Copy(FMSynth *ip)
 {
-	gen1Osc.SetFrequency(ip->gen1Osc.GetFrequency());
-	gen1Osc.SetWavetable(gen1Wt = ip->gen1Osc.GetWavetable());
-	gen1EnvDef.Copy(&ip->gen1EnvDef);
+	gen1Wt = ip->gen1Wt;
 	gen1Mult = ip->gen1Mult;
+	gen1EnvDef.Copy(&ip->gen1EnvDef);
 	fmMix = ip->fmMix;
 	fmDly = ip->fmDly;
 	algorithm = ip->algorithm;
 
-	gen2Osc.SetFrequency(ip->gen2Osc.GetFrequency());
-	gen2Osc.SetWavetable(gen2Wt = ip->gen2Osc.GetWavetable());
-	gen2EnvDef.Copy(&ip->gen2EnvDef);
+	gen2Wt = ip->gen2Wt;
 	gen2Mult = ip->gen2Mult;
+	gen2EnvDef.Copy(&ip->gen2EnvDef);
 
-	gen3Osc.SetFrequency(ip->gen3Osc.GetFrequency());
-	gen3Osc.SetWavetable(gen3Wt = ip->gen3Osc.GetWavetable());
-	gen3EnvDef.Copy(&ip->gen3EnvDef);
+	gen3Wt = ip->gen3Wt;
 	gen3Mult = ip->gen3Mult;
+	gen3EnvDef.Copy(&ip->gen3EnvDef);
 
 	nzEnvDef.Copy(&ip->nzEnvDef);
 	nzMix = ip->nzMix;
@@ -178,7 +183,7 @@ AmpValue FMSynth::CalcPhaseMod(AmpValue amp, FrqValue mult)
 {
 	amp = (amp * mult) * synthParams.frqTI;
 	if (amp > maxPhs)
-		amp = 0;
+		amp = maxPhs;
 	return amp;
 }
 
@@ -218,7 +223,7 @@ void FMSynth::Start(SeqEvent *evt)
 	nzOn = nzMix > 0;
 	if (nzOn)
 	{
-		nzi.InitH(nzFrqh);
+		nzi.InitH(nzFrqh * synthParams.sampleRate);
 		nzo.InitWT(nzFrqo, WT_SIN);
 		nzEG.SetEnvDef(&nzEnvDef);
 		nzEG.Reset(0);
@@ -576,6 +581,212 @@ int FMSynth::GetParams(VarParamEvent *params)
 	return 0;
 }
 
+int FMSynth::GetParam(bsInt16 id, float *val)
+{
+//	EGSegType segType;
+	switch (id)
+	{
+	case 16: //mix
+		*val = (float) fmMix;
+		break;
+	case 17: //dly
+		*val = (float) fmDly;
+		break;
+	case 18: //alg
+		*val = (float) algorithm;
+		break;
+	case 19:
+		*val = (float) panOn;
+		break;
+	case 20:
+		*val = (float) panSet.panval;
+		break;
+	case 30: //mul
+		*val = (float) gen1Mult;
+		break;
+	case 31: //st
+		*val = (float) gen1EnvDef.GetStart();
+		break;
+	case 32: //atk
+		*val = (float) gen1EnvDef.GetRate(0);
+		break;
+	case 33: //pk
+		*val = (float) gen1EnvDef.GetLevel(0);
+		break;
+	case 34: //dec
+		*val = (float) gen1EnvDef.GetRate(1);
+		break;
+	case 35: //sus
+		*val = (float) gen1EnvDef.GetLevel(1);
+		break;
+	case 36: //rel
+		*val = (float) gen1EnvDef.GetRate(2);
+		break;
+	case 37: //end
+		*val = (float) gen1EnvDef.GetLevel(2);
+		break;
+	case 38: //ty
+		*val = (float) (int) gen1EnvDef.GetType(0);
+		break;
+	case 39: // wt
+		*val = (float) gen1Wt;
+		break;
+	//gen2: 
+	case 40: //mul
+		*val = (float) gen2Mult;
+		break;
+	case 41: //st
+		*val = (float) gen2EnvDef.GetStart();
+		break;
+	case 42: //atk
+		*val = (float) gen2EnvDef.GetRate(0);
+		break;
+	case 43: //pk
+		*val = (float) gen2EnvDef.GetLevel(0);
+		break;
+	case 44: //dec
+		*val = (float) gen2EnvDef.GetRate(1);
+		break;
+	case 45: //sus
+		*val = (float) gen2EnvDef.GetLevel(1);
+		break;
+	case 46: //rel
+		*val = (float) gen2EnvDef.GetRate(2);
+		break;
+	case 47: //end
+		*val = (float) gen2EnvDef.GetLevel(2);
+		break;
+	case 48: //ty
+		*val = (float) (int) gen2EnvDef.GetType(0);
+		break;
+	case 49: // wt
+		*val = (float) gen2Wt;
+		break;
+	// gen3:
+	case 50: //mul
+		*val = (float) gen3Mult;
+		break;
+	case 51: //st
+		*val = (float) gen3EnvDef.GetStart();
+		break;
+	case 52: //atk
+		*val = (float) gen3EnvDef.GetRate(0);
+		break;
+	case 53: //pk
+		*val = (float) gen3EnvDef.GetLevel(0);
+		break;
+	case 54: //dec
+		*val = (float) gen3EnvDef.GetRate(1);
+		break;
+	case 55: //sus
+		*val = (float) gen3EnvDef.GetLevel(1);
+		break;
+	case 56: //rel
+		*val = (float) gen3EnvDef.GetRate(2);
+		break;
+	case 57: //end
+		*val = (float) gen3EnvDef.GetLevel(2);
+		break;
+	case 58: //ty
+		*val = (float) (int) gen2EnvDef.GetType(0);
+		break;
+	case 59: // wt
+		*val = (float) gen3Wt;
+		break;
+	//nz: 
+	case 60: //mix
+		*val = (float) nzMix;
+		break;
+	case 61: //dly
+		*val = (float) nzDly;
+		break;
+	case 62: //nz frq
+		*val = (float) nzFrqh;
+		break;
+	case 63: //osc frq
+		*val = (float) nzFrqo;
+		break;
+	case 64: //st
+		*val = (float) nzEnvDef.GetStart();
+		break;
+	case 65: //atk
+		*val = (float) nzEnvDef.GetRate(0);
+		break;
+	case 66: //pk
+		*val = (float) nzEnvDef.GetLevel(0);
+		break;
+	case 67: //dec
+		*val = (float) nzEnvDef.GetRate(1);
+		break;
+	case 68: //sus
+		*val = (float) nzEnvDef.GetLevel(1);
+		break;
+	case 69: //rel
+		*val = (float) nzEnvDef.GetRate(2);
+		break;
+	case 70: //end
+		*val = (float) nzEnvDef.GetLevel(2);
+		break;
+	case 71: //ty
+		*val = (float) (int) nzEnvDef.GetType(0);
+		break;
+	//dlyn: 
+	case 80: //mix
+		*val = (float) dlyMix;
+		break;
+	case 81: //dly
+		*val = (float) dlyTim;
+		break;
+	case 82: //dec
+		*val = (float) dlyDec;
+		break;
+	//lfo: 
+	case 90: //frq
+		*val = (float) lfoGen.GetFrequency();
+		break;
+	case 91: //wt
+		*val = (float) lfoGen.GetWavetable();
+		break;
+	case 92: //rt
+		*val = (float) lfoGen.GetAttack();
+		break;
+	case 93: //amp
+		*val = (float) lfoGen.GetLevel();
+		break;
+	// pitchbend
+	case 100:
+		*val = (float) pbOn;
+		break;
+	case 101:
+		*val = (float) pbGen.GetRate(0);
+		break;
+	case 102:
+		*val = (float) pbGen.GetRate(1);
+		break;
+	case 103:
+		*val = (float) pbGen.GetAmount(0);
+		break;
+	case 104:
+		*val = (float) pbGen.GetAmount(1);
+		break;
+	case 105:
+		*val = (float) pbGen.GetAmount(2);
+		break;
+	case 106:
+		*val = (float) pbWT.GetLevel();
+		break;
+	case 107:
+		*val = (float) pbWT.GetWavetable();
+		break;
+	case 108:
+		*val = (float) pbWT.GetDuration();
+		break;
+	default:
+		return 1;
+	}
+	return 0;
+}
+
 void FMSynth::Stop()
 {
 	gen1EG.Release();
@@ -748,6 +959,8 @@ int FMSynth::Load(XmlSynthElem *parent)
 			if (elem->GetAttribute("dly", dval) == 0)
 				nzDly = dval;
 			if (elem->GetAttribute("fr", dval) == 0)
+				nzFrqh = dval / synthParams.sampleRate;
+			if (elem->GetAttribute("fh", dval) == 0)
 				nzFrqh = dval;
 			if (elem->GetAttribute("fo", dval) == 0)
 				nzFrqo = dval;
@@ -839,7 +1052,7 @@ int FMSynth::Save(XmlSynthElem *parent)
 		return -1;
 	elem->SetAttribute("mix", nzMix);
 	elem->SetAttribute("dly", nzDly);
-	elem->SetAttribute("fr", nzFrqh);
+	elem->SetAttribute("fh", nzFrqh);
 	elem->SetAttribute("fo", nzFrqo);
 	delete elem;
 

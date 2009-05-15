@@ -27,6 +27,39 @@
 /// Pan method sqrt(pan)
 #define panSqr 3
 
+////////////////////////////////////////////////////////////////////
+/// Dynamic mixer functions
+////////////////////////////////////////////////////////////////////
+#define mixFx   0x100
+#define mixRamp 0x200
+#define mixOsc  0x400
+
+#define mixNoFunc       0x00
+#define mixSetInpLvl    0x01
+#define mixSetPanPos    0x02
+#define mixSetSendLvl   (0x04|mixFx)
+#define mixSetFxLvl     (0x08|mixFx)
+#define mixSetFxPan     (0x10|mixFx)
+#define mixRampInpLvl   (mixSetInpLvl|mixRamp)
+#define mixRampPanPos   (mixSetPanPos|mixRamp)
+#define mixRampSendLvl  (mixSetSendLvl|mixRamp)
+#define mixRampFxLvl    (mixSetFxLvl|mixRamp)
+#define mixRampFxPan    (mixSetFxPan|mixRamp)
+#define mixOscilInpLvl  (mixSetInpLvl|mixOsc)
+#define mixOscilPanPos  (mixSetPanPos|mixOsc)
+#define mixOscilSendLvl (mixSetSendLvl|mixOsc)
+#define mixOscilFxLvl   (mixSetFxLvl|mixOsc)
+#define mixOscilFxPan   (mixSetFxPan|mixOsc)
+
+#define P_MIX_FUNC 16
+#define P_MIX_FROM 17
+#define P_MIX_TO   18
+#define P_MIX_TIME 19
+#define P_MIX_FX   20
+#define P_MIX_FRQ  21
+#define P_MIX_WT   22
+#define P_MIX_PANT 23
+
 ///////////////////////////////////////////////////////////////
 /// Pan sounds left to right.
 /// The Panner class calculates the left and right multipliers
@@ -108,6 +141,10 @@ public:
 /// directed to each output channel independently. I.E. we can
 /// have one amount of reverb in the left output, and a different
 /// amount in the right output.
+///
+/// Note: the unit generator is owned by the caller and is not
+/// deleted by the FxChannel. Be sure to set the unit generator
+/// to null in this object before deleting it!
 ///////////////////////////////////////////////////////////////
 class FxChannel
 {
@@ -154,9 +191,12 @@ public:
 	/// @param rgt right output value
 	void FxOut(AmpValue& lft, AmpValue& rgt)
 	{
-		AmpValue out = fx->Sample(value) * fxmix;
-		lft += out * pan.panlft;
-		rgt += out * pan.panrgt;
+		if (fx)
+		{
+			AmpValue out = fx->Sample(value) * fxmix;
+			lft += out * pan.panlft;
+			rgt += out * pan.panrgt;
+		}
 		value = 0;
 	}
 
@@ -229,6 +269,24 @@ public:
 		value = 0;
 		if (fx)
 			fx->Reset();
+	}
+
+	/// Get the unit generator
+	/// @returns pointer to the GenUnit
+	GenUnit *FxGenGet()
+	{
+		return fx;
+	}
+
+	/// Set the unit generator.
+	/// This returns the previous unit. The caller should
+	/// delete the old unit if appropriate.
+	/// @param newFx Pointer to new unit generator for processing
+	GenUnit *FxGenSet(GenUnit *newfx)
+	{
+		GenUnit *oldfx = fx;
+		fx = newfx;
+		return oldfx;
 	}
 };
 
@@ -615,7 +673,7 @@ public:
 	}
 
 	/// Reset the mixer. This does not delete channels and effects,
-	/// only clears them to zero.
+	/// only clears the input to zero.
 	void Reset()
 	{
 		int n;
@@ -625,6 +683,26 @@ public:
 			fxBuf[n].Clear();
 		lpeak = 0.0;
 		rpeak = 0.0;
+	}
+
+	/// Get a reference to an input channel object.
+	/// This is made available for editors.
+	/// @param ch Channel number
+	MixChannel *GetChannelPtr(int ch)
+	{
+		if (ch >= 0 && ch <= mixInputs)
+			return &inBuf[ch];
+		return 0;
+	}
+
+	/// Get a reference to an effects channel object.
+	/// This is made available for editors.
+	/// @param unit Effects unit number
+	FxChannel *GetFxPtr(int unit)
+	{
+		if (unit >= 0 && unit <= fxUnits)
+			return &fxBuf[unit];
+		return 0;
 	}
 };
 //@}

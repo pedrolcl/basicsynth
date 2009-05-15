@@ -31,8 +31,8 @@
 
 //////////////////////////////////////////
 // These two files are not included by
-// default since they are windows only
-// and used only for live playback of sound
+// default since they are used only for live 
+// playback of sound
 //////////////////////////////////////////
 //#include <Player.h>
 //#include <WaveOutDirect.h>

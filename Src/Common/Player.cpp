@@ -8,7 +8,6 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////////////////
-#include <windows.h>
 #include <math.h>
 #include <SynthDefs.h>
 #include <SynthString.h>
@@ -26,9 +25,9 @@ void Player::AddEvent(SeqEvent *evt)
 	if (evt == 0)
 		return;
 
-	EnterCriticalSection(&guard);
+	EnterCritical();
 	evtTail->InsertBefore(evt);
-	LeaveCriticalSection(&guard);
+	LeaveCritical();
 }
 
 void Player::Play(InstrManager& instMgr)
@@ -51,17 +50,15 @@ void Player::Play(InstrManager& instMgr)
 	while (playing)
 	{
 		// in-line message peek/get
-		EnterCriticalSection(&guard);
+		EnterCritical();
 		evt = evtHead->next;
 		if (evt != evtTail)
 			evt->Remove();
 		else
 			evt = NULL;
-		LeaveCriticalSection(&guard);
+		LeaveCritical();
 		if (evt)
 		{
-			//OutputDebugString("Got event...\r\n");
-
 			if ((typ = evt->type) != SEQEVT_START)
 			{
 				// try to match this event to a prior event
@@ -71,12 +68,10 @@ void Player::Play(InstrManager& instMgr)
 					{
 						if (typ == SEQEVT_PARAM)
 						{
-							//OutputDebugString("Changing...\r\n");
 							act->ip->Param(evt);
 						}
 						else if (typ == SEQEVT_STOP)
 						{
-							//OutputDebugString("Stopping ...\r\n");
 							act->ip->Stop();
 							act->ison = false;
 						}
@@ -86,10 +81,9 @@ void Player::Play(InstrManager& instMgr)
 			}
 			else
 			{
-				//OutputDebugString("Starting...\r\n");
-				// Start an instrument. The instrument manager must
-				// eturn a valid instance. We then initialize the instrument
-				// by passing the event structure. 
+				// Start an instrument. The instrument manager should
+				// return a valid instance of something. We initialize
+				// the instrument by passing the event structure. 
 				if ((act = new ActiveEvent) != NULL)
 				{
 					if (evt->im)
@@ -144,3 +138,70 @@ void Player::Play(InstrManager& instMgr)
 	delete actTail;
 	delete actHead;
 }
+
+#if _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOGDI
+#define NOUSER
+#include <windows.h>
+
+void Player::CreateMutex()
+{
+	CRITICAL_SECTION *cs = new CRITICAL_SECTION;
+	::InitializeCriticalSection(cs);
+	mutex = (void*)cs;
+}
+
+void Player::DestroyMutex()
+{
+	CRITICAL_SECTION *cs = (CRITICAL_SECTION*)mutex;
+	if (cs)
+	{
+		::DeleteCriticalSection(cs);
+		delete cs;
+	}
+}
+
+inline void Player::EnterCritical()
+{
+	EnterCriticalSection((CRITICAL_SECTION*)mutex);
+}
+
+inline void Player::LeaveCritical()
+{
+	LeaveCriticalSection((CRITICAL_SECTION*)mutex);
+}
+#endif
+
+#if UNIX
+#include <sys/types.h>
+#include <pthread.h>
+
+void Player::CreateMutex()
+{
+	pthread_mutex_t *cs = new pthread_mutex_t;
+	pthread_mutex_init(cs, NULL);
+	mutex = (void*)cs;
+}
+
+void Player::DestroyMutex()
+{
+	pthread_mutex_t *cs = (pthread_mutex_t*)mutex;
+	if (cs)
+	{
+		pthread_mutex_destroy(cs);
+		delete cs;
+		mutex = 0;
+	}
+}
+
+inline void Player::EnterCritical()
+{
+	pthread_mutex_lock((pthread_mutex_t*)mutex);
+}
+
+inline void Player::LeaveCritical()
+{
+	pthread_mutex_unlock((pthread_mutex_t*)mutex);
+}
+#endif

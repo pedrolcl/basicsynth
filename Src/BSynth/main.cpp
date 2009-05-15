@@ -151,6 +151,9 @@ public:
 		im = mgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
 		im->paramToID = Chuffer::MapParamID;
 		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("ModSynth", ModSynth::ModSynthFactory, ModSynth::ModSynthEventFactory);
+		im->paramToID = ModSynth::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
 	}
 
 	int LoadProject(char *prjFname)

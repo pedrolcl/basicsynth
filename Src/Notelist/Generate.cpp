@@ -1284,7 +1284,11 @@ nlScriptNode *nlParamNode::Exec()
 	nlScriptNode *pret = pval->Exec();
 	nlVoice *pv = genPtr->GetCurVoice();
 	if (pv && pno >= 0 && pno < pv->maxParam)
+	{
 		pval->GetValue(&pv->lastParam[pno]);
+		if (pno >= pv->cntParam)
+			pv->cntParam = pno+1;
+	}
 
 	return pret;
 }
@@ -1553,6 +1557,38 @@ nlScriptNode *nlCallNode::Exec()
 		delete str;
 	}
 	return p;
+}
+
+nlScriptNode *nlMixerNode::Exec()
+{
+	if (next == NULL)
+		return NULL;
+
+	nlScriptNode *ep;
+	nlScriptNode *np = next;
+
+	double params[6];
+	int argNdx = 0;
+	
+//  values are in the order fxunit , from , to , time , freq , wt ;
+	while (argNdx < 6 && np)
+	{
+		ep = np->Exec();
+		np->GetValue(&params[argNdx++]);
+		np = ep;
+		if (np->GetToken() == T_COMMA)
+			np = np->GetNext();
+		else
+			break;
+	}
+	while (argNdx < 6)
+		params[argNdx++] = 0.0;
+
+	nlConverter *cvt = genPtr->GetConverter();
+	if (cvt)
+		cvt->MixerEvent(mixFn, params);
+
+	return np;
 }
 
 ///////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@ TINYXML=tinyxml
 OBJS=\
 	Global.o \
 	MIDISequencer.o \
+	Player.o \
 	Sequencer.o \
 	SequenceFile.o \
 	WaveFile.o \
@@ -30,6 +31,18 @@ clean:
 	-@rm $(OBJS)
 	-@rm $(CMNLIB)
 
+Player.o: \
+	Player.cpp \
+	$(BSINC)/SynthDefs.h \
+	$(BSINC)/SynthString.h \
+	$(BSINC)/WaveFile.h \
+	$(BSINC)/Mixer.h \
+	$(BSINC)/SynthList.h \
+	$(BSINC)/SeqEvent.h \
+	$(BSINC)/Sequencer.h \
+	$(BSINC)/Instrument.h \
+	$(BSINC)/Player.h
+
 MIDISequencer.o: \
 	MIDISequencer.cpp \
 	$(BSINC)/SynthDefs.h \
@@ -47,6 +60,7 @@ Sequencer.o: \
 	$(BSINC)/WaveFile.h \
 	$(BSINC)/Mixer.h \
 	$(BSINC)/SynthList.h \
+	$(BSINC)/SeqEvent.h \
 	$(BSINC)/Sequencer.h
 
 SequenceFile.o:\
@@ -57,6 +71,7 @@ SequenceFile.o:\
 	$(BSINC)/SynthFile.h \
 	$(BSINC)/Mixer.h \
 	$(BSINC)/WaveFile.h \
+	$(BSINC)/SeqEvent.h \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/SequenceFile.h
 

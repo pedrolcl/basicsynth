@@ -35,7 +35,7 @@
 #define P_START 2
 /// Duration in samples
 #define P_DUR   3
-/// Index of first instrument-specific ID
+/// First note parameter (don't use this!)
 #define P_XTRA  4
 
 class InstrConfig;
@@ -57,8 +57,8 @@ class InstrConfig;
 /// for the START or PARAM signals.
 ///
 /// A parameter ID value is the value used by the instrument
-/// to identify the parameter. The first five parameter IDs
-/// (P_INUM-P_XTRA) are reserved for the sequencer.
+/// to identify the parameter. The first sixteen parameter IDs
+/// are reserved for the sequencer.
 ///////////////////////////////////////////////////////////
 class SeqEvent : public SynthList<SeqEvent>
 {
@@ -66,7 +66,7 @@ public:
 	bsInt16 type;     // event type, 0 -> start output, 1 -> alter parameters
 	bsInt16 inum;     // instrument number
 	bsInt16 chnl;     // channel number (usually mixer input)
-	bsInt16 xtra;     // padding - reserved for future use
+	bsInt16 track;    // track number (formerly known as extra)
 	bsInt32 evid;     // event ID or reference to earlier event
 	bsInt32 start;    // start time in samples
 	bsInt32 duration; // duration in samples
@@ -77,7 +77,7 @@ public:
 		type = -1;
 		inum = -1;
 		evid = -1;
-		xtra = 0;
+		track = 0;
 		chnl = 0;
 		start = 0;
 		duration = 0;
@@ -118,9 +118,6 @@ public:
 		case P_DUR:
 			duration = (bsInt32) (synthParams.sampleRate * v);
 			break;
-		case P_XTRA:
-			xtra = (bsInt16) v;
-			break;
 		}
 	}
 
@@ -145,8 +142,6 @@ public:
 			return (float) start / synthParams.sampleRate;
 		case P_DUR:
 			return (float) duration / synthParams.sampleRate;
-		case P_XTRA:
-			return (float) xtra;
 		}
 		return 0;
 	}
@@ -157,7 +152,7 @@ public:
 		chnl = 0;
 		start = 0;
 		duration = 0;
-		xtra = 0;
+		track = 0;
 	}
 };
 
@@ -167,6 +162,12 @@ public:
 #define P_FREQ   5
 /// The volume (0-1)
 #define P_VOLUME 6
+/// Track number
+#define P_TRACK  7
+/// Modulation level (MIDI)
+#define P_MODLEVEL 8
+/// Pitch bend (MIDI)
+#define P_PITCHBEND 9
 /// First instrument specific parameter is P_USER = 16
 #define P_USER 16
 
@@ -176,7 +177,7 @@ public:
 /// to the pre-defined event parameters. Instruments that 
 /// are to be used with Notelist should derive their events
 /// from the NoteEvent class instead of SeqEvent.
-/// ID numbers from P_XTRA up to P_USER are reserved for Notelist.
+/// ID numbers up to P_USER are reserved for future use.
 /// @sa SeqEvent
 ///////////////////////////////////////////////////////////
 class NoteEvent : public SeqEvent
@@ -185,12 +186,16 @@ public:
 	int pitch;
 	FrqValue frq;
 	AmpValue vol;
+	float modlevel;
+	float pitchbend;
 
 	NoteEvent()
 	{
 		pitch = 0;
 		frq = 0.0;
 		vol = 1.0;
+		modlevel = 0;
+		pitchbend = 0;
 	}
 
 	/// @copydoc SeqEvent::MaxParam
@@ -211,6 +216,15 @@ public:
 		case P_VOLUME:
 			vol = AmpValue(v);
 			break;
+		case P_TRACK:
+			track = (int) v;
+			break;
+		case P_MODLEVEL:
+			modlevel = v;
+			break;
+		case P_PITCHBEND:
+			pitchbend = v;
+			break;
 		default:
 			SeqEvent::SetParam(id, v);
 			break;
@@ -223,13 +237,16 @@ public:
 		{
 		case P_PITCH:
 			return (float) pitch;
-			break;
 		case P_FREQ:
 			return (float) frq;
-			break;
 		case P_VOLUME:
 			return (float) vol;
-			break;
+		case P_TRACK:
+			return (float) track;
+		case P_MODLEVEL:
+			return (float) modlevel;
+		case P_PITCHBEND:
+			return (float) pitchbend;
 		}
 		return SeqEvent::GetParam(id);
 	}
@@ -338,6 +355,27 @@ public:
 				return valParam[n];
 		}
 		return NoteEvent::GetParam(id);
+	}
+
+	/// Replace or Set the value of a parameter
+	void UpdateParam(bsInt16 id, float val)
+	{
+		if (id < P_USER)
+		{
+			NoteEvent::SetParam(id, val);
+			return;
+		}
+
+		bsInt16 *pp = idParam;
+		for (int n = 0; n < numParam; n++, pp++)
+		{
+			if (*pp == id)
+			{
+				valParam[n] = val;
+				return;
+			}
+		}
+		SetParam(id, val);
 	}
 };
 //@}

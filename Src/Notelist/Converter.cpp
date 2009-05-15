@@ -34,6 +34,7 @@ nlConverter::nlConverter()
 	mapList = 0;
 	curMap = 0;
 	symbList = NULL;
+	mixInstr = -1;
 }
 
 nlConverter::~nlConverter()
@@ -76,6 +77,7 @@ int nlConverter::Generate()
 	if (seq == NULL || mgr == NULL)
 		return -1;
 
+	mixInstr = FindInstrNum("[mixer]");
 	gen.SetConverter(this);
 	return gen.Run();
 }
@@ -208,6 +210,35 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 		else
 			curVoice->cntParam = curVoice->maxParam;
 	}
+}
+
+void nlConverter::MixerEvent(int fn, double *params)
+{
+	if (mixInstr < 0)
+		return;
+
+	SeqEvent *evt = mgr->ManufEvent(mixInstr);
+	evt->evid = ++evtCount;
+	evt->type = SEQEVT_START;
+	evt->SetParam(P_INUM, (long) mixInstr);
+	evt->SetParam(P_CHNL, (long) curVoice->chnl);
+	evt->SetParam(P_START, (float) curVoice->curTime);
+	evt->SetParam(P_DUR, (float) 0.0);
+	evt->SetParam(P_MIX_FUNC, (float) fn);
+	if (fn & mixFx)
+		evt->SetParam(P_MIX_FX, (float) params[0]);
+	evt->SetParam(P_MIX_FROM, (float) params[1]);
+	if (fn & (mixRamp|mixOsc))
+	{
+		evt->SetParam(P_MIX_TO, (float) params[2]);
+		evt->SetParam(P_MIX_TIME, (float) params[3]);
+		if (fn & mixOsc)
+		{
+			evt->SetParam(P_MIX_FRQ, (float) params[4]);
+			evt->SetParam(P_MIX_WT, (float) params[5]);
+		}
+	}
+	seq->AddEvent(evt);
 }
 
 int nlConverter::FindInstrNum(const char *name)

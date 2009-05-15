@@ -452,6 +452,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MixerControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ModSynth.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PitchBend.cpp"
 				>
 			</File>
@@ -502,6 +510,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MixerControl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ModSynth.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ModSynthUG.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PitchBend.h"
 				>
 			</File>
@@ -511,6 +531,26 @@
 			</File>
 			<File
 				RelativePath=".\Tone.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UGCalc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UGDelay.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UGEnvGen.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UGFilter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UGOscil.h"
 				>
 			</File>
 			<File

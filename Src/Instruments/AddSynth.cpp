@@ -38,6 +38,11 @@ SeqEvent *AddSynth::AddSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
+VarParamEvent *AddSynth::AllocParams()
+{
+	return (VarParamEvent *) AddSynthEventFactory(0);
+}
+
 static InstrParamMap addsynthParams[] = 
 {
 	{ "fix", 8 },
@@ -71,7 +76,7 @@ static const char *ParamNum(const char *str, int *val)
 	return str;
 }
 
-bsInt16 AddSynth::MapParamID(const char *name)
+bsInt16 AddSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	int pn = 0;
 	int sn = 0;
@@ -81,13 +86,57 @@ bsInt16 AddSynth::MapParamID(const char *name)
 	{
 		str = ParamNum(str+1, &pn);
 		pn++;
+		if (*str == '.')
+			str++;
 		if (*str == 's')
 			str = ParamNum(str+1, &sn);
+		if (*str == '.')
+			str++;
 	}
 	vn = SearchParamID(str, addsynthParams, sizeof(addsynthParams)/sizeof(InstrParamMap));
 	if (vn >= 0)
 		return (pn << 8) + (sn << 4) + vn;
 	return -1;
+}
+
+static void FormatNum(bsInt16 n, char *pdig)
+{
+	if (n >= 100)
+		*pdig++ = (n / 100) + '0';
+	if (n >= 10)
+		*pdig++ = ((n / 10) % 10) + '0';
+	*pdig++ = (n % 10) + '0';
+	*pdig = '\0';
+}
+
+const char *AddSynth::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	static bsString paramNameBuf;
+	paramNameBuf = "";
+	char dig[6];
+	bsInt16 n = (id >> 8) & 0xff;
+	if (n)
+	{
+		dig[0] = 'p';
+		FormatNum(n, &dig[1]);
+		paramNameBuf += dig;
+		n = (id >> 4) & 0x0f;
+		dig[0] = 's';
+		FormatNum(n, &dig[1]);
+		paramNameBuf += dig;
+	}
+
+	int count = sizeof(addsynthParams)/sizeof(InstrParamMap);
+	for (int index = 0; index < count; index++)
+	{
+		if (addsynthParams[index].id == id)
+		{
+			paramNameBuf += '.';
+			paramNameBuf += addsynthParams[index].name;
+			break;
+		}
+	}
+	return paramNameBuf;
 }
 
 AddSynth::AddSynth()
@@ -115,11 +164,17 @@ AddSynth::~AddSynth()
 
 int AddSynth::SetNumParts(int n)
 {
-	delete[] parts;
-	numParts = 0;
-	parts = new AddSynthPart[n];
-	if (parts == NULL)
+	if (n < 1)
 		return -1;
+	AddSynthPart *newParts = new AddSynthPart[n];
+	if (newParts == NULL)
+		return -1;
+	int ndx;
+	for (ndx = 0; ndx < numParts && ndx < n; ndx++)
+		newParts[ndx].Copy(&parts[ndx]);
+
+	delete[] parts;
+	parts = newParts;
 	numParts = n;
 	return 0;
 }
@@ -423,7 +478,7 @@ int AddSynth::SetParam(bsInt16 idval, float val)
 			lfoGen.SetLevel(AmpValue(val));
 			break;
 		case 20:
-			// num segs not settable
+			// num parts not settable
 			//break;
 		default:
 			return 1;
@@ -505,5 +560,78 @@ int AddSynth::GetParams(VarParamEvent *params)
 			params->SetParam(idval+8, (float) pSig->env.GetFixed(sn));
 		}
 	}
+	return 0;
+}
+
+int AddSynth::GetParam(bsInt16 idval, float* val)
+{
+	AddSynthPart *pSig;
+	bsInt16 pn, sn;
+	pn = (idval & 0x7F00) >> 8;
+	if (pn == 0)
+	{
+		switch (idval)
+		{
+		case 16:
+			*val = (float) lfoGen.GetFrequency();
+			break;
+		case 17:
+			*val = (float) lfoGen.GetWavetable();
+			break;
+		case 18:
+			*val = (float) lfoGen.GetAttack();
+			break;
+		case 19:
+			*val = (float) lfoGen.GetLevel();
+			break;
+		case 20:
+			*val = (float) numParts;
+			break;
+		default:
+			return 1;
+		}
+	}
+	else if (pn <= numParts)
+	{
+		sn = (idval & 0xF0) >> 4;
+		pSig = &parts[pn-1];
+		switch (idval & 0x0F)
+		{
+		case 0:
+			*val = (float) pSig->mul;
+			break;
+		case 1:
+			*val = (float) pSig->osc.GetFrequency();
+			break;
+		case 2:
+			*val = (float) pSig->osc.GetWavetable();
+			break;
+		case 3:
+			*val = (float) pSig->env.GetStart();
+			break;
+		case 4:
+			*val = (float) pSig->env.GetSusOn();
+			break;
+		case 5:
+			*val = (float) pSig->env.GetRate(sn);
+			break;
+		case 6:
+			*val = (float) pSig->env.GetLevel(sn);
+			break;
+		case 7:
+			*val = (float) pSig->env.GetType(sn);
+			break;
+		case 8:
+			*val = (float) pSig->env.GetFixed(sn);
+			break;
+		case 9:
+			*val = (float) pSig->env.GetSegs();
+			break;
+		default:
+			return 1;
+		}
+	}
+	else
+		return 1;
 	return 0;
 }

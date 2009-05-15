@@ -412,6 +412,8 @@ int WaveFileIn::LoadWaveFile(const char *fname, bsInt16 id)
 	}
 
 	fileID = id;
+	loopStart = 0;
+	loopEnd = sampleTotal;
 
 	return 0;
 }

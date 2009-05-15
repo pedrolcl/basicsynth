@@ -30,12 +30,12 @@ public:
 	
 	void SetFrequency(FrqValue frq) { osc.SetFrequency(frq); }
 	void SetWavetable(int wt)       { osc.SetWavetable(wt); }
-	void SetAttack(FrqValue val)    { atk.SetRate(val); }
-	void SetLevel(AmpValue val)     { depth = val; lfoOn = depth > 0; } //atk.SetLevel(val);
+	void SetAttack(FrqValue val)    { atkRt = val; }
+	void SetLevel(AmpValue val)     { depth = val; lfoOn = depth > 0; }
 	void SetSigFrq(FrqValue val)    { sigFrq = val; }
 	FrqValue GetFrequency() { return osc.GetFrequency(); }
 	int GetWavetable() { return osc.GetWavetable(); }
-	FrqValue GetAttack() { return atk.GetRate(); }
+	FrqValue GetAttack() { return atkRt; }
 	AmpValue GetLevel() { return depth; }
 
 	void Init(int n, float *f);

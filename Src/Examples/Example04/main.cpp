@@ -25,6 +25,7 @@
 // 20 - White Noise
 // 21 - "Pink" Noise 1
 // 22 - "Pink" Noise 2
+// 23 - BUZZ
 //
 // use: Example04 [duration [pitch [wtlength]]]
 //
@@ -389,6 +390,25 @@ int main(int argc, char *argv[])
 	Generate(duration, &wvnzp, &eg);
 	wvnzp.InitNZ(800.0, 400.0, WT_SIN);
 	Generate(duration, &wvnzp, &eg);
+
+	Silence(0.25);
+
+	/////////////////////////////////////////////////
+	// 24 - BUZZ generator
+	/////////////////////////////////////////////////
+	GenWaveBuzz buzz;
+	buzz.InitBuzz(frequency, 16);
+	Generate(duration, &buzz, &eg);
+	buzz.InitBuzz(frequency, 32);
+	Generate(duration, &buzz, &eg);
+	buzz.InitBuzz(frequency, 48);
+	Generate(duration, &buzz, &eg);
+	buzz.InitBuzz(frequency/4, 16);
+	Generate(duration, &buzz, &eg);
+	buzz.InitBuzz(frequency/4, 32);
+	Generate(duration, &buzz, &eg);
+	buzz.InitBuzz(frequency/4, 48);
+	Generate(duration, &buzz, &eg);
 
 	/////////////////////////////////////////////////
 	if (wvf.CloseWaveFile())

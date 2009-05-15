@@ -75,6 +75,11 @@ SeqEvent *WFSynth::WFSynthEventFactory(Opaque tmplt)
 	return (SeqEvent*)evt;
 }
 
+VarParamEvent *WFSynth::AllocParams()
+{
+	return (VarParamEvent *)WFSynthEventFactory(0);
+}
+
 static InstrParamMap wfsynthParams[] =
 {
 	{"envar", 19},
@@ -84,9 +89,14 @@ static InstrParamMap wfsynthParams[] =
 	{"wvfpa", 18},
 };
 
-bsInt16 WFSynth::MapParamID(const char *name)
+bsInt16 WFSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	return SearchParamID(name, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
+}
+
+const char *WFSynth::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	return SearchParamName(id, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
 }
 
 WFSynth::WFSynth()
@@ -96,6 +106,7 @@ WFSynth::WFSynth()
 	sampleNumber = 0;
 	sampleTotal = 0;
 	sampleIncr = 1.0;
+	sampleRel = 0;
 	looping = 0;
 	playAll = 0;
 	fileID = -1;
@@ -116,6 +127,7 @@ void WFSynth::Copy(WFSynth *tp)
 	sampleTotal = tp->sampleTotal;
 	sampleNumber = tp->sampleNumber;
 	sampleIncr = tp->sampleIncr;
+	sampleRel = tp->sampleRel;
 	samples = tp->samples;
 	looping = tp->looping;
 	playAll = tp->playAll;
@@ -144,6 +156,10 @@ void WFSynth::Start(SeqEvent *evt)
 		}
 		wfp++;
 	}
+	
+	if (sampleTotal > 0)
+		sampleRel = sampleTotal - PhsAccum(eg.GetRelRt() * synthParams.sampleRate);
+
 	eg.Reset(0);
 }
 
@@ -158,7 +174,6 @@ int WFSynth::SetParams(VarParamEvent *params)
 
 	chnl = params->chnl;
 	eg.SetSus(params->vol);
-
 
 	bsInt16 *id = params->idParam;
 	float *valp = params->valParam;
@@ -204,11 +219,35 @@ int WFSynth::GetParams(VarParamEvent *params)
 	return 0;
 }
 
+int WFSynth::GetParam(bsInt16 id, float *val)
+{
+	switch (id)
+	{
+	case 16:
+		*val = (float) fileID;
+		break;
+	case 17:
+		*val = (float) looping;
+		break;
+	case 18:
+		*val = (float) playAll;
+		break;
+	case 19:
+		*val = (float) eg.GetAtkRt();
+		break;
+	case 20:
+		*val = (float) eg.GetRelRt(); 
+		break;
+	default:
+		return 1;
+	}
+	return 0;
+}
+
 void WFSynth::Stop()
 {
-	eg.Release();
-	if (!looping && !playAll)
-		sampleNumber = sampleTotal;
+	if (looping || !playAll)
+		eg.Release();
 }
 
 void WFSynth::Tick()
@@ -221,13 +260,15 @@ void WFSynth::Tick()
 	}
 	im->Output(chnl, samples[(int)sampleNumber] * eg.Gen());
 	sampleNumber += sampleIncr;
+	if (!looping && playAll && sampleNumber > sampleRel)
+		eg.Release();
 }
 
 int  WFSynth::IsFinished()
 {
-	if (looping && sampleTotal > 0)
-		return eg.IsFinished();
-	return sampleNumber >= sampleTotal;
+	if (!looping && sampleNumber >= sampleTotal)
+		return 1;
+	return eg.IsFinished();
 }
 
 void WFSynth::Destroy()

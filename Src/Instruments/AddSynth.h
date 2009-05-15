@@ -22,6 +22,11 @@ struct AddSynthPart
 	EnvGenSegSus env;
 	FrqValue  mul; // frequency multiplier
 
+	AddSynthPart()
+	{
+		mul = 1.0;
+	}
+
 	void Copy(AddSynthPart *p)
 	{
 		mul = p->mul;
@@ -31,7 +36,7 @@ struct AddSynthPart
 	}
 };
 
-class AddSynth : public Instrument
+class AddSynth : public InstrumentVP
 {
 private:
 	int chnl;
@@ -52,7 +57,8 @@ public:
 
 	static Instrument *AddSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *AddSynthEventFactory(Opaque tmplt);
-	static bsInt16     MapParamID(const char *name);
+	static bsInt16     MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
 
 	void Copy(AddSynth *tp);
 	virtual void Start(SeqEvent *evt);
@@ -64,9 +70,11 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	VarParamEvent *AllocParams();
 	int GetParams(VarParamEvent *params);
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 idval, float val);
+	int GetParam(bsInt16 idval, float *val);
 
 	int SetNumParts(int n);
 	int GetNumParts();

@@ -297,26 +297,31 @@ public:
 	/// @param q  1/bandwidth
 	void CalcCoef(FrqValue fc, FrqValue q)
 	{
-		if (q == 0)
+		if (q == 0 || fc == 0)
 		{
 			dlyAmp1 = 0;
 			dlyAmp2 = 0;
 			inAmp0 = 0;
 			return;
 		}
-		// Dodge & Jerse
-		// b2 = exp(-twoPI * BW / sampleRate);
-		double rad = synthParams.frqRad * fc;
-		dlyAmp2 = exp(-rad / q);
-		double tmp = dlyAmp2 * 4.0;
-		dlyAmp1 = (-tmp / (1.0 + dlyAmp2)) * cos(rad);
-		inAmp0 = (1.0 - dlyAmp2) * sqrt(1.0 - ((dlyAmp1*dlyAmp1)/tmp));
+		// Hal Chamberlin's equation, (derived from CSound source)
+		double tmp = -PI * fc / (q * synthParams.sampleRate);
+		dlyAmp1 = -2.0 * cos(synthParams.frqRad * fc) * exp(tmp);
+		dlyAmp2 = exp(tmp+tmp);
+		inAmp0 = 1.0 + dlyAmp1 + dlyAmp2;
 
-		// alternate - derived from CSound source (Hal Chamberlin's equation?)
-		//double tmp = -PI * fc / (q * synthParams.sampleRate);
-		//dlyAmp1 = -2.0 * cos(synthParams.frqRad * fc) * exp(tmp);
-		//dlyAmp2 = exp(tmp+tmp);
-		//inAmp0 = 1.0 - tdlyAmp1 - tdlyAmp2;
+		//------------------------------------------------------------
+		// Another version from: Dodge & Jerse
+		// b2 = exp(-twoPI * BW / sampleRate);
+		// b1 = ((-4 * b2) / (1 + b2)) * cos(twoPI * fc / sampleRate);
+		// a0 = (1 - b2) * sqrt(1 - (b2*b2) / (4 * b2));
+		// Note: q = fc/BW -> BW = fc/q
+		//------------------------------------------------------------
+		//double rad = synthParams.frqRad * fc;
+		//dlyAmp2 = exp(-rad / q);
+		//double tmp = dlyAmp2 * 4.0;
+		//dlyAmp1 = (-tmp / (1.0 + dlyAmp2)) * cos(rad);
+		//inAmp0 = (1.0 - dlyAmp2) * sqrt(1.0 - ((dlyAmp1*dlyAmp1)/tmp));
 	}
 
 	/// Process the current sample. The input sample is stored in the delay

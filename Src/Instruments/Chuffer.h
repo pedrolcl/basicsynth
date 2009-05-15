@@ -10,7 +10,7 @@
 #if !defined(_CHUFFER_H_)
 #define _CHUFFER_H_
 
-class Chuffer  : public Instrument
+class Chuffer  : public InstrumentVP
 {
 private:
 	int chnl;
@@ -65,9 +65,8 @@ private:
 	AmpValue resDur;
 	float    resMul;
 
-	FrqValue coefRate;
+	bsInt32  coefRate;
 	bsInt32  coefCount;
-	bsInt32  coefSampl;
 	AmpValue lastFc;
 	AmpValue lastQ;
 
@@ -81,7 +80,8 @@ public:
 	virtual ~Chuffer();
 	static Instrument *ChufferFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ChufferEventFactory(Opaque tmplt);
-	static bsInt16    MapParamID(const char *name);
+	static bsInt16    MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
 
 	void Copy(Chuffer *tp);
 	void CreateFilter();
@@ -94,9 +94,11 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	VarParamEvent *AllocParams();
 	int GetParams(VarParamEvent *params);
 	int SetParams(VarParamEvent *params);
-	int SetParam(bsInt16 id, float val);
+	int SetParam(bsInt16 idval, float val);
+	int GetParam(bsInt16 idval, float *val);
 };
 
 #endif

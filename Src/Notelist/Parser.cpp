@@ -166,12 +166,14 @@ int nlParser::Score()
 
 // statement = include | system | script | write
 //           | version | tempo | middlec | initfn
-//           | maxparam | map | sequence | voice
-//           | var
+//           | mixer | map | maxparam 
+//           | sequence | voice
+//           | var | set
 int nlParser::Statement()
 {
 	switch (theToken)
 	{
+	// global control statements
 	case T_INC:
 		return Include();
 	case T_SYSTEM:
@@ -194,20 +196,61 @@ int nlParser::Statement()
 		return Map();
 	case T_MAXPARAM:
 		return MaxParam();
-	case T_SET:
-		return Set();
 
+	// note lists
 	case T_VOICE:
 		return Voice();
 	case T_SEQ:
 		return Sequence();
 
+	// variables
 	case T_DECLARE:
 		return Declare();
+	case T_SET:
+		return Set();
+
+	// Keywords not allowed at the Statement level.
+	case T_END:
+		Error("END is not matched to BEGIN.", skiptoend);
+		break;
+	case T_ELSE:
+		Error("ELSE is not matched to IF.", skiptoend);
+		break;
+	case T_BEGIN:
+	case T_INSTNUM:
+	case T_VOL:
+	case T_CHNL:
+	case T_CALL:
+	case T_TIME:
+	case T_MARK:
+	case T_SYNC:
+	case T_PLAY:
+	case T_XPOSE:
+	case T_DOUBLE:
+	case T_ART:
+	case T_PARAM:
+	case T_LOOP:
+	case T_IF:
+	case T_WHILE:
+		Error("Keyword must be inside a VOICE.", skiptoend);
+		break;
+	case T_PIT:
+	case T_DUR:
+	case T_NUM:
+	case T_NOTE:
+	case T_SUS:
+	case T_TIE:
+	case T_OBRACE:
+	case T_OBRACK:
+		Error("Notes cannot appear outside a VOICE/SEQUENCE.", skiptoend);
+		break;
+	default:
+		InvalidToken();
+		Error("Invalid Statement.", skiptoend);
+		break;
 	}
-	InvalidToken();
-	Error("Invalid Statement.", 0);
-	errFatal = -1;
+	theToken = lexPtr->Next();
+	//errFatal = -1;
 	return -1;
 }
 
@@ -293,21 +336,25 @@ int nlParser::Write()
 // declare = 'var' VAR (, VAR)* ';'
 int nlParser::Declare()
 {
+	int cnt = 0;
 	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: VAR");
 	nlSymbol *symb;
 	theToken = lexPtr->Next();
 	while (theToken == T_VAR)
 	{
+		cnt++;
 		symb = cvtPtr->Lookup(lexPtr->Tokbuf());
 		if (symb != NULL)
-			err = Error("Symbol redefined", skiptoend);
+			err = Error("Variable redefined", skiptoend);
 		else
 			symb = cvtPtr->AddSymbol(lexPtr->Tokbuf());
 		theToken = lexPtr->Next();
 		if (theToken == T_COMMA)
 			theToken = lexPtr->Next();
 	}
+	if (theToken != T_ENDSTMT || cnt == 0)
+		err = Error("Missing or invalid variable name.", 0);
 	return CheckEnd(err);
 }
 
@@ -441,10 +488,79 @@ int nlParser::Tempo()
 	return CheckEnd(err);
 }
 
-// For future use...
+// mixer = 'mixer' {mixin | mixpan | mixsend | fxin | fxpan } ';'
+// mixer = 'mixer' mixfn (mixopt)? mixvals ';'
+// mixfn = 'in' | 'pan' | 'send' | 'fxin' | 'fxpan'
+// mixopt = 'ramp' | 'osc'
+// mixvals = expr | {expr ','}*
+// values are in the order: [fxunit] , start , end , time , freq , wt
 int nlParser::Mix()
 {
-	return Error("Mix not implemented", skiptoend);
+	int err = 0;
+	int fn = 0;
+	cvtPtr->DebugNotify(2, "Parse: MIXER");
+	nlMixerNode *mix = new nlMixerNode();
+	genPtr->AddNode(mix);
+	theToken = lexPtr->Next();
+	switch (theToken)
+	{
+	case T_MIXIN:
+		fn = mixSetInpLvl;
+		break;
+	case T_MIXPAN:
+		fn = mixSetPanPos;
+		break;
+	case T_MIXSEND:
+		fn = mixSetSendLvl;
+		break;
+	case T_FXRCV:
+		fn = mixSetFxLvl;
+		break;
+	case T_FXPAN:
+		fn = mixSetFxPan;
+		break;
+	default:
+		return Error("Invalid mixer function", skiptoend);
+	}
+	theToken = lexPtr->Next();
+	if (fn & mixFx)
+	{
+		err = Expr();
+		if (theToken == T_COMMA)
+			theToken = lexPtr->Next();
+	}
+	else // no FX unit expression
+		genPtr->AddNode(T_NUM, -1L);
+	genPtr->AddNode(T_COMMA, 0L);
+	switch (theToken)
+	{
+	case T_RAMP:
+		fn |= mixRamp;
+		theToken = lexPtr->Next();
+		break;
+	case T_OSC:
+		fn |= mixOsc;
+		theToken = lexPtr->Next();
+		break;
+	case T_SET:
+		theToken = lexPtr->Next();
+		break;
+	}
+	mix->SetFunction(fn);
+	while (err == 0 && theToken != T_ENDSTMT)
+	{
+		err |= Expr();
+		if (theToken == T_COMMA)
+		{
+			theToken = lexPtr->Next();
+			genPtr->AddNode(T_COMMA, 0L);
+		}
+		else
+			break;
+	}
+	if (err)
+		Error("Invalid mixer options", skiptoend);
+	return CheckEnd(err);
 }
 
 // maxparam = 'maxparam' expr ';'
@@ -812,7 +928,7 @@ int nlParser::Artic()
 // note = include | system | script | write
 //      | tempo | middlec | maxparam | map
 //      | inst | vol | chnl | time | mark | sync 
-//      | transpose | double | play | initfn
+//      | transpose | double | play | initfn | mixer
 //      | artic | param | loop | sus | tie
 //      | notespec | ';'
 // sus = 'sus' notespec
@@ -885,6 +1001,8 @@ int nlParser::Note()
 		return IfStmt();
 	case T_WHILE:
 		return WhileStmt();
+	case T_MIX:
+		return Mix();
 
 	case T_NOTE:
 		// syntactic sugar...
@@ -903,6 +1021,13 @@ int nlParser::Note()
 		// null statement
 		theToken = lexPtr->Next();
 		return 0;
+	case T_END:
+		return Error("END is not matched to a BEGIN.", skiptoend);
+	case T_ELSE:
+		return Error("ELSE is not matched to IF.", skiptoend);
+	case T_VOICE:
+	case T_SEQ:
+		return Error("Cannot begin a VOICE/SEQ within a voice.", skiptoend);
 	}
 
 	nlNoteNode *pNote = new nlNoteNode;

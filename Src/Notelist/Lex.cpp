@@ -318,6 +318,10 @@ int nlLex::Next()
 			return T_FGEN;
 		if (CompareToken(cTokbuf, "FREQUENCY") == 0)
 			return T_FREQ;
+		if (CompareToken(cTokbuf, "FXRCV") == 0)
+			return T_FXRCV;
+		if (CompareToken(cTokbuf, "FXPAN") == 0)
+			return T_FXPAN;
 		break;
 	case 'I':
 		if (CompareToken(cTokbuf, "INSTR") == 0)
@@ -330,6 +334,8 @@ int nlLex::Next()
 			return T_INC;
 		if (CompareToken(cTokbuf, "IF") == 0)
 			return T_IF;
+		if (CompareToken(cTokbuf, "IN") == 0)
+			return T_MIXIN;
 		break;
 	case 'L':
 		if (CompareToken(cTokbuf, "LOOP") == 0)
@@ -366,6 +372,8 @@ int nlLex::Next()
 			return T_OR;
 		if (CompareToken(cTokbuf, "OPTION") == 0)
 			return T_OPTION;
+		if (CompareToken(cTokbuf, "OSC") == 0)
+			return T_OSC;
 		break;
 	case 'P':
 		if (CompareToken(cTokbuf, "PARAM") == 0)
@@ -374,6 +382,8 @@ int nlLex::Next()
 			return T_PLAY;
 		if (CompareToken(cTokbuf, "PERCENT") == 0)
 			return T_PCNT;
+		if (CompareToken(cTokbuf, "PAN") == 0)
+			return T_MIXPAN;
 		break;
 	case 'R':
 		if (!cTokbuf[1] ) /* rest */
@@ -382,6 +392,8 @@ int nlLex::Next()
 			return T_RAND;
 		if (CompareToken(cTokbuf, "REPEAT") == 0)
 			return T_LOOP;
+		if (CompareToken(cTokbuf, "RAMP") == 0)
+			return T_RAMP;
 		break;
 	case 'S':
 		if (CompareToken(cTokbuf, "SUS") == 0)
@@ -402,6 +414,8 @@ int nlLex::Next()
 			return T_SYSTEM;
 		if (CompareToken(cTokbuf, "SYSTEM") == 0)
 			return T_SYSTEM;
+		if (CompareToken(cTokbuf, "SEND") == 0)
+			return T_MIXSEND;
 		break;
 	case 'T':
 		if (CompareToken(cTokbuf, "TIE") == 0)

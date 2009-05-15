@@ -37,7 +37,7 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
+# PROP Output_Dir "Release6"
 # PROP Intermediate_Dir "Release6"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
@@ -54,7 +54,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy test projects
-PostBuild_Cmds=copy  *.xml  ..\..\Bin\ 	copy  *.nl  ..\..\Bin\ 
+PostBuild_Cmds=copy   *.xml   ..\..\Bin\  	copy   *.nl   ..\..\Bin\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "BSynth - Win32 Debug"

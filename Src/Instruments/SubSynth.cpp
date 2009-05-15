@@ -34,6 +34,11 @@ SeqEvent *SubSynth::SubSynthEventFactory(Opaque tmplt)
 	return (SeqEvent *) ep;
 }
 
+VarParamEvent *SubSynth::AllocParams()
+{
+	return (VarParamEvent *) SubSynthEventFactory(0);
+}
+
 static InstrParamMap subSynthParams[] = 
 {
 	{"crt", 53},
@@ -49,9 +54,14 @@ static InstrParamMap subSynthParams[] =
 	{"pbwt", 51}
 };
 
-bsInt16 SubSynth::MapParamID(const char *name)
+bsInt16 SubSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	return SearchParamID(name, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
+}
+
+const char *SubSynth::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	return SearchParamName(id, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
 }
 
 SubSynth::SubSynth()
@@ -61,7 +71,7 @@ SubSynth::SubSynth()
 	chnl = 0;
 	fltGain = 1.0;
 	fltRes = 0.5;
-	fltType = 0;
+	fltType = 4;
 	filt = 0;
 	sigMix = 1.0;
 	nzMix = 0.0;
@@ -95,8 +105,6 @@ void SubSynth::Copy(SubSynth *tp)
 	envSig.Copy(&tp->envSig);
 	envFlt.Copy(&tp->envFlt);
 	CreateFilter();
-	if (filt)
-		filt->Copy(tp->filt);
 	lfoGen.Copy(&tp->lfoGen);
 	nzOn = nzMix > 0;
 	pbOn = tp->pbOn;
@@ -122,6 +130,9 @@ void SubSynth::CreateFilter()
 	case 3:
 		filt = new SubFiltRES;
 		break;
+	case 4:
+		filt = new SubFiltLPR;
+		break;
 	default:
 		filt = new SubFilt;
 		break;
@@ -136,6 +147,8 @@ void SubSynth::Start(SeqEvent *evt)
 	osc.Reset(0);
 	envSig.Reset(0);
 	envFlt.Reset(0);
+	if (!filt)
+		CreateFilter();
 	filt->Init(&envFlt, fltGain, fltRes);
 	filt->Reset(0);
 	if (lfoGen.On())
@@ -174,7 +187,8 @@ int SubSynth::SetParams(VarParamEvent *evt)
 	int n;
 	for (n = evt->numParam; n > 0; n--)
 		err += SetParam(*id++, *valp++);
-	filt->SetCalcRate(coefRate);
+	if (filt)
+		filt->SetCalcRate(coefRate);
 	return err;
 }
 
@@ -344,11 +358,55 @@ int SubSynth::GetParams(VarParamEvent *params)
 	return 0;
 }
 
+int SubSynth::GetParam(bsInt16 idval, float *val)
+{
+	switch(idval)
+	{
+	case 16: *val = (float) sigMix; break;
+	case 17: *val = (float) osc.GetWavetable(); break;
+	case 18: *val = (float) fltType; break;
+	case 19: *val = (float) fltGain; break;
+	case 20: *val = (float) fltRes; break;
+	case 21: *val = (float) envSig.GetStart(); break;
+	case 22: *val = (float) envSig.GetAtkRt(); break;
+	case 23: *val = (float) envSig.GetAtkLvl(); break;
+	case 24: *val = (float) envSig.GetDecRt(); break;
+	case 25: *val = (float) envSig.GetSusLvl(); break;
+	case 26: *val = (float) envSig.GetRelRt(); break;
+	case 27: *val = (float) envSig.GetRelLvl(); break;
+	case 28: *val = (float) envSig.GetType(); break;
+	case 30: *val = (float) envFlt.GetStart(); break;
+	case 31: *val = (float) envFlt.GetAtkRt(); break;
+	case 32: *val = (float) envFlt.GetAtkLvl(); break;
+	case 33: *val = (float) envFlt.GetDecRt(); break;
+	case 34: *val = (float) envFlt.GetSusLvl(); break;
+	case 35: *val = (float) envFlt.GetRelRt(); break;
+	case 36: *val = (float) envFlt.GetRelLvl(); break;
+	case 37: *val = (float) envFlt.GetType(); break;
+	case 40: *val = (float) lfoGen.GetFrequency(); break;
+	case 41: *val = (float) lfoGen.GetWavetable(); break;
+	case 42: *val = (float) lfoGen.GetAttack(); break;
+	case 43: *val = (float) lfoGen.GetLevel(); break;
+	case 44: *val = (float) pbOn; break;
+	case 45: *val = (float) pbGen.GetRate(0); break;
+	case 46: *val = (float) pbGen.GetRate(1); break;
+	case 47: *val = (float) pbGen.GetAmount(0); break;
+	case 48: *val = (float) pbGen.GetAmount(1); break;
+	case 49: *val = (float) pbGen.GetAmount(2); break;
+	case 50: *val = (float) pbWT.GetLevel(); break;
+	case 51: *val = (float) pbWT.GetWavetable(); break;
+	case 52: *val = (float) pbWT.GetDuration(); break;
+	case 53: *val = (float) coefRate; break;
+	default:
+		return 1;
+	}
+	return 0;
+}
+
 void SubSynth::Stop()
 {
 	envSig.Release();
 	envFlt.Release();
-	//filt.Release();
 }
 
 void SubSynth::Tick()

@@ -18,7 +18,7 @@
 #define ALG_WYE 3
 #define ALG_DELTA 4
 
-class FMSynth : public Instrument
+class FMSynth : public InstrumentVP
 {
 private:
 #ifdef USE_OSCILI
@@ -96,7 +96,9 @@ public:
 	virtual ~FMSynth();
 	static Instrument *FMSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *FMSynthEventFactory(Opaque tmplt);
-	static bsInt16     MapParamID(const char *name);
+	static bsInt16     MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
+
 	void Copy(FMSynth *tp);
 	void Start(SeqEvent *evt);
 	void Param(SeqEvent *evt);
@@ -107,7 +109,9 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	VarParamEvent *AllocParams();
 	int GetParams(VarParamEvent *params);
+	int GetParam(bsInt16 id, float *val);
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 id, float val);
 };

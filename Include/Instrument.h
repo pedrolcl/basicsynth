@@ -78,6 +78,24 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
+/// Instruments that support variable parameters.
+///////////////////////////////////////////////////////////
+class InstrumentVP : public Instrument
+{
+public:
+	/// Allocate a VarParamEvent object.
+	virtual VarParamEvent *AllocParams() { return 0; }
+	/// Get all the parameters
+	virtual int GetParams(VarParamEvent *params) { return 0; }
+	/// Set all the parameters
+	virtual int SetParams(VarParamEvent *params) { return 0; }
+	/// Set one parameter by id
+	virtual int SetParam(bsInt16 idval, float val) { return 0; }
+	/// Get one parameter by id
+	virtual int GetParam(bsInt16 idval, float *val) { return 0; }
+};
+
+///////////////////////////////////////////////////////////
 /// The InstrFactory is a static method or non-class function
 /// used to instantiate the instrument. The template parameter
 /// contains default settings for the instrument and is
@@ -116,7 +134,13 @@ typedef void (*TmpltDump)(Opaque tmplt);
 /// The ParamID function is a static method or non-class function
 /// used to translate a parameter name into a numeric ID.
 ///////////////////////////////////////////////////////////
-typedef bsInt16 (*ParamID)(const char *name);
+typedef bsInt16 (*ParamID)(const char *name, Opaque tmplt);
+
+///////////////////////////////////////////////////////////
+/// The ParamName function is a static method or non-class function
+/// used to translate a parameter ID into a character string.
+///////////////////////////////////////////////////////////
+typedef const char *(*ParamName)(bsInt16, Opaque tmplt);
 
 ///////////////////////////////////////////////////////////
 /// An instrument type.
@@ -140,6 +164,8 @@ public:
 	TmpltDump dumpTmplt;
 	/// Convert parameter name to id.
 	ParamID paramToID;
+	/// Convert parameter it to name.
+	ParamName paramToName;
 
 	/// Construct a blank instrument map
 	InstrMapEntry()
@@ -148,6 +174,7 @@ public:
 		manufEvent = 0;
 		manufTmplt = 0;
 		paramToID = 0;
+		paramToName = 0;
 	}
 
 	/// Construct an entry with a template (used for instrument definitions)
@@ -200,16 +227,24 @@ public:
 	}
 
 	/// Get the parameter ID for a parameter name.
-	bsInt16 GetParamID(const char *name)
+	bsInt16 GetParamID(const char *name, Opaque tmplt)
 	{
 		if (paramToID)
-			return paramToID(name);
+			return paramToID(name, tmplt);
 		return -1;
+	}
+
+	/// Get the parameter name for a parameter ID.
+	const char *GetParamName(bsInt16 id, Opaque tmplt)
+	{
+		if (paramToName)
+			return paramToName(id, tmplt);
+		return "";
 	}
 };
 
 ///////////////////////////////////////////////////////////
-/// An instrment instance.
+/// An instrment configuration.
 /// This class is used by the instrument manager
 /// to manage a specific configuration of an instrument
 /// type. The instance entry contains references to the
@@ -297,8 +332,16 @@ public:
 	bsInt16 GetParamID(const char *name)
 	{
 		if (instrType)
-			return instrType->GetParamID(name);
+			return instrType->GetParamID(name, instrTmplt);
 		return -1;
+	}
+
+	/// Get the parameter name for a parameter ID.
+	const char *GetParamID(bsInt16 id)
+	{
+		if (instrType)
+			return instrType->GetParamName(id, instrTmplt);
+		return "";
 	}
 };
 
@@ -306,7 +349,7 @@ public:
 /// Instrument manager class.
 //
 /// This class maintains lists of instrument types and 
-/// instrument definition. It is called by the sequencer
+/// instrument configurations. It is called by the sequencer
 /// to allocate a new instance of the instrument when a note
 /// is started, and to deallocate an instance when the note
 /// is finished. 

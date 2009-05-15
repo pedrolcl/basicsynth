@@ -6,7 +6,7 @@
 ///
 /// This file must be included in all programs that use the BasicSynth library.
 //
-// Copyright 2008, Daniel R. Mitchell
+// Copyright 2008,2009 Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
@@ -141,8 +141,8 @@ public:
 	/// Initialize values based on sample rate.
 	/// Init is called automatically from the constructor but may also be called
 	/// directly to change the sample rate and default wavetable length.
-	/// @note All unit generators should be deleted prior to calling this
-	/// method as they may have internal values calculated based on sample rate
+	/// @note All unit generators should be deleted or reset after calling this
+	/// function as they may have internal values calculated based on sample rate
 	/// or table length. In addition, the wavetables must be reinitialized if
 	/// the wavetable length changes.
 	/// @param sr sample rate, default 44.1K
@@ -162,13 +162,20 @@ public:
 	/// The frequency table is built in the constructor based on an equal-tempered
 	/// scale with middle C at index 48. Since the tuning array is a public member, it is
 	/// possible to overwrite the values from anywhere in the system by updating the array
-	/// directly.
-	/// @param pitch pitch index (0-127)
+	/// directly. Negative pitch values are allowed but are calculated directly using
+	/// the equation for equal-tempered tuning (f * 2^n/12)
+	/// @param pitch pitch index
 	FrqValue GetFrequency(int pitch)
 	{
-		return tuning[pitch & 0x7F];
+		if (pitch < 0 || pitch > 127)
+			return tuning[0] * pow(2.0, (double) pitch / 12.0);
+		return tuning[pitch];
 	}
 
+	/// Function to locate a file on the wave file path (synthParams.wvPath).
+	/// @param fullpath output string where the full path is placed
+	/// @param fname file name to search for
+	/// @returns non-zero if the file was located, zero otherwise
 	int FindOnPath(bsString& fullPath, const char *fname);
 
 };
@@ -250,7 +257,7 @@ public:
 	virtual void Reset(float initPhs = 0) { }
 
 	/// Return the next sample.
-	/// The Sample method is invoked to generate one sample. The the \e in argument represents
+	/// The Sample method is invoked to generate one sample. The \e in argument represents
 	/// the current amplitude of the current sample. The use of \e in varies with the unit generator.
 	/// Objects that modify the current sample (e.g., filters, delay lines) may store the value
 	/// and return a filtered value. Objects that generate new samples (e.g., oscillators, envelope generators)

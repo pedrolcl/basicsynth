@@ -102,9 +102,12 @@ public:
 
 	bsString& Assign(const bsString& s)
 	{
-		if (Allocate(s.Length()))
+		if (s.curLen == 0)
+			curLen = 0;
+		else if (Allocate(s.curLen))
 		{
-			strcpy(theStr, s.theStr);
+			if (s.theStr && theStr)
+				strcpy(theStr, s.theStr);
 			curLen = s.curLen;
 		}
 		return *this;
@@ -198,8 +201,17 @@ public:
 	/// Find the first instance of ch after start
 	int Find(int start, int ch);
 
+	/// Find the last instance of ch before start
+	int FindReverse(int start, int ch);
+
 	/// Extract the sub-string
 	size_t SubString(bsString& out, int start, size_t len);
+
+	/// Pass ownership of a buffer to this object.
+	void Attach(char *str, int cl = -1, int ml = -1);
+
+	/// Take ownership of the buffer from this object.
+	char *Detach(int *cl = 0, int *ml = 0);
 };
 /*@}*/
 #endif

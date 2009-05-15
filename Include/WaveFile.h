@@ -86,6 +86,9 @@ struct WavHDR32
 
 #pragma pack(pop)
 
+/// Interface for sample output.
+/// WaveOut is a pure-virtual base class that defines the
+/// methods all sample output classes must implement.
 class WaveOut
 {
 public:
@@ -445,6 +448,8 @@ private:
 	bsInt16 fileID;
 	AmpValue *samples;
 	bsInt32 sampleTotal;
+	bsInt32 loopStart;
+	bsInt32 loopEnd;
 	FmtData fmt;
 
 public:
@@ -453,6 +458,8 @@ public:
 		filename = NULL;
 		samples = NULL;
 		sampleTotal = 0;
+		loopStart = 0;
+		loopEnd = 0;
 		fileID = -1;
 		memset(&fmt, 0, sizeof(fmt));
 	}
@@ -477,6 +484,16 @@ public:
 	bsInt16 GetFileID()
 	{
 		return fileID;
+	}
+
+	/// Set the file ID for this wavefile.
+	/// @param new ID.
+	/// @returns old ID.
+	bsInt16 SetFileID(bsInt16 newID)
+	{
+		bsInt16 oldID = fileID;
+		fileID = newID;
+		return oldID;
 	}
 
 	/// Get the sample rate of the loaded file
@@ -515,6 +532,26 @@ public:
 		}
 		fileID = -1;
 		sampleTotal = 0;
+	}
+
+	/// Set the loop points. This allows a user of the wavetable
+	/// to associate start/end points for looping over the
+	/// steady-state portion of the wavefile.
+	/// @param st loop start point in samples
+	/// @param end loop end point in samples
+	void SetLoopPoints(bsInt32 st, bsInt32 end)
+	{
+		loopStart = st;
+		loopEnd = end;
+	}
+
+	/// Get the loop points.
+	/// @param st loop start point in samples
+	/// @param end loop end point in samples
+	void GetLoopPoints(bsInt32& st, bsInt32& end)
+	{
+		st = loopStart;
+		end = loopEnd;
 	}
 
 	/// Load a wave file. This function loads the wave file and converts it

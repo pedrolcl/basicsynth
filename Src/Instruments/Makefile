@@ -8,6 +8,8 @@ FMSynth.o \
 LFO.o \
 PitchBend.o \
 MatrixSynth.o \
+MixerControl.o \
+ModSynth.o \
 SubSynth.o \
 Tone.o \
 WFSynth.o
@@ -33,6 +35,10 @@ LFO.cpp: LFO.h Includes.h
 PitchBend.cpp: PitchBend.h Includes.h
 
 MatrixSynth.cpp: MatrixSynth.h Includes.h
+
+MixerControl.cpp: MixerControl.h Includes.h
+
+ModSynth.cpp: ModSynth.h ModSynthUG.h UGOscil.h UGFilter.h UGEnvGen.h UGDelay.h UGCalc.h Includes.h
 
 SubSynth.cpp: SubSynth.h Includes.h
 

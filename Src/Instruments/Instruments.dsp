@@ -111,6 +111,14 @@ SOURCE=.\MatrixSynth.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MixerControl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ModSynth.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PitchBend.cpp
 # End Source File
 # Begin Source File
@@ -163,6 +171,18 @@ SOURCE=.\MatrixSynth.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\MixerControl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ModSynth.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ModSynthUG.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\PitchBend.h
 # End Source File
 # Begin Source File
@@ -172,6 +192,26 @@ SOURCE=.\SubSynth.h
 # Begin Source File
 
 SOURCE=.\Tone.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UGCalc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UGDelay.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UGEnvGen.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UGFilter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UGOscil.h
 # End Source File
 # Begin Source File
 

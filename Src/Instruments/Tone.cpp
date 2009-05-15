@@ -233,7 +233,7 @@ int ToneBase::SetParams(VarParamEvent *params)
 	return err;
 }
 
-int ToneBase::SetParam(int idval, float val)
+int ToneBase::SetParam(bsInt16 idval, float val)
 {
 	switch (idval)
 	{
@@ -338,6 +338,38 @@ int ToneBase::GetParams(VarParamEvent *params)
 	return 0;
 }
 
+int ToneBase::GetParam(bsInt16 id, float *val)
+{
+	switch (id)
+	{
+	case 16: *val = (float) osc->GetWavetable(); break;
+	case 17: *val = (float) env.GetStart(); break;
+	case 18: *val = (float) env.GetAtkRt(); break;
+	case 19: *val = (float) env.GetAtkLvl(); break;
+	case 20: *val = (float) env.GetDecRt(); break;
+	case 21: *val = (float) env.GetSusLvl(); break;
+	case 22: *val = (float) env.GetRelRt(); break;
+	case 23: *val = (float) env.GetRelLvl(); break;
+	case 24: *val = (float) env.GetType(); break;
+	case 25: *val = (float) lfoGen.GetFrequency(); break;
+	case 26: *val = (float) lfoGen.GetWavetable(); break;
+	case 27: *val = (float) lfoGen.GetAttack(); break;
+	case 28: *val = (float) lfoGen.GetLevel(); break;
+	case 29: *val = (float) pbOn; break;
+	case 30: *val = (float) pbGen.GetRate(0); break;
+	case 31: *val = (float) pbGen.GetRate(1); break;
+	case 32: *val = (float) pbGen.GetAmount(0); break;
+	case 33: *val = (float) pbGen.GetAmount(1); break;
+	case 34: *val = (float) pbGen.GetAmount(2); break;
+	case 40: *val = (float) pbWT.GetLevel(); break;
+	case 41: *val = (float) pbWT.GetWavetable(); break;
+	case 42: *val = (float) pbWT.GetDuration(); break;
+	default:
+		return 1;
+	}
+	return 0;
+}
+
 ////////////////////////////////////////////////////////////////
 
 Instrument *ToneInstr::ToneFactory(InstrManager *m, Opaque tmplt)
@@ -356,6 +388,11 @@ SeqEvent *ToneInstr::ToneEventFactory(Opaque tmplt)
 	return (SeqEvent*)ep;
 }
 
+VarParamEvent *ToneInstr::AllocParams()
+{
+	return (VarParamEvent*) ToneEventFactory(0);
+}
+
 static InstrParamMap toneParams[] = 
 {
 	{"envatk", 18}, {"envdec", 20}, {"envend", 23}, {"envpk", 19},
@@ -367,10 +404,16 @@ static InstrParamMap toneParams[] =
 	{"pbwt", 41}
 };
 
-bsInt16 ToneInstr::MapParamID(const char *name)
+bsInt16 ToneInstr::MapParamID(const char *name, Opaque tmplt)
 {
 	return SearchParamID(name, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
 }
+
+const char *ToneInstr::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	return SearchParamName(id, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
+}
+
 
 ToneInstr::ToneInstr()
 {
@@ -403,9 +446,14 @@ SeqEvent *ToneFM::ToneFMEventFactory(Opaque tmplt)
 	return (SeqEvent*)evt;
 }
 
-bsInt16 ToneFM::MapParamID(const char *name)
+VarParamEvent *ToneFM::AllocParams()
 {
-	bsInt16 id = ToneInstr::MapParamID(name);
+	return (VarParamEvent*) ToneFMEventFactory(0);
+}
+
+bsInt16 ToneFM::MapParamID(const char *name, Opaque tmplt)
+{
+	bsInt16 id = ToneInstr::MapParamID(name, tmplt);
 	if (id == -1)
 	{
 		if (strcmp(name, "oscmnx") == 0)
@@ -414,6 +462,15 @@ bsInt16 ToneFM::MapParamID(const char *name)
 			id = 36;
 	}
 	return id;
+}
+
+const char *ToneFM::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	if (id == 35)
+		return "oscmnx";
+	if (id == 36)
+		return "oscmul";
+	return ToneInstr::MapParamName(id, tmplt);
 }
 
 ToneFM::ToneFM()
@@ -455,7 +512,7 @@ int ToneFM::SaveOscil(XmlSynthElem *elem)
 	return err;
 }
 
-int ToneFM::SetParam(int id, float val)
+int ToneFM::SetParam(bsInt16 id, float val)
 {
 	int err = 0;
 	if (id == 35)
@@ -464,6 +521,18 @@ int ToneFM::SetParam(int id, float val)
 		((GenWaveFM*)osc)->SetModMultiple(FrqValue(val));
 	else
 		err = ToneBase::SetParam(id, val);
+	return err;
+}
+
+int ToneFM::GetParam(bsInt16 id, float* val)
+{
+	int err = 0;
+	if (id == 35)
+		*val = ((GenWaveFM*)osc)->GetModIndex();
+	else if (id == 36)
+		*val = ((GenWaveFM*)osc)->GetModMultiple();
+	else
+		err = ToneBase::GetParam(id, val);
 	return err;
 }
 

@@ -139,4 +139,11 @@
    <env ar="0.25" rr="0.25" />
    <file name="test2.wav" id="2" />
  </instr>
+  <instr id="16" type="ModSynth" name="mstone" desc="Simple tone generator">
+    <ugen id="16" type="ENVAR" name="eg" amp="1" atk="0.1" sus="1.0" rel="0.1" egty="1" fixed="1" />
+    <ugen id="17" type="OSCIL" name="osc" amp="1" frq="220" mul="1" wt="1" />
+    <connect src="@frq" dst="osc.frq" />
+    <connect src="eg" dst="osc.amp" />
+    <connect src="osc" dst="out.in" />
+  </instr>
 </instrlib>

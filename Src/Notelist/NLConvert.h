@@ -111,6 +111,13 @@
 #define T_FREQ 387
 #define T_VOLDB 388
 #define T_CATOP 389
+#define T_MIXIN 390
+#define T_MIXPAN 391
+#define T_MIXSEND 392
+#define T_FXRCV 393
+#define T_FXPAN 394
+#define T_RAMP 395
+#define T_OSC  396
 
 #define MAXPARAM 10
 #define MAXFGEN  10
@@ -135,4 +142,3 @@ extern char *FltToStr(double val, char *s, int len);
 #include "Parser.h"
 #include "ScriptEngine.h"
 #include "Converter.h"
-

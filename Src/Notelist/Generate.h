@@ -693,6 +693,24 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+class nlMixerNode : public nlScriptNode
+{
+private:
+	int mixFn;
+public:
+	nlMixerNode()
+	{
+		mixFn = mixNoFunc;
+		token = T_MIX;
+	}
+	void SetFunction(int f)
+	{
+		mixFn = f;
+	}
+	virtual nlScriptNode *Exec();
+};
+
+
 class nlGenerate  
 {
 private:

@@ -110,6 +110,8 @@ int main(int argc, char *argv[])
 	inMgr.AddType("FMSynth", FMSynth::FMSynthFactory, FMSynth::FMSynthEventFactory);
 	inMgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
 	inMgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
+	inMgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
+	inMgr.AddType("ModSynth", ModSynth::ModSynthFactory, ModSynth::ModSynthEventFactory);
 	InstrMapEntry *ime = 0;
 	while ((ime = inMgr.EnumType(ime)) != 0)
 		ime->dumpTmplt = DestroyTemplate;

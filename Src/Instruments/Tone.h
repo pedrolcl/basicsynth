@@ -13,7 +13,7 @@
 #include "LFO.h"
 #include "PitchBend.h"
 
-class ToneBase : public Instrument  
+class ToneBase : public InstrumentVP
 {
 protected:
 	int chnl;
@@ -42,13 +42,15 @@ public:
 	virtual int Load(XmlSynthElem *parent);
 	virtual int Save(XmlSynthElem *parent);
 	virtual int GetParams(VarParamEvent *params);
+
+	virtual int GetParam(bsInt16 id, float* val);
 	virtual int SetParams(VarParamEvent *params);
+	virtual int SetParam(bsInt16 id, float val);
 
 	virtual int LoadOscil(XmlSynthElem *elem);
 	virtual int LoadEnv(XmlSynthElem *elem);
 	virtual int SaveOscil(XmlSynthElem *elem);
 	virtual int SaveEnv(XmlSynthElem *elem);
-	virtual int SetParam(int id, float val);
 };
 
 class ToneInstr : public ToneBase
@@ -56,11 +58,13 @@ class ToneInstr : public ToneBase
 public:
 	static Instrument *ToneFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ToneEventFactory(Opaque tmplt);
-	static bsInt16     MapParamID(const char *name);
+	static bsInt16     MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
 
 	ToneInstr();
 	ToneInstr(ToneInstr *tp);
 	virtual ~ToneInstr();
+	VarParamEvent *AllocParams();
 };
 
 class ToneFM : public ToneBase
@@ -68,7 +72,8 @@ class ToneFM : public ToneBase
 public:
 	static Instrument *ToneFMFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *ToneFMEventFactory(Opaque tmplt);
-	static bsInt16     MapParamID(const char *name);
+	static bsInt16     MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
 
 	ToneFM();
 	ToneFM(ToneFM *tp);
@@ -76,7 +81,9 @@ public:
 	virtual void Copy(ToneFM *tp);
 	virtual int LoadOscil(XmlSynthElem *elem);
 	virtual int SaveOscil(XmlSynthElem *elem);
-	virtual int SetParam(int id, float val);
+	virtual int SetParam(bsInt16 id, float val);
+	virtual int GetParam(bsInt16 id, float* val);
+	VarParamEvent *AllocParams();
 
 	int GetParams(VarParamEvent *params);
 };

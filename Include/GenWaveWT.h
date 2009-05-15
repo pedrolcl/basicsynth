@@ -34,12 +34,15 @@ public:
 	GenWaveWT()
 	{
 		wtIndex = WT_SIN;
-		waveTable = wtSet.GetWavetable(wtIndex);
+		waveTable = 0; //wtSet.GetWavetable(wtIndex);
 	}
 
 	/// @copydoc GenWave::Reset()
 	virtual void Reset(float initPhs = 0)
 	{
+		if (waveTable == 0)
+			waveTable = wtSet.GetWavetable(WT_SIN);
+
 		indexIncr = (PhsAccum) frq * synthParams.frqTI;
 		while (indexIncr >= synthParams.ftableLength)
 			indexIncr -= synthParams.ftableLength;
@@ -67,7 +70,8 @@ public:
 	/// @copydoc GenWave::PhaseMod()
 	virtual void PhaseMod(PhsAccum phs)
 	{
-		PhaseModWT(phs * synthParams.radTI);
+		//PhaseModWT(phs * synthParams.radTI);
+		index += phs * synthParams.radTI;
 	}
 
 	/// Modulate phase for wavetable.
@@ -76,22 +80,11 @@ public:
 	/// is a WT type and adjust the modulator amplitude
 	/// accordingly, i.e. set the LFO/EG amp to the tableLength/2 range,
 	/// and thus avoid the extra calculations on each sample.
+	/// Phase overflow is checked in Gen().
 	/// @param phs wavetable index delta
 	virtual void PhaseModWT(PhsAccum phs)
 	{
 		index += phs;
-		if (index >= synthParams.ftableLength)
-		{
-			do
-				index -= synthParams.ftableLength;
-			while (index >= synthParams.ftableLength);
-		}
-		else if (index < 0)
-		{
-			do
-				index += synthParams.ftableLength;
-			while (index < 0);
-		}
 	}
 
 	/// Set the wavetable. The wavetable index is used to
@@ -138,11 +131,22 @@ public:
 	/// @copydoc GenWave::Gen()
 	virtual AmpValue Gen()
 	{
+		if (index >= synthParams.ftableLength)
+		{
+			do
+				index -= synthParams.ftableLength;
+			while (index >= synthParams.ftableLength);
+		}
+		else if (index < 0)
+		{
+			do
+				index += synthParams.ftableLength;
+			while (index < 0);
+		}
 		// Note: it's OK to round-up index since tables have guard point.
-		AmpValue v = waveTable[(int)(index+0.5)];
-		if ((index += indexIncr) >= synthParams.ftableLength)
-			index -= synthParams.ftableLength;
-		return v;
+		int n = (int) (index + 0.5);
+		index += indexIncr;
+		return waveTable[n];
 	}
 };
 
@@ -156,15 +160,25 @@ public:
 	/// @copydoc GenWave::Gen()
 	virtual AmpValue Gen()
 	{
+		if (index >= synthParams.ftableLength)
+		{
+			do
+				index -= synthParams.ftableLength;
+			while (index >= synthParams.ftableLength);
+		}
+		else if (index < 0)
+		{
+			do
+				index += synthParams.ftableLength;
+			while (index < 0);
+		}
 		// fract = index - floor(index);
 		int intIndex = (int) index;
 		PhsAccum fract = index - (PhsAccum) intIndex;
+		index += indexIncr;
 		AmpValue v1 = waveTable[intIndex];
 		AmpValue v2 = waveTable[intIndex+1];
-		AmpValue value = v1 + ((v2 - v1) * (AmpValue)fract);
-		if ((index += indexIncr) >= synthParams.ftableLength)
-			index -= synthParams.ftableLength;
-		return value;
+		return v1 + ((v2 - v1) * (AmpValue)fract);
 	}
 };
 
@@ -206,9 +220,17 @@ public:
 	virtual void PhaseModWT(PhsAccum phs)
 	{
 		if (phs >= synthParams.ftableLength)
-			phs -= synthParams.ftableLength;
+		{
+			do
+				phs -= synthParams.ftableLength;
+			while (phs >= synthParams.ftableLength);
+		}
 		else if (phs < 0)
-			phs += synthParams.ftableLength;
+		{
+			do
+				phs += synthParams.ftableLength;
+			while (phs < 0);
+		}
 		i32Index += (bsInt32) (phs * 65536.0) & i32IndexMask;
 	}
 

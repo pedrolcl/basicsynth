@@ -80,7 +80,7 @@ public:
 	friend class MatrixSynth;
 };
 
-class MatrixSynth : public Instrument
+class MatrixSynth : public InstrumentVP
 {
 private:
 	int chnl;
@@ -115,7 +115,8 @@ public:
 	virtual ~MatrixSynth();
 	static Instrument *MatrixSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *MatrixSynthEventFactory(Opaque tmplt);
-	static bsInt16     MapParamID(const char *name);
+	static bsInt16     MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
 
 	void Copy(MatrixSynth *tp);
 	void Start(SeqEvent *evt);
@@ -127,7 +128,9 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	VarParamEvent *AllocParams();
 	int GetParams(VarParamEvent *params);
+	int GetParam(bsInt16 idval, float *val);
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 idval, float val);
 

@@ -19,8 +19,8 @@
         </wvtable>
         <wvtable name="#12" ndx="12" type="2" parts="3" gibbs="0">
             <part mul="1.000000" amp="0.000000" phs="0.500000" />
-            <part mul="1.000000" amp="1.000000" phs="0.250000" />
-            <part mul="1.000000" amp="0.000000" phs="0.250000" />
+            <part mul="2.000000" amp="1.000000" phs="0.250000" />
+            <part mul="3.000000" amp="0.000000" phs="0.250000" />
         </wvtable>
         <wvtable name="#13" ndx="13" type="2" parts="3" gibbs="0">
             <part mul="1.000000" amp="1.000000" phs="0.250000" />

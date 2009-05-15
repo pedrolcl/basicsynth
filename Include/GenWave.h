@@ -109,7 +109,27 @@ public:
 	/// @param phs delta phase in radians
 	virtual void PhaseMod(PhsAccum phs)
 	{
-		if ((index += phs) >= twoPI)
+		index += phs;
+		/*if ((index += phs) >= twoPI)
+		{
+			do
+				index -= twoPI;
+			while (index >= twoPI);
+		}
+		else if (index < 0)
+		{
+			do
+				index += twoPI;
+			while (index < 0);
+		}*/
+	}
+
+	/// Generate the next sample. The sample amplitude is normalized to [-1,+1]
+	/// range. The caller must apply any amplitude peak level multiplier.
+	/// @return sample value for the current phase
+	virtual AmpValue Gen()
+	{
+		if (index >= twoPI)
 		{
 			do
 				index -= twoPI;
@@ -121,16 +141,10 @@ public:
 				index += twoPI;
 			while (index < 0);
 		}
-	}
-
-	/// Generate the next sample. The sample amplitude is normalized to [-1,+1]
-	/// range. The caller must apply any amplitude peak level multiplier.
-	/// @return sample value for the current phase
-	virtual AmpValue Gen()
-	{
 		AmpValue v = sinv(index);
-		if ((index += indexIncr) >= twoPI)
-			index -= twoPI;
+		index += indexIncr;
+		//if (index >= twoPI)
+		//	index -= twoPI;
 		return v;
 	}
 };

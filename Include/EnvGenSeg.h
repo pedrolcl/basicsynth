@@ -77,7 +77,11 @@ public:
 	/// Set the end level. 
 	inline void SetLevel(AmpValue s) { end = s; }
 	/// Set the rate (time for the segment).
-	inline void SetRate(FrqValue r)  { rate = r; }
+	inline void SetRate(FrqValue r)
+	{ 
+		rate = r; 
+		count = (long) (rate * synthParams.sampleRate);
+	}
 
 	/// Initialize the segment. Sets the segment with explicit arguments
 	/// Values can also be set with the Set/Get methods. The InitSeg
@@ -716,29 +720,41 @@ public:
 	/// @param count number of segments
 	virtual void SetSegs(int count)
 	{
+		if (count == 0)
+			count = 1;
+		if (count == numSeg)
+			return;
+
+		SegVals *segRLTn = new SegVals[count];
+		EnvSeg **segObjn = new EnvSeg *[count];
+		for (int n = 0; n < count; n++)
+		{
+			if (n < numSeg)
+			{
+				segRLTn[n].level = segRLT[n].level;
+				segRLTn[n].rate = segRLT[n].rate;
+				segRLTn[n].type = segRLT[n].type;
+				segRLTn[n].fixed = segRLT[n].fixed;
+				segRLTn[n].crt = segRLT[n].crt;
+				segObjn[n] = segObj[n];
+			}
+			else
+			{
+				segRLTn[n].level = 0;
+				segRLTn[n].rate = 0;
+				segRLTn[n].type = linSeg;
+				segRLTn[n].fixed = 1;
+				segRLTn[n].crt = 0;
+				segObjn[n] = &egsLin;
+			}
+		}
+		numSeg = count;
 		if (segRLT)
-		{
-			delete segRLT;
-			segRLT = NULL;
-		}
+			delete[] segRLT;
+		segRLT = segRLTn;
 		if (segObj)
-		{
-			delete segObj;
-			segObj = NULL;
-		}
-		if ((numSeg = count) < 1)
-			numSeg = 1;
-		segRLT = new SegVals[numSeg];
-		segObj = new EnvSeg *[numSeg];
-		for (int n = 0; n < numSeg; n++)
-		{
-			segRLT[n].level = 0;
-			segRLT[n].rate = 0;
-			segRLT[n].type = linSeg;
-			segRLT[n].fixed = 1;
-			segRLT[n].crt = 0;
-			segObj[n] = &egsLin;
-		}
+			delete[] segObj;
+		segObj = segObjn;
 	}
 
 	/// Set the sustain flag on/off. When the sustain flag is set

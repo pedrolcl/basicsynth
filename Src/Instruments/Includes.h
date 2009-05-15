@@ -24,5 +24,6 @@ struct InstrParamMap
 };
 
 extern bsInt16 SearchParamID(const char *name, InstrParamMap *map, int n);
+extern const char *SearchParamName(bsInt16 id, InstrParamMap *map, int count);
 
 #endif

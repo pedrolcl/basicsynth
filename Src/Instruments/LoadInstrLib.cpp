@@ -60,3 +60,13 @@ bsInt16 SearchParamID(const char *name, InstrParamMap *map, int n)
 	return -1;
 }
 
+const char *SearchParamName(bsInt16 id, InstrParamMap *map, int count)
+{
+	for (int index = 0; index < count; index++)
+	{
+		if (map->id == id)
+			return map->name;
+		map++;
+	}
+	return "";
+}

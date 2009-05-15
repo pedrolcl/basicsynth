@@ -200,7 +200,14 @@ class FilterBP : public BiQuadFilter
 {
 private:
 	float bw;
+	double r;
 public:
+	FilterBP()
+	{
+		bw = 1000.0;
+		r = PI / synthParams.sampleRate;
+	}
+
 	/// Initialize the filter. This method calculates the
 	/// coefficients from the cutoff frequency and stores
 	/// the gain value for use in processing. Bandwidth defaults
@@ -227,7 +234,7 @@ public:
 		if (old != cutoff || bw != B)
 		{
 			bw = B;
-			double r = PI / synthParams.sampleRate;
+			//double r = PI / synthParams.sampleRate;
 			double c = 1.0 / tan(r * B);
 			//double d = 2.0 * cos(2.0 * r * cutoff);
 			double d = 2.0 * cos(synthParams.frqRad * cutoff);
@@ -257,7 +264,7 @@ private:
 public:
 	Reson()
 	{
-		res = 1.0;
+		res = 0.7;
 	}
 
 	/// Initialize the filter. 
@@ -266,7 +273,7 @@ public:
 	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
-		InitRes(cu, g, 1);
+		InitRes(cu, g, res);
 	}
 
 	/// Initialize the filter from arguments.

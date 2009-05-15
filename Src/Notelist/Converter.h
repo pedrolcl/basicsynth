@@ -171,6 +171,7 @@ protected:
 	int debugLevel;
 	int maxError;
 	int ownLexIn;
+	int mixInstr;
 	nlVoice *curVoice;
 	nlLexIn *lexin;
 	nlErrOut *eout;
@@ -271,7 +272,7 @@ public:
 	virtual void RestartNote(double start, double dur, double vol, double pit, int pcount, double *params);
 	virtual void ContinueNote(double start, double vol, double pit, int pcount, double *params);
 	virtual void Write(char *txt);
-
+	virtual void MixerEvent(int fn, double *params);
 };
 
 #endif

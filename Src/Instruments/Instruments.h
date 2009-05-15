@@ -9,4 +9,6 @@
 #include <MatrixSynth.h>
 #include <WFSynth.h>
 #include <Chuffer.h>
+#include <MixerControl.h>
+#include <ModSynth.h>
 #include <LoadInstrLib.h>

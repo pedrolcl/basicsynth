@@ -24,6 +24,7 @@ char *bsString::Allocate(size_t n)
 		char *newStr = new char[n];
 		if (newStr == 0)
 			return 0;
+		memset(newStr, 0, n);
 		if (theStr)
 		{
 			memcpy(newStr, theStr, maxLen);
@@ -165,7 +166,25 @@ int bsString::Find(int start, int ch)
 {
 	if (theStr == 0)
 		return -1;
+	if (start >= (int)curLen)
+		start = (int)curLen-1;
+	if (start < 0)
+		start = 0;
 	const char *p1 = strchr(&theStr[start], ch);
+	if (p1)
+		return (int) (p1 - theStr);
+	return -1;
+}
+
+int bsString::FindReverse(int start, int ch)
+{
+	if (theStr == 0)
+		return -1;
+	if (start >= (int)curLen)
+		return -1;
+	if (start < 0)
+		start = 0;
+	const char *p1 = strrchr(&theStr[start], ch);
 	if (p1)
 		return (int) (p1 - theStr);
 	return -1;
@@ -192,4 +211,40 @@ size_t bsString::SubString(bsString& out, int start, size_t len)
 		*p2 = 0;
 	}
 	return out.curLen;
+}
+
+void bsString::Attach(char *str, int cl, int ml)
+{
+	if (theStr)
+		delete theStr;
+	theStr = str;
+	if (str == 0)
+	{
+		curLen = 0;
+		maxLen = 0;
+	}
+	else
+	{
+		if (cl < 0)
+		curLen = strlen(str);
+		else
+			curLen = cl;
+		if (ml < 0)
+			maxLen = curLen + 1;
+		else
+			maxLen = ml;
+	}
+}
+
+char *bsString::Detach(int *cl, int *ml)
+{
+	char *str = theStr;
+	theStr = 0;
+	if (cl)
+		*cl = (int)curLen;
+	if (ml)
+		*ml = (int)maxLen;
+	curLen = 0;
+	maxLen = 0;
+	return str;
 }

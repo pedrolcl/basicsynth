@@ -38,13 +38,18 @@ SeqEvent *Chuffer::ChufferEventFactory(Opaque tmplt)
 	return (SeqEvent*)ep;
 }
 
+VarParamEvent *Chuffer::AllocParams()
+{
+	return (VarParamEvent*) ChufferEventFactory(0);
+}
+
 static InstrParamMap chuffParams[] = 
 {
 	{"atk", 16},
 	{"champ", 23},
 	{"chfrq", 22},
 	{"chwt", 24},
-	{"crt", 50},
+	{"cr", 50},
 	{"etrkd", 19},
 	{"f1", 30}, 
 	{"f2", 31}, 
@@ -68,9 +73,14 @@ static InstrParamMap chuffParams[] =
 	{"swpwt", 27}
 };
 
-bsInt16 Chuffer::MapParamID(const char *name)
+bsInt16 Chuffer::MapParamID(const char *name, Opaque tmplt)
 {
 	return SearchParamID(name, chuffParams, sizeof(chuffParams)/sizeof(InstrParamMap));
+}
+
+const char *Chuffer::MapParamName(bsInt16 id, Opaque tmplt)
+{
+	return SearchParamName(id, chuffParams, sizeof(chuffParams)/sizeof(InstrParamMap));
 }
 
 Chuffer::Chuffer()
@@ -135,7 +145,6 @@ void Chuffer::SetDefaults()
 
 	coefRate = 0;
 	coefCount = 0;
-	coefSampl = 0;
 	lastFc = 0;
 	lastQ = 0;
 }
@@ -187,7 +196,6 @@ void Chuffer::Copy(Chuffer *tp)
 
 	coefRate = tp->coefRate;
 	coefCount = tp->coefCount;
-	coefSampl = tp->coefSampl;
 	lastFc = tp->lastFc;
 	lastQ = tp->lastQ;
 }
@@ -224,8 +232,7 @@ void Chuffer::Start(SeqEvent *evt)
 
 	filt.CalcCoef(lastFc = fst, lastQ = rst);
 	filt.Reset(0);
-	coefSampl = (bsInt32) (coefRate * 0.001 * synthParams.sampleRate);
-	coefCount = coefSampl;
+	coefCount = coefRate;
 
 	fltOn = fst != 0;
 	modOn = modFrq != 0;
@@ -263,7 +270,7 @@ void Chuffer::Tick()
 			lastFc = fc;
 			lastQ = q;
 		}
-		coefCount = coefSampl;
+		coefCount = coefRate;
 	}
 
 	// Note: there are two ways to do this:
@@ -386,7 +393,7 @@ int Chuffer::SetParam(bsInt16 idval, float val)
 		break;
 
 	case 50:
-		coefRate = val;
+		coefRate = (bsInt32) val;
 		break;
 
 	default:
@@ -435,10 +442,107 @@ int Chuffer::GetParams(VarParamEvent *params)
 	return 0;
 }
 
+int Chuffer::GetParam(bsInt16 idval, float *val)
+{
+	switch (idval)
+	{
+	case 16:
+		*val = (float) envAtk;
+		break;
+	case 17:
+		*val = (float) envRel;
+		break;
+	case 18:
+		*val = (float) envSusOn;
+		break;
+	case 19:
+		*val = (float) envTrackDur;
+		break;
+
+	case 20:
+		*val = (float) nzSampl;
+		break;
+	case 21:
+		*val = (float) modFrq;
+		break;
+
+	case 22:
+		*val = (float) chpFrq;
+		break;
+	case 23:
+		*val = (float) chpAmp;
+		break;
+	case 24:
+		*val = (float) chpWT;
+		break;
+
+	case 25:
+		*val = (float) swpFrq;
+		break;
+	case 26:
+		*val = (float) swpAmp;
+		break;
+	case 27:
+		*val = (float) swpWT;
+		break;
+
+	case 30: // f1
+		*val = (float) fltStart;
+		break;
+	case 31: // f2
+		*val = (float) fltEnd;
+		break;
+	case 32: // f rate
+		*val = (float) fltDur;
+		break;
+	case 33: // f %
+		*val = (float) fltMul;
+		break;
+	case 34:
+		*val = (float) fltTrackDur;
+		break;
+	case 35:
+		*val = (float) fltTrackMul;
+		break;
+	case 36:
+		*val = (float) fltTrackFrq;
+		break;
+
+	case 40: // q1
+		*val = (float) resStart;
+		break;
+	case 41: // q2
+		*val = (float) resEnd;
+		break;
+	case 42: // q rate
+		*val = (float) resDur;
+		break;
+	case 43: // q %
+		*val = (float) resMul;
+		break;
+	case 44:
+		*val = (float) resTrackDur;
+		break;
+	case 46:
+		*val = (float) resTrackMul;
+		break;
+
+	case 50:
+		*val = (float) coefRate;
+		break;
+
+	default:
+		return 1;
+	}
+	return 0;
+}
+
+
 int Chuffer::Load(XmlSynthElem *parent)
 {
 	float dval;
 	short ival;
+	long lval;
 
 	XmlSynthElem elem;
 	XmlSynthElem *next = parent->FirstChild(&elem);
@@ -475,8 +579,8 @@ int Chuffer::Load(XmlSynthElem *parent)
 				fltTrackDur = ival;
 			if (elem.GetAttribute("trkm", ival) == 0)
 				fltTrackMul = ival;
-			if (elem.GetAttribute("cr", dval) == 0)
-				coefRate = dval;
+			if (elem.GetAttribute("cr", lval) == 0)
+				coefRate = lval;
 		}
 		else if (elem.TagMatch("res"))
 		{

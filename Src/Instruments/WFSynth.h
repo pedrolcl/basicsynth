@@ -11,13 +11,14 @@
 
 #define WFSYNTH_MAX_WAVEFILES 100
 
-class WFSynth : public Instrument
+class WFSynth : public InstrumentVP
 {
 private:
 	AmpValue *samples;
 	PhsAccum sampleNumber;
 	PhsAccum sampleTotal;
 	PhsAccum sampleIncr;
+	PhsAccum sampleRel;
 	bsInt16 fileID;
 	bsInt16 looping;
 	bsInt16 playAll;
@@ -34,7 +35,9 @@ public:
 
 	static Instrument *WFSynthFactory(InstrManager *, Opaque tmplt);
 	static SeqEvent   *WFSynthEventFactory(Opaque tmplt);
-	static bsInt16     MapParamID(const char *name);
+	static bsInt16     MapParamID(const char *name, Opaque tmplt);
+	static const char *MapParamName(bsInt16 id, Opaque tmplt);
+
 	static int GetCacheCount();
 	static int AddToCache(const char *filename, bsInt16 id);
 	static void ClearCache();
@@ -64,7 +67,9 @@ public:
 
 	int Load(XmlSynthElem *parent);
 	int Save(XmlSynthElem *parent);
+	VarParamEvent *AllocParams();
 	int GetParams(VarParamEvent *params);
+	int GetParam(bsInt16 id, float *val);
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 id, float val);
 };

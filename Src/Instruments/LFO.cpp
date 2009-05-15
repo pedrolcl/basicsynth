@@ -70,10 +70,13 @@ void LFO::Reset(float initPhs)
 {
 	if (initPhs == 0)
 	{
-		atk.SetRate(atkRt);
-		atk.SetStart(0.0);
-		atk.SetLevel(1.0);
+		atk.InitSeg(atkRt, 0.0, 1.0);
+		//atk.SetRate(atkRt);
+		//atk.SetStart(0.0);
+		//atk.SetLevel(1.0);
 	}
+	else
+		atk.Reset(initPhs);
 	if (sigFrq)
 	{
 		FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
@@ -82,7 +85,6 @@ void LFO::Reset(float initPhs)
 	else
 		ampLvl = depth;
 	osc.Reset(initPhs);
-	atk.Reset(initPhs);
 }
 
 int LFO::Load(XmlSynthElem *elem)
