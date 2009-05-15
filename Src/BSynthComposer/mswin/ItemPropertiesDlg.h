@@ -1,0 +1,121 @@
+/////////////////////////////////////////////////////////////////////////////
+#ifndef _ITEMPROPERTIES_DLG_H_
+#define _ITEMPROPERTIES_DLG_H_
+
+#pragma once
+
+class ItemPropertiesBase : 
+	public CDialogImpl<ItemPropertiesBase>,
+	public ProjectItemDlg<ItemPropertiesBase>
+{
+protected:
+	int needName;
+	int needFile;
+	int needInum;
+
+	void EnableOK();
+
+public:
+	ItemPropertiesBase() 
+	{
+		needName = 1;
+		needFile = 0;
+		needInum = 0;
+		IDD = 0;
+	}
+
+	virtual ~ItemPropertiesBase()
+	{}
+
+	virtual void InitSpecific() { }
+	virtual int GetFieldID(int id, int& idval);
+
+	//enum { IDD = 0 }; <--- brain dead...
+	int IDD;
+
+	BEGIN_MSG_MAP(ItemPropertiesBase)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		COMMAND_ID_HANDLER(IDOK, OnOK)
+		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
+		COMMAND_HANDLER(IDC_ITEM_NAME, EN_CHANGE, OnNameChange)
+		COMMAND_HANDLER(IDC_FILE_NAME, EN_CHANGE, OnFileNameChange)
+		COMMAND_ID_HANDLER(IDC_FILE_BROWSE, OnBrowse)
+		COMMAND_HANDLER(IDC_INST_NUM, EN_CHANGE, OnNumChange)
+	END_MSG_MAP()
+
+	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnNameChange(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnFileNameChange(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnNumChange(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnBrowse(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+};
+
+class NamePropertiesDlg : public ItemPropertiesBase
+{
+public:
+	NamePropertiesDlg()
+	{
+		IDD = IDD_NAME_PROPERTIES;
+	}
+};
+
+class FilePropertiesDlg : public ItemPropertiesBase
+{
+public:
+	FilePropertiesDlg()
+	{
+		IDD = IDD_FILE_PROPERTIES;
+		needFile = 1;
+	}
+};
+
+class InstrPropertiesDlg : public ItemPropertiesBase
+{
+public:
+	InstrPropertiesDlg()
+	{
+		IDD = IDD_INSTR_PROPERTIES;
+		needInum = 1;
+	}
+	virtual void InitSpecific();
+
+};
+
+class LibPropertiesDlg : public ItemPropertiesBase
+{
+public:
+	LibPropertiesDlg()
+	{
+		IDD = IDD_LIB_PROPERTIES;
+		needFile = 1;
+	}
+};
+
+class WavefilePropertiesDlg : public ItemPropertiesBase
+{
+public:
+	WavefilePropertiesDlg()
+	{
+		IDD = IDD_WVF_PROPERTIES;
+		needFile = 1;
+	}
+
+};
+
+class InstrSelectDlg : public ItemPropertiesBase
+{
+private:
+
+public:
+	InstrSelectDlg()
+	{
+		IDD = IDD_SELECT_INSTR;
+		needName = 0;
+	}
+
+	virtual int GetFieldID(int id, int& idval);
+};
+
+#endif

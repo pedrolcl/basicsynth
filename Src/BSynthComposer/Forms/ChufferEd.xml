@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout type="Chuffer" x="0" y="0" w="750" h="440" bg="bg" fg="fg">
+  <wdg id="-1" ty="label" x="5" y="5" w="180" h="25" th="16" lbl="Noise" shadow="1" bold="1" italic="1" fg="hdr" />
+  <wdg id="1" ty="group" x="5" y="35" w="180" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="2" ty="label" x="5" y="5" w="80" h="15" lbl="H Rate" th="12" italic="1" fg="label"/>
+    <wdg id="3" ip="20" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="1"  val="1" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="4" ty="label" x="5" y="110" w="80" h="15" lbl="0.0" th="12" filled="1" edit="1" fg="freq" bg="black"/>
+    <pair knb="3" lbl="4" />
+
+    <wdg id="5" ty="label" x="90" y="5" w="80" h="15" lbl="Fo (kHz)" th="12" italic="1" fg="label"/>
+    <wdg id="6" ip="21" ty="baseknob" x="90" y="25" w="80" h="80" lo="0" hi="10" val="0" prec="3" scl="1000" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="7" ty="label" x="90" y="110" w="80" h="15" lbl="0.0" th="12" filled="1" edit="1" fg="freq" bg="black"/>
+    <pair knb="6" lbl="7" />
+  </wdg>
+
+  <wdg id="-1" ty="label" x="190" y="5" w="180" h="25" th="16" lbl="Envelope" shadow="1" bold="1" italic="1" fg="hdr" />
+  <wdg id="10" ty="group" x="190" y="35" w="180" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="11" ty="label" x="5" y="5" w="80" h="15" lbl="Attack" th="12" italic="1" fg="label"/>
+    <wdg id="12" ip="16" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="10" val="0.1" hiclr="ratehi" loclr="ratelo"/>
+    <wdg id="13" ty="label" x="5" y="110" w="80" h="15" lbl="0.0" th="12" filled="1" edit="1" fg="rate" bg="black"/>
+    <pair knb="12" lbl="13" />
+
+    <wdg id="14" ty="label" x="90" y="5" w="80" h="15" lbl="Release" th="12" italic="1" fg="label"/>
+    <wdg id="15" ip="17" ty="baseknob" x="90" y="25" w="80" h="80" lo="0" hi="10"  val="0.1" hiclr="ratehi" loclr="ratelo"/>
+    <wdg id="16" ty="label" x="90" y="110" w="80" h="15" lbl="0.0" th="12" filled="1" edit="1" fg="rate" bg="black"/>
+    <pair knb="15" lbl="16" />
+  </wdg>
+  <wdg id="17" ip="18" ty="pushswitch" x="195" y="175" w="80" h="25" val="0" lbl="Sustain" fg="btnlabel" />
+  <wdg id="18" ip="19" ty="pushswitch" x="280" y="175" w="80" h="25" val="0" lbl="Duration" fg="btnlabel" />
+
+  <wdg id="-1" ty="label" x="375" y="5" w="180" h="25" th="16" lbl="Chopper" shadow="1" bold="1" italic="1" fg="hdr" />
+  <wdg id="20" ty="group" x="375" y="35" w="180" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="21" ty="label" x="5" y="5" w="80" h="15" lbl="Frequency" th="12" italic="1" fg="label"/>
+    <wdg id="22" ip="22" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="100" val="0" prec="2" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="23" ty="label" x="5" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" fmt="%6.2f" edit="1" fg="freq" bg="black"/>
+    <pair knb="22" lbl="23" />
+
+    <wdg id="24" ty="label" x="90" y="5" w="80" h="15" lbl="Amplitude" th="12" italic="1" fg="label"/>
+    <wdg id="25" ip="23" ty="baseknob" x="90" y="25" w="80" h="80" lo="0" hi="1" val="0" hiclr="volhi" loclr="vollo"/>
+    <wdg id="26" ty="label" x="90" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="volume" bg="black"/>
+    <pair knb="25" lbl="26" />
+  </wdg>
+  <wdg id="27" ip="24" ty="pushbutton" x="380" y="175" w="80" h="25" val="0" lbl="Waveform" fg="wtsel" />
+
+  <wdg id="30" ty="group" x="560" y="35" w="90" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="31" ty="label" x="5" y="5" w="80" h="15" lbl="Coef. Rate" th="12" italic="1" fg="label"/>
+    <wdg id="32" ip="50" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="100" val="0" hiclr="ratehi" loclr="ratelo"/>
+    <wdg id="33" ty="label" x="5" y="110" w="80" h="15" lbl="0.0" th="12" filled="1" edit="1" fg="rate" bg="black"/>
+    <pair knb="32" lbl="33" />
+  </wdg>
+
+  <wdg id="-1" ty="label" x="5" y="240" w="265" h="25" th="16" lbl="Filter Frequency" shadow="1" bold="1" italic="1" fg="hdr" />
+  <wdg id="40" ty="group" x="5" y="270" w="265" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="41" ty="label" x="5" y="5" w="80" h="15" lbl="Start (kHz)" th="12" italic="1" fg="label"/>
+    <wdg id="42" ip="30" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="10" val="0" prec="3" scl="1000" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="43" ty="label" x="5" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fmt="%6.3f" fg="freq" bg="black"/>
+    <pair knb="42" lbl="43" />
+
+    <wdg id="44" ty="label" x="90" y="5" w="80" h="15" lbl="End (kHz)" th="12" italic="1" fg="label"/>
+    <wdg id="45" ip="31" ty="baseknob" x="90" y="25" w="80" h="80" lo="0" hi="10" val="0" prec="3" scl="1000" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="46" ty="label" x="90" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fmt="%6.3f" fg="freq" bg="black"/>
+    <pair knb="45" lbl="46" />
+
+    <wdg id="47" ty="label" x="175" y="5" w="80" h="15" lbl="Rate" th="12" italic="1" fg="label"/>
+    <wdg id="48" ip="32" ty="baseknob" x="175" y="25" w="80" h="80" lo="0" hi="10" val="50" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="49"  ty="label" x="175" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="rate" bg="black"/>
+    <pair knb="48" lbl="49" />
+  </wdg>
+  <wdg id="50" ip="36" ty="pushswitch" x="10" y="410" w="80" h="25" val="0" lbl="Flt. Frq." fg="btnlabel" />
+  <wdg id="51" ip="35" ty="pushswitch" x="95" y="410" w="80" h="25" val="0" lbl="Flt. Mul." fg="btnlabel" />
+  <wdg id="52" ip="34" ty="pushswitch" x="180" y="410" w="80" h="25" val="0" lbl="Flt. Dur." fg="btnlabel" />
+
+  <wdg id="-1" ty="label" x="275" y="240" w="265" h="25" th="16" lbl="Filter Q" shadow="1" bold="1" italic="1" fg="hdr" />
+  <wdg id="60" ty="group" x="275" y="270" w="265" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="61" ty="label" x="5" y="5" w="80" h="15" lbl="Start" th="12" italic="1" fg="label"/>
+    <wdg id="62" ip="40" ty="baseknob" x="5" y="25" w="80" h="80" lo="1" hi="25" val="0" hiclr="volhi" loclr="vollo"/>
+    <wdg id="63" ty="label" x="5" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="volume" bg="black"/>
+
+    <wdg id="64" ty="label" x="90" y="5" w="80" h="15" lbl="End" th="12" italic="1" fg="label"/>
+    <wdg id="65" ip="41" ty="baseknob" x="90" y="25" w="80" h="80" lo="1" hi="25" val="0" hiclr="volhi" loclr="vollo"/>
+    <wdg id="66" ty="label" x="90" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="volume" bg="black"/>
+
+    <wdg id="67" ty="label" x="175" y="5" w="80" h="15" lbl="Rate" th="12" italic="1" fg="label"/>
+    <wdg id="68" ip="42" ty="baseknob" x="175" y="25" w="80" h="80" lo="0" hi="10" val="50" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="69"  ty="label" x="175" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="rate" bg="black"/>
+    <pair knb="62" lbl="63" />
+    <pair knb="65" lbl="66" />
+    <pair knb="68" lbl="69" />
+  </wdg>
+  <wdg id="70" ip="45" ty="pushswitch" x="280" y="410" w="80" h="25" val="0" lbl="Res. Mul." fg="btnlabel" />
+  <wdg id="71" ip="44" ty="pushswitch" x="365" y="410" w="80" h="25" val="0" lbl="Res. Dur." fg="btnlabel" />
+
+  <wdg id="-1" ty="label" x="545" y="240" w="185" h="25" th="16" lbl="Filter Sweep" shadow="1" bold="1" italic="1" fg="hdr" />
+  <wdg id="80" ty="group" x="545" y="270" w="185" h="135" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="81" ty="label" x="5" y="5" w="80" h="15" lbl="Frequency" th="12" italic="1" fg="label"/>
+    <wdg id="82" ip="25" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="10" val="0" prec="3" scl="1" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="83" ty="label" x="5" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="freq" bg="black"/>
+
+    <wdg id="84" ty="label" x="90" y="5" w="80" h="15" lbl="Amplitude" th="12" italic="1" fg="label"/>
+    <wdg id="85" ip="26" ty="baseknob" x="90" y="25" w="80" h="80" lo="0" hi="1" val="0" scl="1000" hiclr="volhi" loclr="vollo"/>
+    <wdg id="86" ty="label" x="90" y="110" w="80" h="15" lbl="0.000" th="12" filled="1" edit="1" fg="volume" bg="black"/>
+    <pair knb="82" lbl="83" />
+    <pair knb="85" lbl="86" />
+  </wdg>
+  <wdg id="87" ip="27" ty="pushbutton" x="550" y="410" w="80" h="25" val="0" lbl="Waveform" fg="wtsel" />
+  <wdg id="1000" ty="pushbutton" x="660" y="40" w="80" h="25" th="12" lbl="Set" fg="cmd" />
+  <wdg id="1001" ty="pushbutton" x="660" y="70" w="80" h="25" th="12" lbl="Restore" fg="cmd" />
+</layout>

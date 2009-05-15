@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout type="MatrixSynth" x="0" y="0" w="780" h="625" bg="bg" fg="fg">
+  <wdg id="-1" ty="label" x="5" y="5" w="50" h="25" lbl="Gen. #" th="14" bold="1" italic="1" fg="hdr" shadow="1"/>
+  <wdg name="gen select" id="1" ty="switchgroup" x="65" y="5" w="515" h="25" bord="0" fr="grpfr">
+    <wdg id="2" ty="pushswitch" x="0" y="0" w="60" h="25" val="0" lbl="1" fg="btnlabel"/>
+    <wdg id="3" ty="pushswitch" x="65" y="0" w="60" h="25" val="1" lbl="2" fg="btnlabel"/>
+    <wdg id="4" ty="pushswitch" x="130" y="0" w="60" h="25" val="2" lbl="3" fg="btnlabel"/>
+    <wdg id="5" ty="pushswitch" x="195" y="0" w="60" h="25" val="3" lbl="4" fg="btnlabel"/>
+    <wdg id="6" ty="pushswitch" x="260" y="0" w="60" h="25" val="4" lbl="5" fg="btnlabel"/>
+    <wdg id="7" ty="pushswitch" x="325" y="0" w="60" h="25" val="5" lbl="6" fg="btnlabel"/>
+    <wdg id="8" ty="pushswitch" x="390" y="0" w="60" h="25" val="6" lbl="7" fg="btnlabel"/>
+    <wdg id="9" ty="pushswitch" x="455" y="0" w="60" h="25" val="7" lbl="8" fg="btnlabel"/>
+  </wdg>
+  <wdg id="1000" ty="pushbutton" x="600" y="5" w="80" h="25" lbl="Set" fg="cmd" />
+  <wdg id="1001" ty="pushbutton" x="685" y="5" w="80" h="25" lbl="Restore" fg="cmd" />
+  <wdg name="tone flags" id="11" ip="2048" ty="switchset" x="5" y="40" w="60" h="270" bord="0" fr="grpfr">
+    <wdg id="12" ty="lamp" x="0" y ="0" w="60" h="25" val="1" lbl="On" fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="13" ty="lamp" x="0" y ="30" w="60" h="25" val="2" lbl="Out" fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="14" ty="lamp" x="0" y ="60" w="60" h="25" val="4" lbl="Vib." fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="15" ty="lamp" x="0" y ="90" w="60" h="25" val="8" lbl="P.B." fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="16" ty="lamp" x="0" y ="120" w="60" h="25" val="32768" lbl="Pan" fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="17" ty="lamp" x="0" y ="150" w="60" h="25" val="16" lbl="Fx1" fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="18" ty="lamp" x="0" y ="180" w="60" h="25" val="32" lbl="Fx2" fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="19" ty="lamp" x="0" y ="210" w="60" h="25" val="64" lbl="Fx3" fg="label" hi="ratehi" lo="ratelo"/>
+    <wdg id="20" ty="lamp" x="0" y ="240" w="60" h="25" val="128" lbl="Fx4" fg="label" hi="ratehi" lo="ratelo"/>
+  </wdg>
+  <wdg id="-1" ty="label" x="75" y="40" w="50" h="25" th="12" lbl="Mod-In" italic="1" fg="hdr" shadow="1"/>
+  <wdg name="mod-in flags" id="21" ip="2049" ty="switchset" x="75" y="70" w="50" h="235" bord="0" fr="grpfr">
+    <wdg id="22" ty="lamp" x="0" y ="0" w="50" h="25" val="1" lbl="1" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="23" ty="lamp" x="0" y ="30" w="50" h="25" val="2" lbl="2" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="24" ty="lamp" x="0" y ="60" w="50" h="25" val="4" lbl="3" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="25" ty="lamp" x="0" y ="90" w="50" h="25" val="8" lbl="4" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="26" ty="lamp" x="0" y ="120" w="50" h="25" val="16" lbl="5" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="27" ty="lamp" x="0" y ="150" w="50" h="25" val="32" lbl="6" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="28" ty="lamp" x="0" y ="180" w="50" h="25" val="64" lbl="7" fg="label" hi="modhi" lo="modlo"/>
+    <wdg id="29" ty="lamp" x="0" y ="210" w="50" h="25" val="128" lbl="8" fg="label" hi="modhi" lo="modlo"/>
+  </wdg>
+  <wdg id="-1" ty="label" x="125" y="40" w="50" h="25" th="12" lbl="Wave" italic="1" fg="hdr" shadow="1"/>
+  <wdg id="30" name="wtgroup" ty="group" x="125" y="70" w="50" h="235" bord="0">
+    <wdg id="31" ip="2050" name="wavetable" ty="switchgroup" def="37" x="0" y="0" w="50" h="125" bord="0" fr="grpfr" >
+      <wdg id="32" ty="pushswitch" x="0" y="0" w="50" h="25" val="0" th="10" lbl="Sine" bold="1" fg="btnlabel"/>
+      <wdg id="33" ty="pushswitch" x="0" y="30" w="50" h="25" val="1" th="10" lbl="Saw." bold="1" fg="btnlabel"/>
+      <wdg id="34" ty="pushswitch" x="0" y="60" w="50" h="25" val="2" th="10" lbl="Square" bold="1" fg="btnlabel"/>
+      <wdg id="35" ty="pushswitch" x="0" y="90" w="50" h="25" val="3" th="10" lbl="Tri." bold="1" fg="btnlabel"/>
+      <wdg id="36" ty="pushswitch" x="0" y="120" w="50" h="25" val="4" th="10" lbl="Pulse" bold="1" fg="btnlabel"/>
+      <wdg id="37" ty="pushswitch" x="0" y="150" w="50" h="25" val="10" th="10" lbl="Other" bold="1" fg="btnlabel"/>
+    </wdg>
+    <wdg id="38" ty="pushbutton" x="0" y="180" w="50" h="25" val="1" th="10" lbl="Select" bold="1" fg="wtsel"/>
+  </wdg>
+  <wdg name="frq" id="41" ip="2051" ty="frqgroup" x="185" y="40" w="90" h="275" kc="45" lc="48" kf="82" lf="83" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="42" ty="label" x="5" y="5" w="80" h="15" lbl="Freq. X" th="12" italic="1" fg="label"/>
+    <wdg id="45" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="10" prec="0" val="1" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="48" ty="label" x="5" y="110" w="80" h="15" lbl="1" filled="1" edit="1" th="12" fg="freq" bg="black"/>
+    <wdg id="81" ty="label" x="5" y="140" w="80" h="15" lbl="Fine" th="12" italic="1" fg="label"/>
+    <wdg id="82" ty="baseknob" x="5" y="160" w="80" h="80" lo="0" hi="1" prec="4" val="0" hiclr="freqhi" loclr="freqlo"/>
+    <wdg id="83" ty="label" x="5" y="245" w="80" h="15" lbl="0" filled="1" edit="1" th="12" fmt="%06.4f" fg="freq" bg="black"/>
+  </wdg>
+  <wdg name="vol,mod" id="84" ty="group" x="280" y="40" w="90" h="275" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="43" ty="label" x="5" y="5" w="80" h="15" lbl="Volume" th="12" italic="1" fg="label"/>
+    <wdg id="46" ip="2053" ty="baseknob" x="5" y="25" w="80" h="80" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo"/>
+    <wdg id="49" ty="label" x="5" y="110" w="80" h="15" filled="1" edit="1" th="12" fg="volume" bg="black"/>
+    <wdg id="44" ty="label" x="5" y="140" w="80" h="15" lbl="Modulation" th="12" italic="1" fg="label"/>
+    <wdg id="47" ip="2052" ty="baseknob" x="5" y="160" w="80" h="80" lo="0" hi="20" val="0" hiclr="modhi" loclr="modlo" />
+    <wdg id="50" ty="label" x="5" y="245" w="80" h="15" filled="1" edit="1" th="12" fg="mod" bg="black"/>
+    <pair knb="46" lbl="49" />
+    <pair knb="47" lbl="50" />
+  </wdg>
+  <wdg id="62" ty="group" x="375" y="40" w="85" h="275" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="63" ty="label" x="5" y="5" w="30" h="15" th="10" lbl="LFO" italic="1" fg="label" />
+    <wdg id="64" ty="label" x="5" y="50" w="30" h="15" th="10" lbl="Fx1" italic="1" fg="label" />
+    <wdg id="65" ty="label" x="5" y="95" w="30" h="15" th="10" lbl="Fx2" italic="1" fg="label" />
+    <wdg id="66" ty="label" x="5" y="140" w="30" h="15" th="10" lbl="Fx3" italic="1" fg="label" />
+    <wdg id="67" ty="label" x="5" y="185" w="30" h="15" th="10" lbl="Fx4" italic="1" fg="label" />
+    <wdg id="68" ty="label" x="5" y="230" w="30" h="15" th="10" lbl="Pan" italic="1" fg="label" />
+    <wdg id="69" ip="2059" ty="baseknob" x="40" y="5" w="40" h="40" lo="0" hi="1.0" val="0" hiclr="shinyhi" loclr="shinylo" />
+    <wdg id="70" ip="2055" ty="baseknob" x="40" y="50" w="40" h="40" lo="0" hi="1.0" val="0" hiclr="shinyhi" loclr="shinylo" />
+    <wdg id="71" ip="2056" ty="baseknob" x="40" y="95" w="40" h="40" lo="0" hi="1.0" val="0" hiclr="shinyhi" loclr="shinylo" />
+    <wdg id="72" ip="2057" ty="baseknob" x="40" y="140" w="40" h="40" lo="0" hi="1.0" val="0" hiclr="shinyhi" loclr="shinylo" />
+    <wdg id="73" ip="2058" ty="baseknob" x="40" y="185" w="40" h="40" lo="0" hi="1.0" val="0" hiclr="shinyhi" loclr="shinylo" />
+    <wdg id="74" ip="2062" ty="baseknob" x="40" y="230" w="40" h="40" lo="-1.0" hi="1.0" val="0" hiclr="shinyhi" loclr="shinylo" />
+    <wdg id="75" ty="label" x="5" y="25" w="30" h="15" th="9" lbl="0" filled="1" edit="1" fg="shiny" bg="black"/>
+    <wdg id="76" ty="label" x="5" y="70" w="30" h="15" th="9" lbl="0" filled="1" edit="1" fg="shiny" bg="black"/>
+    <wdg id="77" ty="label" x="5" y="115" w="30" h="15" th="9" lbl="0" filled="1" edit="1" fg="shiny" bg="black"/>
+    <wdg id="78" ty="label" x="5" y="160" w="30" h="15" th="9" lbl="0" filled="1" edit="1" fg="shiny" bg="black"/>
+    <wdg id="79" ty="label" x="5" y="205" w="30" h="15" th="9" lbl="0" filled="1" edit="1" fg="shiny" bg="black"/>
+    <wdg id="80" ty="label" x="5" y="250" w="30" h="15" th="9" lbl="0" filled="1" edit="1" fg="shiny" bg="black"/>
+    <pair knb="69" lbl="75" />
+    <pair knb="70" lbl="76" />
+    <pair knb="71" lbl="77" />
+    <pair knb="72" lbl="78" />
+    <pair knb="73" lbl="79" />
+    <pair knb="74" lbl="80" />
+  </wdg>
+  <wdg name="lfo" id="51" ty="group" x="470" y="40" w="110" h="275" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="52" ty="label" x="5" y="5" w="40" h="15" lbl="LFO" italic="1" th="12" fg="label"/>
+    <wdg id="61" ip="17" ty="pushbutton" x="50" y="5" w="50" h="20" val="0" th="10" lbl="WT" fg="wtsel" />
+    <wdg id="0"  ty="label" x="5" y="50" w="40" h="15" lbl="Frq." th="12" fg="label"/>
+    <wdg id="55" ip="16" ty="baseknob" x="50" y="30" w="50" h="50" lo="0" hi="10" val="0" hiclr="freqhi" loclr="freqlo" />
+    <wdg id="58" ty="label" x="50" y="85" w="50" h="15" lbl="4.5" filled="1" edit="1" th="12" fg="freq" bg="black"/>
+
+    <wdg id="53" ty="label" x="5" y="130" w="40" h="15" lbl="Atk" th="12" fg="label"/>
+    <wdg id="56" ip="18" ty="baseknob" x="50" y="110" w="50" h="50" lo="0" hi="10" val="0" hiclr="ratehi" loclr="ratelo"/>
+    <wdg id="59" ty="label" x="50" y="165" w="50" h="15" lbl="0.1" filled="1" edit="1" th="12" fg="rate" bg="black"/>
+
+    <wdg id="54" ty="label" x="5" y="210" w="40" h="15" lbl="Lvl" th="12" fg="label"/>
+    <wdg id="57" ip="19" ty="baseknob" x="50" y="190" w="50" h="50" lo="0" hi="1.0" val="0" hiclr="modhi" loclr="modlo"/>
+    <wdg id="60" ty="label" x="50" y="245" w="50" h="15" lbl="0.1" filled="1" edit="1" th="12" fg="mod" bg="black"/>
+    <pair knb="55" lbl="58" />
+    <pair knb="56" lbl="59" />
+    <pair knb="57" lbl="60" />
+  </wdg>
+  <wdg id="-1" ty="group" x="600" y="40" w="110" h="105" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="350" ty="label" x="5" y="5" w="40" h="15" lbl="PB" italic="1" th="12" fg="label"/>
+    <wdg id="0"   ty="label" x="5" y="50" w="40" h="15" lbl="Amnt." th="12" fg="label"/>
+    <wdg id="351" ip="25" ty="baseknob" x="50" y="30" w="50" h="50" lo="0" hi="2"  val="0" hiclr="modhi" loclr="modlo"/>
+    <wdg id="352" ty="label" x="50" y="85" w="50" h="15" lbl="0.0" th="12" filled="1" edit="1" fg="mod" bg="black"/>
+    <wdg id="353" ip="26" ty="pushbutton" x="50" y="5" w="50" h="20" val="7" th="10" lbl="Curve" bold="0" fg="wtsel"/>
+    <pair knb="351" lbl="352" />
+  </wdg>
+
+  <wdg id="-1" ty="label" x="5" y="322" w="50" h="25" lbl="Env. #" th="14" bold="1" italic="1" fg="hdr" shadow="1"/>
+  <wdg name="env. sel." id="100" ip="2054" ty="switchgroup" x="65" y ="325" w="515" h="25" bord="0" fr="grpfr">
+    <wdg id="101" ty="pushswitch" x="0" y ="0" w="60" h="25" val="0" lbl="1" fg="btnlabel"/>
+    <wdg id="102" ty="pushswitch" x="65" y ="0" w="60" h="25" val="1" lbl="2" fg="btnlabel"/>
+    <wdg id="103" ty="pushswitch" x="130" y ="0" w="60" h="25" val="2" lbl="3" fg="btnlabel"/>
+    <wdg id="104" ty="pushswitch" x="195" y ="0" w="60" h="25" val="3" lbl="4" fg="btnlabel"/>
+    <wdg id="105" ty="pushswitch" x="260" y ="0" w="60" h="25" val="4" lbl="5" fg="btnlabel"/>
+    <wdg id="106" ty="pushswitch" x="325" y ="0" w="60" h="25" val="5" lbl="6" fg="btnlabel"/>
+    <wdg id="107" ty="pushswitch" x="390" y ="0" w="60" h="25" val="6" lbl="7" fg="btnlabel"/>
+    <wdg id="108" ty="pushswitch" x="455" y ="0" w="60" h="25" val="7" lbl="8" fg="btnlabel"/>
+  </wdg>
+  <wdg name="env. vals" id="200" ty="group" x="5" y="360" w="575" h="250" bord="1" fr="grpfr" bg="grpbk">
+    <wdg id="201" ty="label" x="5" y="5" w="65" h="20" th="12" lbl="Start" italic="1" fg="label" />
+    <wdg id="202" ip="4096" ty="baseknob" x="5" y="25" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo" />
+    <wdg id="203" ty="label" x="5" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="black" fg="volume" />
+    <wdg id="204" ip="4097" ty="lamp" x="5" y="115" w="65" h="20" th="10" lbl="Sustain" fg="label" hi="volhi" lo="vollo"/>
+    <pair knb="202" lbl="203" />
+
+    <wdg id="205" ty="label" x="5" y="135" w="65" h="20" th="12" lbl="Rt. Range" italic="1" fg="label" />
+    <wdg id="206" ty="switchgroup" x="5" y="155" w="65" h="20" bord="0">
+      <wdg id="214" ty="pushswitch" x="0" y="0" w="32" h="20" th="10" val="0.5" lbl="0.5s" fg="rate" />
+      <wdg id="207" ty="pushswitch" x="33" y="0" w="32" h="20" th="10" val="1" lbl="1s" fg="rate" />
+      <wdg id="208" ty="pushswitch" x="0" y="20" w="32" h="20" th="10" val="5" lbl="5s" fg="rate" />
+      <wdg id="209" ty="pushswitch" x="33" y="20" w="33" h="20" th="10" val="10" lbl="10s" fg="rate" />
+    </wdg>
+
+    <wdg id="210" ty="label" x="5" y="200" w="65" h="20" th="12" lbl="Lvl. Range" italic="1" fg="label" />
+    <wdg id="211" ty="switchgroup" x="5" y="220" w="65" h="20" bord="0">
+      <wdg id="212" ty="pushswitch" x="0" y="0" w="21" h="20" th="10" val="1" lbl="1" fg="volume" />
+      <wdg id="215" ty="pushswitch" x="22" y="0" w="21" h="20" th="10" val="5" lbl="5" fg="mod" />
+      <wdg id="213" ty="pushswitch" x="44" y="0" w="21" h="20" th="10" val="20" lbl="20" fg="#ff800000" />
+    </wdg>
+
+    <wdg id="220" ty="label" x="85" y="5" w="65" h="20" th="12" lbl="Seg #1" italic="1" fg="label" />
+    <wdg id="221" ip="4098" ty="baseknob" x="85" y="25" w="65" h="65" lo="0" hi="10.0" val="0" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="222" ty="label" x="85" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="rate" />
+    <wdg id="223" ip="4099" ty="baseknob" x="85" y="115" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo" />
+    <wdg id="224" ty="label" x="85" y="185" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="volume" />
+    <pair knb="221" lbl="222" />
+    <pair knb="223" lbl="224" />
+    <wdg id="225" ip="4100" ty="switchgroup" x="85" y="205" w="65" h="15" bord="0">
+      <wdg id="226" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="Li" fg="eglin" />
+      <wdg id="227" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="2" lbl="Ex" fg="egexp" />
+      <wdg id="228" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="3" lbl="Ln" fg="eglog" />
+    </wdg>
+    <wdg id="229" ip="4101" ty="switchgroup" x="85" y="225" w="65" h="15" val="1" bord="0">
+      <wdg id="297" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="T" fg="rate" />
+      <wdg id="298" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="0" lbl="%" fg="rate" />
+      <wdg id="299" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="2" lbl="R" fg="rate" />
+    </wdg>
+
+    <wdg id="230" ty="label" x="155" y="5" w="65" h="20" th="12" lbl="Seg #2" italic="1" fg="label" />
+    <wdg id="231" ip="4106" ty="baseknob" x="155" y="25" w="65" h="65" lo="0" hi="10.0" val="0" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="232" ty="label" x="155" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="rate" />
+    <wdg id="233" ip="4107" ty="baseknob" x="155" y="115" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo" />
+    <wdg id="234" ty="label" x="155" y="185" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="volume" />
+    <pair knb="231" lbl="232" />
+    <pair knb="233" lbl="234" />
+    <wdg id="235" ip="4108" ty="switchgroup" x="155" y="205" w="65" h="15" bord="0">
+      <wdg id="236" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="Li" fg="eglin" />
+      <wdg id="237" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="2" lbl="Ex" fg="egexp" />
+      <wdg id="238" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="3" lbl="Ln" fg="eglog" />
+    </wdg>
+    <wdg id="239" ip="4109" ty="switchgroup" x="155" y="225" w="65" h="15" val="1" bord="0">
+      <wdg id="297" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="T" fg="rate" />
+      <wdg id="298" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="0" lbl="%" fg="rate" />
+      <wdg id="299" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="2" lbl="R" fg="rate" />
+    </wdg>
+
+    <wdg id="240" ty="label" x="225" y="5" w="65" h="20" th="12" lbl="Seg #3" italic="1" fg="label" />
+    <wdg id="241" ip="4114" ty="baseknob" x="225" y="25" w="65" h="65" lo="0" hi="10.0" val="0" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="242" ty="label" x="225" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="rate" />
+    <wdg id="243" ip="4115" ty="baseknob" x="225" y="115" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo" />
+    <wdg id="244" ty="label" x="225" y="185" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="volume" />
+    <pair knb="241" lbl="242" />
+    <pair knb="243" lbl="244" />
+    <wdg id="245" ip="4116" ty="switchgroup" x="225" y="205" w="65" h="15" bord="0">
+      <wdg id="246" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="Li" fg="eglin" />
+      <wdg id="247" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="2" lbl="Ex" fg="egexp" />
+      <wdg id="248" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="3" lbl="Ln" fg="eglog" />
+    </wdg>
+    <wdg id="249" ip="4117" ty="switchgroup" x="225" y="225" w="65" h="15" val="1" bord="0">
+      <wdg id="297" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="T" fg="rate" />
+      <wdg id="298" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="0" lbl="%" fg="rate" />
+      <wdg id="299" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="2" lbl="R" fg="rate" />
+    </wdg>
+
+    <wdg id="250" ty="label" x="295" y="5" w="65" h="20" th="12" lbl="Seg #4" italic="1" fg="label" />
+    <wdg id="251" ip="4122" ty="baseknob" x="295" y="25" w="65" h="65" lo="0" hi="10.0" val="0" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="252" ty="label" x="295" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="rate" />
+    <wdg id="253" ip="4123" ty="baseknob" x="295" y="115" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo" />
+    <wdg id="254" ty="label" x="295" y="185" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="volume" />
+    <pair knb="251" lbl="252" />
+    <pair knb="253" lbl="254" />
+    <wdg id="255" ip="4124" ty="switchgroup" x="295" y="205" w="65" h="15" bord="0">
+      <wdg id="256" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="Li" fg="eglin" />
+      <wdg id="257" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="2" lbl="Ex" fg="egexp" />
+      <wdg id="258" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="3" lbl="Ln" fg="eglog" />
+    </wdg>
+    <wdg id="259" ip="4125" ty="switchgroup" x="295" y="225" w="65" h="15" val="1" bord="0">
+      <wdg id="297" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="T" fg="rate" />
+      <wdg id="298" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="0" lbl="%" fg="rate" />
+      <wdg id="299" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="2" lbl="R" fg="rate" />
+    </wdg>
+
+    <wdg id="260" ty="label" x="365" y="5" w="65" h="20" th="12" lbl="Seg #5" italic="1" fg="label" />
+    <wdg id="261" ip="4130" ty="baseknob" x="365" y="25" w="65" h="65" lo="0" hi="10.0" val="0" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="262" ty="label" x="365" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="rate" />
+    <wdg id="263" ip="4131" ty="baseknob" x="365" y="115" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="label" loclr="vollo" />
+    <wdg id="264" ty="label" x="365" y="185" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="volume" />
+    <pair knb="261" lbl="262" />
+    <pair knb="263" lbl="264" />
+    <wdg id="265" ip="4132" ty="switchgroup" x="365" y="205" w="65" h="15" bord="0">
+      <wdg id="266" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="Li" fg="eglin" />
+      <wdg id="267" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="2" lbl="Ex" fg="egexp" />
+      <wdg id="268" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="3" lbl="Ln" fg="eglog" />
+    </wdg>
+    <wdg id="269" ip="4133" ty="switchgroup" x="365" y="225" w="65" h="15" val="1" bord="0">
+      <wdg id="297" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="T" fg="rate" />
+      <wdg id="298" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="0" lbl="%" fg="rate" />
+      <wdg id="299" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="2" lbl="R" fg="rate" />
+    </wdg>
+
+    <wdg id="270" ty="label" x="435" y="5" w="65" h="20" th="12" lbl="Seg #6" italic="1" fg="label" />
+    <wdg id="271" ip="4138" ty="baseknob" x="435" y="25" w="65" h="65" lo="0" hi="10.0" val="0" hiclr="ratehi" loclr="ratelo" />
+    <wdg id="272" ty="label" x="435" y="95" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="rate" />
+    <wdg id="273" ip="4139" ty="baseknob" x="435" y="115" w="65" h="65" lo="0" hi="1.0" val="0" hiclr="volhi" loclr="vollo" />
+    <wdg id="274" ty="label" x="435" y="185" w="65" h="15" th="12" lbl="0" filled="1" edit="1" bg="0" fg="volume" />
+    <pair knb="271" lbl="272" />
+    <pair knb="273" lbl="274" />
+    <wdg id="275" ip="4140" ty="switchgroup" x="435" y="205" w="65" h="20" val="1" bord="0">
+      <wdg id="276" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="Li" fg="eglin" />
+      <wdg id="277" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="2" lbl="Ex" fg="egexp" />
+      <wdg id="278" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="3" lbl="Ln" fg="eglog" />
+    </wdg>
+    <wdg id="279" ip="4141" ty="switchgroup" x="435" y="225" w="65" h="15" val="1" bord="0">
+      <wdg id="297" ty="pushswitch" x="0" y="0" w="22" h="20" th="10" val="1" lbl="T" fg="rate" />
+      <wdg id="298" ty="pushswitch" x="22" y="0" w="22" h="20" th="10" val="0" lbl="%" fg="rate" />
+      <wdg id="299" ty="pushswitch" x="44" y="0" w="22" h="20" th="10" val="2" lbl="R" fg="rate" />
+    </wdg>
+
+    <wdg id="280" ty="label" x="505" y="5" w="65" h="20" th="12" lbl="Segments" italic="1" fg="label" />
+    <wdg id="281" ip="4102" ty="switchgroup" x="505" y="45" h="175" val="2" bord="0" >
+      <wdg id="282" ty="pushswitch" x="5" y="0" w="60" h="25" th="12" val="1" lbl="1" fg="btnlabel" />
+      <wdg id="283" ty="pushswitch" x="5" y="30" w="60" h="25" th="12" val="2" lbl="2" fg="btnlabel" />
+      <wdg id="284" ty="pushswitch" x="5" y="60" w="60" h="25" th="12" val="3" lbl="3" fg="btnlabel" />
+      <wdg id="285" ty="pushswitch" x="5" y="90" w="60" h="25" th="12" val="4" lbl="4" fg="btnlabel" />
+      <wdg id="286" ty="pushswitch" x="5" y="120" w="60" h="25" th="12" val="5" lbl="5" fg="btnlabel" />
+      <wdg id="287" ty="pushswitch" x="5" y="150" w="60" h="25" th="12" val="6" lbl="6" fg="btnlabel" />
+    </wdg>
+  </wdg>
+  
+  <wdg id="-1" ty="group" x="600" y="150" w="162" h="465" bord="0" bg="bg" >
+    <wdg id="400" ty="label" x="0" y="0" w="162" h="20" th="12" lbl="Frequency Multiplier" italic="1" fg="hdr" shadow="1"/>
+    <wdg id="401" ty="graph" x="0" y="20" h="60" w="162" bar="1" bw="0.5" num="8" range="10" bg="grpbk" grclr="#000080"/>
+    <wdg id="0" ty="group" x="0" y="85" h="15" w="162" bord="0">
+      <wdg id="0" ty="label" x="0" y="0" h="15" w="10" th="10" lbl="1" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="20" y="0" h="15" w="15" th="10" lbl="2" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="40" y="0" h="15" w="15" th="10" lbl="3" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="60" y="0" h="15" w="15" th="10" lbl="4" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="80" y="0" h="15" w="15" th="10" lbl="5" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="100" y="0" h="15" w="15" th="10" lbl="6" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="120" y="0" h="15" w="15" th="10" lbl="7" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="140" y="0" h="15" w="15" th="10" lbl="8" align="0" filled="0" fg="label"/>
+    </wdg>
+    <wdg id="402" ty="label" x="0" y="115" w="162" h="20" th="12" lbl="Volume Level" italic="1" fg="hdr" shadow="1"/>
+    <wdg id="403" ty="graph" x="0" y="135" h="60" w="162" bar="1" bw="0.5" num="8" range="1" bg="grpbk" grclr="#a0a040"/>
+    <wdg id="0" ty="group" x="0" y="200" h="15" w="162" bord="0">
+      <wdg id="0" ty="label" x="0" y="0" h="15" w="10" th="10" lbl="1" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="20" y="0" h="15" w="15" th="10" lbl="2" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="40" y="0" h="15" w="15" th="10" lbl="3" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="60" y="0" h="15" w="15" th="10" lbl="4" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="80" y="0" h="15" w="15" th="10" lbl="5" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="100" y="0" h="15" w="15" th="10" lbl="6" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="120" y="0" h="15" w="15" th="10" lbl="7" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="140" y="0" h="15" w="15" th="10" lbl="8" align="0" filled="0" fg="label"/>
+    </wdg>
+    <wdg id="404" ty="label" x="0" y="230" w="162" h="20" th="12" lbl="Modulation Level" italic="1" fg="hdr" shadow="1"/>
+    <wdg id="405" ty="graph" x="0" y="250" h="60" w="162" bar="1" bw="0.5" num="8" range="20" bg="grpbk" grclr="#ff800000"/>
+    <wdg id="0" ty="group" x="0" y="315" h="15" w="162" bord="0">
+      <wdg id="0" ty="label" x="0" y="0" h="15" w="10" th="10" lbl="1" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="20" y="0" h="15" w="15" th="10" lbl="2" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="40" y="0" h="15" w="15" th="10" lbl="3" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="60" y="0" h="15" w="15" th="10" lbl="4" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="80" y="0" h="15" w="15" th="10" lbl="5" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="100" y="0" h="15" w="15" th="10" lbl="6" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="120" y="0" h="15" w="15" th="10" lbl="7" align="0" filled="0" fg="label"/>
+      <wdg id="0" ty="label" x="140" y="0" h="15" w="15" th="10" lbl="8" align="0" filled="0" fg="label"/>
+    </wdg>
+
+    <wdg id="406" ty="label" x="0" y="345" w="162" h="20" th="12" lbl="Envelope" italic="1" fg="hdr" shadow="1"/>
+    <wdg id="300" ty="envgraph" x="0" y="365" h="80" w="162" bord="1" bg="grpbk" fg="label"/>
+    <wdg id="301" ty="group" x="0" y="450" h="15" w="180" bord="0">
+      <wdg id="-1"  ty="label" x="0" y="0" h="15" w="20" th="10" lbl="0" align="0" filled="0" fg="label"/>
+      <wdg id="302" ty="label" x="22" y="0" h="15" w="30" th="10" lbl="0.2" fmt="%.1f" align="1" filled="0" fg="label"/>
+      <wdg id="303" ty="label" x="54" y="0" h="15" w="30" th="10" lbl="0.4" fmt="%.1f" align="1" filled="0" fg="label"/>
+      <wdg id="304" ty="label" x="86" y="0" h="15" w="30" th="10" lbl="0.6" fmt="%.1f" align="1" filled="0" fg="label"/>
+      <wdg id="305" ty="label" x="118" y="0" h="15" w="30" th="10" lbl="0.8" fmt="%.1f" align="1" filled="0" fg="label"/>
+      <wdg id="306" ty="label" x="150" y="0" h="15" w="30" th="10" lbl="1.0" fmt="%.1f" align="1" filled="0" fg="label"/>
+    </wdg>
+  </wdg>
+</layout>

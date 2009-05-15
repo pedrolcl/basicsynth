@@ -1,0 +1,208 @@
+<html>
+<head>
+<title>Tone Instrument</title>
+</head>
+<body>
+<h2>Tone Instrument<hr/></h2>
+<p>The <i>Tone</i> instrument
+contains a single oscillator, ADSR envelope generator, LFO generator and pitch bend. The
+waveform for the oscillator is selectable, providing for a variety of sounds.
+Although limited in abilty to produce a dyamic timbre, it is fast to execute and very easy to configure.</p>
+<h3>Patch Diagram<hr/></h3>
+<img src="images/tonediag.jpg" alg="tone diagram" />
+
+<h3>Configuration<hr/></h3>
+<p>The following table shows the parameter ID numbers and the
+equivalent XML tag and attribute values for the <i>Tone</i> instrument. </p>
+
+<table border="1" cellspacing="0" cellpadding="4">
+ <tr valign="top" style="background-color:Black;color:White;">
+  <td><p align="center"><b>Parameter</b></p></td>
+  <td><p align="center"><b>Tag</b></p></td>
+  <td><p align="center"><b>Attribute</b></p></td>
+  <td><p align="center"><b>Name</b><p></td>
+  <td><p align="center"><b>Use</b></p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>5</p></td>
+  <td><p>osc</p></td>
+  <td><p>frq</p></td>
+  <td><p>oscfrq</p></td>
+  <td><p>Initial frequency of the oscillator</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>6</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>vol</p></td>
+  <td><p>oscvol</p></td>
+  <td><p>Overall volume level</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>16</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>wt</p></td>
+  <td><p>oscwt</p></td>
+  <td><p>Wave table ID</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>17</p></td>
+  <td><p>env</p></td>
+  <td><p>st</p></td>
+  <td><p>envst</p></td>
+  <td><p>Start level for envelope</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>18</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>atk</p></td>
+  <td><p>envatk</p></td>
+  <td><p>Attack rate in seconds</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>19</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>pk</p></td>
+  <td><p>envpk</p></td>
+  <td>  <p>Peak amplitude level after attack</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>20</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>dec</p></td>
+  <td><p>envdec</p></td>
+  <td><p>Decay time to sustain level</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>21</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>sus</p></td>
+  <td><p>envsus</p></td>
+  <td><p>Sustain level</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>22</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rel</p></td>
+  <td><p>envrel</p></td>
+  <td><p>Release rate in seconds</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>23</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>end</p></td>
+  <td><p>envend</p></td>
+  <td><p>End level for envelope</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>24</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>ty</p></td>
+  <td><p>envty</p></td>
+  <td><p>Envelope curve type:<br />
+  1 = linear<br />
+  2 = exponential<br />
+  3 = log</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>25</p></td>
+  <td><p>lfo</p></td>
+  <td><p>frq</p></td>
+  <td><p>lfofrq</p></td>
+  <td><p>LFO Frequency</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>26</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>wt</p></td>
+  <td><p>lfowt</p></td>
+  <td><p>Wave table index</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>27</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>atk</p></td>
+  <td><p>lfoatk</p></td>
+  <td><p>LFO envelope attack time</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>28</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>amp</p></td>
+  <td><p>lfoamp</p></td>
+  <td><p>LFO depth (amplitude)</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>29</p></td>
+  <td><p>pb</p></td>
+  <td><p>on</p></td>
+  <td><p>pbon</p></td>
+  <td><p>Pitch bend on (1) or off (0).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>30</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>r1</p></td>
+  <td><p>pbr1</p></td>
+  <td><p>Rate between a1 and a2</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>31</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>r2</p></td>
+  <td><p>pbr1</p></td>
+  <td><p>Rate between a2 and a3</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>32</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>a1</p></td>
+  <td><p>pba1</p></td>
+  <td><p>Pitch bend start amount</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>33</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>a2</p></td>
+  <td><p>pba2</p></td>
+  <td><p>Pitch bend middle amount</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>34</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>a3</p></td>
+  <td><p>pba3</p></td>
+  <td><p>Pitch bend end amount</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>40</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>pbamp</p></td>
+  <td><p>pbamp</p></td>
+  <td><p>Pitch bend WT amount</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>41</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>wt</p></td>
+  <td><p>pbwt</p></td>
+  <td><p>Pitch bend wavetable</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>42</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>*</p></td>
+  <td><p>pbfrq</p></td>
+  <td><p>Pitch bend WT rate (only settable during performance)</p></td>
+ </tr>
+</table>
+<h3>XML Format<hr/></h3>
+<pre>
+&lt;instr id=&quot;&quot; type=&quot;Tone&quot; name=&quot;&quot; desc=&quot;&quot;&gt;
+  &lt;osc frq=&quot;&quot; wt=&quot;&quot; vol=&quot;&quot; /&gt;
+  &lt;env st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;
+  &lt;lfo frq=&quot;&quot; wt=&quot;&quot; atk=&quot;&quot; amp=&quot;&quot;/&gt;
+  &lt;pb on=&quot;&quot; a1=&quot;&quot; a2=&quot;&quot; a3=&quot;&quot; r1=&quot;&quot; r2=&quot;&quot; pbamp=&quot;&quot; wt=&quot;&quot;/&gt;
+&lt;/instr&gt;
+</pre>
+</body>
+</html>
