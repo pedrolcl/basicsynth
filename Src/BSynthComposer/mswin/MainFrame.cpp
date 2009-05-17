@@ -623,6 +623,27 @@ LRESULT MainFrame::OnEditGotoLine(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 	return 0;
 }
 
+LRESULT MainFrame::OnMarkerSet(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	MarkerSet();
+	return 0;
+}
+LRESULT MainFrame::OnMarkerNext(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	MarkerNext();
+	return 0;
+}
+LRESULT MainFrame::OnMarkerPrev(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	MarkerPrev();
+	return 0;
+}
+
+LRESULT MainFrame::OnMarkerClear(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	MarkerClear();
+	return 0;
+}
 LRESULT MainFrame::OnEditUpdateUI(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	return 0;

@@ -1,11 +1,13 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth pitch bend unit
+/// @file PitchBend.h BasicSynth pitch bend unit
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 #ifndef _PITCHBEND_H_
 #define _PITCHBEND_H_
 
@@ -124,5 +126,5 @@ public:
 	int Save(XmlSynthElem *elem);
 };
 
-
+//@}
 #endif

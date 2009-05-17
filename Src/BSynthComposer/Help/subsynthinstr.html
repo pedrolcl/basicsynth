@@ -6,8 +6,8 @@
 <a name="_Subtractive_Synthesis_Instrument"></a>Subtractive Synthesis Instrument<hr/></h2>
 <p>
 The <i>SubSynth</i> instrument combines one oscillator, noise source,
-and a selectable filter. The filter may be low-pass, high-pass, band-pass, or reson
-filter. The center frequency of the filter is controlled with an envelope generator.
+and a selectable filter. The filter may be low-pass, high-pass, band-pass, reson, or two pole 
+filter. The center frequency of the filter is controlled with an ADSR envelope generator.
 The mixture of oscillator and noise fed to the filter is controlled by the mix parameter.
 An ADSR envelope shapes the overall amplitude of the filtered signal.</p>
 <h3>Patch Diagram<hr/></h3>
@@ -118,7 +118,12 @@ An ADSR envelope shapes the overall amplitude of the filtered signal.</p>
             </td>
             <td>
                 <p>
-                    Filter type (LP,HP,BP,RES).</p>
+                    Filter type:<br/>
+		0 = LP (bi-quad)<br/>
+		1 = HP (bi-quad)<br/>
+		2 = BP (bi-quad)<br/>
+		3 = RESON<br/>
+		4 = two pole (lowpass with resonance).</p>
             </td>
         </tr>
         <tr valign="top">
@@ -520,6 +525,28 @@ An ADSR envelope shapes the overall amplitude of the filtered signal.</p>
         <tr valign="top">
             <td>
                 <p>
+                    53</p>
+            </td>
+            <td>
+                <p>
+                    &nbsp;</p>
+            </td>
+            <td>
+                <p>
+                    cr</p>
+            </td>
+            <td>
+                <p>
+                    crt</p>
+            </td>
+            <td>
+                <p>
+                    Filter coefficient recalculation rate (in samples)</p>
+            </td>
+        </tr>
+        <tr valign="top">
+            <td>
+                <p>
                     40</p>
             </td>
             <td>
@@ -804,6 +831,13 @@ An ADSR envelope shapes the overall amplitude of the filtered signal.</p>
             </td>
         </tr>
     </table>
+<p><a name="_ss1">1</a> The recalculation rate defines the number of samples to generate
+before recalculating the filter coefficients. A value of 0 or 1 causes the coefficients to potentially
+be recalculated on each sample. Coeffcients are not recalculated unless the filter cutoff frequency
+changes, thus this value is irrelevant when the frequency is not changing.
+For quickly changing filter frequencies this value should be small (0-10) to avoid large jumps in the filter effect. 
+When the cutoff frequency changes slowly, setting the value to (50-100) can
+improve performance of the filter significantly without affecting sound quality.</p> 
     <br />
     <hr />
     <p>
@@ -812,7 +846,7 @@ An ADSR envelope shapes the overall amplitude of the filtered signal.</p>
 &lt;instr id=&quot;&quot; type=&quot;SubSynth&quot; name=&quot; &quot;&gt;
   &lt;osc frq=&quot;&quot; vol=&quot;&quot; mix=&quot;&quot; fg=&quot;&quot; wt=&quot;&quot; /&gt;
   &lt;egs st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;
-  &lt;egf st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;
+  &lt;egf st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; cr=&quot;&quot;  /&gt;
   &lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot; amp=&quot;&quot; /&gt;
 &lt;/instr&gt;
 </pre>

@@ -1,11 +1,13 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth WaveFile playback instrument
+/// @file WFSynth.h BasicSynth WaveFile playback instrument
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 #ifndef _WFSYNTH_H_
 #define _WFSYNTH_H_
 
@@ -73,5 +75,6 @@ public:
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 id, float val);
 };
+//@}
 
 #endif

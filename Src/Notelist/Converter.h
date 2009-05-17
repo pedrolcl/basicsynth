@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
-// This is the base class that provides an interface to the script
-// conversion modules and implements output to the BasicSynth sequencer. 
+/// @file Converter.h Notelist conversion
+//
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -13,6 +13,7 @@
 
 #pragma once
 
+/// @brief A syntax error message
 class nlSyntaxErr
 {
 public:
@@ -22,7 +23,11 @@ public:
 	long lineno;
 };
 
-// prototype for the error and debug output callbacks
+/// @brief Notelist error output.
+/// @details Prototype for the error and debug output callbacks.
+/// Programs that use Notelist must provide an implementation of
+/// this class and pass an instance to the nlConvert class in order
+/// to receive syntax error messages
 class nlErrOut
 {
 public:
@@ -56,6 +61,9 @@ public:
 	}
 };
 
+/// @brief Parameter entry
+/// @details nlParamMapEntry represents one name to number
+/// mapping for an instrument.
 class nlParamMapEntry : public SynthList<nlParamMapEntry>
 {
 public:
@@ -68,7 +76,8 @@ public:
 	}
 };
 
-// nlParamMap holds a set of parameter mappings for an instrument
+/// @brief Parameter mapping
+/// @details nlParamMap holds a set of parameter mappings for an instrument
 class nlParamMap : public SynthList<nlParamMap>
 {
 public:
@@ -161,10 +170,12 @@ public:
 
 };
 
-// the convert class. 
-// Invoke Convert() to parse the input file then Generate() to produce the sequence.
-// Convert() may be called multiple times to process more than one input file
-// for the same sequence.
+/// @brief Notelist convert class. 
+/// @details This is the base class that provides an interface to the script
+/// conversion modules and implements output to the BasicSynth sequencer. 
+/// Invoke Convert() to parse the input file then Generate() to produce the sequence.
+/// Convert() may be called multiple times to process more than one input file
+/// for the same sequence.
 class nlConverter  
 {
 protected:
@@ -200,25 +211,51 @@ public:
 	void SetMaxError(int n) { maxError = n; }
 	int GetMaxError() { return maxError; }
 
+	/// @brief Convert a notelist script to a set of sequencer events
+	/// @details This is the entry point for conversion. The
+	/// caller should supply either a valid file path or
+	/// a lex object that contains the script. When the caller
+	/// supplies the lex object, the filename is only for display
+	/// and can be any valid string.
 	virtual int Convert(const char *filename, nlLexIn *in = 0);
+
+	/// @brief Generate the sequence.
+	/// @details Generate must be called after all files have
+	/// been parsed in order to produce actual sequencer events.
+	/// If there were errors during parsing, Generate should not
+	/// be called.
 	virtual int Generate();
+
+	/// @brief Reset the conversion.
 	virtual void Reset();
 
+	/// Set the error callback object.
 	virtual void SetErrorCallback(nlErrOut *e)
 	{
 		eout = e;
 	}
 
+	/// Set the sequencer object.
+	/// Events will be sent to this object.
 	void SetSequencer(Sequencer *sp)
 	{
 		seq = sp;
 	}
 
+	/// @brief Set the instrument manager.
+	/// @details Instrument name to number and parameter to ID
+	/// conversions are accomplished using the instrument
+	/// manager object. If scripts only contain numbers
+	/// for instruments and no map statements, this
+	/// object is optional.
 	void SetInstrManager(InstrManager *ip)
 	{
 		mgr = ip;
 	}
 
+	/// Set the playback sample rate.
+	/// This is used to calculate the duration value
+	/// for sequencer events.
 	void SetSampleRate(double sr)
 	{
 		sampleRate = sr;
@@ -238,6 +275,9 @@ public:
 		return eng;
 	}
 
+	// Functions below this point are used internally but must be
+	// public in order for the parser and generator to access them.
+	// Technically, they are "friend" objects.
 	virtual void DebugNotify(int n, const char *s)
 	{
 		if (debugLevel >= n && eout)

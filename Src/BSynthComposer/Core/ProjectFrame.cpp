@@ -142,6 +142,34 @@ void ProjectFrame::EditGoto()
 		vw->GotoLine(-1);
 }
 
+void ProjectFrame::MarkerSet()
+{
+	EditorView *vw = GetActiveEditor();
+	if (vw)
+		vw->SetMarker();
+}
+
+void ProjectFrame::MarkerNext()
+{
+	EditorView *vw = GetActiveEditor();
+	if (vw)
+		vw->NextMarker();
+}
+
+void ProjectFrame::MarkerPrev()
+{
+	EditorView *vw = GetActiveEditor();
+	if (vw)
+		vw->PrevMarker();
+}
+
+void ProjectFrame::MarkerClear()
+{
+	EditorView *vw = GetActiveEditor();
+	if (vw)
+		vw->ClearMarkers();
+}
+
 int ProjectFrame::SaveFile()
 {
 	EditorView *vw = GetActiveEditor();

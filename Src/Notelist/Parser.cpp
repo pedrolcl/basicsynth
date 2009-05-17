@@ -4,8 +4,10 @@
 // appropriate nodes to the generator object.
 //
 // Error recovery is primitive, usually we just scan to the next EOS.
-// Error messages are formatted inline to avoid dragging in the whole
-// of sprintf().
+// Error messages are formatted by the error object.
+//
+// TODO: Error messages are hard-coded strings. These should be extracted
+// and read from a table so that they can be localized.
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -60,11 +62,11 @@ nlParser::~nlParser()
 }
 
 //////////////////////////////////////////////////////////////////////
-// Common syntax error printout. We send error messages out through
-// the Converter which should have an error reporting object set.
-// The skiplist argument indicates how much of the input we should
-// skip. This is an array of token IDs terminated with -1. See SkipTo
-// below.
+/// Common syntax error printout. We send error messages out through
+/// the Converter which should have an error reporting object set.
+/// The skiplist argument indicates how much of the input we should
+/// skip. This is an array of token IDs terminated with -1. See SkipTo
+/// below.
 //////////////////////////////////////////////////////////////////////
 
 int nlParser::Error(char *s, int *skiplist)
@@ -254,7 +256,7 @@ int nlParser::Statement()
 	return -1;
 }
 
-// include ::= 'include' strlit ';'
+// include = 'include' strlit ';'
 int nlParser::Include()
 {
 	int err = 0;
@@ -305,7 +307,7 @@ int nlParser::System()
 	return CheckEnd(err);
 }
 
-// script ::= 'script' strlit ';'
+// script = 'script' strlit ';'
 int nlParser::Script()
 {
 	int err = 0;
@@ -462,7 +464,7 @@ int nlParser::MiddleC()
 		theToken = lexPtr->Next();
 	}
 	else
-		err = Error("Invalid value for MIDDLEC", skiptoend);
+		err = Error("Invalid value for MIDDLEC (must be a number)", skiptoend);
 	return CheckEnd(err);
 }
 
@@ -520,7 +522,7 @@ int nlParser::Mix()
 		fn = mixSetFxPan;
 		break;
 	default:
-		return Error("Invalid mixer function", skiptoend);
+		return Error("Invalid mixer function, use: {in, pan, send, fxin or fxpan}", skiptoend);
 	}
 	theToken = lexPtr->Next();
 	if (fn & mixFx)
@@ -749,7 +751,7 @@ int nlParser::InitFn()
 		genPtr->AddNode(theToken, fn);
 		break;
 	default:
-		Error("Invalid function type for INIT, use {line|exp|log|rand}", skiptoend);
+		Error("Invalid function type for INIT, use {line, exp, log, or rand}", skiptoend);
 		if (theToken == T_ENDSTMT)
 			theToken = lexPtr->Next();
 		return -1;
@@ -898,14 +900,14 @@ int nlParser::Artic()
 		hasExpr = 0;
 		break;
 	default:
-		Error("Invalid argument to ARTIC", skiptoend);
+		Error("Invalid argument to ARTIC, use: {fixed, pcnt, add or off}", skiptoend);
 		return CheckEnd(-1);
 	}
 	nlScriptNode *p = genPtr->AddNode(new nlArticNode);
 	p->SetValue((long)theToken);
 
 	theToken = lexPtr->Next();
-	if (nlVersion < 3.0)
+	if (nlVersion < 1.0)
 		genPtr->AddNode(T_PARAM, 0L);
 	else if (hasExpr)
 	{
@@ -1355,8 +1357,8 @@ int nlParser::Factor()
 
 // value = '(' expr ')' | num | strlit | pitch | dur | 'rand' | fngen | unop value
 //       | 'count' | 'time' | 'pitch' | 'duration' | 'vol'
-// fngen ::= fn '(' expr ',' expr ')'
-// unop ::= '-' | 'eval' | '~' | 'not'
+// fngen = fn '(' expr ',' expr ')'
+// unop = '-' | 'eval' | '~' | 'not'
 int nlParser::Value()
 {
 	nlDurNode *pdur;

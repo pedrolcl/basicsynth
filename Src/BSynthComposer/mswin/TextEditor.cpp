@@ -112,9 +112,49 @@ void TextEditorWin::Cancel()
 	edwnd.Undo();
 }
 
+void TextEditorWin::SetMarker()
+{
+	SetMarkerAt(edwnd.CurrentLine());
+}
+
+void TextEditorWin::SetMarkerAt(int line)
+{
+	if (edwnd.MarkerGet(line))
+		edwnd.MarkerDel(line);
+	else
+		edwnd.MarkerAdd(line);
+}
+
+void TextEditorWin::NextMarker()
+{
+	int line = edwnd.CurrentLine();
+	if (edwnd.MarkerGet(line))
+		line++;
+	int found = edwnd.MarkerNext(line);
+	if (found == -1 && line)
+		found = edwnd.MarkerNext(0);
+	if (found >= 0)
+		edwnd.GotoLine(found);
+}
+
+void TextEditorWin::PrevMarker()
+{
+	int line = edwnd.CurrentLine();
+	if (edwnd.MarkerGet(line))
+		line--;
+	line = edwnd.MarkerPrev(line);
+	if (line >= 0)
+		edwnd.GotoLine(line);
+}
+
+void TextEditorWin::ClearMarkers()
+{
+	edwnd.MarkerDel(-1);
+}
+
 long TextEditorWin::EditState()
 {
-	long flags = VW_ENABLE_FILE | VW_ENABLE_GOTO | VW_ENABLE_SELALL | VW_ENABLE_FIND;
+	long flags = VW_ENABLE_FILE | VW_ENABLE_GOTO | VW_ENABLE_SELALL | VW_ENABLE_FIND | VW_ENABLE_MARK;
 	if (edwnd.CanPaste())
 		flags |= VW_ENABLE_PASTE;
 	if (edwnd.CanRedo())

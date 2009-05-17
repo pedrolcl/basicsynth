@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+/// @file UGFilter.h Filters for ModSynth
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 #ifndef UG_FILTER_H
 #define UG_FILTER_H
 
@@ -288,5 +298,5 @@ public:
 		Send(out, UGP_GEN);
 	}
 };
-
+//@}
 #endif

@@ -3,7 +3,7 @@
 //
 // See _BasicSynth_ Chapter 21 for a full explanation
 //
-// This instrument contains an Oscillator, Noise source, BiQuad filter,
+// This instrument contains an Oscillator, Noise source, filter,
 // and envelope generators for amplitude and filter frequency.
 //
 // Copyright 2008, Daniel R. Mitchell

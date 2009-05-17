@@ -173,6 +173,11 @@ BEGIN
         MENUITEM "Find &Next\tF3",              ID_EDIT_FINDNEXT
         MENUITEM "&Goto line\tCtrl+G",          ID_EDIT_GOTOLINE
         MENUITEM SEPARATOR
+        MENUITEM "Set/Clear bookmark\tCtrl-F2", ID_MARKER_SET
+        MENUITEM "Next bookmark\tF2",           ID_MARKER_NEXT
+        MENUITEM "Previous bookmark\tShift-F2", ID_MARKER_PREV
+        MENUITEM "Clear bookmarks",             ID_MARKER_CLEAR
+        MENUITEM SEPARATOR
         MENUITEM "&Properties...",              ID_ITEM_PROPERTIES
     END
     POPUP "&Project"
@@ -977,6 +982,10 @@ BEGIN
     "O",            ID_PROJECT_OPEN,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_PROJECT_SAVE,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_F4,          ID_WINDOW_CLOSE,        VIRTKEY, CONTROL, NOINVERT
+    VK_F2,          ID_MARKER_SET,          VIRTKEY, CONTROL, NOINVERT
+    VK_F2,          ID_MARKER_NEXT,         VIRTKEY, NOINVERT
+    "H",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
+    VK_F2,          ID_MARKER_PREV,         VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -1145,6 +1154,18 @@ STRINGTABLE
 BEGIN
     ID_ITEM_INFO            "Get item status information\nInfo"
     ID_ITEM_ERRORS          "Get error information\nErrors"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_MARKER_SET           "Set/clear marker on the current line"
+    ID_MARKER_NEXT          "Goto next marked line"
+    ID_MARKER_PREV          "Goto previous marked line"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_MARKER_CLEAR         "Clear all markers"
 END
 
 #endif    // English (U.S.) resources

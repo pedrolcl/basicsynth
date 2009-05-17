@@ -1,12 +1,12 @@
 ' This is a test script for various features of Notelist
 ! bang comment
 ' quote comment
-version 3.0;
+version 1.0;
 tempo 4, 120;
 'middlec 0;
 'system "echo hello";
 'script "testscript";
-'write "Write string " # "pasted\n";
+'write "Write string " :: "pasted\n";
 maxparam 3;
 ! attack in ms, release
 map "Pulse"  10+8:0.001, 22:(1/1000);
@@ -96,7 +96,7 @@ begin
   loop (20)
   begin
     set val1 = val1 + rand(-12,12);
-    'write "Pitch: " : val1;
+    write "Pitch: " :: val1;
     while val1 > C5 do
       set val1 = val1 - 12;
     while val1 < C3 do

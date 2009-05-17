@@ -16,6 +16,7 @@ instrument property. The BasicSynth book contains an in-depth description of eac
 <p><a href="#_Wave_File_Playback">Wave File Playback Instrument</a></p>
 <p><a href="#_Matrix_Synthesis_Instrument">Matrix Synthesis Instrument</a></p>
 <p><a href="#_Chuffer_Instrument">Chuffer (Noise) Instrument</a></p>
+<p><a href="#_ModSynth_Instrument">Modular Instrument</a></p>
 
 <p>Several instruments include LFO and Pitch bend units. Both units are implemented by 
 classes that are aggregated with the instrument class. The LFO unit includes a wavetable
@@ -1124,7 +1125,7 @@ looks at the first letter and then skips all letters up to the next digit.</p>
 Instrument</h2>
 <p>The SubSynth class
 defines an instrument that combines one oscillator, noise source, and a
-selectable filter. The filter may be low-pass, high-pass, band-pass, or reson
+selectable filter. The filter may be low-pass, high-pass, band-pass, reson, or two pole
 filter. The center frequency of the filter is controlled with an envelope
 generator. The mixture of oscillator and noise fed to the filter is controlled by
 the mix parameter. An ADSR envelope shapes the overall amplitude of the
@@ -1138,7 +1139,7 @@ with the implementation in <i>Src/Instruments/SubSynth.cpp</i>. </p>
 &lt;instr id=&quot;&quot; type=&quot;SubSynth&quot; name=&quot; &quot;&gt;
   &lt;osc frq=&quot;&quot; vol=&quot;&quot; mix=&quot;&quot; fg=&quot;&quot; wt=&quot;&quot; /&gt;
   &lt;egs st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;
-  &lt;egf st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; /&gt;
+  &lt;egf st=&quot;&quot; atk=&quot;&quot; pk=&quot;&quot; dec=&quot;&quot; sus=&quot;&quot; rel=&quot;&quot; end=&quot;&quot; ty=&quot;&quot; cr=&quot;&quot; /&gt;
   &lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot; amp=&quot;&quot; /&gt;
 &lt;/instr&gt;
 </pre>
@@ -1187,7 +1188,7 @@ equivalent XML tag and attribute values for the <i>SubSynth </i> instrument. </p
   <td><p>&nbsp;</p></td>
   <td><p>ft</p></td>
   <td><p>oscft</p></td>
-  <td><p>Filter type (LP,HP,BP,RES).</p></td>
+  <td><p>Filter type (LP,HP,BP,RES,2P).</p></td>
  </tr>
  <tr valign="top">
   <td><p>19</p></td>
@@ -1316,6 +1317,13 @@ equivalent XML tag and attribute values for the <i>SubSynth </i> instrument. </p
   <td><p>Filter envelope curve type</p></td>
  </tr>
  <tr valign="top">
+  <td><p>53</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>cr</p></td>
+  <td><p>crt</p></td>
+  <td><p>Filter coefficient recalculation rate (in samples)<sup><a href="#_ss1">1</a></sup></p></td>
+</tr>
+ <tr valign="top">
   <td><p>40</p></td>
   <td><p>lfo</p></td>
   <td><p>frq</p></td>
@@ -1407,6 +1415,13 @@ equivalent XML tag and attribute values for the <i>SubSynth </i> instrument. </p
   <td><p>Pitch bend WT rate (only settable during performance)</p></td>
  </tr>
 </table>
+<p><a name="#_ss1">1</a> The recalculation rate defines the number of samples to generate
+before recalculating the filter coefficients. A value of 0 or 1 causes the coefficients to potentially
+be recalculated on each sample. Coeffcients are not recalculated unless the filter cutoff frequency
+changes, thus this value is irrelevant when the frequency is not changing.
+For quickly changing filter frequencies this value should be small (0-10) to avoid large jumps in the filter effect. 
+When the cutoff frequency changes slowly, setting the value to (50-100) can
+improve performance of the filter significantly without affecting sound quality.</p> 
 <br /><hr />
 
 <h2><a name="_Wave_File_Playback"></a>Wave File Playback Instrument</h2>
@@ -1903,7 +1918,7 @@ the 'dot' before the parameter name is optional, i.e., e0s2rt is allowed as well
 </table>
 <br /><hr />
 <h2><a name="_Chuffer_Instrument"></a>Noise Instrument (Chuffer)</h2>
-<p>The <i>Chuffer</i> instrument combines a noise generator and variable band-pass filter
+<p>The <i>Chuffer</i> instrument combines a noise generator and variable filter
 to produce a variety of noise effects. These can vary from slowly changing "wind" sounds
 to short clicks and pops. Both the filter and amplitude can be swept with LFO oscillators.
 </p>
@@ -1934,7 +1949,7 @@ filter sweeps, simulating sounds such as wind or a fan.</p>
 coefficients. Since this calculation is time consuming, and filter frequencies may not
 change quickly, setting this rate can significantly reduce the processing time taken
 to generate each sample. The coefficient rate indicates the number of samples between re-calculation. 
-A value of 0 causes coefficients to be recalculated on each sample.</p>
+A value of 0 causes coefficients to be recalculated on each sample if needed.</p>
 <p>The <i>Chuffer</i> class is defined in the file <i>Src/Instruments/Chuffer.h</i>
 with the implementation in <i>Src/Instruments/Chuffer.cpp</i>.</p>
 
@@ -2142,3 +2157,298 @@ with the implementation in <i>Src/Instruments/Chuffer.cpp</i>.</p>
   <td><p>Filter Q change rate tracks note duration (1) or is fixed (0).</p></td>
  </tr>
 </table>
+<h2><a name="_ModSynth_Instrument" ></a>Modular Synthesis Instrument (ModSynth)</h2>
+<p>
+Unlike the other instruments in <i>BasicSynth</i>, the Modular Instrument does
+not define a patch of generators. Instead, you must create the patch manually
+by configuring a set of unit generators and connections between generators.
+This allows you to create a patch specific to your needs - as few or as many
+generators as you desire. 
+<p>The <i>ModSynth</i> instrument is defined in the file <i>Src/Instruments/ModSynth.h</i> with unit generators defined in files <i>Src/Instruments/UG*.h</i></p>
+<p>The ModSynth instrument provides the following unit generators.</p>
+<table border="1" cellspacing="0" cellpadding="2">
+<tr style="background:black;color:white;"><td>Type</td><td>Description</td></tr>
+<tr><td>OSCIL</td><td>Generic wavetable oscillator</td></tr>
+<tr><td>OSCILI </td><td>Wavetable oscillator using interpolation</td></tr>
+<tr><td>OSCILFM </td><td>Two oscillator FM generator</td></tr>
+<tr><td>OSCILAM </td><td>Two oscillator AM generator</td></tr>
+<tr><td>BUZZ</td><td>Bandwidth limited pulse wave</td></tr>
+<tr><td>ENVSEGN</td><td>Variable number of segments envelope</td></tr>
+<tr><td>ENVAR</td><td>Attack/Release envelope generator</td></tr>
+<tr><td>ENVADSR</td><td>Attack/Decay/Sustain/Release envelope generator</td></tr>
+<tr><td>LOWPASS</td><td>Lowpass filter (bi-quad)</td></tr>
+<tr><td>HIPASS</td><td>Highpass filter (bi-quad)</td></tr>
+<tr><td>LOWPASSR</td><td>Two-pole lowpass filter with resonant peak</td></tr>
+<tr><td>RESON</td><td>Constant gain resononant filter</td></tr>
+<tr><td>ALLPASS</td><td>First order Allpass filter</td></tr>
+<tr><td>FILTFIRN</td><td>N-th order FIR filter using convolution, highpass or lowpass</td></tr>
+<tr><td>DELAY</td><td>Delay line</td></tr>
+<tr><td>DELAYR</td><td>Recirculating delay line (a/k/a FDL, comb filter)</td></tr>
+<tr><td>DELAYV </td><td>Variable length delay line</td></tr>
+<tr><td>REVERB</td><td>Schroeder style reverb, 4 comb filters + 2 allpass filters</td></tr>
+<tr><td>FLANGER </td><td>Dynamic variable delay line with feedback</td></tr>
+<tr><td>RANDH</td><td>Random number generator (noise) with configurable sample rate</td></tr>
+<tr><td>RANDI </td><td>Random number generator (noise) with interpolation</td></tr>
+<tr><td>TABLE</td><td>Read a value from a wavetable</td></tr>
+<tr><td>SCALE</td><td>Scale a value to another range</td></tr>
+<tr><td>CALC</td><td>Calculates a value</td></tr>
+<tr><td>OUT</td><td>Output object with panning. This unit is automatically created. </td></tr>
+</table>
+<p>
+Unit generators are evaluated in the order encountered in the project file.
+In general, you should order the unit generators to match the flow of
+signals. For example, if you intend for an envelope generator to set the amplitude level of an oscillator,
+the envelope generator should be inserted before the oscillator. However, if you want the output
+of the oscillator to be the input level to the envelope generator, put the oscillator first in the list. In some
+cases the order doesn't matter. Calculation modules that scale input parameters only execute once
+during initialization and can appear anywhere. 
+</p>
+<p>In addition to the unit generators specified in the project file, four input paramter units are automatically added.
+Each of these represents a value passed from the sequencer:
+<ul>
+<li>@dur = duration of the note in seconds</li>
+<li>@pitch = pitch index of the note (middle C = 48)</li>
+<li>@frq = frequency of the note</li>
+<li>@vol = volume level for the note (0 - 1)</li>
+</ul>
+Typically, the @frq value is connected to the frequency parameter of an oscillator and the @vol value is
+connected to either an envelope generator input level, or the volume parameter of the OUT unit. You can, of course, connect them anywhere
+you need.</p>
+<p>At least one unit must be connected to the <i>out</i> unit in order to produce sound.
+The <i>out</i> module is a type of unit that accumulates values on its
+input during sample generation. In other words, you can connect multiple outputs to the <i>in</i> parameter of the output and they
+will be added together automatically. Delay lines and filters also accumulate values on the <i>in</i> parameter.
+Oscillators and envelope generators do not accumulate values on the <i>in</i> parameter. They use the input
+value as the current amplitude level.
+To send multiple inputs to the oscillator amplitude paramater, you must use a <i>sum</i> calculator unit.
+The order of connections in the list is not important; they will be processed according to the order of the
+unit generators during sound generation. Press the <b>Done</b> button to return to the editor. </p>
+<p>The following table lists the unit generators and their parameters. Parameter names are of the form <i>gen.param</i>
+when referenced from <a href="notelist.html#map" >Notelist map statements</a>. Parameter ID values are calculated as:</p>
+<pre>ID = (gen-id * 256) + input-id</pre>
+<p>All unit generators have a parameter named <i>in</i> with an input ID of 0. For units that process samples (e.g., filters) the
+<i>in</i> parameter represents the current sample value. For other units, (e.g., oscillators) it typically represents a nominal 
+amplitutde level.</p>
+
+<p>The XML format for a ModSynth instrument is shown below with all unit generators listed for reference. In an actual
+project file, only the unit generators used would appear. The two attributes on a <i>connect</i> tag indicate the name of
+the output unit (<i>src</i>) and the input (<i>dst</i>) in the form <i>unit.param</i>. </p>
+<pre>
+&lt;instr name="AllMod" id="12" type="ModSynth"&gt;
+    &lt;ugen type="OSCIL" name="oscwt" id="16" amplitude="1.000000" frequency="440.000000" 
+	multiple="1.000000" modulate="0.000000" wavetable="0.000000" /&gt;
+    &lt;ugen type="OSCILFM" name="oscfm" id="17" amplitude="1.000000" frequency="440.000000" 
+	multiple="1.000000" modulate="0.000000" wavetable="0.000000" iom="1.000000" /&gt;
+    &lt;ugen type="OSCILAM" name="oscam" id="18" amplitude="1.000000" frequency="440.000000" 
+	multiple="1.000000" modulate="0.000000" wavetable="0.000000" /&gt;
+    &lt;ugen type="ENVSEGN" name="egsegn" id="19" segments="2.000000" start="0.000000" 
+	sustain="1.000000" scale="1.000000"&gt;
+	&lt;seg level="1.000000" rate="0.040000" curve="1.000000" time="1.000000" /&gt;
+	&lt;seg level="0.000000" rate="0.180000" curve="0.000000" time="0.000000" /&gt;
+    &lt;/ugen&gt;
+    &lt;ugen type="ENVAR" name="egar" id="20" attack="0.000000" peak="1.000000" release="0.100000" 
+	sustain="1.000000" curve="1.000000" time="1.000000" scale="10.000000" /&gt;
+    &lt;ugen type="ENVADSR" name="egadsr" id="21" start="0.000000" attack="0.083300" peak="1.000000" 
+	decay="0.000000" sustain="1.000000" release="0.100000" end="0.000000" curve="1.000000" 
+	time="1.000000" scale="11.000000" /&gt;
+    &lt;ugen type="LOWPASS" name="lpfbq" id="22" fc="1000.000000" gain="1.000000" cr="0.000000" /&gt;
+    &lt;ugen type="HIPASS" name="hifbq" id="23" fc="100.000000" gain="1.000000" cr="0.000000" /&gt;
+    &lt;ugen type="LOWPASSR" name="lpr" id="24" fc="1000.000000" res="1.000000" cr="0.000000" /&gt;
+    &lt;ugen type="RESON" name="reson" id="25" fc="1000.000000" res="1.000000" cr="0.000000" /&gt;
+    &lt;ugen type="ALLPASS" name="apf" id="26" d="0.000000" /&gt;
+    &lt;ugen type="FILTFIRN" name="fir" id="27" fc="1000.000000" order="4.300000" cr="0.000000" hp="0.000000" /&gt;
+    &lt;ugen type="DELAY" name="delay" id="28" delay="0.001000" decay="1.000000" volume="1.000000" /&gt;
+    &lt;ugen type="DELAYR" name="delayr" id="29" delay="0.001000" decay="0.005000" volume="1.000000" /&gt;
+    &lt;ugen type="DELAYV" name="delayv" id="30" delay="0.010000" decay="0.010000" volume="1.000000" vrt="0.005000" /&gt;
+    &lt;ugen type="REVERB" name="revrb" id="31" volume="0.100000" rtime="2.000000" /&gt;
+    &lt;ugen type="FLANGER" name="flngr" id="32" level="1.000000" mix="0.500000" feedback="0.500000" 
+	center="0.010000" depth="0.001000" sweep="0.100000" /&gt;
+    &lt;ugen type="RANDH" name="nz" id="33" amplitude="1.000000" rate="1.000000" /&gt;
+    &lt;ugen type="RANDH" name="nzi" id="34" amplitude="1.000000" rate="1.000000" /&gt;
+    &lt;ugen type="CALC" name="calc" id="35" val1="0.000000" val2="0.000000" op="0.000000" /&gt;
+    &lt;ugen type="SCALE" name="scale" id="36" in="0.000000" outmax="0.000000" outmin="0.000000" 
+	inmax="0.000000" inmin="0.000000" /&gt;
+    &lt;ugen type="TABLE" name="tablei" id="37" index="0.000000" wavetable="0.000000" interp="0.000000" /&gt;
+    &lt;ugen type="OUT" name="out" id="1" volume="1.000000" pan="0.000000" pon="0.000000" /&gt;
+    &lt;connect src="" dst="" /&gt;
+&lt;/instr&gt;
+</pre>
+
+<table border="1" cellspacing="0" cellpadding="4">
+<tr style="background:black;color:white;"><td>Type</td><td>Parameter Name</td><td>Parameter ID</td><td>Usage</td></tr>
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Oscillators</td>
+
+<tr><td>OSCIL,OSCILI,OSCILAM</td><td>amplitutde</td><td>0</td><td>Peak amplitude level.</td></tr>
+<tr><td>&nbsp;</td><td>frequency</td><td>1</td><td>Frequency.</td></tr>
+<tr><td>&nbsp;</td><td>multiple</td><td>2</td><td>Frequency multiple. This value is multiplied by the frequency 
+input to calculate the actual frequency. For additive synthesis, the multiple represents a harmonic.</td></tr>
+<tr><td>&nbsp;</td><td>modulate</td><td>3</td><td>Frequency modulator. This value is added to the frequency.</td></tr>
+<tr><td>&nbsp;</td><td>wavetable</td><td>4</td><td>Wavetable ID.</td></tr>
+
+<tr><td>OSCILFM</td><td>amplitutde</td><td>0</td><td>Peak amplitude level.</td></tr>
+<tr><td>&nbsp;</td><td>frequency</td><td>1</td><td>Carrier frequency.</td></tr>
+<tr><td>&nbsp;</td><td>multiple</td><td>2</td><td>Frequency multiple. The modulator frequency is <i>frequency * multiple</i>. </td></tr>
+<tr><td>&nbsp;</td><td>modulate</td><td>3</td><td>Frequency modulator. This is typically used for vibrato since
+this oscillator has a built-in modulator oscillator.</td></tr>
+<tr><td>&nbsp;</td><td>wavetable</td><td>4</td><td>Wavetable ID.</td></tr>
+<tr><td>&nbsp;</td><td>iom</td><td>5</td><td>Index of modulation. The amplitude of the
+modulator is calculated as A=I*F, where F is the modulator frequency.</td></tr>
+
+<tr><td>BUZZ</td><td>amplitutde</td><td>0</td><td>Peak amplitude level.</td></tr>
+<tr><td>&nbsp;</td><td>frequency</td><td>1</td><td>Frequency.</td></tr>
+<tr><td>&nbsp;</td><td>harmonics</td><td>2</td><td>The number of harmonics.</td></tr>
+<tr><td>&nbsp;</td><td>modulate</td><td>3</td><td>Frequency modulator. This value is added to the frequency.</td></tr>
+
+<tr style="background:gray;color=black;"><td colspan="4">Noise generators</td>
+<tr><td>RANDH,RANDI</td><td>amplitutde</td><td>0</td><td>Peak amplitude level.</td></tr>
+<tr><td>&nbsp;</td><td>rate</td><td>1</td><td>Random number frequency in Hz.</td></tr>
+
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Envelope Generators</td>
+
+<tr><td>ENVSEGN</td><td>in</td><td>0</td><td>The output of the envelope generator is multiplied by the input value. If no input is connected, this value is typically set to 1.0</td></tr>
+<tr><td>&nbsp;</td><td>segments</td><td>1</td><td>Number of segments in the envelope, maximum of 12.</td></tr>
+<tr><td>&nbsp;</td><td>start</td><td>2</td><td>Starting value for the envelope.</td></tr>
+<tr><td>&nbsp;</td><td>sustain</td><td>3</td><td>Sustain on/off. When sustain = 1, the envelope will 
+hold at the end of the next to last segment until a release signal is recieved.</td></tr>
+<tr><td>&nbsp;</td><td>scale</td><td>4</td><td>Scaling factor for the envelope. For amplitude control, this value
+is typically 1.0. When used to control frequency of a filter, this value would represent the maximum frequency. 
+When used to control the index of modulation value for FM, this can be set to the maximum index value.</td></tr>
+<tr><td>&nbsp;</td><td>s<i>n</i>.level</td><td>(n*4)+5</td><td>End level for segment <i>n</i>. (n = 0...11)</td></tr>
+<tr><td>&nbsp;</td><td>s<i>n</i>.rate</td><td>(n*4)+6</td><td>Rate for segment <i>n</i>.</td></tr>
+<tr><td>&nbsp;</td><td>s<i>n</i>.curve</td><td>(n*4)+7</td><td>Curve type for segment <i>n</i>, 0=linear, 1=exponential, 2=logarithmic.</td></tr>
+<tr><td>&nbsp;</td><td>s<i>n</i>.time</td><td>(n*4)+8</td><td>Time interpretation for segment <i>n</i>.
+0=percentage of duration, 1=fixed time, 2=remainder of duration.</td></tr>
+
+<tr><td>ENVAR</td><td>in</td><td>0</td><td>The output of the envelope generator is multiplied by the input value. If no input is connected, this value is typically set to 1.0</td></tr>
+<tr><td>&nbsp;</td><td>attack</td><td>1</td><td>Attack rate in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>peak</td><td>2</td><td>Peak (sustain) level.</td></tr>
+<tr><td>&nbsp;</td><td>release</td><td>3</td><td>Release (decay) rate in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>sustain</td><td>4</td><td>Sustain on/off. When sustain = 1, the envelope will 
+hold at the peak level until a release signal is recieved.</td></tr>
+<tr><td>&nbsp;</td><td>curve</td><td>5</td><td>Curve type, 0=linear, 1=exponential, 2=logarithmic.</td></tr>
+<tr><td>&nbsp;</td><td>time</td><td>6</td><td>Time interpretation (See ENVSEGN)</td></tr>
+<tr><td>&nbsp;</td><td>scale</td><td>7</td><td>Scaling factor for the envelope. (See ENVSEGN)</td></tr>
+
+<tr><td>ENVADSR</td><td>in</td><td>0</td><td>The output of the envelope generator is multiplied by the input value. If no input is connected, this value is typically set to 1.0</td></tr>
+<tr><td>&nbsp;</td><td>start</td><td>1</td><td>Starting level for the envelope.</td></tr>
+<tr><td>&nbsp;</td><td>attack</td><td>2</td><td>Attack rate in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>peak</td><td>3</td><td>Peak level.</td></tr>
+<tr><td>&nbsp;</td><td>decay</td><td>4</td><td>Decay rate in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>sustain</td><td>5</td><td>Sustain level.</td></tr>
+<tr><td>&nbsp;</td><td>release</td><td>6</td><td>Release rate in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>end</td><td>7</td><td>Ending level for the envelope.</td></tr>
+<tr><td>&nbsp;</td><td>curve</td><td>8</td><td>Curve type, 0=linear, 1=exponential, 2=logarithmic.</td></tr>
+<tr><td>&nbsp;</td><td>time</td><td>9</td><td>Time interpretation (See ENVSEGN)</td></tr>
+<tr><td>&nbsp;</td><td>scale</td><td>10</td><td>Scaling factor for the envelope. (See ENVSEGN)</td></tr>
+
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Filters</td>
+
+<tr><td>LOWPASS,HIPASS</td><td>in</td><td>0</td><td>The input sample to the filter.</td></tr>
+<tr><td>&nbsp;</td><td>fc</td><td>1</td><td>Cutoff frequency in Hz.</td></tr>
+<tr><td>&nbsp;</td><td>gain</td><td>2</td><td>Filter gain, multiplied by the output of the filter.</td></tr>
+<tr><td>&nbsp;</td><td>cr</td><td>3</td><td>Coefficient recalculation rate, in samples.</td></tr>
+
+<tr><td>LOWPASSR,RESON</td><td>in</td><td>0</td><td>The input sample to the filter.</td></tr>
+<tr><td>&nbsp;</td><td>fc</td><td>1</td><td>Cutoff frequency in Hz.</td></tr>
+<tr><td>&nbsp;</td><td>res</td><td>2</td><td>Filter resonance. For RESON, res is less than 1. For LOWPASSR, this is 'Q'.</td></tr>
+<tr><td>&nbsp;</td><td>cr</td><td>3</td><td>Coefficient recalculation rate, in samples.</td></tr>
+
+<tr><td>FILTFIRN</td><td>in</td><td>0</td><td>The input sample to the filter.</td></tr>
+<tr><td>&nbsp;</td><td>fc</td><td>1</td><td>Cutoff frequency in Hz.</td></tr>
+<tr><td>&nbsp;</td><td>order</td><td>2</td><td>Filter order (number of sample delays).</td></tr>
+<tr><td>&nbsp;</td><td>cr</td><td>3</td><td>Coefficient recalculation rate, in samples.</td></tr>
+<tr><td>&nbsp;</td><td>hp</td><td>4</td><td>When hp = 1, produce high-pass response, else lowpass.</td></tr>
+
+<tr><td>ALLPASS</td><td>in</td><td>0</td><td>The input sample to the filter.</td></tr>
+<tr><td>&nbsp;</td><td>d</td><td>1</td><td>Phase delay as fraction of a sample.</td></tr>
+
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Delay Lines</td>
+<tr><td>DELAY,DELAYR</td><td>in</td><td>0</td><td>The input sample to the delay line.</td></tr>
+<tr><td>&nbsp;</td><td>delay</td><td>1</td><td>Delay time, in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>decay</td><td>2</td><td>For DELAY, the attenation at the output of the delay line.
+For DELAYR, the time to decay to -60dB.</td></tr>
+<tr><td>&nbsp;</td><td>volume</td><td>3</td><td>Input level attentation/amplification.</td></tr>
+
+<tr><td>DELAYV</td><td>in</td><td>0</td><td>The input sample to the delay line.</td></tr>
+<tr><td>&nbsp;</td><td>delay</td><td>1</td><td>Delay time, in seconds.</td></tr>
+<tr><td>&nbsp;</td><td>decay</td><td>2</td><td>The time to decay to -60dB.</td></tr>
+<tr><td>&nbsp;</td><td>volume</td><td>3</td><td>Input level attentation/amplification.</td></tr>
+<tr><td>&nbsp;</td><td>vrt</td><td>4</td><td>Variable delay rate, may be set during playback to vary the delay time.</td></tr>
+
+<tr><td>REVERB</td><td>in</td><td>0</td><td>The input sample to the reverb.</td></tr>
+<tr><td>&nbsp;</td><td>volume</td><td>1</td><td>Input level attentation/amplification.</td></tr>
+<tr><td>&nbsp;</td><td>rtime</td><td>2</td><td>Reverberation time.</td></tr>
+
+<tr><td>FLANGER</td><td>in</td><td>0</td><td>The input sample to the flanger.</td></tr>
+<tr><td>&nbsp;</td><td>level</td><td>1</td><td>Input level attentation/amplification.</td></tr>
+<tr><td>&nbsp;</td><td>mix</td><td>2</td><td>Mix of input and delayed samples.</td></tr>
+<tr><td>&nbsp;</td><td>feedback</td><td>3</td><td>Feedback level.</td></tr>
+<tr><td>&nbsp;</td><td>center</td><td>4</td><td>Center delay time.</td></tr>
+<tr><td>&nbsp;</td><td>depth</td><td>5</td><td>Variation of delay time.</td></tr>
+<tr><td>&nbsp;</td><td>sweep</td><td>6</td><td>Variable delay oscillator frequency (Hz).</td></tr>
+
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Calculations</td>
+<tr><td>TABLE</td><td>index</td><td>0</td><td>Index into the table. </td></tr>
+<tr><td>&nbsp;</td><td>wavetable</td><td>1</td><td>Wavetable ID.</td></tr>
+<tr><td>&nbsp;</td><td>interp</td><td>2</td><td>Use interpolation (1) or rounding (0).</td></tr>
+
+<tr><td>SCALE</td><td>in</td><td>0</td><td>The input value. </td></tr>
+<tr><td>&nbsp;</td><td>outmax</td><td>1</td><td>Output maximum value.</td></tr>
+<tr><td>&nbsp;</td><td>outmin</td><td>2</td><td>Output minimum value.</td></tr>
+<tr><td>&nbsp;</td><td>inmax</td><td>3</td><td>Input maximum value.</td></tr>
+<tr><td>&nbsp;</td><td>inmin</td><td>4</td><td>Input minimum value.</td></tr>
+
+<tr><td>CALC</td><td>val1</td><td>0</td><td>Input value 1. </td></tr>
+<tr><td>&nbsp;</td><td>val2</td><td>1</td><td>Input value 2.</td></tr>
+<tr><td>&nbsp;</td><td>op</td><td>2</td><td>Operation. <a href="#calc">(See below)</a></td></tr>
+
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Output</td>
+<tr><td>OUT</td><td>in</td><td>0</td><td>The input value. </td></tr>
+<tr><td>&nbsp;</td><td>left</td><td>1</td><td>Left output (direct).</td></tr>
+<tr><td>&nbsp;</td><td>right</td><td>2</td><td>Right output (direct).</td></tr>
+<tr><td>&nbsp;</td><td>volume</td><td>3</td><td>Volume level.</td></tr>
+<tr><td>&nbsp;</td><td>pan</td><td>4</td><td>Pan setting.</td></tr>
+<tr><td>&nbsp;</td><td>pon</td><td>5</td><td>Pan on (1) or off (0). When panning is on, the mixer pan setting is bypassed.</td></tr>
+</table>
+<h3><a name="calc"></a>Calculator Operators</h3>
+<table border="1" cellspacing="0" cellpadding="4">
+<tr style="background:black;color:white"><td>Operator</td><td>ID</td><td>Output</td></tr>
+<tr><td>Add</td><td>  1 </td><td> val1+val2</td></tr>
+<tr><td>Subtract</td><td> 2 </td><td> val1-val2</td></tr>
+<tr><td>Multiply</td><td>  3 </td><td> val1*val2</td></tr>
+<tr><td>Divide</td><td>  4 </td><td> val1/val2</td></tr>
+<tr><td>Modulo</td><td>  5</td><td>val1 MOD val2</td></tr>
+<tr><td><i>x</i><sup>y</sup></td><td> 6 </td><td> val1 ^ val2</td></tr>
+<tr><td>Square root</td><td>  7 </td><td> sqrt(val1) * val2</td></tr>
+<tr><td>log<sub>10</sub></td><td> 8 </td><td> log(val1) * val2</td></tr>
+<tr><td><i>e</i><sup>n</sup></td><td> 9 </td><td> (e ^ val1) * val2</td></tr>
+<tr><td>log<sub>e</sub></td><td> 10 </td><td> ln(val1) * val2</td></tr>
+<tr><td>Average </td><td> 11 </td><td> (val1+val2) / 2</td></tr>
+<tr><td>Sum of values<a href="#note1"><sup>1</sup></a> </td><td> 12 </td><td> out += val1 * val2</td></tr>
+<tr><td>Minimum </td><td> 13 </td><td> min(val1, val2)</td></tr>
+<tr><td>Maximum</td><td>14 </td><td> max(val1, val2)</td></tr>
+<tr><td>Sine</td><td>15 </td><td> val2 * sin(val1)</td></tr>
+<tr><td>Cosine</td><td> 16 </td><td> val2 * cos(val1)</td></tr>
+<tr><td>Degrees to radians</td><td> 17 </td><td> (val1 / 360) * twoPI</td></tr>
+<tr><td>Frequency to radians</td><td> 18 </td><td> (val1 / SR) * twoPI</td></tr>
+<tr><td>Hypotenuse</td><td> 19 </td><td> sqrt((val1*val1)+(val2*val2))</td></tr>
+<tr><td>Less than </td><td> 20 </td><td> val1 &lt; val2</td></tr>
+<tr><td>Less than or equal</td><td>  21 </td><td> val1 &lt;= val2</td></tr>
+<tr><td>Greater than</td><td>   22 </td><td> val1 &gt; val2</td></tr>
+<tr><td>Greater than or equal </td><td> 23 </td><td> val1 &gt;= val2</td></tr>
+<tr><td>Equal </td><td>  24 </td><td> val1 == val2</td></tr>
+<tr><td>Not equal </td><td>  25 </td><td> val1 != val2</td></tr>
+<tr><td>Wrap value to range [0,val2]</td><td> 26 </td><td> set: 0 &lt;= val1 &lt; val2</td></tr>
+<tr><td>Shift (one sample delay)</td><td> 27 </td><td> out = val2, val2 = val1</td></tr>
+</table>
+<p><a name="note1"><sup>1</sup></a> The Sum operation resets <i>val1</i> to zero after each tick. In other words, this sums
+values for one sample only. To create an accumulator,
+connect the output of the Sum to its input, or connect the output of the Sum to a Wrap unit 
+and connect the Wrap output to the Sum input (<i>v1</i>). This operator can also be used to average multiple values by setting
+<i>val2</i> equal to1/n, where n is number of values connected to <i>val1</i>. </p>
+<h3>The OUT unit</h3>
+A single OUT unit is automatically added by the ModSynth when a new instrument is created. 
+Samples written to the <i>in</i> parameter are accumulated for one sample and then sent to the mixer for output.
+When panning is enabled (<i>pon</i> = 1), the pan setting is applied to the input sample and then set 
+directly in the mixer input, bypassing the mixer pan setting. In addition, samples can be written directly 
+to the left and right channels by setting the <i>left</i> and <i>right</i> parameter values. 

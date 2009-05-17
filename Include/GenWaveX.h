@@ -524,8 +524,8 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-/// Pulse wave generator.
-/// This uses a closed form of the Fourier series:
+/// @brief Pulse wave generator.
+/// @details Buzz uses a closed form of the Fourier series:
 /// @code
 ///         A       sin((2N+1)*PI*fo*t)
 /// f(t) = ---- * ((---------------------) - 1)
@@ -536,6 +536,10 @@ public:
 ///         2N            cos(PI*fo*t)
 /// @endcode
 /// to produces a bandwidth limited pulse wave.
+/// The number of harmonics (N) is a settable parameter. 
+/// A higher number of harmonics produces a narrower pulse.
+/// The number of harmonics cannot be reliably changed
+/// after initialization.
 /// When the denominator (sin x) is 0, then
 /// we can't use the first form, but we can use the cos() form.
 /// Note, however that when sin(x) = 0, then cos(x) = 1 
@@ -556,7 +560,6 @@ public:
 /// to avoid clicks and pops caused by round-off errros.
 /// @sa GenWave
 ///////////////////////////////////////////////////////////
-#define BUZZ_WT 1
 class GenWaveBuzz : public GenWave
 {
 private:
@@ -572,6 +575,7 @@ private:
 	void CalcIncr(FrqValue f)
 	{
 		num2p1 = PhsAccum((2 * numHarm) + 1);
+#define BUZZ_WT 1
 #ifdef BUZZ_WT
 		// using wavetables
 		indexIncr = synthParams.frqTI * f * 0.5;

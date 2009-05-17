@@ -66,6 +66,11 @@
 		<param name="Local" value="player.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Editor">
+		<param name="Name" value="Text Editor">
+		<param name="Local" value="editor.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="projects">
 		<param name="Name" value="Project Files">
 		<param name="Local" value="projects.html">

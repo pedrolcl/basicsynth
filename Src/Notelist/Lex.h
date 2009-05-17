@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Definition of the lexical scanner classes
+/// @file Lex.h Definition of the lexical scanner classes
 //
 // nlLexIn is the pure-virtual base class for stream input
 // nlLexFileIn provides support for reading from a file
@@ -21,6 +21,7 @@
 #define EOF (-1)
 #endif
 
+/// Interface to a lex buffer.
 class nlLexIn
 {
 public:
@@ -30,6 +31,7 @@ public:
 	virtual int Close() = 0;
 };
 
+/// Lex buffer for a file
 class nlLexFileIn : public nlLexIn
 {
 private:
@@ -82,6 +84,7 @@ public:
 	}
 };
 
+/// Lex buffer for in-memory script.
 class nlLexFileMem : public nlLexIn
 {
 private:
@@ -146,6 +149,12 @@ public:
 	}
 };
 
+/// @brief Lexical scanner. 
+/// @details The nlLex object performs token scanning for nlParse.
+/// The lexer requires the caller to first set a buffer object. The
+/// buffer retrieves characters one at a time for the lexer. A program
+/// can implement a custom lex buffer to read the script from a source
+/// other than a file or memory buffer.
 class nlLex  
 {
 private:

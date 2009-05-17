@@ -581,6 +581,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\testnl.nl"
+			>
+		</File>
+		<File
 			RelativePath=".\testnl.xml"
 			>
 		</File>

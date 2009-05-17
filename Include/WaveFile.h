@@ -487,7 +487,7 @@ public:
 	}
 
 	/// Set the file ID for this wavefile.
-	/// @param new ID.
+	/// @param newID new ID.
 	/// @returns old ID.
 	bsInt16 SetFileID(bsInt16 newID)
 	{

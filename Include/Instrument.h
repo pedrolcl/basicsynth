@@ -8,7 +8,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
-/// @addtogroup grpSeq
+/// @addtogroup grpInstrument
 //@{
 #ifndef _INSTRDEF_
 #define _INSTRDEF_

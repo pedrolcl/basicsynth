@@ -30,6 +30,11 @@ public:
 	virtual void FindNext() { }
 	virtual void SelectAll() { }
 	virtual void GotoLine(int ln) { }
+	virtual void SetMarker() { }
+	virtual void SetMarkerAt(int line) { }
+	virtual void NextMarker() { }
+	virtual void PrevMarker() { }
+	virtual void ClearMarkers() { }
 	virtual void Cancel() { }
 	virtual long EditState() { return 0; }
 	virtual int IsChanged()  { return 0; }

@@ -1,11 +1,13 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth FM Synthesis instrument
+// @file FMSynth.h BasicSynth FM Synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 
 #if !defined(_FMSYNTH_H_)
 #define _FMSYNTH_H_
@@ -115,5 +117,5 @@ public:
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 id, float val);
 };
-
+//@}
 #endif

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth LFO: Low Frequency Oscillator
+/// @file LFO.h BasicSynth LFO: Low Frequency Oscillator
 //
 // Used for vibrato and similar effects.
 //
@@ -8,6 +8,8 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 
 #if !defined(_LFO_H_)
 #define _LFO_H_
@@ -58,5 +60,5 @@ public:
 	int Load(XmlSynthElem *elem);
 	int Save(XmlSynthElem *elem);
 };
-
+//@}
 #endif

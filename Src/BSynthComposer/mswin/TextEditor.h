@@ -69,6 +69,11 @@ public:
 		return sciMsg(sciWnd, SCI_GETCURRENTPOS, 0, 0);
 	}
 
+	inline int CurrentLine()
+	{
+		return sciMsg(sciWnd, SCI_LINEFROMPOSITION, CurrentPos(), 0);
+	}
+
 	inline void GetText(char *t, int len)
 	{
 		// This function gets called from the generator thread...
@@ -96,6 +101,37 @@ public:
 		for (int n = NLSTYLE_DEFAULT; n <= NLSTYLE_COMMENT; n++)
 			sciMsg(sciWnd, SCI_STYLESETFONT, n, (LPARAM) fontName);
 		//SendMessage(SCI_STYLESETITALIC, NLSTYLE_COMMENT, 1);
+		sciMsg(sciWnd, SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
+		sciMsg(sciWnd, SCI_MARKERSETFORE, 0, RGB(0,0,160));
+		sciMsg(sciWnd, SCI_MARKERSETBACK, 0, RGB(0,0,160));
+	}
+
+	void MarkerAdd(int line)
+	{
+		sciMsg(sciWnd, SCI_MARKERADD, line, 0);
+	}
+
+	void MarkerDel(int line)
+	{
+		if (line >= 0)
+			sciMsg(sciWnd, SCI_MARKERDELETE, line, 0);
+		else
+			sciMsg(sciWnd, SCI_MARKERDELETEALL, 0, 0);
+	}
+
+	int MarkerNext(int line)
+	{
+		return sciMsg(sciWnd, SCI_MARKERNEXT, line, 1);
+	}
+
+	int MarkerPrev(int line)
+	{
+		return sciMsg(sciWnd, SCI_MARKERPREVIOUS, line, 1);
+	}
+
+	int MarkerGet(int line)
+	{
+		return sciMsg(sciWnd, SCI_MARKERGET, line, 0);
 	}
 
 	int GetSelection(SelectInfo& info)
@@ -147,7 +183,9 @@ public:
 
 	void ReplaceSel(const char *rtext)
 	{
-		sciMsg(sciWnd, SCI_REPLACESEL, 0, (LPARAM) (LPCTSTR) rtext);
+		sciMsg(sciWnd, SCI_TARGETFROMSELECTION, 0, 0);
+		int msg = (sciFlags & SCFIND_REGEXP) ? SCI_REPLACETARGETRE : SCI_REPLACETARGET;
+		sciMsg(sciWnd, msg, (WPARAM) -1, (LPARAM) (LPCTSTR) rtext);
 	}
 
 	int Find(const char *ftext, int start, int end = -1)
@@ -216,6 +254,11 @@ public:
 	virtual void FindNext();
 	virtual void SelectAll();
 	virtual void GotoLine(int ln);
+	virtual void SetMarker();
+	virtual void SetMarkerAt(int line);
+	virtual void NextMarker();
+	virtual void PrevMarker();
+	virtual void ClearMarkers();
 	virtual void Cancel();
 	virtual long EditState();
 	virtual int IsChanged();

@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+/// @file ModSynthUG.h Interface and template class for ModSynth unit generators
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 #ifndef MODSYNTH_UG_H
 #define MODSYNTH_UG_H
 
@@ -350,5 +360,5 @@ public:
 		return 0;
 	}
 };
-
+//@}
 #endif

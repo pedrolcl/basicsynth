@@ -26,6 +26,7 @@
 class BiQuadFilter : public GenUnit
 {
 public:
+	double rad;
 	AmpValue gain;
 	AmpValue ampIn0;
 	AmpValue ampIn1;
@@ -40,7 +41,8 @@ public:
 
 	BiQuadFilter()
 	{
-		cutoff = 0;
+		rad = PI / synthParams.sampleRate;
+		cutoff = 1;
 		gain = 0;
 		ampIn0 = 0;
 		ampIn1 = 0;
@@ -143,7 +145,9 @@ public:
 
 		if (old != cutoff)
 		{
-			double c = 1 / tan((PI / synthParams.sampleRate) * cutoff);
+			if (cutoff < 1)
+				cutoff = 1;
+			double c = 1 / tan(rad * cutoff);
 			double c2 = c * c;
 			double csqr2 = sqr2 * c;
 			double oned = 1.0 / (c2 + csqr2 + 1.0);
@@ -177,7 +181,7 @@ public:
 
 		if (old != cutoff)
 		{
-			double c = tan(PI / synthParams.sampleRate * cutoff);
+			double c = tan(rad * cutoff);
 			double c2 = c * c;
 			double csqr2 = sqr2 * c;
 			double oned = 1.0 / (1.0 + c2 + csqr2);
@@ -200,12 +204,10 @@ class FilterBP : public BiQuadFilter
 {
 private:
 	float bw;
-	double r;
 public:
 	FilterBP()
 	{
 		bw = 1000.0;
-		r = PI / synthParams.sampleRate;
 	}
 
 	/// Initialize the filter. This method calculates the
@@ -233,9 +235,11 @@ public:
 
 		if (old != cutoff || bw != B)
 		{
-			bw = B;
-			//double r = PI / synthParams.sampleRate;
-			double c = 1.0 / tan(r * B);
+			if (B < 1)
+				bw = 1;
+			else
+				bw = B;
+			double c = 1.0 / tan(rad * B);
 			//double d = 2.0 * cos(2.0 * r * cutoff);
 			double d = 2.0 * cos(synthParams.frqRad * cutoff);
 			double oned = 1.0 / (1.0 + c);
@@ -251,8 +255,8 @@ public:
 
 ///////////////////////////////////////////////////////////
 /// Constant gain Resonantor. This class extends BiQuadFilter
-/// adding code to calculate the coefficients for a resonant
-/// band-pass filter.
+/// adding code to calculate the coefficients for a constant
+/// gain resonant band-pass filter.
 /// See J. Smith, "Introduction to Digital Filters", Appendix B
 /// and Perry Cook, "Real Sound Synthesis", Chapter 3
 ///////////////////////////////////////////////////////////
@@ -281,7 +285,7 @@ public:
 	/// for a band-pass filter with a center frequency and resonance.
 	/// @param cu cutoff frequency
 	/// @param g filter gain
-	/// @param r resonance (0-1)
+	/// @param r resonance (0 < r < 1)
 	virtual void InitRes(FrqValue cu, AmpValue g, float r)
 	{
 		FrqValue old = cutoff;

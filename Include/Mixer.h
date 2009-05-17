@@ -279,9 +279,9 @@ public:
 	}
 
 	/// Set the unit generator.
-	/// This returns the previous unit. The caller should
-	/// delete the old unit if appropriate.
-	/// @param newFx Pointer to new unit generator for processing
+	/// The caller should delete the old unit if appropriate.
+	/// @param newfx new unit generator for processing
+	/// @returns previous generator
 	GenUnit *FxGenSet(GenUnit *newfx)
 	{
 		GenUnit *oldfx = fx;

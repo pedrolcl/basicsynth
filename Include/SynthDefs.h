@@ -173,7 +173,7 @@ public:
 	}
 
 	/// Function to locate a file on the wave file path (synthParams.wvPath).
-	/// @param fullpath output string where the full path is placed
+	/// @param fullPath output string where the full path is placed
 	/// @param fname file name to search for
 	/// @returns non-zero if the file was located, zero otherwise
 	int FindOnPath(bsString& fullPath, const char *fname);

@@ -80,6 +80,11 @@ public:
 	void GotoLine(int n) { }
 	void Find() { }
 	void FindNext() { }
+	void SetMarker() { }
+	void SetMarkerAt(int line) { }
+	void NextMarker() { }
+	void PrevMarker() { }
+	void ClearMarkers() { }
 
 	void Cancel()
 	{
@@ -191,6 +196,7 @@ public:
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnErase)
 		MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 		MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
+		MESSAGE_HANDLER(WM_MOUSEWHEEL, OnWheel)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
@@ -205,6 +211,7 @@ public:
 	LRESULT OnErase(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnVScroll(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnHScroll(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnWheel(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 };
 

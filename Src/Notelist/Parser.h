@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Definition of the notelist nlParser class.
+/// @file Parser.h Definition of the notelist nlParser class.
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -12,6 +12,11 @@
 
 #pragma once
 
+/// @brief Notelist parser.
+/// @details The parser is used by nlConvert to parse the Notelist script.
+/// This is a recursive descent parser, with each parse node typically 
+/// represented as a member function. To extend the parser, add a function
+/// and also a generator node to nlGenerate.
 class nlParser
 {
 private:

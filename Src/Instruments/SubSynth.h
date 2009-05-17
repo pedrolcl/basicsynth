@@ -1,11 +1,13 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth Subtractive synthesis instrument
+/// @file SubSynth.h BasicSynth Subtractive synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 
 #if !defined(_SUBSYNTHINSTR_H_)
 #define _SUBSYNTHINSTR_H_
@@ -280,5 +282,5 @@ public:
 	int SetParams(VarParamEvent *params);
 	int SetParam(bsInt16 id, float val);
 };
-
+//@}
 #endif

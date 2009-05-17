@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth instrument library load functions
+// @file LoadInstrLib.h BasicSynth instrument library load functions
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

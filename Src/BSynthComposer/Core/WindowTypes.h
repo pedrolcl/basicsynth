@@ -25,7 +25,8 @@ public:
 #define VW_ENABLE_FILE  0x20 // save, save as, close
 #define VW_ENABLE_GOTO  0x40
 #define VW_ENABLE_SELALL 0x80
-#define VW_ENABLE_FIND  0x100
+#define VW_ENABLE_FIND   0x100
+#define VW_ENABLE_MARK   0x200
 
 #define PRJ_ENABLE_SCORES  1
 #define PRJ_ENABLE_SCRIPTS 2
@@ -53,6 +54,11 @@ public:
 	virtual void FindNext() = 0;
 	virtual void SelectAll() = 0;
 	virtual void GotoLine(int ln) = 0;
+	virtual void SetMarker() = 0;
+	virtual void SetMarkerAt(int line) = 0;
+	virtual void NextMarker() = 0;
+	virtual void PrevMarker() = 0;
+	virtual void ClearMarkers() = 0;
 	virtual void Cancel() = 0;
 	virtual long EditState() = 0;
 	virtual int IsChanged() = 0;
@@ -220,6 +226,10 @@ public:
 	virtual void EditFindNext();
 	virtual void EditSelectAll();
 	virtual void EditGoto();
+	virtual void MarkerSet();
+	virtual void MarkerNext();
+	virtual void MarkerPrev();
+	virtual void MarkerClear();
 
 	virtual int QuerySaveProject();
 

@@ -399,13 +399,13 @@ LRESULT ScrollForm::OnVScroll(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 	case SB_THUMBPOSITION:
 		break;
 	}
-	si.fMask = SIF_POS;
-	si.nPos = pos;
-	SetScrollInfo(SB_VERT, &si, TRUE);
 	if (pos < 0)
 		pos = 0;
 	else if (pos > si.nMax)
 		pos = si.nMax;
+	si.fMask = SIF_POS;
+	si.nPos = pos;
+	SetScrollInfo(SB_VERT, &si, TRUE);
 
 	return 0;
 }
@@ -454,6 +454,30 @@ LRESULT ScrollForm::OnHScroll(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 	si.fMask = SIF_POS;
 	si.nPos = pos;
 	SetScrollInfo(SB_HORZ, &si, TRUE);
+	return 0;
+}
+
+LRESULT ScrollForm::OnWheel(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if (formWnd)
+	{
+		int delta = (((int) wParam) >> 16) / WHEEL_DELTA;
+		SCROLLINFO si = { sizeof(SCROLLINFO), SIF_PAGE|SIF_POS|SIF_RANGE|SIF_TRACKPOS, 0, 0, 0, 0, 0};
+		GetScrollInfo(SB_VERT, &si);
+		int pos = si.nPos + (delta * si.nPage);
+		ATLTRACE("Wheel delta %d pos %d\n", delta, pos);
+		if (pos < 0)
+			pos = 0;
+		else if (pos > si.nMax)
+			pos = si.nMax;
+		si.fMask = SIF_POS;
+		si.nPos = pos;
+		SetScrollInfo(SB_VERT, &si, TRUE);
+		RECT rcForm;
+		formWnd->GetClientRect(&rcForm);
+		formWnd->MapWindowPoints(m_hWnd, &rcForm);
+		formWnd->SetWindowPos(0, rcForm.left, pos, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+	}
 	return 0;
 }
 

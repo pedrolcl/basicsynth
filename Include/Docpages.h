@@ -215,5 +215,7 @@ This design allows for nearly unlimited flexibility in the sequencer. We only ne
 
 \defgroup grpSeq Sequencing
 
+\defgroup grpInstrument Synthesis Instrument Classes
+
 */
 

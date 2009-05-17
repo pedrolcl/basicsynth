@@ -1,4 +1,5 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Generate.h Notelist generator pass.
 // Generator classes.
 //
 // Copyright 2008, Daniel R. Mitchell
@@ -12,7 +13,16 @@
 
 #pragma once
 
-// nlFunctionData holds values for a built-in function
+/// nlFunctionData holds values for a built-in function
+/// For LINE:
+/// y = a * x + c
+/// For EXP or LOG:
+/// y = a * x^b + c
+/// x = n * 1/d
+/// b = flatness of curve, exp or log
+/// For both:
+/// a = end - start
+/// c = start
 class nlFunctionData
 {
 public:
@@ -24,16 +34,6 @@ public:
 	double curVal;
 	int    fnType;
 	int    pos;
-
-// For LINE:
-// y = a * x + c
-// For EXP or LOG:
-// y = a * x^b + c
-// x = n * 1/d
-// b = flatness of curve, exp or log
-// For both:
-// a = end - start
-// c = start
 
 	nlFunctionData()
 	{
@@ -75,8 +75,9 @@ enum vType
 	vtReal
 };
 
-// variant value class - can store string, integer or real
-// and provides automatic type conversion.
+/// variant value class.
+/// This can store string, integer or real
+/// and provides automatic type conversion.
 class nlVarValue
 {
 public:
@@ -112,6 +113,7 @@ public:
 	virtual int  Compare(nlVarValue *v);
 };
 
+/// A symbol table entry
 class nlSymbol : public nlVarValue
 {
 public:
@@ -131,6 +133,7 @@ public:
 	}
 };
 
+/// A holder for a sync/mark location
 struct nlSyncMark
 {
 	nlVarValue id;
@@ -215,6 +218,7 @@ public:
 	nlSequence *FindSequence(nlVarValue *find);
 };
 
+/// A nlVoice object holds all pertinent information about a voice.
 class nlVoice
 {
 public:
@@ -285,6 +289,14 @@ public:
 	}
 };
 
+/// A nlScriptNode represents one parsed node in the script.
+/// In general, each keyword or operator is implemented
+/// by a class derived from nlScriptNode. The derived class
+/// need only implement the Exec function in most cases.
+/// For constants, no implementation is needed since a 
+/// script node is also a value node.
+/// The nlNote node and nlExpr nodes do most of the 
+/// work. Other nodes typically set values on the current voice.
 class nlScriptNode : public nlVarValue
 {
 protected:
@@ -710,7 +722,11 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
-
+/// @brief The Notelist generator class.
+/// @details nlGenerate is the second pass of the interpreter.
+/// It steps through each parsed node in turn, executes each.
+/// This class contains the evaluation stack used by expression
+/// evaluator, a list of sequences, and a list of voices.
 class nlGenerate  
 {
 private:

@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+/// @file ModSynth.h BasicSynth Modular Synthesis instrument
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
+/// @addtogroup grpInstrument
+//@{
 #ifndef MODSYNTH_H
 #define MODSYNTH_H
 
@@ -80,5 +90,5 @@ public:
 	int  SetParam(bsInt16 idval, float val);
 	int  GetParam(bsInt16 idval, float *val);
 };
-
+//@}
 #endif

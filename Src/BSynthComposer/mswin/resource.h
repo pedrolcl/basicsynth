@@ -283,7 +283,6 @@
 #define IDC_WVF_ID                      1177
 #define IDC_BROWSE_LIBRARIES            1177
 #define IDC_INCL_LIBRARIES              1178
-#define IDC_WVF_LPEND                   1179
 #define IDC_DEF_COLORS                  1179
 #define IDC_SELTEXT                     1180
 #define IDC_BROWSE_COLORS               1180
@@ -367,13 +366,21 @@
 #define ID_ITEM_ERRORS                  32958
 #define ID_VIEW_SCOREERRORS             32959
 #define ID_HELP_CONTENTS                32968
+#define ID_MARKER_SET                   32969
+#define ID_MARKER_NEXT                  32970
+#define ID_EDIT_SETMARKER               32973
+#define ID_EDIT_NEXTMARKER              32974
+#define ID_MARKER_PREV                  32975
+#define ID_EDIT_PREVIOUSMARKER          32976
+#define ID_EDIT_REMOVEALLMARKERS        32977
+#define ID_MARKER_CLEAR                 32979
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        353
-#define _APS_NEXT_COMMAND_VALUE         32969
+#define _APS_NEXT_COMMAND_VALUE         32980
 #define _APS_NEXT_CONTROL_VALUE         1218
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
