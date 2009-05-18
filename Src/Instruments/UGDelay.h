@@ -12,6 +12,7 @@
 #ifndef UG_DELAY_H
 #define UG_DELAY_H
 
+// gcc compiler cannot handle this:
 extern UGParam delayParams[];
 extern UGParam delayParamsV[];
 extern UGParam flangerParams[];
@@ -44,11 +45,12 @@ public:
 
 	void SetInput(short index, float value)
 	{
+		DT *pdt = (DT*)this;
 		if (index == UGDLY_INP)
-			inputs[UGDLY_INP] += value;
+			pdt->inputs[UGDLY_INP] += value;
 		else if (index < IP)
-			inputs[index] = value;
-		anyChange |= 1 << index;
+			pdt->inputs[index] = value;
+		pdt->anyChange |= 1 << index;
 	}
 
 	void Stop()
@@ -58,9 +60,10 @@ public:
 
 	void Tick()
 	{
-		out = gen.Sample(inputs[UGDLY_INP] * inputs[UGDLY_VOL]);
-		inputs[UGDLY_INP] = 0.0;
-		Send(out, UGP_GEN);
+		DT *pdt = (DT*)this;
+		pdt->out = pdt->gen.Sample(pdt->inputs[UGDLY_INP] * pdt->inputs[UGDLY_VOL]);
+		pdt->inputs[UGDLY_INP] = 0.0;
+		pdt->Send(pdt->out, UGP_GEN);
 		count -= stopped;
 	}
 };

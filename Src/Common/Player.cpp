@@ -8,6 +8,9 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////////////////
+#if UNIX
+#include <sys/types.h>
+#endif
 #include <math.h>
 #include <SynthDefs.h>
 #include <SynthString.h>
@@ -175,7 +178,6 @@ inline void Player::LeaveCritical()
 
 #if UNIX
 #include <sys/types.h>
-#include <pthread.h>
 
 void Player::CreateMutex()
 {

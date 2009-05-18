@@ -189,6 +189,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_52D92AF0E63548D8861FC167D4CF14A6"
+        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5A66A3516D884F55005BA7939A2AC563"
         "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
         "MsmSig" = "8:_UNDEFINED"
@@ -285,12 +291,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_84A533E035E944F4860CC14C80D0D989"
-        "OwnerKey" = "8:_EB1B17DF2805416D980AAE9BE6497BFA"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8A015CF4747C417B842A61B7DF08351F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -299,6 +299,12 @@
         {
         "MsmKey" = "8:_8E0C916043384C8CA12C0FFC80FD8DFD"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8E2D311C5FB74234A69C74C024DF29A6"
+        "OwnerKey" = "8:_52D92AF0E63548D8861FC167D4CF14A6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -429,12 +435,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EB1B17DF2805416D980AAE9BE6497BFA"
-        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F95B19C151A94907B3CE78AB69BF7B2F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -482,6 +482,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5"
+                    {
+                    "Name" = "8:.NET Framework 3.5"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
         "Release"
@@ -506,6 +519,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5"
+                    {
+                    "Name" = "8:.NET Framework 3.5"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
     }
@@ -2160,7 +2186,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth Composer"
         "ProductCode" = "8:{F41DBB95-DA27-4AA0-8F1C-E0E536E88032}"
-        "PackageCode" = "8:{C3BA38F5-7944-4D3D-A6A5-456D2B00DDFE}"
+        "PackageCode" = "8:{9ACC60E5-CD0D-4C2A-AF45-D678D64A0E90}"
         "UpgradeCode" = "8:{1DF16329-30EA-455D-8985-06DD389ED628}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -2896,11 +2922,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_84A533E035E944F4860CC14C80D0D989"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_52D92AF0E63548D8861FC167D4CF14A6"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -2910,11 +2936,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EB1B17DF2805416D980AAE9BE6497BFA"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8E2D311C5FB74234A69C74C024DF29A6"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
                 "Properties"
                 {
                 }

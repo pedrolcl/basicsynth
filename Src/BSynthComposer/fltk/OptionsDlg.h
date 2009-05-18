@@ -16,6 +16,7 @@ private:
 	Fl_Button *wvinBrowse;
 	Fl_Input *formInp;
 	Fl_Button *formBrowse;
+	Fl_Input *colorsInp;
 	Fl_Input *libsInp;
 	Fl_Button *libsBrowse;
 	Fl_Input *latency;

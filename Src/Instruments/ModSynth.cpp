@@ -191,6 +191,7 @@ UGParam filterParams2[] =
 	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr" },
 	{ -1, 0, 0 }
 };
+
 // used for FIRn and Averaging filters
 UGParam filterParams3[] = 
 {
@@ -291,7 +292,6 @@ UGParam reverbParams[] =
 	{ UGRVB_RVT, UGP_INIT|UGP_SAVE|UGP_LOAD, "rtime" },
 	{ -1, 0, 0 }
 };
-
 
 ModSynthUGType ugTypes[] = 
 {
@@ -500,7 +500,7 @@ int ModSynth::GetParams(VarParamEvent *vp)
 	vp->chnl = chnl;
 	vp->frq = frqParam->GetInput(0);
 	vp->vol = volParam->GetInput(0);
-	vp->duration = durParam->GetInput(0) * synthParams.sampleRate;
+	vp->duration = (bsInt32) (durParam->GetInput(0) * synthParams.sampleRate);
 	ModSynthUG *ug;
 	for (ug = head.next; ug; ug = ug->next)
 	{

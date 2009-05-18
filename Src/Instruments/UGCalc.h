@@ -26,7 +26,7 @@ public:
 
 	const UGParam *GetParamList()
 	{
-		return valueParam;
+		return &valueParam[0];
 	}
 
 	UGValue()

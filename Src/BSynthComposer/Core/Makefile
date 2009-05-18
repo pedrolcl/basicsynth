@@ -10,15 +10,19 @@ EnvelopeWidget.o \
 FileItem.o \
 FMSynthEd.o \
 InstrItem.o \
+KeyboardForm.o \
+KeyboardWidget.o \
 KnobWidget.o \
 LibItem.o \
 MatSynthEd.o \
+ModSynthEd.o \
 MixerEdit.o \
 MixerItem.o \
 NotelistItem.o \
 PathList.o \
 ProjectFrame.o \
 ProjectItem.o \
+SliderWidget.o \
 SubSynthEd.o \
 SwitchWidget.o \
 SynthEdit.o \
@@ -36,7 +40,7 @@ WidgetForm.o
 
 $(CORELIB): $(OBJS)
 	-@rm $@
-	$(AR) r $@ $(OBJS)
+	@$(AR) r $@ $(OBJS)
 
 all: $(CORELIB)
 

@@ -64,8 +64,8 @@ void MixerEdit::Setup(int xo, int yo)
 	numFx = 0;
 	numChnl = 0;
 
-	rca.x = xo;
-	rca.y = yo;
+	rca.x = 0;
+	rca.y = 0;
 	rca.w = 150;
 	rca.h = 250; // actual w, h is set at the bottom
 	mainGroup->SetArea(rca);
@@ -240,8 +240,8 @@ void MixerEdit::Setup(int xo, int yo)
 		inID += 20;
 	}
 
-	rca.x = xo;
-	rca.y = yo;
+	rca.x = 0;
+	rca.y = 0;
 	rca.w = inx + 10;
 	if (iny < masterH)
 		iny = masterH;
@@ -256,6 +256,9 @@ void MixerEdit::Setup(int xo, int yo)
 	delete rootNode;
 	doc.Close();
 
+	// This is for toolkits like FLTK that don't use real windows.
+	if (xo != 0 || yo != 0)
+		MoveTo(xo, yo);
 	GetParams();
 }
 

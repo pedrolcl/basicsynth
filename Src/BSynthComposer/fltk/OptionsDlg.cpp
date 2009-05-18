@@ -69,6 +69,10 @@ ProjectOptionsDlg::ProjectOptionsDlg()
 //	formBrowse->callback(BrowseCB, (void*)&formInp);
 	ypos += txtSpace;
 
+	colorsInp = new Fl_Input(90, ypos, 400, txtHeight, "Colors: ");
+	colorsInp->value(prjOptions.colorsFile);
+	ypos += txtSpace;
+
 	libsInp = new Fl_Input(90, ypos, 400, txtHeight, "Library Files: ");
 	libsInp->value(prjOptions.defLibDir);
 //	libsBrowse = new Fl_Button(470, ypos, 20, txtHeight, "...");
@@ -102,6 +106,7 @@ void ProjectOptionsDlg::OnOK()
 	strcpy(prjOptions.defPrjDir, prjfInp->value());
 	strcpy(prjOptions.defWaveIn, wvinInp->value());
 	strcpy(prjOptions.formsDir, formInp->value());
+	strcpy(prjOptions.colorsFile, colorsInp->value());
 	strcpy(prjOptions.defLibDir, libsInp->value());
 	prjOptions.playBuf = atof(latency->value());
 	doneInput = 1;

@@ -15,10 +15,10 @@
 //////////////////////////////////////////////////////////////////////////
 // Filters
 //////////////////////////////////////////////////////////////////////////
-UGParam filterParams1[];
-UGParam filterParams2[];
-UGParam filterParams3[];
-UGParam allpassParams[];
+extern UGParam filterParams1[];
+extern UGParam filterParams2[];
+extern UGParam filterParams3[];
+extern UGParam allpassParams[];
 
 #define UGFLT_INP  0
 #define UGFLT_FRQ  1
@@ -42,11 +42,12 @@ public:
 
 	void SetInput(short index, float value)
 	{
+		DT *pdt = (DT*)this;
 		if (index == UGFLT_INP)
-			inputs[UGFLT_INP] += value;
+			pdt->inputs[UGFLT_INP] += value;
 		else if (index < IP)
-			inputs[index] = value;
-		anyChange |= 1 << index;
+			pdt->inputs[index] = value;
+		pdt->anyChange |= 1 << index;
 	}
 
 	virtual void Recalc()
@@ -55,29 +56,29 @@ public:
 
 	void Start()
 	{
-		DT *pthis = (DT*)this;
-		pthis->Recalc();
-		gen.Reset(0);
-		crCount = (bsInt32) inputs[UGFLT_CRT];
-		inputs[UGFLT_INP] = 0.0f;
-		out = 0;
+		DT *pdt = (DT*)this;
+		pdt->Recalc();
+		pdt->gen.Reset(0);
+		crCount = (bsInt32) pdt->inputs[UGFLT_CRT];
+		pdt->inputs[UGFLT_INP] = 0.0f;
+		pdt->out = 0;
 	}
 
 	void Tick()
 	{
+		DT *pdt = (DT*)this;
 		if (--crCount <= 0)
 		{
-			crCount = (bsInt32) inputs[UGFLT_CRT];
-			if (anyChange & ((1<<UGFLT_FRQ)|(1<<UGFLT_GAIN)))
+			crCount = (bsInt32) pdt->inputs[UGFLT_CRT];
+			if (pdt->anyChange & ((1<<UGFLT_FRQ)|(1<<UGFLT_GAIN)))
 			{
-				DT *pthis = (DT*)this;
-				pthis->Recalc();
-				anyChange = 0;
+				pdt->Recalc();
+				pdt->anyChange = 0;
 			}
 		}
-		out = gen.Sample(inputs[0]);
-		inputs[0] = 0;
-		Send(out, UGP_GEN);
+		pdt->out = pdt->gen.Sample(pdt->inputs[0]);
+		pdt->inputs[0] = 0;
+		pdt->Send(pdt->out, UGP_GEN);
 	}
 };
 
