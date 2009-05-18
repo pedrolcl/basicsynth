@@ -15,10 +15,13 @@ include ../BasicSynth.cfg
 
 BSMODULES= \
 core \
-fltk
+fltkx
 
-all: $(BSMODULES)
+all: chkdirs $(BSMODULES)
 	@echo BSynthComposer done
+
+chkdirs:
+	test -d Lib || mkdir Lib
 
 clean:
 	cd Core; make clean
@@ -27,5 +30,5 @@ clean:
 core:
 	cd Core; make $(MAKEFLAGS)
 
-fltk:
+fltkx:
 	cd fltk; make $(MAKEFLAGS)

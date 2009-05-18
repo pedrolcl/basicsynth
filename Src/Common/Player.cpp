@@ -177,7 +177,7 @@ inline void Player::LeaveCritical()
 #endif
 
 #if UNIX
-#include <sys/types.h>
+#include <pthread.h>
 
 void Player::CreateMutex()
 {
