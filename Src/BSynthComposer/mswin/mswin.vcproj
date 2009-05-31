@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib  ../../../Lib/SciLexerD.lib Htmlhelp.lib "
+				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib Htmlhelp.lib"
 				OutputFile="../../../Bin/BSynthComposerD.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -165,7 +165,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/Core64D.lib ../../../Libx64/CommonD.lib ../../../Libx64/InstrumentsD.lib ../../../Libx64/NotelistD.lib  ../../../Libx64/SciLexerD.lib  Htmlhelp.lib "
+				AdditionalDependencies="../Lib/Core64D.lib ../../../Libx64/CommonD.lib ../../../Libx64/InstrumentsD.lib ../../../Libx64/NotelistD.lib Htmlhelp.lib"
 				OutputFile="../../../Binx64/BSynthComposerD.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -251,7 +251,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib  ../../../Lib/SciLexer.lib  Htmlhelp.lib "
+				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib Htmlhelp.lib"
 				OutputFile="../../../Bin/BSynthComposer.exe"
 				LinkIncremental="1"
 				SubSystem="2"
@@ -337,7 +337,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/Core64.lib ../../../Libx64/Common.lib ../../../Libx64/Instruments.lib ../../../Libx64/Notelist.lib  ../../../Libx64/SciLexer.lib  Htmlhelp.lib "
+				AdditionalDependencies="../Lib/Core64.lib ../../../Libx64/Common.lib ../../../Libx64/Instruments.lib ../../../Libx64/Notelist.lib Htmlhelp.lib"
 				OutputFile="../../../Binx64/BSynthComposer.exe"
 				LinkIncremental="1"
 				SubSystem="2"

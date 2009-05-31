@@ -12,11 +12,13 @@ class KeyboardForm : public WidgetForm
 {
 private:
 	KeyboardWidget *kbd;
+	SynthWidget *startStop;
 
 public:
 	KeyboardForm()
 	{
 		kbd = 0;
+		startStop = 0;
 	}
 
 	KeyboardWidget *GetKeyboard()

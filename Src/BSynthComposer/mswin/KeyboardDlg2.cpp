@@ -121,27 +121,45 @@ void KeyboardDlg2::Load()
 	if (SynthWidget::colorMap.Find("bg", clr))
 		bgColor.SetValue((ARGB)clr);
 	bsString fileName;
-	theProject->FindForm(fileName, "KeyboardEd.xml");
-	form->Load(fileName, 0, 0);
-	SynthWidget *wdg = form->GetInstrList();
-	wdgRect a = wdg->GetArea();
-	wdg->Remove();
-	delete wdg;
-	instrList.SetWindowPos(NULL, a.x, a.y, a.w, a.h, SWP_NOZORDER|SWP_NOACTIVATE);
-	instrList.ShowWindow(SW_SHOW);
-	if (instrList.GetCount() > 0)
+	if (!theProject->FindForm(fileName, "KeyboardEd.xml"))
 	{
-		instrList.SetCurSel(0);
-		InstrConfig *ic = (InstrConfig*)instrList.GetItemDataPtr(0);
-		form->GetKeyboard()->SetInstrument(ic);
+		prjFrame->Alert("Could not locate keyboard KeyboardEd.xml!", "Huh?");
 	}
-
-	int cx = 200;
-	int cy = 100;
-	form->GetSize(cx, cy);
-	cx += 10;
-	cy += 10;
-	SetWindowPos(NULL, 0, 0, cx, cy, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
+	else
+	{
+		wdgRect a;
+		if (form->Load(fileName, 0, 0) == 0)
+		{
+			SynthWidget *wdg = form->GetInstrList();
+			if (wdg)
+			{
+				a = wdg->GetArea();
+				wdg->Remove();
+				delete wdg;
+			}
+			instrList.SetWindowPos(NULL, a.x, a.y, a.w, a.h, SWP_NOZORDER|SWP_NOACTIVATE);
+			instrList.ShowWindow(SW_SHOW);
+			if (instrList.GetCount() > 0)
+			{
+				instrList.SetCurSel(0);
+				InstrConfig *ic = (InstrConfig*)instrList.GetItemDataPtr(0);
+				form->GetKeyboard()->SetInstrument(ic);
+			}
+			int cx = 200;
+			int cy = 100;
+			form->GetSize(cx, cy);
+			cx += 10;
+			cy += 10;
+			SetWindowPos(NULL, 0, 0, cx, cy, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
+		}
+		else
+		{
+			bsString msg;
+			msg = "Could not load keyboard form: ";
+			msg += fileName;
+			prjFrame->Alert(msg, "Huh?");
+		}
+	}
 }
 
 LRESULT KeyboardDlg2::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

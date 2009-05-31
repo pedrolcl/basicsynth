@@ -13,25 +13,44 @@ int KeyboardForm::Load(const char *fileName, int xo, int yo)
 {
 	SynthWidget *wdg;
 
+	float defvol = 1.0f;
+	int defchnl = 0;
+	int defrhy = 4;
+	int defacc = 1;
+
+	kbd = 0;
+	startStop = 0;
 	mainGroup->Clear();
-	WidgetForm::Load(fileName, xo, yo);
+	if (WidgetForm::Load(fileName, xo, yo) != 0)
+		return -1;
+	// Because the form is loaded from a file and the user
+	// may have "customized" it, we have to check each widget
+	// to make sure it exists. 
 	kbd = (KeyboardWidget*)mainGroup->FindID(2);
+	if (kbd)
+	{
+		kbd->SetVolume(defvol);
+		kbd->SetChannel(defchnl);
+		kbd->SetDuration(defrhy);
+		kbd->SetRecSharps(defacc);
+	}
+	startStop = mainGroup->FindID(30);
 
 	wdg = mainGroup->FindID(22); // volume
-	wdg->SetValue(1.0f);
-	kbd->SetVolume(1.0f);
+	if (wdg)
+		wdg->SetValue(defvol);
 
 	wdg = mainGroup->FindID(25); // channel
-	wdg->SetValue(0.0f);
-	kbd->SetChannel(0);
+	if (wdg)
+		wdg->SetValue((float)defchnl);
 
 	wdg = mainGroup->FindID(31); // rhythm
-	wdg->SetValue(4);
-	kbd->SetDuration(4);
+	if (wdg)
+		wdg->SetValue(defrhy);
 
 	wdg = mainGroup->FindID(39); // sharps/flats
-	wdg->SetValue(1);
-	kbd->SetRecSharps(1);
+	if (wdg)
+		wdg->SetValue(defacc);
 
 	return 0;
 }
@@ -40,9 +59,11 @@ int KeyboardForm::Start()
 {
 	if (theProject)
 	{
-		SynthWidget *wdg = mainGroup->FindID(30);
-		wdg->SetState(1);
-		Redraw(wdg);
+		if (startStop)
+		{
+			startStop->SetState(1);
+			Redraw(startStop);
+		}
 		return theProject->Start();
 	}
 	return 0;
@@ -52,9 +73,11 @@ int KeyboardForm::Stop()
 {
 	if (theProject)
 	{
-		SynthWidget *wdg = mainGroup->FindID(30);
-		wdg->SetState(0);
-		Redraw(wdg);
+		if (startStop)
+		{
+			startStop->SetState(0);
+			Redraw(startStop);
+		}
 		return theProject->Stop();
 	}
 	return 0;
@@ -66,7 +89,8 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 	switch (wdg->GetID())
 	{
 	case 22: // volume
-		kbd->SetVolume(wdg->GetValue());
+		if (kbd)
+			kbd->SetVolume(wdg->GetValue());
 		break;
 	case 26:
 		wdg = mainGroup->FindID(25);
@@ -74,12 +98,14 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 		m = theProject->mixInfo->GetMixerInputs();
 		if (++n >= m)
 			n = 0;
-		kbd->SetChannel(n);
+		if (kbd)
+			kbd->SetChannel(n);
 		wdg->SetValue((float)n);
 		Redraw(wdg);
 		break;
 	case 31: // rhythm
-		kbd->SetDuration(wdg->GetValue());
+		if (kbd)
+			kbd->SetDuration(wdg->GetValue());
 		break;
 	case 30: // player on/off
 		if (theProject)
@@ -93,16 +119,20 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 			wdg->SetState(0);
 		break;
 	case 37:
-		kbd->SetRecord(wdg->GetState());
+		if (kbd)
+			kbd->SetRecord(wdg->GetState());
 		break;
 	case 38:
-		kbd->SetRecGroup(wdg->GetState());
+		if (kbd)
+			kbd->SetRecGroup(wdg->GetState());
 		break;
 	case 39:
-		kbd->SetRecSharps((int)wdg->GetValue());
+		if (kbd)
+			kbd->SetRecSharps((int)wdg->GetValue());
 		break;
 	case 42:
-		kbd->CopyNotes();
+		if (kbd)
+			kbd->CopyNotes();
 		break;
 	case 44:
 		// pop-up generate and route to speaker

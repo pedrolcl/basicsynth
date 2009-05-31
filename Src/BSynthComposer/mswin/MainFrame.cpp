@@ -70,8 +70,11 @@ BOOL MainFrame::OnIdle()
 	return FALSE;
 }
 
+static int loadingMain = 0;
+
 LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	loadingMain = 1;
 	_Module.mainWnd = m_hWnd;
 	LoadString(_Module.GetResourceInstance(), IDS_PRODUCT, _Module.ProductName, 80);
 	prjOptions.Load();
@@ -140,6 +143,8 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 	rcKbd.bottom = 250;
 	kbdWnd.Create(m_hWnd, rcKbd, "", WS_CHILD|WS_BORDER|WS_CLIPCHILDREN, 0, 9);
 	kbdWnd.GetClientRect(&rcKbd);
+	if (!kbdWnd.IsWindow())
+		MessageBox("Didn't create keyboard!", "");
 
 	RECT rcSplit;
 	rcSplit.left = 0;
@@ -147,9 +152,15 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 	rcSplit.right = rcMain.right;
 	rcSplit.bottom = rcMain.bottom - rcKbd.bottom;
 	m_hWndClient = splitTop.Create(m_hWnd, rcSplit, "client", WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_BORDER, 0);
+	if (m_hWndClient == NULL)
+		MessageBox("Didn't create splitter!", "");
 	splitTop.SetSplitterExtendedStyle(0, SPLIT_PROPORTIONAL);
 	prjList.Create(splitTop, rcDefault, "list", WS_CHILD | WS_BORDER | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE, ID_PROJECT_LIST);
+	if (!prjList.IsWindow())
+		MessageBox("Didn't create project list!", "");
 	tabView.Create(splitTop, rcDefault, "tabber", WS_CHILD | WS_BORDER | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE, ID_TAB_WND);
+	if (!tabView.IsWindow())
+		MessageBox("Didn't create tab view!", "");
 	splitTop.SetSplitterPanes(prjList, tabView, false);
 	splitTop.SetSplitterPos(200, 1); //Pct(15);
 
@@ -175,6 +186,7 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 	tabView.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 	//tabView.SetTitleBarWindow(m_hWnd);
 
+	loadingMain = 0;
 	return 0;
 }
 
@@ -194,12 +206,16 @@ void MainFrame::EnablePanes()
 
 void MainFrame::UpdateLayout(BOOL bResizeBars)
 {
+	// we get bunches of irrelevant calls here during window creation.
+	if (loadingMain)
+		return;
+
 	RECT rect = { 0 };
 	GetClientRect(&rect);
 
 	// position bars and offset their dimensions
 	UpdateBarsPosition(rect, bResizeBars);
-	if (bVisible & KEYBOARD_PANE)
+	if (kbdWnd.IsWindow() && (bVisible & KEYBOARD_PANE))
 	{
 		RECT kbrect = { 0 };
 		kbdWnd.GetWindowRect(&kbrect);
@@ -250,7 +266,10 @@ void MainFrame::AfterOpenProject()
 		errWnd->Clear();
 
 	if (!theProject)
+	{
+		MessageBox("No project after open project!", "Huh?", MB_OK);
 		return; // huh?
+	}
 
 	kbdWnd.Load();
 
