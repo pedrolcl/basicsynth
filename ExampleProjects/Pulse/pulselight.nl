@@ -969,7 +969,7 @@ begin
 
 ! 1:36
 	R, 5.48;
-	vol 180;
+	vol 140;
 	transpose 0;
 ! total=9.52 secs.
 	play "the light shineth in darkness";
@@ -977,7 +977,7 @@ begin
 ! 1:52
 	R, 4.76;
 ! total=11.24 secs.
-	vol 200;
+	vol 140;
 	transpose 5;
 	play "the darkness comprehended it not";
 ! 2:08
@@ -1061,7 +1061,7 @@ begin
 	play "children of light";
 ! 3:20
 	transpose 0;
-	vol 400;
+	vol 300;
 	R, 5.48;
 ! total=14.52 secs.
 	play "what communion hath light with darkness";
@@ -1082,7 +1082,7 @@ begin
 	param 1, 0.001;
 	param 2, 1.0;
 	transpose -12;
-	vol 600;
+	vol 500;
 	R, 196;
 ! 3:16
 	R, 188;
