@@ -13,16 +13,25 @@
 
 #pragma once
 
-/// nlFunctionData holds values for a built-in function
+/// @brief Values for builtin functions
+/// @details Builtin functions are line, exponential, logarithmic, and randome.
+/// Each time the function is invoked, the next value in the series is returned.
+/// This structure holds the values used to calculate the series.
 /// For LINE:
+/// @code
 /// y = a * x + c
+/// @endcode
 /// For EXP or LOG:
+/// @code
 /// y = a * x^b + c
 /// x = n * 1/d
 /// b = flatness of curve, exp or log
+/// @code
 /// For both:
+/// @code
 /// a = end - start
 /// c = start
+/// @endcode
 class nlFunctionData
 {
 public:
@@ -75,9 +84,10 @@ enum vType
 	vtReal
 };
 
-/// variant value class.
-/// This can store string, integer or real
-/// and provides automatic type conversion.
+/// @brief variant value class.
+/// @details The nlVarValue can store string, integer or real
+/// and provides automatic type conversion. The expression
+/// stack uses this type. All script nodes are also value nodes.
 class nlVarValue
 {
 public:
@@ -113,7 +123,8 @@ public:
 	virtual int  Compare(nlVarValue *v);
 };
 
-/// A symbol table entry
+/// A symbol table entry.
+/// A symbol consists of a name and a value.
 class nlSymbol : public nlVarValue
 {
 public:
@@ -141,6 +152,8 @@ struct nlSyncMark
 	nlSyncMark *next;
 };
 
+/// Holder for note data: pitch, rhythm, volume, and parameter
+/// The value is a dynamic array to support the group notation {...}
 class nlNoteData
 {
 public:
@@ -167,6 +180,7 @@ public:
 		delete[] values;
 	}
 
+	/// Initialize with a single integer value
 	void InitSingle(long n)
 	{
 		simul = 0;
@@ -180,6 +194,7 @@ public:
 		values->SetValue(n);
 	}
 
+	/// Initialize with a single floating point value
 	void InitSingle(double n)
 	{
 		simul = 0;
@@ -193,11 +208,26 @@ public:
 		values->SetValue(n);
 	}
 
+	/// Exec fills in the note data.
+	/// If the script node is a group, an array
+	/// of the group size is allocated and filled in.
+	/// Otherwise, a single value is set. On exit,
+	/// the index is reset to 0.
 	nlScriptNode *Exec(nlScriptNode *p);
+	/// Return the next value.
+	/// This increments the index until
+	/// all values are processed and then
+	/// continues to return the last value.
 	int GetNextValue(double *d);
 	int GetNextValue(long *n);
 };
 
+/// @brief A sequence of statements.
+/// @details A sequence is a linked list of script nodes to be
+/// executed in order. Sequence is used in several places
+/// by script nodes. Each voice has a sequence of statements.
+/// A PLAY object has a callable sequence. IF and WHILE
+/// statements use a sequence to contain the nodes controlled by the condition.
 class nlSequence
 {
 	nlVarValue id;
@@ -346,6 +376,7 @@ public:
 	}
 };
 
+/// A node representing a change in voice.
 class nlVoiceNode : public nlScriptNode
 {
 public:
@@ -357,6 +388,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// A node representing a BEGIN...END block
 class nlBlockNode : public nlScriptNode
 {
 public:
@@ -367,6 +399,10 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Tempo nodes set the current tempo.
+/// The tempo values are stored in the voice
+/// and used to convert rhythm values into
+/// time values.
 class nlTempoNode : public nlScriptNode
 {
 public:
@@ -378,6 +414,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// The time node moves the current time for the current voice.
 class nlTimeNode : public nlScriptNode
 {
 public:
@@ -388,6 +425,9 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Mark a place in the score. 
+/// The mark value is stored in a list
+/// in the current voice (synclist). 
 class nlMarkNode : public nlScriptNode
 {
 public:
@@ -398,6 +438,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Sync to a mark in the score
 class nlSyncNode : public nlScriptNode
 {
 public:
@@ -408,6 +449,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+// Change the instrument for the current voice.
 class nlInstnumNode : public nlScriptNode
 {
 public:
@@ -418,6 +460,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+// Change the channel for the current voice.
 class nlChnlNode : public nlScriptNode
 {
 public:
@@ -428,7 +471,11 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
-
+/// Generate a note event.
+/// A "note" can be a single event, a group of events, or a chord.
+/// The note node calculates the start time and duration for the
+/// event, builds the parameter list, and then calls the converter
+/// to output the event.
 class nlNoteNode : public nlScriptNode
 {
 private:
@@ -454,6 +501,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Evaluate an expression.
 class nlExprNode : public nlScriptNode
 {
 public:
@@ -465,6 +513,8 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// A rhythm value. The value stored in the node
+/// is converted to time using the current tempo.
 class nlDurNode : public nlScriptNode
 {
 private:
@@ -485,6 +535,9 @@ public:
 	}
 };
 
+/// Conditionally execute a sequence.
+/// The condition is the expression node
+/// immediately following the IF node.
 class nlIfNode : public nlScriptNode
 {
 private:
@@ -509,6 +562,9 @@ public:
 	virtual nlScriptNode* Exec();
 };
 
+/// Execute a sequence while a condition is true.
+/// The condition is the expression node
+/// immediately following the WHILE node.
 class nlWhileNode : public nlScriptNode
 {
 private:
@@ -528,6 +584,7 @@ public:
 	virtual nlScriptNode* Exec();
 };
 
+/// Loop a sequence.
 class nlLoopNode : public nlScriptNode
 {
 private:
@@ -546,6 +603,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Write a message to the console during generation.
 class nlWriteNode: public nlScriptNode
 {
 public:
@@ -556,6 +614,9 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Set the volume level for the voice.
+/// The voice volume is combined with the note
+/// volume to produce the volume level for each event.
 class nlVolumeNode : public nlScriptNode
 {
 public:
@@ -566,6 +627,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Transpose all notes following.
 class nlTransposeNode : public nlScriptNode
 {
 public:
@@ -576,6 +638,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Double all notes at the given transposition.
 class nlDoubleNode : public nlScriptNode
 {
 public:
@@ -586,6 +649,15 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Play a sequence.
+/// A sequence holds a list of statements
+/// that can be invoked by name, 
+/// similar to a subroutine call. The class holds
+/// the script nodes that make up the sequence. When
+/// the sequence is played, the object pushes the current
+/// note list and plays its own note list, then pops the
+/// original notelist back. The push/pop is effected by
+/// calling Play on the sequence.
 class nlPlayNode : public nlScriptNode
 {
 public:
@@ -596,6 +668,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Initialize a function generator.
 class nlInitFnNode : public nlScriptNode
 {
 public:
@@ -606,6 +679,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Set the articulation for the current voice.
 class nlArticNode : public nlScriptNode
 {
 public:
@@ -626,6 +700,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Map instrument parameters.
 class nlMapNode : public nlScriptNode
 {
 public:
@@ -636,6 +711,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Set the maximum number of retained parameters.
 class nlMaxParamNode : public nlScriptNode
 {
 public:
@@ -646,6 +722,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Call a script engine.
 class nlCallNode : public nlScriptNode
 {
 public:
@@ -656,7 +733,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
-
+/// Assign a value to a variable.
 class nlSetNode : public nlScriptNode
 {
 private:
@@ -676,6 +753,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// A variable.
 class nlVarNode : public nlScriptNode
 {
 private:
@@ -695,6 +773,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Set options for the generator.
 class nlOptNode : public nlScriptNode
 {
 public:
@@ -705,6 +784,7 @@ public:
 	virtual nlScriptNode *Exec();
 };
 
+/// Generate events for dynamic mixer operations.
 class nlMixerNode : public nlScriptNode
 {
 private:

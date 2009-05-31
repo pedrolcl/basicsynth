@@ -187,3 +187,31 @@ int SynthFileExists(const char *fname)
 		return 1;
 	return 0;
 }
+
+int SynthCopyFile(const char *oldName, const char *newName)
+{
+	int fdin = open(oldName, O_RDONLY);
+	if (fdin < 0)
+		return -1;
+	int fdout = open(fname, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+	if (fdout < 0)
+	{
+		close(fdin);
+		return -1;
+	}
+
+	char *buf = new char[32768];
+	int nread;
+	while ((nread = read(fdin, buf, 32768)) > 0)
+	{
+		if (write(fdout, buf, nread) != nread)
+			break;
+	}
+	close(fdin);
+	close(fdout);
+	delete buf;
+	if (nread == 0)
+		return 0;
+	return -1;
+}
+

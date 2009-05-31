@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Base class for widgets used to edit instruments.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "WindowTypes.h"
 #include "SynthWidget.h"
@@ -474,6 +482,7 @@ int WidgetGroup::EnumUp(WGCallback cb, void *arg)
 	return cb(this, arg);
 }
 
+/////////////////////////////////////////////////////////////
 
 WidgetColorEntry *WidgetColorEntry::Match(const char *nm)
 {
@@ -540,6 +549,7 @@ void WidgetColorMap::Load(const char *file)
 		doc.Close();
 	}
 
+	// Set the global switch shadings
 	if (!Find("swuphi", SwitchWidget::swuphi))
 		SwitchWidget::swuphi = 0xffb4b4b4;
 	if (!Find("swuplo", SwitchWidget::swuplo))

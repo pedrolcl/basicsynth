@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project items that represent a mixer or effects unit.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
 #include "MixerEdit.h"
@@ -325,6 +333,14 @@ int MixerItem::ItemProperties()
 	}
 
 	return 1;
+}
+
+int MixerItem::ItemActions()
+{
+	int actEnable = actions;
+	if (mixEdit)
+		actEnable |= ITM_ENABLE_CLOSE|ITM_ENABLE_SAVE;
+	return actEnable;
 }
 
 int MixerItem::SaveItem()

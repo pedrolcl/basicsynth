@@ -11,6 +11,11 @@
 		<param name="Local" value="instruments.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Libraries">
+		<param name="Name" value="Instrument Libraries">
+		<param name="Local" value="libraries.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="ToneInstr">
 		<param name="Name" value="Tone Instrument">
 		<param name="Local" value="toneinstr.html">

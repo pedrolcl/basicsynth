@@ -1,6 +1,19 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef KEYBOARD_WIDGET_H
 #define KEYBOARD_WIDGET_H
 
+/// Virtual keyboard widget.
+/// This widget displays a piano keyboard and generates events
+/// when keys are pressed or released. It also can record
+/// key presses and releases. The "time" for the press, however,
+/// is set by the current duration value, not actual time. Thus
+/// it implements a "step" input recording.
+/// 
 class KeyboardWidget : public SynthWidget
 {
 private:

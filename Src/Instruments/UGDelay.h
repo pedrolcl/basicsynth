@@ -12,7 +12,6 @@
 #ifndef UG_DELAY_H
 #define UG_DELAY_H
 
-// gcc compiler cannot handle this:
 extern UGParam delayParams[];
 extern UGParam delayParamsV[];
 extern UGParam flangerParams[];
@@ -26,6 +25,7 @@ extern UGParam reverbParams[];
 #define UGDLY_MAX  4
 #define UGDLY_MAXV 5
 
+/// Template for delay lines
 template <class DT, class UG, short IP = 1>
 class ModSynthDlyImpl : public ModSynthUGImpl<DT, UG, IP>
 {
@@ -68,6 +68,10 @@ public:
 	}
 };
 
+/// @brief Delay line
+/// @details The Delay UG implements a plain delay line. The
+/// decay parameter represents the attenuation (loss of amplitude)
+/// for the whole delay time.
 class UGDelay : public ModSynthDlyImpl<UGDelay, DelayLine, UGDLY_MAX>
 {
 public:
@@ -103,6 +107,9 @@ public:
 
 };
 
+/// @brief Feedback delay line
+/// @details The DelayR UG implements a feedback delay line. The
+/// decay parameter represents the time to decay to -60db
 class UGDelayR : public ModSynthDlyImpl<UGDelayR, DelayLineR, UGDLY_MAX>
 {
 public:
@@ -137,7 +144,11 @@ public:
 	}
 };
 
-
+/// @brief Variable delay line
+/// @details The Variable delay UG implements a delay line with a 
+/// varying delay time. The delay parameter sets the maximum delay
+/// time in seconds. The decay parameter represents the time to
+/// decay to -60db
 class UGDelayV : public ModSynthDlyImpl<UGDelayV, DelayLineV, UGDLY_MAXV>
 {
 public:
@@ -201,6 +212,10 @@ public:
 #define UGRVB_RVT 2
 #define UGRVB_MAX 3
 
+/// @brief Reverb implements a Schroeder reverb.
+/// @details A Schroeder reverb contains four comb filters
+/// and two allpass filters. This ug only allows the reverb time
+/// and amplitude to be varied. The loop times are fixed.
 class UGReverb : public ModSynthUGImpl<UGReverb, Reverb2, UGRVB_MAX>
 {
 private:
@@ -277,6 +292,8 @@ public:
 #define UGFLNG_SWP  6
 #define UGFLNG_MAX  7
 
+/// @brief Flanger unit
+/// @details The Flanger UG provides an interface to the Flanger class.
 class UGFlanger : public ModSynthUGImpl<UGFlanger, Flanger, UGFLNG_MAX>
 {
 private:

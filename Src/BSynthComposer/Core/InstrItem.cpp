@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project item that represents an instrument configuration.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
 #include "SynthEdit.h"
@@ -9,6 +17,14 @@
 #include "WFSynthEd.h"
 #include "ChufferEd.h"
 #include "ModSynthEd.h"
+
+int InstrItem::ItemActions()
+{
+	int actEnable = actions;
+	if (editor)
+		actEnable |= ITM_ENABLE_CLOSE;
+	return actEnable;
+}
 
 int InstrItem::EditItem()
 {
@@ -28,6 +44,7 @@ int InstrItem::CloseItem()
 {
 	return prjFrame->CloseEditor(this);
 }
+
 int InstrItem::ItemProperties()
 {
 	int ok = 0;
@@ -52,7 +69,7 @@ int InstrItem::LoadProperties(PropertyBox *pb)
 	}
 	else
 	{
-		pb->SetValue(PROP_INUM, (long) NextInum(), 0);
+		pb->SetValue(PROP_INUM, (long) InstrList::NextInum(), 0);
 		if (copyOf && copyOf->inc)
 			pb->SetSelection(PROP_ITYP, (void*)copyOf->inc->instrType);
 		else
@@ -146,11 +163,19 @@ int InstrItem::RemoveItem()
 	msg += '?';
 	if (prjFrame->Verify(msg, "Wait...") == 1)
 	{
-		prjFrame->InstrRemoved(inc);
+		RemoveInstr();
 		theProject->SetChange(1);
 		return 1;
 	}
 	return 0;
+}
+
+void InstrItem::RemoveInstr()
+{
+	prjFrame->InstrRemoved(inc);
+	inc->Remove();
+	delete inc;
+	inc = 0;
 }
 
 WidgetForm *InstrItem::CreateForm(int xo, int yo)
@@ -217,18 +242,6 @@ int InstrItem::Save(XmlSynthElem *node)
 	return 0;
 }
 
-int InstrItem::NextInum()
-{
-	int inum = 1;
-	InstrConfig *icnew = 0;
-	while ((icnew = theProject->mgr.EnumInstr(icnew)) != 0)
-	{
-		if (icnew->inum >= inum)
-			inum = icnew->inum+1;
-	}
-	return inum;
-}
-
 ////////////////////////////////////////////////////////////////
 
 int InstrList::Load(XmlSynthElem *node)
@@ -289,3 +302,26 @@ int InstrList::NewItem()
 	delete inew;
 	return 0;
 }
+
+int InstrList::NextInum()
+{
+	int inum = 1;
+	InstrConfig *ic = 0;
+	ProjectItem *pi = prjTree->FirstChild(theProject->instrInfo);
+	while (pi)
+	{
+		if (pi->GetType() == PRJNODE_INSTR)
+		{
+			InstrItem *ii = (InstrItem *) pi;
+			ic = ii->GetConfig();
+			if (ic && ic->inum < 16384 && ic->inum >= inum)
+				inum = ic->inum+1;
+		}
+		pi = prjTree->NextSibling(pi);
+	}
+	// check against library values...
+	while ((ic = theProject->mgr.FindInstr(inum)) != 0)
+		inum++;
+	return inum;
+}
+

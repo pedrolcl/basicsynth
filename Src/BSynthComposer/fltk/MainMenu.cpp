@@ -13,22 +13,17 @@ static void prjcbOpen(Fl_Widget*, void* v)
 
 static void prjcbSave(Fl_Widget*, void* v)
 {
-	prjFrame->SaveProject(0);
+	prjFrame->SaveProject();
 }
 
 static void prjcbSaveAs(Fl_Widget*, void* v)
 {
-	prjFrame->SaveProject(1);
+	prjFrame->SaveProjectAs();
 }
 
 static void prjcbSaveFile(Fl_Widget*, void* v)
 {
 	prjFrame->SaveFile();
-}
-
-static void prjcbSaveFileAs(Fl_Widget*, void* v)
-{
-	// TODO:
 }
 
 static void prjcbCloseFile(Fl_Widget*, void* v)

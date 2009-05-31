@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef WINDOWTYPES_H
 #define WINDOWTYPES_H
 
@@ -7,6 +13,11 @@ class SynthWidget;
 
 typedef void* DrawContext;
 
+/// GenerateWindow defines the interface for wave file generation dialog.
+/// This dialog provides feedback to the user during wave file generation.
+/// This does not have to be a "window" but could write output to the
+/// console, or to a log file. The WasCanceled() function allows the 
+/// wave file generator to poll the user to cancel the generation.
 class GenerateWindow
 {
 public:
@@ -34,6 +45,7 @@ public:
 #define PRJ_ENABLE_TEXT    4
 #define PRJ_ENABLE_LIBS    5
 
+/// EditorView defines the generic interface to one editor window.
 class EditorView
 {
 private:
@@ -79,6 +91,7 @@ struct SelectInfo
 #define TXTFIND_WORDSTART 4
 #define TXTFIND_REGEXP    8
 
+/// TextEditor specializes EditorView for editing text files (e.g., Notelists).
 class TextEditor : public EditorView
 {
 public:
@@ -95,6 +108,8 @@ public:
 	virtual void SetSelection(SelectInfo& sel) = 0;
 };
 
+/// FormEditor specializes EditorView for editing instruments and 
+/// anything else that uses a WidgetForm to display the editor.
 class FormEditor : public EditorView
 {
 public:
@@ -108,6 +123,7 @@ public:
 	virtual SynthWidget *SystemWidget(const char *type) = 0;
 };
 
+// Generic property page IDS
 #define PROP_NAME  1
 #define PROP_DESC  2
 #define PROP_FILE  3
@@ -116,17 +132,16 @@ public:
 #define PROP_ITYP  6
 #define PROP_ILST  7
 #define PROP_WVID  8
-#define PROP_LPST  9
-#define PROP_LPEND 10
-#define PROP_REN   11
-#define PROP_ERR   12
+#define PROP_REN   9
 
+// Mixer property page IDs
 #define PROP_MIX_CHNL 1
 #define PROP_MIX_PLIN 2
 #define PROP_MIX_PTRG 3
 #define PROP_MIX_PSQR 4
 #define PROP_MIX_FX   5
 
+// Effects unit property page IDs
 #define PROP_FX_VOL 3
 #define PROP_FX_PAN 4
 #define PROP_FX_V1  5
@@ -135,6 +150,7 @@ public:
 #define PROP_FX_V4  8
 #define PROP_FX_V5  9
 
+// Project property page IDs
 #define PROP_PRJ_NAME 1
 #define PROP_PRJ_AUTH 2
 #define PROP_PRJ_CPYR 3
@@ -149,6 +165,7 @@ public:
 #define PROP_PRJ_WTU  12
 #define PROP_PRJ_WVIN 13
 
+/// PropertyBox defines the interface for a properties page
 class PropertyBox
 {
 public:
@@ -176,6 +193,7 @@ public:
 	virtual ProjectItem *GetListItem(int id, int ndx) = 0;
 };
 
+/// ProjectTree defines the interface to the list of project items.
 class ProjectTree
 {
 public:
@@ -190,6 +208,13 @@ public:
 	virtual ProjectItem *GetSelectedNode() = 0;
 };
 
+/// ProjectFrame defines the base clas for the frame window.
+/// The frame window (not necessarily a graphic window) provides
+/// the general functions for the project. Much
+/// of the ProjectFrame functionality is implemted in this class.
+/// Platform specific functions are pure-virtual and must be
+/// implemented by the platform dependent code. A typical implementation
+/// passes menu/toolbar callbacks to one of the base class functions. 
 class ProjectFrame
 {
 public:
@@ -201,9 +226,11 @@ public:
 	virtual ~ProjectFrame();
 	virtual int NewProject();
 	virtual int OpenProject(const char *fname);
-	virtual int SaveProject(int saveas);
+	virtual int SaveProject();
+	virtual int SaveProjectAs();
 	virtual int CloseProject(int query);
 	virtual int SaveFile();
+	virtual void SaveBackup();
 	virtual int CloseFile();
 	virtual void GenerateStarted();
 	virtual void GenerateFinished();
@@ -260,8 +287,11 @@ public:
 	virtual void Generate(int autoStart, int todisk) = 0;
 };
 
+/// Global project frame object
 extern ProjectFrame *prjFrame;
+/// Global project item list object.
 extern ProjectTree *prjTree;
+/// Global wave generate dialog.
 extern GenerateWindow *prjGenerate;
 
 #endif

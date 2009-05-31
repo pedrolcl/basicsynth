@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "Stdafx.h"
 #include "resource.h"
 #include "ProjectItemDlg.h"
@@ -34,6 +40,7 @@ int EffectsSetupDlg::GetLabelID(int id, int& idval)
 	}
 	return 0;
 }
+
 LRESULT EffectsSetupDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	if (pi == NULL)

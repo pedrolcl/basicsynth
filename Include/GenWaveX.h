@@ -535,24 +535,22 @@ public:
 /// f(t) = ---- * ((--------------------------) - 1)
 ///         2N            cos(PI*fo*t)
 /// @endcode
-/// to produces a bandwidth limited pulse wave.
+/// This produces a bandwidth limited pulse wave with peak amplitude A.
+/// In this implementation, A is always 1.
 /// The number of harmonics (N) is a settable parameter. 
 /// A higher number of harmonics produces a narrower pulse.
-/// The number of harmonics cannot be reliably changed
-/// after initialization.
-/// When the denominator (sin x) is 0, then
+/// When the denominator sin(x) is 0, then
 /// we can't use the first form, but we can use the cos() form.
-/// Note, however that when sin(x) = 0, then cos(x) = 1 
-/// and we don't need to calculate the divisor.
-/// In addition, the phase of the numerator is an integer
-/// multiple of the phase of the denominator, and we know
-/// the phase must be 0 or some multiple of PI also.
-/// do the math...
+/// However, we know that when sin(x) = 0, then cos(x) = 1. 
+/// In addition, sin(x) = 0 only when the phase is some multiple of PI.
+/// Since phase of the numerator is an integer
+/// multiple of the phase of the denominator, we know
+/// the phase must be 0 or some multiple of PI also. Thus:
 /// @code
-/// x = A/2N * (((2N+1)*cos(0)/cos(0)) - 1)
-/// x = A/2N * (((2N+1)*1/1) - 1)
-/// x = A/2N * 2N
-/// x = 1.0
+/// f(t) = A/2N * (((2N+1)*cos(0)/cos(0)) - 1)
+/// f(t) = A/2N * (((2N+1)*1/1) - 1)
+/// f(t) = A/2N * 2N
+/// f(t) = A = 1
 /// @endcode
 /// See: Computer Music, Dodge&Jerse, chapter 5.3a
 /// and http://www.cs.sfu.ca/~tamaras/
@@ -563,31 +561,21 @@ public:
 class GenWaveBuzz : public GenWave
 {
 private:
-	bsInt32 numHarm; //!< number of harmonics
+	bsInt32 numHarm;
 	PhsAccum index2;
 	PhsAccum indexIncr2;
 	AmpValue ampScale;
 	PhsAccum num2p1;
-	PhsAccum halfPi;
 
 	/// Calcuate the phase increment.
 	/// @param f frequency
 	void CalcIncr(FrqValue f)
 	{
 		num2p1 = PhsAccum((2 * numHarm) + 1);
-#define BUZZ_WT 1
-#ifdef BUZZ_WT
-		// using wavetables
 		indexIncr = synthParams.frqTI * f * 0.5;
 		indexIncr2 = indexIncr * num2p1;
-#else
-		// direct calculation
-		indexIncr = (PI*f) / synthParams.sampleRate;
-		indexIncr2 = indexIncr * num2p1;
-#endif
 	}
 
-#ifdef BUZZ_WT
 	/// Get sin(ndx) using interpolation of a table.
 	AmpValue SinWT(PhsAccum ndx)
 	{
@@ -597,7 +585,6 @@ private:
 		AmpValue v2 = wtSet.wavSin[intIndex+1];
 		return v1 + ((v2 - v1) * (AmpValue)fract);
 	}
-#endif
 
 public:
 	GenWaveBuzz()
@@ -606,11 +593,6 @@ public:
 		ampScale = 0.5;
 		index2 = 0.0;
 		indexIncr2 = 0.0;
-#ifdef BUZZ_WT
-		halfPi = synthParams.ftableLength / 4.0;
-#else
-		halfPi = PI / 2.0;
-#endif
 	}
 
 	/// @copydoc GenWave::Init
@@ -625,16 +607,7 @@ public:
 	/// @param n number of harmonics (0 < n < (SR/2Fo))
 	void SetHarmonics(bsInt32 n)
 	{
-		if (n <= 0)
-			numHarm = 1;
-		else
-		{
-			bsInt32 maxN = (bsInt32) floor(synthParams.sampleRate / (2.0 * frq));
-			if (n > maxN)
-				numHarm = maxN;
-			else
-				numHarm = n;
-		}
+		numHarm = n;
 	}
 
 	/// Initialize the Buzz generator
@@ -650,6 +623,9 @@ public:
 	/// @copydoc GenWave::Reset
 	void Reset(float initPhs = 0.0)
 	{
+		bsInt32 maxN = (bsInt32) floor(synthParams.sampleRate / (2.0 * frq));
+		if (numHarm > maxN)
+			numHarm = maxN;
 		ampScale = 1.0 / AmpValue(2 * numHarm);
 		CalcIncr(frq);
 		if (initPhs == 0.0)
@@ -657,6 +633,8 @@ public:
 			index = 0.0;
 			index2 = 0.0;
 		}
+		else
+			index2 = index * num2p1;
 	}
 
 	/// @copydoc GenWave::Modulate
@@ -670,7 +648,6 @@ public:
 	{
 		AmpValue out;
 		AmpValue div;
-#ifdef BUZZ_WT
 		if (index >= synthParams.ftableLength)
 		{
 			do
@@ -702,20 +679,6 @@ public:
 			out = 1.0;
 		index += indexIncr;
 		index2 += indexIncr2;
-#else
-		//  Direct calculation using sin()
-		div = sin(index);
-		if (div != 0)
-			out = ampScale * ((sin(index2) / div) - 1.0);
-		else //out = ampScale * ((num2p1 * cos(index2)) - 1.0);
-			out = 1.0;
-		index += indexIncr;
-		if (index >= twoPI)
-			index -= twoPI;
-		index2 += indexIncr2;
-		if (index2 >= twoPI)
-			index2 -= twoPI;
-#endif
 		return out;
 	}
 };

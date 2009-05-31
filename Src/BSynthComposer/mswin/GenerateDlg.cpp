@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "Stdafx.h"
 #include "resource.h"
 #include "GenerateDlg.h"
@@ -70,7 +76,7 @@ LRESULT GenerateDlg::OnStart(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, B
 			playTo = 0;
 		}
 	}
-	lastMsg.Empty();
+	lastMsg = "";
 	lastTime = playFrom;
 	FormatTime(tm, lastTime);
 	lftPeak = 0;
@@ -97,7 +103,7 @@ LRESULT GenerateDlg::OnStop(WORD cd, WORD wID, HWND hwnd, BOOL& bHandled)
 	EnterCriticalSection(&guard);
 	lastMsg += "*Cancel*\r\n";
 	ed.AppendText(lastMsg);
-	lastMsg.Empty();
+	lastMsg = "";
 	canceled = 1;
 	LeaveCriticalSection(&guard);
 	return 0;
@@ -120,8 +126,8 @@ LRESULT GenerateDlg::OnGenFinished(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		genThreadH = INVALID_HANDLE_VALUE;
 	}
 	prjGenerate = 0;
-	CString pk;
-	pk.Format("Peak: [%f, %f]\r\n-------- Finished ---------\r\n", lftMax, rgtMax);
+	char pk[1024];
+	snprintf(pk, 1024, "Peak: [%f, %f]\r\n-------- Finished ---------\r\n", lftMax, rgtMax);
 	ed.AppendText(pk);
 	EnableOK(1, 0);
 	prjFrame->GenerateFinished();
@@ -133,10 +139,10 @@ LRESULT GenerateDlg::OnGenFinished(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 LRESULT GenerateDlg::OnUpdateMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	EnterCriticalSection(&guard);
-	if (lastMsg.GetLength() > 0)
+	if (lastMsg.Length() != 0)
 	{
 		ed.AppendText(lastMsg);
-		lastMsg.Empty();
+		lastMsg = "";
 	}
 	LeaveCriticalSection(&guard);
 	return 0;
@@ -173,21 +179,21 @@ LRESULT GenerateDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
 
 void GenerateDlg::FormatTime(HWND w, long secs)
 {
-	CString txt;
-	txt.Format("%02d:%02d", secs / 60, secs % 60);
+	char txt[80];
+	snprintf(txt, 80, "%02d:%02d", secs / 60, secs % 60);
 	::SendMessage(w, WM_SETTEXT, 0, (LPARAM)(LPCTSTR)txt);
 }
 
 void GenerateDlg::FormatPeak()
 {
-	CString pkText;
-	pkText.Format("%f", lftPeak);
+	char pkText[256];
+	snprintf(pkText, 256, "%f", lftPeak);
 	lpk.SetWindowText(pkText);
-	pkText.Format("%f", rgtPeak);
+	snprintf(pkText, 256, "%f", rgtPeak);
 	rpk.SetWindowText(pkText);
 	if (lftPeak > 1.0 || rgtPeak > 1.0)
 	{
-		pkText.Format("Out of range (%f, %f) at %02d:%02d\r\n", 
+		snprintf(pkText, 256, "Out of range (%f, %f) at %02d:%02d\r\n", 
 			lftPeak, rgtPeak, lastTime / 60, lastTime % 60);
 		ed.AppendText(pkText);
 	}

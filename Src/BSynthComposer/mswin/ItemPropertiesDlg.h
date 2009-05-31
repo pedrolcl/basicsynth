@@ -1,4 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef _ITEMPROPERTIES_DLG_H_
 #define _ITEMPROPERTIES_DLG_H_
 
@@ -91,6 +96,7 @@ public:
 		IDD = IDD_LIB_PROPERTIES;
 		needFile = 1;
 	}
+	virtual void InitSpecific();
 };
 
 class WavefilePropertiesDlg : public ItemPropertiesBase
@@ -116,6 +122,43 @@ public:
 	}
 
 	virtual int GetFieldID(int id, int& idval);
+};
+
+class FilelistOrder : 
+	public CDialogImpl<FilelistOrder>,
+	public ProjectItemDlg<FilelistOrder>
+{
+protected:
+	CListBox fileList;
+
+	void EnableUpDn();
+
+public:
+	int IDD;
+
+	FilelistOrder() 
+	{
+		IDD = IDD_FILE_ORDER;
+	}
+
+	//virtual void InitSpecific() { }
+	//virtual int GetFieldID(int id, int& idval);
+
+	BEGIN_MSG_MAP(FilelistOrder)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		COMMAND_ID_HANDLER(IDOK, OnOK)
+		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
+		COMMAND_ID_HANDLER(IDC_FILE_UP, OnFileMvup)
+		COMMAND_ID_HANDLER(IDC_FILE_DN, OnFileMvdn)
+		COMMAND_HANDLER(IDC_FILE_LIST, LBN_SELCHANGE, OnSelect)
+	END_MSG_MAP()
+
+	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnFileMvup(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnFileMvdn(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnSelect(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 };
 
 #endif

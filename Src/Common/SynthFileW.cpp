@@ -199,4 +199,9 @@ int SynthFileExists(const char *fname)
 	return 1;
 }
 
-
+int SynthCopyFile(const char *oldName, const char *newName)
+{
+	if (::CopyFile(oldName, newName, 0))
+		return 0;
+	return -1;
+}

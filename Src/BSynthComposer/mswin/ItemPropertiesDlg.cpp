@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "Stdafx.h"
 #include "resource.h"
 #include "ProjectItemDlg.h"
@@ -5,17 +11,15 @@
 
 static int itmPropIds[] = {
 	-1,
-	IDC_ITEM_NAME,
-	IDC_ITEM_DESCR,
-	IDC_FILE_NAME,
-	IDC_FILE_INCLUDE,
-	IDC_INST_NUM,
-	IDC_INST_TYPE,
-	IDC_INST_LIST,
-	IDC_WVF_ID,
-//	IDC_WVF_LPST,
-//	IDC_WVF_LPEND,
-	IDC_RENUMBER
+	IDC_ITEM_NAME,          // PROP_NAME
+	IDC_ITEM_DESCR,         // PROP_DESC
+	IDC_FILE_NAME,          // PROP_FILE
+	IDC_FILE_INCLUDE,       // PROP_INCL
+	IDC_INST_NUM,           // PROP_INUM
+	IDC_INST_TYPE,          // PROP_ITYP
+	IDC_INST_LIST,          // PROP_ILST
+	IDC_WVF_ID,             // PROP_WVID
+	IDC_RENUMBER            // PROP_REN
 };
 
 int ItemPropertiesBase::GetFieldID(int id, int& idval)
@@ -127,13 +131,17 @@ void InstrPropertiesDlg::InitSpecific()
 	}
 }
 
+void LibPropertiesDlg::InitSpecific()
+{
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 int InstrSelectDlg::GetFieldID(int id, int& idval)
 {
-	if (id == PROP_ILST || id == IDC_INST_TYPE)
+	if (id == PROP_ILST || id == IDC_INST_LIST)
 	{
-		idval = IDC_INST_TYPE;
+		idval = IDC_INST_LIST;
 		return 1;
 	}
 	if (id == PROP_INUM || id == IDC_INST_NUM)
@@ -145,4 +153,124 @@ int InstrSelectDlg::GetFieldID(int id, int& idval)
 }
 
 ////////////////////////////////////////////////////////////////////////////
+
+LRESULT FilelistOrder::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	CenterWindow();
+
+	CButton btn;
+	btn = GetDlgItem(IDC_FILE_UP);
+	RECT rc;
+	btn.GetClientRect(&rc);
+	int cx = 16;
+	if (rc.right >= 32)
+		cx = 32;
+
+	HICON mvUp = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_MVUP), IMAGE_ICON, cx, cx, LR_SHARED);
+	HICON mvDn = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_MVDN), IMAGE_ICON, cx, cx, LR_SHARED);
+
+	btn.SetIcon(mvUp);
+	btn = GetDlgItem(IDC_FILE_DN);
+	btn.SetIcon(mvDn);
+
+	fileList = GetDlgItem(IDC_FILE_LIST);
+
+	ProjectItem *ch = prjTree->FirstChild(pi);
+	while (ch)
+	{
+		int ndx = fileList.AddString(ch->GetName());
+		fileList.SetItemDataPtr(ndx, (void*)ch);
+		ch = prjTree->NextSibling(ch);
+	}
+
+	fileList.SetCurSel(0);
+	EnableUpDn();
+
+	return 1;
+}
+
+LRESULT FilelistOrder::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	ProjectItem *itm;
+	int count = fileList.GetCount();
+	int index = 0;
+	while (index < count)
+	{
+		itm = (ProjectItem *) fileList.GetItemDataPtr(index);
+		prjTree->RemoveNode(itm);
+		prjTree->AddNode(itm);
+		index++;
+	}
+	theProject->SetChange(1);
+	EndDialog(IDOK);
+	return 0;
+}
+
+LRESULT FilelistOrder::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	EndDialog(IDCANCEL);
+	return 0;
+}
+
+LRESULT FilelistOrder::OnFileMvup(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	int sel = fileList.GetCurSel();
+	if (sel == LB_ERR || sel == 0)
+		return 0;
+	
+	ProjectItem *p = (ProjectItem *)fileList.GetItemDataPtr(sel);
+	fileList.DeleteString(sel);
+	sel--;
+	fileList.InsertString(sel, p->GetName());
+	fileList.SetItemDataPtr(sel, (void*)p);
+	fileList.SetCurSel(sel);
+
+	EnableUpDn();
+
+	return 0;
+}
+
+LRESULT FilelistOrder::OnFileMvdn(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	int sel = fileList.GetCurSel();
+	if (sel == LB_ERR && sel < fileList.GetCount())
+		return 0;
+
+	ProjectItem *p = (ProjectItem *) fileList.GetItemDataPtr(sel);
+	fileList.DeleteString(sel);
+	sel++;
+	fileList.InsertString(sel, p->GetName());
+	fileList.SetItemDataPtr(sel, (void*)p);
+	fileList.SetCurSel(sel);
+
+	EnableUpDn();
+
+	return 0;
+}
+
+
+void FilelistOrder::EnableUpDn()
+{
+	int count = fileList.GetCount();
+	int mvUp = count > 1;
+	int mvDn = count > 1;
+	int sel = fileList.GetCurSel();
+	if (sel == LB_ERR)
+	{
+		mvUp = FALSE;
+		mvDn = FALSE;
+	}
+	else if (sel == 0)
+		mvUp = FALSE;
+	else if (sel == count-1)
+		mvDn = FALSE;
+	::EnableWindow(GetDlgItem(IDC_FILE_UP), mvUp);
+	::EnableWindow(GetDlgItem(IDC_FILE_DN), mvDn);
+}
+
+LRESULT FilelistOrder::OnSelect(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	EnableUpDn();
+	return 0;
+}
 

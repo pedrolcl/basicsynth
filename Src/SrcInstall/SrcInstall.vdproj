@@ -237,6 +237,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_107BF0B51E8F4180811EDE7387505A45"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_10ACE67BEF51402D8DCBFE6EBF3C95CA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -561,6 +567,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_31029E34E03C412DA5A478119AFEABF9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_32843122DDF14DF892E56283A451DDEE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -873,6 +885,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4E59EC3CA41D4AABACC6F93580D6552D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4E71709154744326AC96F963D2466EBB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -988,6 +1006,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5708FD5702D54559994E2E0EA16685B2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_574CCC004C314C5FBA41FCC66A5D86C4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1605,6 +1629,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8DA89CFFC7224B7AA927AD084B6B1F93"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8EE4D62F2B45433BACDF244662A51BD2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1690,6 +1720,12 @@
         "Entry"
         {
         "MsmKey" = "8:_97B058C8BC3142F4AE5CF02A5556E618"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_985C06E06CF04233BB3825D505794E44"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2553,6 +2589,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F172891DF28741168D5F02AD2FD177BD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F17C13A144A64409B9035F3D4673CC3C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2572,6 +2614,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F490712AD4EA4924A9F797FFE2A06073"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F507380028674A29B80F02D52377278E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3512,6 +3560,26 @@
             "TargetName" = "8:FMExplorer.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_B8F4289F9B3949BD9CB547F63FB0EE0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_107BF0B51E8F4180811EDE7387505A45"
+            {
+            "SourcePath" = "8:..\\Instruments\\UGFilter.h"
+            "TargetName" = "8:UGFilter.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4606,6 +4674,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_31029E34E03C412DA5A478119AFEABF9"
+            {
+            "SourcePath" = "8:..\\Instruments\\UGDelay.h"
+            "TargetName" = "8:UGDelay.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_32843122DDF14DF892E56283A451DDEE"
             {
             "SourcePath" = "8:..\\Examples\\Example05\\Makefile"
@@ -5646,6 +5734,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E59EC3CA41D4AABACC6F93580D6552D"
+            {
+            "SourcePath" = "8:..\\Instruments\\UGCalc.h"
+            "TargetName" = "8:UGCalc.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E71709154744326AC96F963D2466EBB"
             {
             "SourcePath" = "8:..\\..\\Doxygen\\BasicSynthLayout.xml"
@@ -6032,6 +6140,26 @@
             "TargetName" = "8:main.cpp"
             "Tag" = "8:"
             "Folder" = "8:_1D233DAC9F7F4733BC2E8C9D0C79D1F8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_574CCC004C314C5FBA41FCC66A5D86C4"
+            {
+            "SourcePath" = "8:..\\Instruments\\ModSynth.cpp"
+            "TargetName" = "8:ModSynth.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8086,6 +8214,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8DA89CFFC7224B7AA927AD084B6B1F93"
+            {
+            "SourcePath" = "8:..\\Instruments\\UGEnvGen.h"
+            "TargetName" = "8:UGEnvGen.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8EE4D62F2B45433BACDF244662A51BD2"
             {
             "SourcePath" = "8:..\\Examples\\Example10\\test2.wav"
@@ -8372,6 +8520,26 @@
             "TargetName" = "8:ReleaseNotes3.txt"
             "Tag" = "8:"
             "Folder" = "8:_FC4DEA0D723C43028865D72B5C0A2B28"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_985C06E06CF04233BB3825D505794E44"
+            {
+            "SourcePath" = "8:..\\Instruments\\ModSynthUG.h"
+            "TargetName" = "8:ModSynthUG.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11246,6 +11414,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F172891DF28741168D5F02AD2FD177BD"
+            {
+            "SourcePath" = "8:..\\Instruments\\ModSynth.h"
+            "TargetName" = "8:ModSynth.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F17C13A144A64409B9035F3D4673CC3C"
             {
             "SourcePath" = "8:..\\Instruments\\SubSynth.h"
@@ -11312,6 +11500,26 @@
             "TargetName" = "8:XmlWrapT.cpp"
             "Tag" = "8:"
             "Folder" = "8:_CF3557AED3954329B58501BEE3A14773"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F507380028674A29B80F02D52377278E"
+            {
+            "SourcePath" = "8:..\\Instruments\\UGOscil.h"
+            "TargetName" = "8:UGOscil.h"
+            "Tag" = "8:"
+            "Folder" = "8:_02B1B53E18774250B7F6FC937AD27AE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11832,7 +12040,7 @@
                             }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_4621D5043859480699D0D6D3E69403B5"
                             {
-                            "Name" = "8:Bin64"
+                            "Name" = "8:Binx64"
                             "AlwaysCreate" = "11:TRUE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"

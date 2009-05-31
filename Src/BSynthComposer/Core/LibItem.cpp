@@ -1,8 +1,18 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project item that represents a library
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "WindowTypes.h"
 #include "ProjectItem.h"
 
-int LibfileItem::LoadLib()
+// added is TRUE when we are adding a library after project load.
+// This signals we need to add all instruments to the keyboard.
+int LibfileItem::LoadLib(int added)
 {
 	if (loaded)
 		return 0;
@@ -18,12 +28,17 @@ int LibfileItem::LoadLib()
 		return -1;
 	}
 
-//	char *content = 0;
-//	if (root->GetAttribute("name", &content) == 0)
-//		name.Attach(content);
-//	content = 0;
-//	if (root->GetAttribute("desc", &content) == 0)
-//		desc.Attach(content);
+	baseNum = 0;
+	root->GetAttribute("baseid", baseNum);
+
+	char *content = 0;
+	if (root->GetAttribute("name", &content) == 0)
+	{
+		name.Attach(content);
+		content = 0;
+	}
+	if (root->GetAttribute("desc", &content) == 0)
+		desc.Attach(content);
 	XmlSynthElem *next;
 	XmlSynthElem *inst = root->FirstChild();
 	while (inst != NULL)
@@ -33,6 +48,14 @@ int LibfileItem::LoadLib()
 			InstrConfig *inc = theProject->mgr.LoadInstr(inst);
 			if (inc)
 			{
+				// Possible: don't put the instrument in the global instrument list.
+				// This would allow libraries to be loaded for the purpose of
+				// copy in/out to the project, but avoid possible name/inum
+				// conflicts. This has not been tested, so don't do it yet.
+				//if (!useThis)
+				//	inc->Remove();
+				if (baseNum == 0 || inc->inum < baseNum)
+					baseNum = inc->inum;
 				InstrItem *iip = new InstrItem;
 				if (iip)
 				{
@@ -42,15 +65,26 @@ int LibfileItem::LoadLib()
 					iip->SetActions(ITM_ENABLE_PROPS | ITM_ENABLE_EDIT);
 					prjTree->AddNode(iip);
 				}
+				if (added && useThis)
+					prjFrame->InstrAdded(inc);
 			}
 		}
 		next = inst->NextSibling();
 		delete inst;
 		inst = next;
 	}
+	SetChange(0);
 	loaded = 1;
 	doc.Close();
 	return 0;
+}
+
+int LibfileItem::ItemActions()
+{
+	int actEnable = actions;
+	if (GetChange())
+		actEnable |= ITM_ENABLE_SAVE;
+	return actEnable;
 }
 
 // copy from the project
@@ -66,10 +100,19 @@ int LibfileItem::CopyItem()
 }
 
 
-int LibfileItem::RemItem()
+int LibfileItem::RemoveItem()
 {
 	if (prjFrame->Verify("Remove library from project?", "Wait...") == 1)
 	{
+		ProjectItem *instr = prjTree->FirstChild(this);
+		while (instr)
+		{
+			prjTree->RemoveNode(instr);
+			if (instr->GetType() == PRJNODE_INSTR)
+				((InstrItem*)instr)->RemoveInstr();
+			delete instr;
+			instr = prjTree->FirstChild(this);
+		}
 		theProject->SetChange(1);
 		return 1;
 	}
@@ -82,12 +125,13 @@ int LibfileItem::SaveItem()
 	XmlSynthElem *root;
 	if ((root = doc.NewDoc("instrlib")) == NULL)
 	{
-		prjFrame->Alert("Cannot save the library", "Ooops...");
+		prjFrame->Alert("Cannot create the library doc.", "Ooops...");
 		return 0;
 	}
 
 	root->SetAttribute("name", name);
 	root->SetAttribute("desc", desc);
+	root->SetAttribute("baseid", baseNum);
 
 	ProjectItem *instr = prjTree->FirstChild(this);
 	while (instr)
@@ -106,6 +150,7 @@ int LibfileItem::SaveItem()
 		prjFrame->Alert("Error writing the library file.", "Ooops...");
 		return 0;
 	}
+	SetChange(0);
 	return 1;
 }
 
@@ -124,6 +169,8 @@ int LibfileItem::AddCopy(int f)
 	{
 		ok = pb->Activate(1);
 		delete pb;
+		if (GetChange())
+			SaveItem();
 	}
 	return ok;
 }
@@ -135,13 +182,18 @@ int LibfileItem::LoadProperties(PropertyBox *pb)
 		pb->ListChildren(PROP_ILST, theProject->instrInfo);
 		pb->SetValue(PROP_INUM, (long)NextInum(), 0);
 	}
-	else if (propFn == 2)
+	else if (propFn == 2) // copy to the project
 	{
 		pb->ListChildren(PROP_ILST, this);
-		pb->SetValue(PROP_INUM, (long)InstrItem::NextInum(), 0);
+		pb->SetValue(PROP_INUM, (long)InstrList::NextInum(), 0);
 	}
 	else
-		return FileItem::LoadProperties(pb);
+	{
+		FileItem::LoadProperties(pb);
+		pb->SetValue(PROP_INUM, (long)baseNum, "Start id");
+		if (prjTree->FirstChild(this) == 0)
+			pb->EnableValue(PROP_REN, 0);
+	}
 	return 1;
 }
 
@@ -185,6 +237,7 @@ int LibfileItem::SaveProperties(PropertyBox *pb)
 			{
 				iip->SetParent(theProject->instrInfo);
 				inc2->SetName(inc->GetName());
+				theProject->SetChange(1);
 			}
 			else
 			{
@@ -195,6 +248,7 @@ int LibfileItem::SaveProperties(PropertyBox *pb)
 				iip->SetParent(this);
 				iip->SetType(PRJNODE_LIBINSTR);
 				iip->SetActions(ITM_ENABLE_PROPS | ITM_ENABLE_EDIT);
+				SetChange(1);
 			}
 			inc2->SetDesc(inc->GetDesc());
 			iip->SetConfig(inc2);
@@ -203,13 +257,20 @@ int LibfileItem::SaveProperties(PropertyBox *pb)
 	}
 	else
 	{
+		long start = 0;
+		pb->GetValue(PROP_INUM, start);
+		baseNum = (bsInt16) start;
 		FileItem::SaveProperties(pb);
 		short renumber = 0;
 		pb->GetState(PROP_REN, renumber);
 		if (renumber)
 		{
-			long start;
-			pb->GetValue(PROP_INUM, start);
+			if (start == 0)
+			{
+				// Maybe forgot to enter base number?
+				if (prjFrame->Verify("Renumber from 0?", "Wait...") != 1)
+					return 0;
+			}
 			InstrItem *itm = (InstrItem *) prjTree->FirstChild(this);
 			while (itm)
 			{
@@ -217,20 +278,20 @@ int LibfileItem::SaveProperties(PropertyBox *pb)
 				inc->inum = start++;
 				itm = (InstrItem *) prjTree->NextSibling(itm);
 			}
+			SetChange(1);
 		}
 	}
-	theProject->SetChange(1);
 	return 1;
 }
 
 int LibfileItem::NextInum()
 {
-	int inum = 1;
+	int inum = baseNum;
 	InstrItem *itm = (InstrItem *)prjTree->FirstChild(this);
 	while (itm)
 	{
 		InstrConfig *ic = itm->GetConfig();
-		if (ic->inum >= inum)
+		if (ic && ic->inum >= inum)
 			inum = ic->inum+1;
 		itm = (InstrItem *)prjTree->NextSibling(itm);
 	}
@@ -245,7 +306,10 @@ int LibfileList::LoadLibs()
 	while (itm)
 	{
 		if (itm->GetType() == PRJNODE_LIB)
-			itm->LoadLib();
+		{
+			itm->LoadLib(0);
+			prjTree->UpdateNode(itm);
+		}
 		itm = (LibfileItem*) prjTree->NextSibling(itm);
 	}
 
@@ -260,7 +324,7 @@ int LibfileList::AddItem()
 		LibfileItem *itm = (LibfileItem*)NewAdd(file);
 		if (itm)
 		{
-			itm->LoadLib();
+			itm->LoadLib(1);
 			return 1;
 		}
 	}

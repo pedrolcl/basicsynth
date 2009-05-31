@@ -97,6 +97,7 @@
 #define IDB_CCLIC                       350
 #define IDD_MODSYNTH_CONFIG             351
 #define IDD_MODSYNTH_CONNECT            352
+#define IDD_FILE_ORDER                  353
 #define IDC_FIND_TEXT                   1000
 #define IDC_REPL_TEXT                   1001
 #define IDC_MATCH_CASE                  1002
@@ -315,6 +316,9 @@
 #define IDC_MC_CONN                     1215
 #define IDC_MC_ADD                      1216
 #define IDC_MC_REM                      1217
+#define IDC_FILE_LIST                   1218
+#define IDC_FILE_UP                     1219
+#define IDC_FILE_DN                     1220
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_VIEW_PROJECT                 32775
@@ -374,14 +378,23 @@
 #define ID_EDIT_PREVIOUSMARKER          32976
 #define ID_EDIT_REMOVEALLMARKERS        32977
 #define ID_MARKER_CLEAR                 32979
+#define ID_Menu                         32980
+#define ID_Menu32981                    32981
+#define ID_FILELIST_PROPERTIES          32982
+#define ID_LIBITEMS_ADDTOLIBRARY        32983
+#define ID_LIBITEMS_COPYTOPROJECT       32984
+#define ID_LIBITEMS_PROPERTIES          32985
+#define ID_LIBITEMS_SAVELIBRARY         32986
+#define ID_LIBITEMS_REMOVE              32987
+#define ID_REMOVE_ITEM                  32988
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        353
-#define _APS_NEXT_COMMAND_VALUE         32980
-#define _APS_NEXT_CONTROL_VALUE         1218
+#define _APS_NEXT_RESOURCE_VALUE        354
+#define _APS_NEXT_COMMAND_VALUE         32989
+#define _APS_NEXT_CONTROL_VALUE         1222
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

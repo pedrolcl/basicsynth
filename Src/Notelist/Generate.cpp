@@ -66,6 +66,7 @@ nlGenerate::~nlGenerate()
 	Clear();
 }
 
+/// Clear all sync points and voices and the main sequence. 
 void nlGenerate::Clear()
 {
 	nlSyncMark *smp;
@@ -85,6 +86,7 @@ void nlGenerate::Clear()
 	curSeq = NULL;
 }
 
+/// Prepare for generation of events.
 void nlGenerate::Reset()
 {
 	Clear();
@@ -97,6 +99,7 @@ void nlGenerate::Reset()
 	spEnd = &vStack[GENSTACKSIZE-1];
 }
 
+/// Change the current voice
 nlVoice *nlGenerate::SetCurVoice(int n)
 {
 	nlVoice *vp = voiceList;
@@ -122,7 +125,7 @@ nlVoice *nlGenerate::SetCurVoice(int n)
 	return curVoice;
 }
 
-// main entry point for the generator
+/// Main entry point for the generator
 int nlGenerate::Run()
 {
 	cvtPtr->BeginNotelist();
@@ -132,6 +135,7 @@ int nlGenerate::Run()
 	return 0;
 }
 
+/// Initialize the expression evaluation stack
 void nlGenerate::InitStack()
 {
 	vStack = new nlVarValue[GENSTACKSIZE];
@@ -139,6 +143,7 @@ void nlGenerate::InitStack()
 	spEnd = &vStack[GENSTACKSIZE-1];
 }
 
+/// Push a value onto the stack
 void nlGenerate::PushStack(long n)
 {
 	spCur->SetValue(n);
@@ -167,6 +172,7 @@ void nlGenerate::PushStack(nlVarValue *v)
 		spCur++;
 }
 
+/// Pop a value from the stack
 void nlGenerate::PopStack(long *n)
 {
 	if (spCur > vStack)
@@ -195,6 +201,7 @@ void nlGenerate::PopStack(char **s)
 	spCur->GetValue(s);
 }
 
+/// Create a new sequence identified by a string
 nlSequence *nlGenerate::AddSequence(const char *id)
 {
 	nlSequence *pseq = new nlSequence(id);
@@ -202,6 +209,7 @@ nlSequence *nlGenerate::AddSequence(const char *id)
 	return pseq;
 }
 
+/// Create a new sequence identified by a number
 nlSequence *nlGenerate::AddSequence(int id)
 {
 	nlSequence *pseq = new nlSequence(id);
@@ -209,6 +217,9 @@ nlSequence *nlGenerate::AddSequence(int id)
 	return pseq;
 }
 
+/// Change the current sequence.
+/// This is used during parsing to switch
+/// to a block of controled statements for IF, WHILE, LOOP, SEQ.
 nlSequence *nlGenerate::SetCurSeq(nlSequence *p)
 {
 	nlSequence *pold = curSeq;
@@ -216,6 +227,7 @@ nlSequence *nlGenerate::SetCurSeq(nlSequence *p)
 	return pold;
 }
 
+/// Locate a sequence by name or number.
 nlSequence *nlGenerate::FindSequence(nlVarValue *id)
 {
 	if (mainSeq)
@@ -264,9 +276,10 @@ nlScriptNode *nlGenerate::AddNode(int token, double val)
 }
 
 ///////////////////////////////////////////////////////////
-// Move the current time for this voice to the point
-// set by the associated MARK statement. All MARK points
-// are stored in a linked list.
+/// @details
+/// Move the current time for this voice to the point
+/// set by the associated MARK statement. All MARK points
+/// are stored in a linked list.
 ///////////////////////////////////////////////////////////
 void nlGenerate::SyncTo(nlVarValue *v)
 {
@@ -283,9 +296,10 @@ void nlGenerate::SyncTo(nlVarValue *v)
 }
 
 ///////////////////////////////////////////////////////////
-// Save the current time for this voice and associate
-// it with the ID value. Create a new SYNC point if needed,
-// or just update if the ID already exists.
+/// @details
+/// Save the current time for this voice and associate
+/// it with the ID value. Create a new SYNC point if needed,
+/// or just update if the ID already exists.
 ///////////////////////////////////////////////////////////
 void nlGenerate::MarkTo(nlVarValue *v)
 {
@@ -350,8 +364,9 @@ nlSequence::~nlSequence()
 }
 
 ///////////////////////////////////////////////////////////
-// Play a sequence is what actually generates the events.
-// All this has to do is Exec() each node in turn.
+/// @details
+/// Play a sequence is what actually generates the events.
+/// All this has to do is Exec() each node in turn.
 ///////////////////////////////////////////////////////////
 void nlSequence::Play()
 {
@@ -490,6 +505,7 @@ void nlVarValue::GetValue(double *d)
 	*d = dblVal;
 }
 
+/// Change the type of a value.
 void nlVarValue::ChangeType(vType vnew)
 {
 	long lTmp;
@@ -576,6 +592,7 @@ void nlVarValue::ChangeType(vType vnew)
 	vt = vnew;
 }
 
+/// Copy a value with automatic type conversion.
 void nlVarValue::CopyValue(nlVarValue *p)
 {
 	if (p == NULL)
@@ -596,6 +613,7 @@ void nlVarValue::CopyValue(nlVarValue *p)
 	p->vt = vt;
 }
 
+/// Compare a value with automatic type promotion.
 int nlVarValue::Compare(nlVarValue *p)
 {
 	switch (vt)
@@ -649,7 +667,8 @@ int nlVarValue::Compare(nlVarValue *p)
 }
 
 ///////////////////////////////////////////////////////////
-// VOICE expr notelsit
+// VOICE expr notelist
+/// @details Change the current voice
 ///////////////////////////////////////////////////////////
 
 nlScriptNode *nlVoiceNode::Exec()
@@ -1025,6 +1044,15 @@ void nlDurNode::CopyValue(nlVarValue *p)
 // copy the current value into the var node so that the
 // expression evaluator can treat this just like a constant.
 // In other words, an indirect reference...
+// TODO:
+//  At present all variables are scalar. The plan is to
+//  make all variables dynamic arrays with the default
+//  array dimension = 1. When an array subscript is present
+//  the subscript is evaluated and then matched to a value
+//  in a linked list. If the subscript Id does not exist,
+//  it is inserted in the list and initialized. Subscripts
+//  may be number or string allowing a pseudo structure:
+//   var["member"] = 1;
 ///////////////////////////////////////////////////////////
 
 nlScriptNode *nlVarNode::Exec()
@@ -1415,7 +1443,7 @@ nlScriptNode *nlArticNode::Exec()
 ///////////////////////////////////////////////////////////
 // MAP instr, id[=scale] - setup an instrument parameter map.
 // The map allows selecting a sub-set of an instruments
-// parameters. THis is especially useful when the number of
+// parameters. This is especially useful when the number of
 // parameters is large. It is also handy if you want to switch
 // instruments without reentering all the parameters. A simple
 // instrument can be used for quick test of the sequence, then
@@ -1558,6 +1586,10 @@ nlScriptNode *nlCallNode::Exec()
 	}
 	return p;
 }
+
+///////////////////////////////////////////////////////////
+/// MIXER statement - generate an event for dynamic mixer control
+///////////////////////////////////////////////////////////
 
 nlScriptNode *nlMixerNode::Exec()
 {

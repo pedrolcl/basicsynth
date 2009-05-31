@@ -32,7 +32,7 @@ class ModSynth : public InstrumentVP
 {
 private:
 	int numUnits;
-	int numParam;
+	bsInt16 maxID;
 
 	UGValue head; // sr
 	UGOut   tail; // out
@@ -65,6 +65,7 @@ public:
 	ModSynthUGType *FindType(const char *type);
 	ModSynthUG *AddUnit(const char *type, const char *name, ModSynthUG *before = 0);
 	ModSynthUG *FindUnit(const char *name);
+	ModSynthUG *FindUnit(bsInt16 id);
 	ModSynthUG *FirstUnit();
 	ModSynthUG *NextUnit(ModSynthUG *ug);
 	void RemoveUnit(ModSynthUG *ug, int dodel = 1);

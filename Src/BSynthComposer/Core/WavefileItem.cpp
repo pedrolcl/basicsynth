@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project item to represent wave files used by the WFSynth instrument.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "WindowTypes.h"
 #include "ProjectItem.h"

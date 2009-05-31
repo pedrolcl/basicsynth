@@ -418,12 +418,13 @@ ModSynth::ModSynth()
 	tail.SetName("out");
 	tail.SetID(1);
 	tail.InitDefault();
-	numParam = tail.GetNumInputs();
+	tail.GetNumInputs();
 	frqParam = AddParam("@frq", P_FREQ);
 	volParam = AddParam("@vol", P_VOLUME);
 	pitParam = AddParam("@pitch", P_PITCH);
 	durParam = AddParam("@dur", P_DUR);
 	numUnits = 0;
+	maxID = P_USER;
 }
 
 ModSynth::~ModSynth()
@@ -552,7 +553,7 @@ int ModSynth::GetParam(bsInt16 idval, float *val)
 // of each unit generator and then make copies of
 // all connections. Currently this code does a search
 // on the ug name to make connections. It probably
-// should build an map of ug pointers during the first
+// should build a map of ug pointers during the first
 // pass and then it won't be necessary to search
 // for each ug and parameter by name in the second
 // pass.
@@ -564,7 +565,7 @@ void ModSynth::Copy(ModSynth *tp)
 	// First copy all unit generators
 	ModSynthUG *ugOld;
 	numUnits = tp->numUnits;
-	numParam = tp->numParam;
+	maxID = tp->maxID;
 	
 	// don't copy the head (in params) or tail (out samples)
 	for (ugOld = tp->head.next; ugOld != &tp->tail; ugOld = ugOld->next)
@@ -587,13 +588,13 @@ void ModSynth::CopyConn(ModSynthUG *ugOld)
 	ModSynthUG *dst;
 	ModSynthConn *con;
 
-	ugNew = FindUnit(ugOld->GetName());
+	ugNew = FindUnit(ugOld->GetID());
 	con = ugOld->ConnectList(0);
 	while (con)
 	{
 		if (con->ug)
 		{
-			dst = FindUnit(con->ug->GetName());
+			dst = FindUnit(con->ug->GetID());
 			if (dst)
 				ugNew->AddConnect(dst, con->index, con->when);
 		}
@@ -632,10 +633,10 @@ ModSynthUG *ModSynth::AddUnit(const char *type, const char *name, ModSynthUG *be
 			before->InsertBefore(ug);
 		else
 			tail.InsertBefore(ug);
-		ug->SetID(numUnits + P_USER);
+		ug->SetID(++maxID);
 		ug->SetName(name);
 		numUnits++;
-		numParam += ug->GetNumInputs();
+		ug->GetNumInputs();
 	}
 	return ug;
 }
@@ -663,6 +664,17 @@ ModSynthUG *ModSynth::FindUnit(const char *name)
 	return 0;
 }
 
+ModSynthUG *ModSynth::FindUnit(bsInt16 id)
+{
+	ModSynthUG *ug;
+	for (ug = &head; ug; ug = ug->next)
+	{
+		if (id == ug->GetID())
+			return ug;
+	}
+	return 0;
+}
+
 void ModSynth::MoveUnit(ModSynthUG *ug, ModSynthUG *before)
 {
 	if (ug && before
@@ -676,13 +688,18 @@ void ModSynth::MoveUnit(ModSynthUG *ug, ModSynthUG *before)
 
 void ModSynth::RemoveUnit(ModSynthUG *ug, int dodel)
 {
+	maxID = 0;
 	ModSynthUG *ug2;
 	for (ug2 = &head; ug2; ug2 = ug2->next)
+	{
+		if (ug != ug2 && ug2->GetID() > maxID)
+			maxID = ug2->GetID();
 		ug2->RemoveConnect(ug);
+	}
 	if (ug != &head && ug != &tail && *ug->GetName() != '@')
 	{
+		numUnits--;
 		ug->Remove();
-		numParam -= ug->GetNumInputs();
 		if (dodel)
 			delete ug;
 	}
@@ -702,13 +719,7 @@ ModSynthUG *ModSynth::NextUnit(ModSynthUG *ug)
 
 int ModSynth::GetNumParams()
 {
-	if (numParam == 0)
-	{
-		ModSynthUG *ug;
-		for (ug = head.next; ug; ug = ug->next)
-			numParam += ug->GetNumInputs();
-	}
-	return numParam;
+	return (maxID+1) << UGID_SHIFT;
 }
 
 UGValue *ModSynth::AddParam(const char *name, bsInt16 id)
@@ -717,7 +728,6 @@ UGValue *ModSynth::AddParam(const char *name, bsInt16 id)
 	ug->SetID(id);
 	ug->SetName(name);
 	head.Insert(ug);
-	numParam += ug->GetNumInputs();
 	return ug;
 }
 
@@ -777,6 +787,8 @@ int ModSynth::Load(XmlSynthElem *parent)
 			child->GetAttribute("type", &ugtype);
 			child->GetAttribute("name", &ugname);
 			child->GetAttribute("id", id);
+			if (id > maxID)
+				maxID = id;
 			if (ugtype && ugname)
 			{
 				if (strcmp(ugname, "out"))

@@ -10,6 +10,7 @@ private:
 	Fl_Check_Button *incSeq;
 	Fl_Check_Button *incTxt;
 	Fl_Check_Button *incScr;
+	Fl_Check_Button *incLib;
 	Fl_Input *prjfInp;
 	Fl_Button *prjfBrowse;
 	Fl_Input *wvinInp;

@@ -1,7 +1,22 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project item that represents a file.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "WindowTypes.h"
 #include "ProjectItem.h"
 
+int FileItem::ItemActions()
+{
+	int actEnable = actions;
+	if (editor)
+		actEnable |= ITM_ENABLE_CLOSE | ITM_ENABLE_SAVE;
+	return actEnable;
+}
 
 int FileItem::EditItem()
 { 
@@ -54,7 +69,6 @@ int FileItem::SaveProperties(PropertyBox *pb)
 	pb->GetValue(PROP_DESC, desc);
 	pb->GetValue(PROP_FILE, file);
 	pb->GetState(PROP_INCL, useThis);
-	// FIXME: 
 	if (SynthProject::FullPath(file))
 		fullPath = file;
 	else
@@ -83,6 +97,25 @@ int FileItem::Save(XmlSynthElem *node)
 	node->SetContent(file);
 	return 0;
 }
+
+int FileItem::CopyFile(const char *srcDir, const char *dstDir)
+{
+	if (theProject->FullPath(file))
+		return 0;
+	bsString op;
+	bsString np;
+	op = srcDir;
+	op += "/";
+	op += file;
+	np = dstDir;
+	np += "/";
+	np += file;
+	if (SynthFileExists(op))
+		return SynthCopyFile(op, np);
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////
 
 int FileList::Load(XmlSynthElem *node)
 {
@@ -159,4 +192,39 @@ int FileList::AddItem()
 	if (prjFrame->BrowseFile(1, newFile, GetFileSpec(type), GetFileExt(type)))
 		return NewAdd(newFile) != 0;
 	return 0; 
+}
+
+int FileList::SaveItem()
+{
+	int err = 0;
+	ProjectItem *pi = prjTree->FirstChild(this);
+	while (pi)
+	{
+		err |= pi->SaveItem();
+		pi = prjTree->NextSibling(pi);
+	}
+	return err;
+}
+
+int FileList::CopyFiles(const char *srcDir, const char *dstDir)
+{
+	int err = 0;
+	ProjectItem *pi = prjTree->FirstChild(this);
+	while (pi)
+	{
+		err |= ((FileItem*)pi)->CopyFile(srcDir, dstDir);
+		pi = prjTree->NextSibling(pi);
+	}
+	return err;
+}
+
+int FileList::ItemProperties()
+{
+	PropertyBox *pb = prjFrame->CreatePropertyBox(this, 0);
+	if (pb)
+	{
+		pb->Activate(1);
+		delete pb;
+	}
+	return 1;
 }

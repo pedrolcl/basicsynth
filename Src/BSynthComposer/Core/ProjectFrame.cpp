@@ -1,3 +1,12 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project frame implements much of the functionality
+//              of the main window.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
 
@@ -195,7 +204,7 @@ int ProjectFrame::QuerySaveProject()
 {
 	int res = Verify("Project has unsaved changes. Save?", "Wait...");
 	if (res == 1)
-		return SaveProject(0);
+		return SaveProject();
 	return res;
 }
 
@@ -256,7 +265,7 @@ int ProjectFrame::CloseProject(int query)
 {
 	if (theProject)
 	{
-		if (query && theProject->GetChanged())
+		if (query && theProject->GetChange())
 		{
 			if (QuerySaveProject() < 0)
 				return 0;
@@ -270,20 +279,70 @@ int ProjectFrame::CloseProject(int query)
 	return 1;
 }
 
-int ProjectFrame::SaveProject(int saveas)
+int ProjectFrame::SaveProject()
 {
+	if (!theProject)
+		return -1;
+
 	bsString path;
 	theProject->GetProjectPath(path);
-	if (saveas || path.Length() == 0)
-	{
-		const char *spc = ProjectItem::GetFileSpec(PRJNODE_PROJECT);
-		const char *ext = ProjectItem::GetFileExt(PRJNODE_PROJECT);
-		if (!BrowseFile(0, path, spc, ext))
-			return -1;
-	}
+	if (path.Length() == 0)
+		return SaveProjectAs();
+	SaveBackup();
 	if (!SaveAllEditors(0))
 		return -1;
-	return theProject->SaveProject(path);
+	if (theProject->SaveProject(path))
+	{
+		bsString msg;
+		msg = "Could not save project: ";
+		msg += theProject->WhatHappened();
+		Alert(msg, "Ooops...");
+		return -1;
+	}
+	return 0;
+}
+
+void ProjectFrame::SaveBackup()
+{
+	if (!theProject)
+		return;
+
+	bsString path;
+	theProject->GetProjectPath(path);
+	if (SynthFileExists(path))
+	{
+		bsString bak;
+		bak = path;
+		bak += ".bak";
+		SynthCopyFile(path, bak);
+	}
+}
+
+int ProjectFrame::SaveProjectAs()
+{
+	if (!theProject)
+		return -1;
+
+	bsString path;
+	const char *spc = ProjectItem::GetFileSpec(PRJNODE_PROJECT);
+	const char *ext = ProjectItem::GetFileExt(PRJNODE_PROJECT);
+	if (!BrowseFile(0, path, spc, ext))
+		return -1;
+	bsString oldDir;
+	theProject->GetProjectDir(oldDir);
+	if (theProject->SaveProject(path))
+	{
+		bsString msg;
+		msg = "Could not save project: ";
+		msg += theProject->WhatHappened();
+		Alert(msg, "Ooops...");
+		return -1;
+	}
+	bsString newDir;
+	theProject->GetProjectDir(newDir);
+	if (oldDir.Length() > 0 && oldDir.Compare(newDir) != 0)
+		theProject->CopyFiles(oldDir, newDir);
+	return 0;
 }
 
 void ProjectFrame::GenerateStarted()

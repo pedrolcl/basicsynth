@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 // type indcates how the value is stored:
 // unk - a null valued item
 // Text - a text string
@@ -18,6 +24,7 @@ enum wdgType
 	wdgGraph
 };
 
+/// Platform independent rectangle
 struct wdgRect
 {
 	int x;
@@ -57,6 +64,7 @@ struct wdgRect
 	inline int GetRight()  { return w + x; }
 	inline int GetBottom() { return h + y; }
 
+	/// Inflate the rectangle.
 	void Inflate(int byx, int byy)
 	{
 		w += byx*2;
@@ -65,23 +73,27 @@ struct wdgRect
 		y -= byy;
 	}
 
+	/// Shrink the rectangle.
 	inline void Shrink(int byx, int byy)
 	{
 		Inflate(-byx, -byy);
 	}
 
+	/// Offset the x,y position (move)
 	inline void Offset(int dx, int dy)
 	{
 		x += dx;
 		y += dy;
 	}
 
+	/// Test a point to see if it is inside the rectangle.
 	inline int Inside(int x1, int y1)
 	{
 		return (x1 >= GetLeft() && x1 <= GetRight()
 		     && y1 >= GetTop()  && y1 <= GetBottom());
 	}
 
+	/// Test for overlap with another rectangle.
 	inline int Intersects(wdgRect& r)
 	{
 		if (r.x > GetRight())
@@ -95,6 +107,7 @@ struct wdgRect
 		return 1;
 	}
 
+	/// Combine with another rectangle (union).
 	void Combine(wdgRect& r)
 	{
 		if (r.IsEmpty())
@@ -125,17 +138,20 @@ struct wdgRect
 		h = bot - y;
 	}
 
+	/// Test a rectangle for zero width or height.
 	inline int IsEmpty()
 	{
 		return w == 0 && h == 0;
 	}
 
+	/// Set the rectangle to zero width and height.
 	inline void SetEmpty()
 	{
 		w = h = 0;
 	}
 };
 
+/// Platform independent graphics point (x,y coordinate)
 struct wdgPoint
 {
 	int x;
@@ -146,6 +162,7 @@ struct wdgPoint
 	}
 };
 
+/// ImageData holds information to identify an image in the image cache.
 class ImageData
 {
 public:
@@ -173,6 +190,7 @@ public:
 	virtual void DestroyImage() { }
 };
 
+/// One item in an image cache.
 class ImageCacheItem : public SynthList<ImageCacheItem>
 {
 public:
@@ -231,6 +249,13 @@ public:
 	}
 };
 
+/// An image cache.
+/// The image cache is used to hold pre-drawn versions of a widget.
+/// Using a bitmap image significantly improves performance. Since
+/// many instances of a given image are likely to appear on a form,
+/// we create one bitmap and then share it amongst all identical
+/// widgets. For example, a knob with a given size, style, and color
+/// only needs to be imaged once for all instances of the knob.
 class WidgetImageCache
 {
 private:
@@ -283,6 +308,7 @@ public:
 
 typedef long wdgColor;
 
+/// An entry in the color map.
 class WidgetColorEntry : public SynthList<WidgetColorEntry>
 {
 public:
@@ -298,6 +324,11 @@ public:
 	WidgetColorEntry *Match(const char *nm);
 };
 
+/// The color map is used to translate text names to binary RGB values.
+/// Color names are typically functional, not descriptive, e.g.,
+/// volume, frequency, etc. Using color names in the widget form
+/// files allows the color scheme to be changed globally by changing
+/// the color map file.
 class WidgetColorMap
 {
 private:
@@ -320,6 +351,25 @@ class WidgetForm;
 // callback function for enumeration
 typedef int (*WGCallback)(SynthWidget *wdg, void *arg);
 
+/// SynthWidget is the base class for all other widgets.
+/// A widget has a display area (rectangle), style, colors, and
+/// widget specific parameters. Widgets are arranged in a heirarchy
+/// with the GroupWidget the base class for aggregates. Widgets within
+/// a group have a position relative to the position of the group in 
+/// the form file, but are given an absolute position as they are loaded.
+///
+/// A widget that handles mouse interaction must implement the BtnDn(), BtnUp(),
+/// MouseMove(), and Tracking() functions. Tracking should return true if
+/// the widget is responding to mouse movements (mouse capture).
+///
+/// A widget has an ID and optional IP. IP is the instrument parameter
+/// number. Widgets can be located by ID or IP as needed.
+///
+/// When the value or state of a widget changes it invokes ValueChanged()
+/// on its parent object. If the widget has no parent, the form method is called.
+/// I.E., the events "bubble" to the top allowing each group widget to
+/// provide specialized handling of child events.
+///
 /// The "buddy system" is used to link knobs (buddy1) with labels (buddy2)
 /// but could be used for other things as well. The idea is that buddy1
 /// is the master, buddy2 the follower. If a widget has a "buddy1" and
@@ -460,11 +510,14 @@ public:
 	virtual int EnumUp(WGCallback cb, void *arg) { return cb(this, arg); }
 	virtual int EnumDn(WGCallback cb, void *arg) { return cb(this, arg); }
 
+	/// Load parameters.
+	/// @param elem XML node containing position and options
 	virtual int Load(XmlSynthElem *elem);
 	static int GetColorAttribute(XmlSynthElem *elem, char *attr, wdgColor& clr);
 	static unsigned int HexDig(int ch);
 };
 
+/// A dynamic aggregate of widgets.
 class WidgetGroup : public SynthWidget
 {
 protected:

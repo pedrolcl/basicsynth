@@ -1,7 +1,14 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef PROJECT_ITEM_H
 #define PROJECT_ITEM_H
 
 
+/// Project item types.
 enum PIType
 {
 	 PRJNODE_UNKNOWN = 0,
@@ -44,7 +51,16 @@ enum PIType
 #define ITM_ENABLE_CLOSE 0x0080
 #define ITM_ENABLE_ERRS  0x0100
 
-/// ProjectItem holds common meta-data for all project items.
+/// Base class for all project items.
+/// Entries in the project file generally match to one class derived
+/// from ProjectItem. ProjectItem defines the common properties and
+/// functions. Every item has a type, name, and description. The
+/// item action variable defines which editor actions are allowed
+/// on this item. An item can have a property box, an editor,
+/// or both. Items with editors will set the editor member only
+/// when the editor is open.
+/// @sa See the descriptions for PropertyBox and EditorView for more
+/// information.
 class ProjectItem
 {
 protected:
@@ -74,34 +90,64 @@ public:
 	{
 	}
 
+	/// Indicates the item is a leaf (bottom node of the tree).
+	/// Leaf nodes cannot have child nodes.
 	inline int IsLeaf() { return leaf; }
 
+	// Accessor functions.
+	/// Get the item type.
 	inline void SetType(PIType t) { type = t; }
+	/// Set the item type, typically set during construction.
 	inline PIType GetType() { return type; }
+	/// Set the parent item.
 	inline void SetParent(ProjectItem *p) { parent = p; }
+	/// Get the item parent item.
 	inline ProjectItem *GetParent() { return parent; }
+	/// Set the item name.
 	inline void SetName(const char *s) { name = s; }
+	/// Get the item name.
 	inline const char *GetName() { return name; }
+	/// Set the item description.
 	inline void SetDesc(const char *s) { desc = s; }
+	/// Get the item description.
 	inline const char *GetDesc() { return desc; }
+	/// Set the opened editor for this item.
 	inline void SetEditor(EditorView *p) { editor = p; }
+	/// Get the editor for this item if open.
 	inline EditorView *GetEditor() { return editor; }
+	/// Set the platform-specific data for this item.
 	inline void SetPSData(void *p) { psdata = p; }
+	/// Get the platform-specific data for this item.
 	inline void *GetPSData() { return psdata; }
 
+	/// A set of flags indicating which project functions are applicable to this item.
+	/// The values are the constants defined as ITM_ENABLE_* and are combined
+	/// into a single flag word. Some actions, such as SAVE and CLOSE are
+	/// set dynamically based on the state of the object.
 	virtual int ItemActions() { return actions; }
+	/// Create a new instance of this item.
 	virtual int NewItem() { return 0; }
+	/// Add an existing instance of this item.
 	virtual int AddItem() { return 0; }
+	/// Open the editor for this item.
 	virtual int EditItem() { return 0; }
+	/// Save the item (only for items with external files.)
 	virtual int SaveItem() { return 0; }
+	/// Close the editor for this item.
 	virtual int CloseItem();
+	/// Make a copy of this item.
 	virtual int CopyItem() { return 0; }
+	/// Remove this item from the project.
 	virtual int RemoveItem();
+	/// Open the property box for this item.
 	virtual int ItemProperties() { return 0; }
-	virtual int GetChanged() { return change; }
+	/// Get the changed flag for this item.
+	virtual int GetChange() { return change; }
 	virtual void SetChange(int c) { change = c; }
 
+	/// Load the properties into the property box.
 	virtual int LoadProperties(PropertyBox *pb) { return 1; }
+	/// Save the properties from the property box.
 	virtual int SaveProperties(PropertyBox *pb) { return 1; }
 
 	virtual int Load(XmlSynthElem *node);
@@ -114,12 +160,12 @@ public:
 };
 
 
-/// A project item that references an external file
-// A score file (Notelist)
-// or a Sequencer file
-// or a Script file
-// or a Plain text file
-// or a Instrument library file
+/// A project item that references an external file.
+/// A score file (Notelist)
+/// or a Sequencer file
+/// or a Script file
+/// or a Plain text file
+/// or a Instrument library file
 class FileItem : public ProjectItem
 {
 protected:
@@ -135,17 +181,13 @@ public:
 		loaded = 0;
 		actions = ITM_ENABLE_EDIT
 			    | ITM_ENABLE_PROPS 
-				| ITM_ENABLE_REM 
-				| ITM_ENABLE_SAVE 
-				| ITM_ENABLE_CLOSE;
+				| ITM_ENABLE_REM;
 	}
-
+	virtual int ItemActions();
 	inline const char *GetFile() { return file; }
 	inline void SetFile(const char *f) { file = f; }
 	inline void SetUse(short u) { useThis = u; }
 	inline short GetUse() { return useThis; }
-	inline short GetLoaded() { return loaded; }
-	inline void SetLoaded(short ld) { loaded = ld; }
 	inline bsString& PathBuffer() { return fullPath; }
 	inline const char *GetFullPath() { return fullPath; }
 	inline void SetFullPath(const char *p) { fullPath = p; }
@@ -153,6 +195,7 @@ public:
 	virtual int ItemProperties();
 	virtual int EditItem();
 	virtual int SaveItem();
+	virtual int CopyFile(const char *srcDir, const char *dstDir);
 	virtual int LoadProperties(PropertyBox *pb);
 	virtual int SaveProperties(PropertyBox *pb);
 
@@ -160,6 +203,7 @@ public:
 	int Save(XmlSynthElem *node);
 };
 
+/// ScoreError holds one syntax error for a notelist score.
 class ScoreError : public SynthList<ScoreError>
 {
 private:
@@ -182,6 +226,8 @@ public:
 
 class NotelistItem;
 
+/// ErrCB implements the nlErrOut class.
+/// This is used to receive callbacks during parsing a Notelist file.
 class ErrCB : public nlErrOut
 {
 public:
@@ -193,6 +239,7 @@ public:
 	virtual void OutputMessage(const char *s);
 };
 
+/// A notelist score file.
 class NotelistItem : public FileItem
 {
 private:
@@ -209,8 +256,6 @@ public:
 		actions  = ITM_ENABLE_COPY
 			     | ITM_ENABLE_REM
 				 | ITM_ENABLE_EDIT
-				 | ITM_ENABLE_SAVE
-				 | ITM_ENABLE_CLOSE
 				 | ITM_ENABLE_ERRS
 				 | ITM_ENABLE_PROPS;
 	}
@@ -233,6 +278,7 @@ public:
 	int Save(XmlSynthElem *node);
 };
 
+/// A list of files.
 class FileList : public ProjectItem
 {
 protected:
@@ -246,7 +292,9 @@ public:
 		name = "Text Files";
 		leaf = 0;
 		actions  = ITM_ENABLE_NEW 
-				 | ITM_ENABLE_ADD;
+				 | ITM_ENABLE_ADD
+				 | ITM_ENABLE_PROPS
+				 | ITM_ENABLE_SAVE;
 	}
 	virtual FileItem *NewChild()
 	{ 
@@ -262,10 +310,14 @@ public:
 	}
 	virtual int NewItem();
 	virtual int AddItem();
+	virtual int SaveItem();
+	virtual int CopyFiles(const char *srcDir, const char *dstDir);
+	virtual int ItemProperties();
 	virtual int Load(XmlSynthElem *node);
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// The list of notelist files.
 class NotelistList : public FileList
 {
 public:
@@ -283,6 +335,7 @@ public:
 	}
 };
 
+/// A list of sequence files.
 class SeqList : public FileList
 {
 public:
@@ -301,6 +354,7 @@ public:
 	}
 };
 
+/// The list of script files.
 class ScriptList : public FileList
 {
 public:
@@ -319,6 +373,8 @@ public:
 	int LoadScripts(nlConverter& cvt);
 };
 
+/// An instrument item.
+/// This item contains a reference to the actual instrument configuration.
 class InstrItem : public ProjectItem
 {
 private:
@@ -333,13 +389,11 @@ public:
 		actions = ITM_ENABLE_COPY
 				| ITM_ENABLE_EDIT
 				| ITM_ENABLE_REM
-				| ITM_ENABLE_SAVE
-				| ITM_ENABLE_COPY
-				| ITM_ENABLE_CLOSE
 				| ITM_ENABLE_PROPS;
 	}
 
 	void SetActions(int a) { actions = a; }
+	virtual int ItemActions();
 
 	inline void SetConfig(InstrConfig *e)
 	{
@@ -356,6 +410,8 @@ public:
 		return inc;
 	}
 
+	void RemoveInstr();
+
 	virtual int CopyItem();
 	virtual int EditItem();
 	virtual int RemoveItem();
@@ -369,9 +425,9 @@ public:
 	virtual int Load(XmlSynthElem *node);
 	virtual int Save(XmlSynthElem *node);
 
-	static int NextInum();
 };
 
+/// The list of project specific instruments.
 class InstrList : public ProjectItem
 {
 public:
@@ -381,6 +437,7 @@ public:
 		leaf = 0;
 		actions = ITM_ENABLE_NEW;
 	}
+	static int NextInum();
 
 	virtual int NewItem();
 	virtual int Load(XmlSynthElem *node);
@@ -388,29 +445,34 @@ public:
 
 };
 
+/// A library of instrument configurations.
 class LibfileItem : public FileItem
 {
 private:
 	int propFn;
+	bsInt16 baseNum;
 	int AddCopy(int f);
 
 public:
 	LibfileItem() : FileItem(PRJNODE_LIB)
 	{
+		propFn = 0;
 		leaf = 0;
+		baseNum = 0;
 		actions = ITM_ENABLE_COPY  // copy to project
 			    | ITM_ENABLE_ADD   // copy from project
 				| ITM_ENABLE_REM   // remove library from project
-				| ITM_ENABLE_PROPS // edit library properties
-				| ITM_ENABLE_SAVE; // save library changes
+				| ITM_ENABLE_PROPS; // edit library properties
 	}
 
-	int LoadLib();
+	int LoadLib(int added);
 	int NextInum();
+	int GetFn() { return propFn; }
 
+	virtual int ItemActions();
 	virtual int CopyItem();
 	virtual int AddItem();
-	virtual int RemItem();
+	virtual int RemoveItem();
 	virtual int ItemProperties();
 	virtual int SaveItem();
 	virtual int LoadProperties(PropertyBox *pb);
@@ -418,6 +480,7 @@ public:
 
 };
 
+/// A list of instrument libraries.
 class LibfileList : public FileList
 {
 protected:
@@ -443,6 +506,7 @@ public:
 	virtual int NewItem();
 };
 
+/// A wavetable.
 class WavetableItem : public ProjectItem
 {
 private:
@@ -470,8 +534,6 @@ public:
 		actions = ITM_ENABLE_EDIT 
 			    | ITM_ENABLE_PROPS
 				| ITM_ENABLE_COPY
-				| ITM_ENABLE_SAVE
-				| ITM_ENABLE_CLOSE
 				| ITM_ENABLE_REM;
 	}
 
@@ -530,6 +592,7 @@ public:
 	virtual WidgetForm *CreateForm(int xo, int yo);
 };
 
+/// A wave file.
 class WavefileItem : public FileItem
 {
 private:
@@ -559,6 +622,7 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// A list of wave files.
 class WavefileList : public ProjectItem
 {
 private:
@@ -580,6 +644,7 @@ public:
 };
 
 
+/// Base class for effects items.
 class FxItem : public ProjectItem
 {
 protected:
@@ -628,6 +693,7 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// A reverb unit.
 class ReverbItem : public FxItem
 {
 private:
@@ -655,6 +721,7 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// A flanger unit.
 class FlangerItem : public FxItem
 {
 private:
@@ -695,6 +762,7 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// An echo unit.
 class EchoItem : public FxItem
 {
 private:
@@ -729,6 +797,7 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// A mixer input channel.
 class ChannelItem : public ProjectItem
 {
 private:
@@ -761,6 +830,7 @@ public:
 
 class MixerEdit;
 
+/// The global mixer.
 class MixerItem : public ProjectItem
 {
 private:
@@ -791,9 +861,7 @@ public:
 		editX = 0;
 		editY = 0;
 		actions = ITM_ENABLE_EDIT 
-			    | ITM_ENABLE_PROPS
-				| ITM_ENABLE_CLOSE
-				| ITM_ENABLE_SAVE;
+			    | ITM_ENABLE_PROPS;
 	}
 
 	~MixerItem()
@@ -840,6 +908,7 @@ public:
 	void ResetMixer();
 	void EditorClosed();
 
+	virtual int ItemActions();
 	virtual int ItemProperties();
 	virtual int EditItem();
 	virtual int SaveItem();
@@ -853,6 +922,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////
 
+/// Ouput file information.
 class WaveoutItem : public ProjectItem
 {
 private:
@@ -897,6 +967,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
+/// Syntheiszer setup information.
 class SynthItem : public ProjectItem
 {
 private:
@@ -940,7 +1011,7 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
-/// used to maintain a list of files/directories, e.g., a search path
+/// A list of files/directories, e.g., a search path.
 class PathListItem  : public SynthList<PathListItem >
 {
 public:
@@ -951,6 +1022,7 @@ public:
 	}
 };
 
+/// The file search path.
 class PathList : public ProjectItem
 {
 private:
@@ -990,6 +1062,9 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+/// The synthesis project.
+/// There is exactly one of these whenever a project is open
+/// and it is referenced by the global variable theProject.
 class SynthProject : public ProjectItem
 {
 private:
@@ -1082,6 +1157,8 @@ public:
 	virtual int SaveProperties(PropertyBox *pb);
 	virtual int Load(XmlSynthElem *node);
 	virtual int Save(XmlSynthElem *node);
+
+	int CopyFiles(const char *oldDir, const char *newDir);
 };
 
 extern SynthProject *theProject;

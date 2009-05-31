@@ -119,6 +119,10 @@
 			<param name="Name" value="Modular Instrument">
 			<param name="Local" value="modsynthinstr.html">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Instrument Libraries">
+			<param name="Local" value="libraries.html">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Notelist">

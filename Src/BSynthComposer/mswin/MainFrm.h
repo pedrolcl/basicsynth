@@ -1,6 +1,9 @@
-// MainFrm.h : interface of the MainFrame class
-//
-/////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -54,7 +57,6 @@ public:
 	void UpdateItemUI(ProjectItem *pi);
 	void UpdateProjectUI();
 	ProjectItem *GetClickedItem();
-	void SaveBackup();
 	void SaveTemp(int sv);
 	void AfterOpenProject();
 

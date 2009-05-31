@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "StdAfx.h"
 #include "FindReplDlg.h"
 
@@ -57,7 +63,7 @@ LRESULT FindReplDlg::OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 	if (!ed)
 		return 0;
 
-	CString ftext;
+	bsString ftext;
 	int sel = GetFindText(findText, ftext);
 	int flags = GetFlags();
 	int res = ed->Find(flags, ftext);
@@ -75,8 +81,8 @@ LRESULT FindReplDlg::OnReplace(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& b
 	if (!ed)
 		return 0;
 
-	CString ftext;
-	CString rtext;
+	bsString ftext;
+	bsString rtext;
 	int fsel = GetFindText(findText, ftext);
 	int rsel = GetFindText(replText, rtext);
 	int flags = GetFlags();
@@ -107,8 +113,8 @@ void FindReplDlg::DoReplace(int inSel)
 	if (!ed)
 		return;
 
-	CString ftext;
-	CString rtext;
+	bsString ftext;
+	bsString rtext;
 	int fsel = GetFindText(findText, ftext);
 	int rsel = GetFindText(replText, rtext);
 
@@ -121,8 +127,9 @@ void FindReplDlg::DoReplace(int inSel)
 	int count = ed->ReplaceAll(flags, ftext, rtext, si);
 	if (inSel)
 		ed->SetSelection(si);
-	rtext.Format("%d replacement%s", count, count == 1 ? "." : "s.");
-	statText.SetWindowText(rtext);
+	char msg[256];
+	snprintf(msg, 256, "%d replacement%s", count, count == 1 ? "." : "s.");
+	statText.SetWindowText(msg);
 }
 
 LRESULT FindReplDlg::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
@@ -156,7 +163,7 @@ void FindReplDlg::SetEnable()
 	replBtn.EnableWindow(ed != NULL);
 }
 
-int FindReplDlg::GetFindText(CComboBox& wnd, CString& text)
+int FindReplDlg::GetFindText(CComboBox& wnd, bsString& text)
 {
 	int len;
 	char *tp;
@@ -164,7 +171,7 @@ int FindReplDlg::GetFindText(CComboBox& wnd, CString& text)
 	if (sel == -1)
 	{
 		len = wnd.GetWindowTextLength()+1;
-		tp = text.GetBuffer(len);
+		tp = new char[len];
 		wnd.GetWindowText(tp, len);
 		sel = wnd.FindStringExact(-1, tp);
 		if (sel == -1)
@@ -172,7 +179,6 @@ int FindReplDlg::GetFindText(CComboBox& wnd, CString& text)
 			sel = wnd.InsertString(0, tp);
 			wnd.SetCurSel(sel);
 		}
-		text.ReleaseBuffer();
 		int cnt;
 		while ((cnt = wnd.GetCount()) >= 20)
 			wnd.DeleteString(cnt-1);
@@ -180,9 +186,9 @@ int FindReplDlg::GetFindText(CComboBox& wnd, CString& text)
 	else
 	{
 		len = wnd.GetLBTextLen(sel)+1;
-		tp = text.GetBuffer(len);
+		tp = new char[len];
 		wnd.GetLBText(sel, tp);
-		text.ReleaseBuffer();
 	}
+	text.Attach(tp);
 	return sel;
 }

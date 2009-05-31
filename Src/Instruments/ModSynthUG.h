@@ -157,8 +157,10 @@ public:
 	{
 		DT *p = new DT;
 		p->SetName(name);
-		for (int n = 0; n < IP; n++)
-			p->SetInput(n, inputs[n]);
+		p->id = id;
+		//for (int n = 0; n < IP; n++)
+		//	p->SetInput(n, inputs[n]); <== this can have side-effects
+		memcpy(p->inputs, inputs, IP*sizeof(float));
 		return (ModSynthUG*)p;
 	}
 

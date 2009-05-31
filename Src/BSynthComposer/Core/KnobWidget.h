@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef _KNOBWIDGET_H_
 #define _KNOBWIDGET_H_
 
@@ -16,6 +22,7 @@ enum KnobImageType
 	baseKnob = 3
 };
 
+/// Image cache data for a knob
 struct KnobData : public ImageData
 {
 	long highClr;
@@ -64,6 +71,34 @@ struct KnobData : public ImageData
 
 extern WidgetImageCache *knobCache;
 
+/// The knob widget displays a circle with an indicator.
+/// The knob represents a variable value, with a minimum,
+/// maximum, and scaling factor. In addition, the digits
+/// of precision (right of the decimal point) can be set
+/// so that "round" values are returned. The knob value
+/// is changed with the mouse by moving the mouse in a 
+/// circular motion. Each pixel of movement is scaled to a
+/// change in the value based on the range of values.
+/// Change in x and y mouse position results in
+/// increase or decrease of value based on the position of
+/// the mouse relative to the center of the widget. If the
+/// mouse is above center, an increase in x produces an
+/// increase in value and a decrease in x produces a
+/// decrease in value. If the mouse is below center,
+/// the opposite occurs. For the y position, when
+/// the mouse is to the right of center, an increase
+/// in y produces a decrease in value, etc.
+/// This emulates the action of a physical knob
+/// where the knob is moved by setting a finger against
+/// the knob and moving back and forth. Holding down
+/// the shift and control keys while moving the mouse
+/// "warps" the speed of the knob so that a pixel movement
+/// is multiplied or divided. When shift and control are up,
+/// a one pixel movement moves the value by the next to least
+/// digit.
+///
+/// The graphic allows for a gradient fill on the face of the
+/// knob (where the platform supports it) producing a 3D shading effect.
 class KnobWidget : public SynthWidget
 {
 protected:
@@ -123,6 +158,7 @@ public:
 	virtual void DrawTicks(DrawContext dc, wdgRect& bk, wdgRect& fc);
 };
 
+/// The knob black widget displays a black, knurled knob with an indicator.
 class KnobBlack : public KnobWidget
 {
 private:
@@ -133,6 +169,7 @@ public:
 	virtual void Paint(DrawContext dc);
 };
 
+/// The based knob widget displays a three-part knob with gray base, shaft and face.
 class KnobBased : public KnobWidget
 {
 private:
@@ -144,6 +181,10 @@ public:
 	virtual void Paint(DrawContext dc);
 };
 
+/// A frequency group combines two knobs and two labels.
+/// The value of the group is the sum of the two knobs.
+/// One knob represents the integer frequency multiple (course tuning)
+/// while the other knob represents the fractional multiple (fine tuning).
 class FrequencyGroup : public WidgetGroup
 {
 protected:

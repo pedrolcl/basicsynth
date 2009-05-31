@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 
 #ifndef GENERATE_DLG_H
 #define GENERATE_DLG_H
@@ -11,7 +17,7 @@ private:
 	CEdit tm;
 	CEdit lpk;
 	CEdit rpk;
-	CString lastMsg;
+	bsString lastMsg;
 	long lastTime;
 	int canceled;
 	int genAuto;

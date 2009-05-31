@@ -1,7 +1,9 @@
-// stdafx.h : include file for standard system include files,
-//  or project specific include files that are used frequently, but
-//      are changed infrequently
-//
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -14,7 +16,7 @@
 #define _RICHEDIT_VER	0x0200
 
 #include <atlbase.h>
-#include <atlstr.h>
+//#include <atlstr.h>
 #include <atlapp.h>
 
 class SynthAppModule : public CAppModule

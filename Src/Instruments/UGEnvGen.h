@@ -24,6 +24,7 @@ extern UGParam envSegNParams[];
 #define UGAR_FIX   6
 #define UGAR_SCL   7
 
+/// @brief AR envelope generator UG
 class UGEnvAR : public ModSynthUGImpl<UGEnvAR, EnvGenAR, 8>
 {
 public:
@@ -90,6 +91,7 @@ public:
 #define UGADSR_FIX   9
 #define UGADSR_SCL  10
 
+/// @brief ADSR envelope generator UG
 class UGEnvADSR : public ModSynthUGImpl<UGEnvADSR, EnvGenADSR, 11>
 {
 public:
@@ -163,6 +165,7 @@ public:
 #define UGEG_MAXSEG 12
 #define UGEG_MAXPARAM ((UGEG_MAXSEG*4)+5)
 
+/// @brief Variable segment envelope generator UG
 class UGEnvSegN : public ModSynthUGImpl<UGEnvSegN, EnvGenSegSus, UGEG_MAXPARAM>
 {
 private:

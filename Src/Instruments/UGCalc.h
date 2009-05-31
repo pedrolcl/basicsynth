@@ -14,6 +14,9 @@
 extern UGParam valueParam[];
 #define UGVAL_INP 0
 
+/// @brief Store a parameter value
+/// @details The value UG is used internally to 
+/// represent an event parameter: frequency, duration, or volume
 class UGValue : public ModSynthUGImpl<UGValue, GenUnit, 1>
 {
 private:
@@ -61,6 +64,10 @@ extern UGParam valOut[];
 #define UGOUT_PON  5
 #define UGOUT_NUMINP 6
 
+/// @brief Output unit
+/// @details The out UG accumulates samples for one tick
+/// and then sends them to the mixer (via the instrument manager).
+/// Out includes an optional internal panner for dynamic panning functions.
 class UGOut : public ModSynthUGImpl<UGOut, GenUnit, UGOUT_NUMINP>
 {
 public:
@@ -170,7 +177,7 @@ extern UGParam calcParams[];
 #define UGOP_SUB   2 // v1-v2
 #define UGOP_MUL   3 // v1*v2
 #define UGOP_DIV   4 // v1/v2
-#define UGOP_MOD   5
+#define UGOP_MOD   5 // v1 % v2
 #define UGOP_EXP   6 // v1^v2
 #define UGOP_SQR   7 // v1 * sqrt(v2)
 #define UGOP_LOG   8 // log(v1) * v2
@@ -193,7 +200,13 @@ extern UGParam calcParams[];
 #define UGOP_NE   25 // v1 != v2
 #define UGOP_WRP  26 // set: 0 <= v1 < v2
 #define UGOP_SHFT 27 // y[n] = x[n-1], x[n-1] = x[n]
+#define UGOP_FLOOR 28 // floor(val1)
+#define UGOP_FRACT 29 // val1 - floor(val1)
 
+/// @brief Calculator unit
+/// @details The calculator performs one of several calculations.
+/// Although possible, it's not a good idea to change the
+/// opcode during playback.
 class UGCalc : public ModSynthUGImpl<UGCalc, GenUnit, 3>
 {
 public:
@@ -353,6 +366,12 @@ public:
 			out = inputs[1];
 			inputs[1] = inputs[0];
 			break;
+		case UGOP_FLOOR:
+			out = floor(inputs[0]);
+			break;
+		case UGOP_FRACT:
+			out = inputs[0] - floor(inputs[0]);
+			break;
 		default:
 			out = 0.0f;
 			break;
@@ -365,13 +384,16 @@ public:
 #define UGSCL_OMN 2
 #define UGSCL_IMX 3
 #define UGSCL_IMN 4
-//
-//                      (outmax - outmin)
-// out = (in - inmin) * ----------------- + outmin
-//                       (inmax - inmin)
-//
 extern UGParam scaleParams[];
 
+/// @brief Scale a value
+/// The scale operator converts an input range to an output
+/// range using the equation:
+/// @code
+///                      (outmax - outmin)
+/// out = (in - inmin) * ----------------- + outmin
+///                       (inmax - inmin)
+/// @endcode
 class UGScale : public ModSynthUGImpl<UGScale, GenUnit, 5>
 {
 public:

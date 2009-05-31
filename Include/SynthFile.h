@@ -129,5 +129,10 @@ public:
 /// @param fname full path to the file or directory.
 int SynthFileExists(const char *fname);
 
+/// Copy a file
+/// @param oldName full path to existing file
+/// @param newName full path to copied file
+int SynthCopyFile(const char *oldName, const char *newName);
+
 //@}
 #endif

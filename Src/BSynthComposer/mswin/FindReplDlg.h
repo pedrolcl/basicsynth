@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "resource.h"
@@ -27,7 +33,7 @@ private:
 	void SetEnable();
 	int FindNext();
 	void DoReplace(int inSel);
-	int GetFindText(CComboBox& wnd, CString& text);
+	int GetFindText(CComboBox& wnd, bsString& text);
 
 public:
 	FindReplDlg();

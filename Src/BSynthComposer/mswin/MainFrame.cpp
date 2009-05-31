@@ -225,21 +225,6 @@ void MainFrame::UpdateLayout(BOOL bResizeBars)
 			SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
-void MainFrame::SaveBackup()
-{
-	if (theProject)
-	{
-		bsString path;
-		theProject->GetProjectPath(path);
-		if (path.Length() > 0 && GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES)
-		{
-			bsString bak;
-			bak = path;
-			bak += ".bak";
-			CopyFile(path, bak, 0);
-		}
-	}
-}
 
 void MainFrame::SaveTemp(int sv)
 {
@@ -312,12 +297,12 @@ void MainFrame::UpdateEditUI(int pg)
 
 void MainFrame::UpdateItemUI(ProjectItem *pi)
 {
-	int file = 0;
+	//int file = 0;
 	int enable = 0;
 	if (pi)
 	{
 		enable = pi->ItemActions();
-		file = pi->GetEditor() != 0;
+		//file = pi->GetEditor() != 0;
 	}
 	UIEnable(ID_ITEM_ADD, enable & ITM_ENABLE_ADD);
 	UIEnable(ID_ITEM_NEW, enable & ITM_ENABLE_NEW);
@@ -325,8 +310,8 @@ void MainFrame::UpdateItemUI(ProjectItem *pi)
 	UIEnable(ID_ITEM_COPY, enable & ITM_ENABLE_COPY);
 	UIEnable(ID_ITEM_REMOVE, enable & ITM_ENABLE_REM);
 	UIEnable(ID_ITEM_PROPERTIES, enable & ITM_ENABLE_PROPS);
-	UIEnable(ID_ITEM_CLOSE, enable & ITM_ENABLE_CLOSE && file);
-	UIEnable(ID_ITEM_SAVE, enable & ITM_ENABLE_SAVE && file);
+	UIEnable(ID_ITEM_CLOSE, enable & ITM_ENABLE_CLOSE);
+	UIEnable(ID_ITEM_SAVE, enable & ITM_ENABLE_SAVE);
 }
 
 void MainFrame::UpdateProjectUI()
@@ -436,19 +421,13 @@ LRESULT MainFrame::OnOpenProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 
 LRESULT MainFrame::OnSaveProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	if (!theProject)
-		return 0;
-	SaveBackup();
-	SaveAllEditors(0);
-	SaveProject(0);
+	SaveProject();
 	return 0;
 }
 
 LRESULT MainFrame::OnSaveProjectAs(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	if (!theProject)
-		return 0;
-	SaveProject(1);
+	SaveProjectAs();
 	return 0;
 }
 
@@ -780,10 +759,12 @@ LRESULT MainFrame::OnPageActivated(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 			if (itm)
 			{
 				prjList.SelectItem((HTREEITEM)itm->GetPSData());
-				if (itm->GetType() == PRJNODE_INSTR)
+				switch (itm->GetType())
 				{
-					InstrItem *ii = (InstrItem *)itm;
-					kbdWnd.SelectInstrument(ii->GetConfig());
+				case PRJNODE_INSTR:
+				case PRJNODE_LIBINSTR:
+					kbdWnd.SelectInstrument(((InstrItem *)itm)->GetConfig());
+					break;
 				}
 			}
 		}
@@ -842,10 +823,13 @@ LRESULT MainFrame::OnPrjRClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		case PRJNODE_NOTELIST:
 		case PRJNODE_SEQLIST:
 		case PRJNODE_TEXTLIST:
-		case PJRNODE_SCRIPTLIST:
 		case PRJNODE_LIBLIST:
+		case PJRNODE_SCRIPTLIST:
 		case PRJNODE_WVFLIST:
 			subMnu = 4;
+			break;
+		case PRJNODE_LIB:
+			subMnu = 6;
 			break;
 		default:
 			subMnu = 5;
@@ -901,6 +885,8 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 		return;
 
 	ProjectItem *parent = itm->GetParent();
+	if (parent == 0)
+		return;
 
 	TVINSERTSTRUCT tvi;
 	memset(&tvi, 0, sizeof(tvi));
@@ -935,8 +921,8 @@ void MainFrame::RemoveNode(ProjectItem *itm)
 {
 	if (itm == 0 || itm->GetPSData() == 0)
 		return;
-	if (itm->GetEditor())
-		CloseEditor(itm);
+
+	//CloseEditor(itm);
 
 	HTREEITEM ht = (HTREEITEM) itm->GetPSData();
 	itm->SetPSData(0);
@@ -1059,6 +1045,17 @@ PropertyBox *MainFrame::CreatePropertyBox(ProjectItem *pi, int type)
 			pb = static_cast<PropertyBox*>(e);
 		}
 		break;
+	case PRJNODE_NOTELIST:
+	case PRJNODE_FILELIST:
+	case PRJNODE_SEQLIST:
+	case PRJNODE_TEXTLIST:
+	case PJRNODE_SCRIPTLIST:
+		{
+			FilelistOrder *f = new FilelistOrder;
+			f->SetItem(pi);
+			pb = static_cast<PropertyBox*>(f);
+		}
+		break;
 	case PRJNODE_NOTEFILE:
 	case PRJNODE_SEQFILE:
 	case PRJNODE_TEXTFILE:
@@ -1162,6 +1159,8 @@ int MainFrame::CloseEditor(ProjectItem *itm)
 		return 0;
 
 	EditorView *vw = itm->GetEditor();
+	if (!vw)
+		return 0;
 	int pg;
 	for (pg = 0; pg < tabView.GetPageCount(); pg++)
 	{

@@ -1,9 +1,21 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project item to represent the output wave file.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "WindowTypes.h"
 #include "ProjectItem.h"
 
 int WaveoutItem::Load(XmlSynthElem *node)
 {
+	// TODO: for now we only allow WAV files and so
+	// ignore the type attribute.
+	// When support for other output formats is included,
+	// we will need to load the type as well.
 //	node->GetAttribute("type", outType);
 	node->GetAttribute("fmt", sampleFmt);
 	node->GetAttribute("lead", leadIn);

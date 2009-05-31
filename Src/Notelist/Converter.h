@@ -32,14 +32,21 @@ class nlErrOut
 {
 public:
 
+	/// display a debug message
 	virtual void OutputDebug(const char *s)
 	{
 	}
 
+	/// display an error message
+	/// @param s string to display
 	virtual void OutputError(const char *s)
 	{
 	}
 
+	/// display an error message.
+	/// This function catenates the parts of the syntax error
+	/// structure into a single string.
+	/// @param e error structure.
 	virtual void OutputError(nlSyntaxErr *e)
 	{
 		char lnstr[80];
@@ -56,6 +63,7 @@ public:
 		OutputError((const char *)msg);
 	}
 
+	/// display an informational message.
 	virtual void OutputMessage(const char *s)
 	{
 	}
@@ -77,7 +85,12 @@ public:
 };
 
 /// @brief Parameter mapping
-/// @details nlParamMap holds a set of parameter mappings for an instrument
+/// @details nlParamMap holds a set of parameter mappings for an instrument.
+/// A notelist note statment has positional parameters (p num) that
+/// may need to be converted to an instrument specific parameter ID.
+/// The map keeps track of the parameter ID values for each positional
+/// parameter. In addition, we can supply a scaling factor so that
+/// parameter values are normalized on the note statement.
 class nlParamMap : public SynthList<nlParamMap>
 {
 public:
@@ -102,16 +115,19 @@ public:
 		delete mapPtr;
 	}
 
+	/// Set the instrument number (ID)
 	inline void SetInstr(int n)
 	{
 		instr = n;
 	}
 
+	/// Test the instrument number for a match.
 	inline int Match(int n)
 	{
 		return n == instr;
 	}
 
+	/// Remove all entries in the map.
 	void Clear()
 	{
 		for (int pn = 0; pn < mapSiz; pn++)
@@ -128,6 +144,10 @@ public:
 		maxEnt = 0;
 	}
 
+	/// Add an entry to the parameter map.
+	/// @param pn parameter number
+	/// @param mn parameter ID
+	/// @param scl scaling factor
 	void AddEntry(int pn, int mn, float scl)
 	{
 		if (pn >= mapSiz)
@@ -153,6 +173,12 @@ public:
 			maxEnt = pn;
 	}
 
+	/// Map the parameter index number.
+	/// The converted parameter is stored in the event structure
+	/// using the actual parameter ID. Scaling is performed as well.
+	/// @param evt sequencer event
+	/// @param pn paramater index
+	/// @param val value to set for parameter pn
 	void MapParam(SeqEvent *evt, int pn, double val)
 	{
 		if (pn <= maxEnt)
@@ -202,6 +228,8 @@ protected:
 
 	void MakeEvent(int evtType, double start, double dur, double vol, double pit, int pcount, double *params);
 
+	friend class nlGenerate;
+	friend class nlParser;
 public:
 	nlConverter();
 	virtual ~nlConverter();
@@ -230,6 +258,9 @@ public:
 	virtual void Reset();
 
 	/// Set the error callback object.
+	/// The caller must set this object in order to receive
+	/// syntax errors, debug messages, and "write" statements.
+	/// @param e error output interface
 	virtual void SetErrorCallback(nlErrOut *e)
 	{
 		eout = e;
@@ -237,6 +268,7 @@ public:
 
 	/// Set the sequencer object.
 	/// Events will be sent to this object.
+	/// @param sp sequencer implementation
 	void SetSequencer(Sequencer *sp)
 	{
 		seq = sp;
@@ -248,6 +280,7 @@ public:
 	/// manager object. If scripts only contain numbers
 	/// for instruments and no map statements, this
 	/// object is optional.
+	/// @param ip instrument manager instance
 	void SetInstrManager(InstrManager *ip)
 	{
 		mgr = ip;
@@ -256,11 +289,20 @@ public:
 	/// Set the playback sample rate.
 	/// This is used to calculate the duration value
 	/// for sequencer events.
+	/// @param sr sample rate in samples per second
 	void SetSampleRate(double sr)
 	{
 		sampleRate = sr;
 	}
 
+	/// @brief Set the script engine.
+	/// @details The script engine is optional. It is
+	/// invoked for "script" and "eval" statements.
+	/// The script engine receives pointers to the
+	/// converter and generator objects. Through these
+	/// objects the script can reference the current voice
+	/// and call functions on the converter to create events.
+	/// @param ep instance of a script engine interface.
 	void SetScriptEngine(nlScriptEngine *ep)
 	{
 		if ((eng = ep) != NULL)
@@ -275,8 +317,10 @@ public:
 		return eng;
 	}
 
-	// Functions below this point are used internally but must be
-	// public in order for the parser and generator to access them.
+//protected:
+
+	// Functions below this point are used internally but are declared
+	// public in order for the generator script nodes to access them.
 	// Technically, they are "friend" objects.
 	virtual void DebugNotify(int n, const char *s)
 	{

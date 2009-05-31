@@ -540,9 +540,6 @@ WavefilePropertiesDlg::WavefilePropertiesDlg(ProjectItem *p)
 	fileArg.typ = ProjectItem::GetFileSpec(p->GetType());
 	fileBrowse->callback(BrowseCB, (void*)&fileArg);
 	ypos += txtSpace;
-	lpStart = new Fl_Input(90, ypos, 80, txtHeight, "Loop Start");
-	lpEnd = new Fl_Input(260, ypos, 80, txtHeight, "Loop End");
-	ypos += txtSpace;
 	wfId = new Fl_Input(90, ypos, 80, txtHeight, "Wavefile ID");
 	ypos = AddOkCancel(ypos+txtSpace);
 }
@@ -553,10 +550,6 @@ void WavefilePropertiesDlg::EnableValue(int id, int enable)
 		ItemPropertiesBase::EnableValue(fileInp, enable);
 	else if (id == PROP_WVID)
 		ItemPropertiesBase::EnableValue(wfId, enable);
-	else if (id == PROP_LPST)
-		ItemPropertiesBase::EnableValue(lpStart, enable);
-	else if (id == PROP_LPEND)
-		ItemPropertiesBase::EnableValue(lpEnd, enable);
 	else
 		ItemPropertiesBase::EnableValue(id, enable);
 }
@@ -567,10 +560,6 @@ void WavefilePropertiesDlg::SetValue(int id, const char *val, const char *lbl)
 		ItemPropertiesBase::SetValue(fileInp, val, lbl);
 	else if (id == PROP_WVID)
 		ItemPropertiesBase::SetValue(wfId, val, lbl);
-	else if (id == PROP_LPST)
-		ItemPropertiesBase::SetValue(lpStart, val, lbl);
-	else if (id == PROP_LPEND)
-		ItemPropertiesBase::SetValue(lpEnd, val, lbl);
 	else
 		ItemPropertiesBase::SetValue(id, val, lbl);
 }

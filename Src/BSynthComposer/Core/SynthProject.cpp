@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth - Project item that represents the whole project.
+//
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
 
@@ -452,6 +460,8 @@ int SynthProject::SaveProject(const char *fname)
 		}
 		fname = prjPath;
 	}
+	else
+		SetProjectPath(fname);
 
 	XmlSynthDoc doc;
 	XmlSynthElem *root;
@@ -465,9 +475,30 @@ int SynthProject::SaveProject(const char *fname)
 
 	delete root;
 	if (err == 0)
-		doc.Save((char*)fname);
-
+	{
+		if (doc.Save((char*)fname))
+		{
+			lastError = "Cannot write output file";
+			return -1;
+		}
+	}
 	change = 0;
+	return err;
+}
+
+int SynthProject::CopyFiles(const char *oldDir, const char *newDir)
+{
+	int err = 0;
+	if (nlInfo)
+		err |= nlInfo->CopyFiles(oldDir, newDir);
+	if (seqInfo)
+		err |= seqInfo->CopyFiles(oldDir, newDir);
+	if (txtInfo)
+		err |= txtInfo->CopyFiles(oldDir, newDir);
+	if (scriptInfo)
+		err |= scriptInfo->CopyFiles(oldDir, newDir);
+	if (libInfo)
+		err |= libInfo->CopyFiles(oldDir, newDir);
 	return err;
 }
 

@@ -44,16 +44,8 @@ public:
 			waveTable = wtSet.GetWavetable(WT_SIN);
 
 		indexIncr = (PhsAccum) frq * synthParams.frqTI;
-		while (indexIncr >= synthParams.ftableLength)
-			indexIncr -= synthParams.ftableLength;
-		while (indexIncr < 0)
-			indexIncr += synthParams.ftableLength;
-		if (initPhs >= 0)
-		{
-			index = initPhs * synthParams.radTI;
-			while (index >= synthParams.ftableLength)
-				index -= synthParams.ftableLength;
-		}
+		if (initPhs > 0)
+			index = (initPhs / twoPI) * synthParams.ftableLength;
 	}
 
 	/// @copydoc GenWave::Modulate()
@@ -240,7 +232,7 @@ public:
 		GenWaveWT::Reset(initPhs);
 		CalcPhase();
 		if (initPhs >= 0)
-			i32Index = (bsInt32) (index * 65536,0);
+			i32Index = (bsInt32) (index * 65536.0);
 	}
 
 	/// @copydoc GenWave::Gen()

@@ -1,6 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright 2009, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef KEYBOARD_FORM_H
 #define KEYBOARD_FORM_H
 
+/// Widget form for the virtual keyboard.
 class KeyboardForm : public WidgetForm
 {
 private:
