@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file MixerControl.cpp Implementation of the MixerControl instrument.
+//
 // BasicSynth - Dynamic Mixer Control instrument 
 //
 // Performs dynamic control of the mixer. The following functions

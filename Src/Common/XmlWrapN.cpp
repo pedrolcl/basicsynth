@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////
+/// @file XmlWrapN.cpp NULL XML wrapper
+//
 // BasicSynth
 //
 // NULL XmlWrapper - dummy functions for systems that don't 

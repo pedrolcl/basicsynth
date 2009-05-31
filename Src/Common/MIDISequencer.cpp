@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////
+/// @file MIDISequencer.cpp Example sequencer for MIDI files.
+//
 // BasicSynth
 //
 // MIDI Sequencer code that is not inline

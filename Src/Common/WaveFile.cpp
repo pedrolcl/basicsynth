@@ -1,7 +1,5 @@
 //////////////////////////////////////////////////////////////////
-// BasicSynth
-//
-// WaveFile output functions
+/// @file WaveFile.cpp Implementation of WaveFile output functions
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

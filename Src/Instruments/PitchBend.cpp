@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file PitchBend.cpp Implementation of the pitch bend unit.
+//
 // BasicSynth pitch bend unit
 //
 // The pitch bend unit provides a specialized envelope with two segments.

@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file ScriptEngine.h Definition of the interface for external scripting.
+//
 // Script engine interface
 // This is a pure virutal class that defines the interface between
 // the Notelist converter and a plugin script enginge.

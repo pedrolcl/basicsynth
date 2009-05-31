@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Tone.cpp Implementation of the Tone and ToneFM instruments.
+//
 // BasicSynth Tone instruments
 //
 // See _BasciSynth_ Chapter 19 and 22 for a full explanation

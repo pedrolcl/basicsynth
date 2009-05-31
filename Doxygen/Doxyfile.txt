@@ -83,6 +83,7 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../Include \
+                         ../Src/Common \
                          ../Src/Instruments \
                          ../Src/Notelist
 FILE_PATTERNS          = *.c \

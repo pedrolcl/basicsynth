@@ -1,4 +1,6 @@
 ///////////////////////////////////////////////////////////
+/// @file ConverterSCO.cpp Implementation of the Notelist converter for CSound score files
+//
 // Convert to CSound score file.
 //
 // Copyright 2008, Daniel R. Mitchell

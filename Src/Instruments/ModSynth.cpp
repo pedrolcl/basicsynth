@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file ModSynth.cpp Implementation of the ModSynth instrument.
+//
 // BasicSynth - Modular Synthesis instrument 
 //
 // Maintains a list of unit generators and scans the list on each tick.

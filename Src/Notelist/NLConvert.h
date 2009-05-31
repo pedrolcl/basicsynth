@@ -1,5 +1,6 @@
 //////////////////////////////////////////////////////////////////////
-// Notelist Converter definitions
+/// @file NlConvert.h  Notelist Converter definitions
+//
 // This file contains the definitions for tokens and global functions
 // used by the notelist parser and sequence generators.
 // Since it includes the other header files, only this file needs to be 

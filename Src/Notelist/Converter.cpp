@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Converter.cpp Implementation of the Notelist converter.
+//
 // The converter class is the container for the interpreter. This is
 // the class that aggregates the lexer, parser, generator and other
 // relevant bits and pieces, and provides the interace to Notelist. 

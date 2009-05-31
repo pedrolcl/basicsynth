@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Parser.cpp Implementation of the Notelist parser.
+//
 // Implementation of the nlParser class. This is a recursive descent
 // parser. It receives input tokes from an nlLex object and adds the
 // appropriate nodes to the generator object.

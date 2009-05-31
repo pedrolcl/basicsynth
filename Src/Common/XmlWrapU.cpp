@@ -1,4 +1,6 @@
 /////////////////////////////////////////////////////////////////
+/// @file XmlWrapU.cpp libxml2 wrapper
+//
 // XML implementation for Unix systems using libxml2
 //
 // Copyright 2008, Daniel R. Mitchell

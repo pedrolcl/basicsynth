@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth - Additive Synthesis instrument 
+/// @file AddSynth.cpp Implementation for Additive Synthesis instrument
 //
 // See _BasicSynth_ Chapter 20 for a full explanation
 //

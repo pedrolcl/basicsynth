@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////
-// BasicSynth
+/// @file Global.cpp Global functions and objects.
 //
-// Global objects and functions for BasicSynth
+// BasicSynth -- Global objects and functions for BasicSynth
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

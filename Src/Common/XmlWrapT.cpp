@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////
+/// @file XmlWrapT.cpp TinyXML wrapper
+//
 // BasicSynth
 //
 // TinyXML XmlWrapper - see: www.sourceforge.net/projects/tinyxml

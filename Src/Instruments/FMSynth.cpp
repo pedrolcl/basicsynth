@@ -1,4 +1,5 @@
 //////////////////////////////////////////////////////////////////////
+/// @file FMSynth.cpp Implementation of the FMSynth instrument
 // BasicSynth FM Synthesis instrument
 //
 // See _BasicSynth_ Chapter 22 for a full explanation

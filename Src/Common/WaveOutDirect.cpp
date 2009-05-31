@@ -1,4 +1,6 @@
 ///////////////////////////////////////////////////////////
+/// @file WaveOutDirect.cpp Sample output using DirectSound
+//
 // BasicSynth - send samples to the sound card using DirectSound
 //
 // Copyright 2008, Daniel R. Mitchell

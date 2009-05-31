@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// @file FMSynth.h BasicSynth FM Synthesis instrument
+/// @file FMSynth.h BasicSynth FM Synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

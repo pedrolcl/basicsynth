@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Lex.cpp Implementation of the Notelist lexical scanner.
+//
 // This is the lexical scanner (lexer) for Notelist
 // The nlLex class relies on a contained class derived from nlLexIn
 // to manage character-by-character input.

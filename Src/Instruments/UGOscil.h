@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-/// @file UGCalc.h Oscillators (and noise generators) for ModSynth
+/// @file UGOscil.h Oscillators (and noise generators) for ModSynth
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

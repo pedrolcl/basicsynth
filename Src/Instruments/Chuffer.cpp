@@ -1,4 +1,5 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Chuffer.cpp Implementation of the Chuffer instrument
 // BasicSynth - "Chuffer" a noise based instrument 
 //
 // Combines a noise generator and filter.

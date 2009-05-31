@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////
+/// @file SynthString.cpp Implementation of bsString
+//
 // BasicSynth Library
 //
 // String class implementation

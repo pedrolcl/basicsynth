@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file Generate.cpp Implementation of the Notelist event generator.
+//
 // Notelist Generator and Script node classes
 //
 // These classes do the work of generating sequencer events from the

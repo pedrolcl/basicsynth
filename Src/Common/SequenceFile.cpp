@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// Sequencer file loading routines.
+/// @file SequenceFile.cpp Implementation of sequencer file loading routines.
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

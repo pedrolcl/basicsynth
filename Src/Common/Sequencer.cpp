@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////
+/// @file Sequencer.cpp Implementation of the sequencer.
+//
 // BasicSynth
 //
 // Sequencer code that is not inline

@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////
+/// @file SynthFileW.cpp File I/O for Windows
+//
 // BasicSynth Library
 //
 // File I/O implementation for Windows API

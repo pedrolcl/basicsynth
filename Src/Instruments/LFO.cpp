@@ -1,4 +1,5 @@
 //////////////////////////////////////////////////////////////////////
+/// @file LFO.cpp Implementation of the LFO unit.
 // BasicSynth LFO: Low Frequency Oscillator
 //
 // Used for vibrato and similar effects. By default this uses the

@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file WFSynth.cpp Implementation of the WFSynth instrument.
+//
 // BasicSynth WaveFile playback instrument
 //
 // See _BasicSynth_ Chapter 23 for a full explanation

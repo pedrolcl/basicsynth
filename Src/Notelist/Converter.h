@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
-/// @file Converter.h Notelist conversion
+/// @file Converter.h Notelist conversion classes
 //
+// Notelist Converter class definitions.
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

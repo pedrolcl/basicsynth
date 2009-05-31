@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file LoadInstrLib.cpp Implementation of functions to load instrument XML files.
+//
 // BasicSynth instrument library load functions
 //
 // Note: These are now redundant since the implementation

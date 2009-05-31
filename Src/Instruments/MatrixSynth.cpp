@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file MatrixSynth.cpp Implementation of the MatSynth instrument.
+//
 // BasicSynth Matrix Synthesis instrument
 //
 // See _BasicSynth_ Chapter 24 for a full description

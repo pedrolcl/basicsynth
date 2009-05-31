@@ -1,3 +1,5 @@
+/// @file Instruments.h Include for all instrument header files.
+
 // If  USE_OSCILI is defined, instruments use the slightly
 // slower, but more accurate, interpolating oscillator class
 

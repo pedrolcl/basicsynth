@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file SubSynth.cpp Implementation of the SubSynth instrument.
+//
 // BasicSynth Subtractive synthesis instrument
 //
 // See _BasicSynth_ Chapter 21 for a full explanation

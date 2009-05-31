@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////
-// BasicSynth - file I/O implementation using Unix system calls
+/// @file SynthFileU.cpp File I/O implementation using Unix system calls
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

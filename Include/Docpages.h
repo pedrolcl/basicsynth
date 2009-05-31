@@ -1,3 +1,4 @@
+/// @file Docpages.h Documentation
 // This file is used to create documentation pages with Doxygen 
 // and does not need to be included in compiles.
 
@@ -25,6 +26,10 @@ Longer functions, and those that are not time critical, are located in the
 <tr><td>Include</td><td> Source include files. Much of the BasicSynth sound generation code is contained in these files</td></tr>
 <tr><td>Documents</td><td> Various documents.</td></tr>
 <tr><td>Doxygen</td><td> Doxygen project files; used to generate library documentation.</td></tr>
+<tr><td>OpenSource</td><td>Open source libraries and include files (if needed).</td></tr>
+<tr><td>OpenSource/scintilla</td><td>VS 2008 project files to build scintilla for BSynthComposer.
+By default, the BSynthComposer looks here for the header files.
+If scintilla is installed elsewhere, change the project file for BSynthComposer to reference the include directory. </td></tr>
 <tr><td>Src</td><td>Source code</td></tr>
 <tr><td>Src/Common</td><td>Common source, mostly implementation of sequencers and file I/O</td></tr>
 <tr><td>Src/Instruments</td><td>Source to the BasicSynth instruments collection library.</td></tr>
@@ -32,6 +37,12 @@ Longer functions, and those that are not time critical, are located in the
 <tr><td>Src/Examples</td><td> Source to the example programs. Each sub-directory contains one example program. The theory and algorithm of each program is explained in the associated book chapter.</td></tr>
 <tr><td>Src/Utilities</td><td> Source to the utility programs. Each sub-directory contains one utility program. These are Windows-only GUI programs that use the BasicSynth library and demonstrate various synthesis techniques.</td></tr>
 <tr><td>BSynth</td><td> Command line version of the synthesizer.</td></tr>
+<tr><td>Src/BSynthComposer</td><td>GUI version of the synthesizer. </td> </tr>
+<tr><td>Src/BSynthComposer/Core</td><td>Platform independent parts.</td></tr>
+<tr><td>Src/BSynthComposer/Forms</td><td>XML files defining editor forms.</td></tr>
+<tr><td>Src/BSynthComposer/mswin</td><td>MS-Windows specific code.</td></tr>
+<tr><td>Src/BSynthComposer/Help</td><td>Help files in HTML format and compiled help project for MS-Windows.</td></tr>
+<tr><td>Src/BSynthComposer/fltk</td><td>FLTK specific code (prototype).</td></tr>
 </table>
 
 To build your own synthesis program with \e BasicSynth you need at a minimum the Include files
@@ -62,9 +73,10 @@ have the library available on the linker library path.
 There are several solution files that can be built depending on what you want to do. 
 Default solution files are for Visual Studio 2008 (i.e. version 9). Solution files with 2005
 in the name are for VisualStudio 2005 (version 8). Visual Studio 6 project files (.dsp) are
-also included. However, the VirtualKBD utility will not build with version 6 as it needs
-the gdi+ libraries. If you have a different 
-version of the compiler, you will have to produce the project and/or solution files from one
+also included. However, the older project files are not always kept up to date and you may
+need to update them. The VirtualKBD utility and BSynthComposer will not build with version 6 
+as they need the gdi+ libraries. 
+If you have a different version of the compiler, you will have to produce the project and/or solution files from one
 of the supplied versions.
 
 To build everything, use the solution file \e Src/BasicSynth.sln. To build just the libraries,
@@ -73,11 +85,14 @@ To build the Example programs, use the solution file in \e Src/Examples.
 This builds all the example programs and libraries. 
 To build the utilities, use the solution file in \e Src/Utilities.
 To build the stand-alone command line synthesizer, build the project in \e Src/BSynth.
+To build the GUI synthesizer, build the project in \e Src/BSynthComposer. 
 
 Two pieces are not included in the source. In order to build files that send samples
 directly to the sound card, you will need dsound.h, included in the DirectX SDK.
 
-The utility programs use WTL 8.0, available on sourceforge.net.
+The utility programs and \e BSynthComposer use WTL 8.0, available on sourceforge.net.
+
+\e BSynthComposer requires the \e scintilla header files and library DLL, available on sourceforge.net.
 
 Each project provides four targets:
 

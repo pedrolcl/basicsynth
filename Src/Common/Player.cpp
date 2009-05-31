@@ -1,4 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
+/// @file Player.cpp Implementation of live playback.
+//
 // BasicSynth - Player object
 //
 // See Player.h for an explanation...
