@@ -193,7 +193,7 @@ int SynthCopyFile(const char *oldName, const char *newName)
 	int fdin = open(oldName, O_RDONLY);
 	if (fdin < 0)
 		return -1;
-	int fdout = open(fname, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+	int fdout = open(newName, O_WRONLY|O_CREAT|O_TRUNC, 0644);
 	if (fdout < 0)
 	{
 		close(fdin);
