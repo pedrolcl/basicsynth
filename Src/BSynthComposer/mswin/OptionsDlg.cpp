@@ -50,14 +50,15 @@ void OptionsDlg::Browse(int id, char *caption)
 	bi.lpszTitle = caption;
     bi.ulFlags = BIF_USENEWUI;
 
-	PIDLIST_ABSOLUTE pidl;
+//	PIDLIST_ABSOLUTE pidl;
+	LPCITEMIDLIST pidl;
 	if ((pidl = SHBrowseForFolder(&bi)) != NULL)
 	{
 		SHGetPathFromIDList(pidl, name);
 		SetDlgItemText(id, name);
 		IMalloc *mp;
 		SHGetMalloc(&mp);
-		mp->Free(pidl);
+		mp->Free((void*)pidl);
 		mp->Release();
 	}
 }

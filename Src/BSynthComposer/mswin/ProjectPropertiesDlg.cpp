@@ -224,7 +224,8 @@ LRESULT ProjectPropertiesDlg::OnPathAdd(WORD wNotifyCode, WORD wID, HWND hWndCtl
 	bi.lpszTitle = "Select the folder for project files";
     bi.ulFlags = BIF_USENEWUI;
 
-	PIDLIST_ABSOLUTE pidl;
+//	PIDLIST_ABSOLUTE pidl;
+	LPCITEMIDLIST pidl;
 	if ((pidl = SHBrowseForFolder(&bi)) != NULL)
 	{
 		SHGetPathFromIDList(pidl, name);
@@ -232,7 +233,7 @@ LRESULT ProjectPropertiesDlg::OnPathAdd(WORD wNotifyCode, WORD wID, HWND hWndCtl
 		lbPath.InsertString(count, name);
 		IMalloc *mp;
 		SHGetMalloc(&mp);
-		mp->Free(pidl);
+		mp->Free((void*)pidl);
 		mp->Release();
 	}
 	EnableUpDn();

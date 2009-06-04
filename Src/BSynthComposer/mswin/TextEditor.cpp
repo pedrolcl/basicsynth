@@ -18,6 +18,11 @@ void LoadEditorDLL()
 	if (!h)
 #endif
 	h = LoadLibrary("SciLexer.dll");
+	if (h == 0)
+	{
+		MessageBox(HWND_DESKTOP, "The Editor dll (SciLexer) was not loaded. Must abort...", "Sorry...", MB_OK);
+		exit(0);
+	}
 }
 
 TextEditorWin::TextEditorWin()
