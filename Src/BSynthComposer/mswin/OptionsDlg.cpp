@@ -77,7 +77,10 @@ LRESULT OptionsDlg::OnBrowseForms(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 
 LRESULT OptionsDlg::OnBrowseColors(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	Browse(IDC_DEF_COLORS, "Colors File");
+	char name[MAX_PATH];
+	GetDlgItemText(IDC_DEF_COLORS, name, MAX_PATH);
+	if (prjFrame->BrowseFile(1, name, "XML Files|*.xml|", "xml"))
+		SetDlgItemText(IDC_DEF_COLORS, name);
 	return 0;
 }
 
