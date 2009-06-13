@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "scintilla.vcproj", "{C526D4BD-B441-4D41-9F28-DF4AFC48226A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scite", "..\scite\scite.vcproj", "{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C526D4BD-B441-4D41-9F28-DF4AFC48226A} = {C526D4BD-B441-4D41-9F28-DF4AFC48226A}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +24,12 @@ Global
 		{C526D4BD-B441-4D41-9F28-DF4AFC48226A}.Release|Win32.Build.0 = Release|Win32
 		{C526D4BD-B441-4D41-9F28-DF4AFC48226A}.Release|x64.ActiveCfg = Release|x64
 		{C526D4BD-B441-4D41-9F28-DF4AFC48226A}.Release|x64.Build.0 = Release|x64
+		{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}.Debug|Win32.Build.0 = Debug|Win32
+		{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}.Debug|x64.ActiveCfg = Debug|Win32
+		{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}.Release|Win32.ActiveCfg = Release|Win32
+		{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}.Release|Win32.Build.0 = Release|Win32
+		{3A452579-9BBB-4B4D-9A1B-E1E781A03EF5}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
