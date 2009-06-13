@@ -3,7 +3,7 @@
 //
 // The converter class is the container for the interpreter. This is
 // the class that aggregates the lexer, parser, generator and other
-// relevant bits and pieces, and provides the interace to Notelist. 
+// relevant bits and pieces, and provides the interface to Notelist. 
 // Callers must provide a sequencer, instrument manager, and message
 // output class to the converter. After setup, call Convert and then
 // Generate. It is not wise to call Generate if Convert returns
