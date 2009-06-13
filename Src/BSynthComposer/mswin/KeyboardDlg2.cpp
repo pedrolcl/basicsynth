@@ -182,6 +182,7 @@ LRESULT KeyboardDlg2::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 {
 	PAINTSTRUCT ps;
 	HDC dc = BeginPaint(&ps);
+	ATLTRACE("Kbd OnPaint %d,%d,%d,%d\n", ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 	Graphics gr(dc);
 	RECT rcWnd;
 	GetClientRect(&rcWnd);

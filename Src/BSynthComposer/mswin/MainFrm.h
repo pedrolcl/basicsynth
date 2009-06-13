@@ -186,6 +186,8 @@ public:
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnExit)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		COMMAND_ID_HANDLER(ID_HELP_CONTENTS, OnHelpContents)
+		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnPosChanged)
+		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -193,6 +195,7 @@ public:
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		MESSAGE_HANDLER(WM_POWERBROADCAST, OnSuspend)
 		MESSAGE_HANDLER(WM_ENDSESSION, OnTerminate)
+		NOTIFY_CODE_HANDLER(RBN_AUTOSIZE, OnRBAutoSize)
 		CHAIN_MSG_MAP(CUpdateUI<MainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<MainFrame>)
 	END_MSG_MAP()
@@ -202,8 +205,11 @@ public:
 //	LRESULT CommandHandler(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 //	LRESULT NotifyHandler(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 
+	LRESULT OnRBAutoSize(int idCtrl, LPNMHDR pnmh, BOOL& bHandled) { return 0; }
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnPosChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnErase(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

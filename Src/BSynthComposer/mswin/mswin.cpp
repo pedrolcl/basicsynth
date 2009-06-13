@@ -74,7 +74,8 @@ int Run(LPTSTR cmd = NULL, int nCmdShow = SW_SHOWDEFAULT)
 			if (quo)
 				*quo = 0;
 		}
-		wndMain.OpenProject(cmd);
+		if (wndMain.OpenProject(cmd))
+			wndMain.AfterOpenProject();
 	}
 
 	wndMain.ShowWindow(nCmdShow);

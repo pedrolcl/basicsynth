@@ -33,6 +33,8 @@
 
 static char mruRegKey[] = "Software\\BasicSynth";
 
+// toolbar buttons are defined here. The images
+// are in the IDR_MAINFRAME bitmap. 
 static TBBUTTON mainButtons[] = {
 	{ 0, ID_PROJECT_NEW, TBSTATE_ENABLED, BTNS_BUTTON },
 	{ 1, ID_PROJECT_OPEN, TBSTATE_ENABLED, BTNS_BUTTON },
@@ -70,11 +72,19 @@ BOOL MainFrame::OnIdle()
 	return FALSE;
 }
 
-static int loadingMain = 0;
-
+/// Create the main frame window and associated child windows.
+// Frame
+//   +-- Rebar
+//        +-- Menu (command bar)
+//        +-- Toolbar
+//   +-- Splitter
+//        +-- Project tree view
+//        +-- Tab View
+//             +-- Editor
+//   +-- Keyboard
+//   +-- status bar
 LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	loadingMain = 1;
 	_Module.mainWnd = m_hWnd;
 	LoadString(_Module.GetResourceInstance(), IDS_PRODUCT, _Module.ProductName, 80);
 	prjOptions.Load();
@@ -141,7 +151,7 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 	rcKbd.top = 0;
 	rcKbd.right = rcMain.right - 50;
 	rcKbd.bottom = 250;
-	kbdWnd.Create(m_hWnd, rcKbd, "", WS_CHILD|WS_BORDER|WS_CLIPCHILDREN, 0, 9);
+	kbdWnd.Create(m_hWnd, rcKbd, "", WS_CHILD|WS_BORDER|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, 0, 9);
 	kbdWnd.GetClientRect(&rcKbd);
 	if (!kbdWnd.IsWindow())
 		MessageBox("Didn't create keyboard!", "");
@@ -162,7 +172,7 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 	if (!tabView.IsWindow())
 		MessageBox("Didn't create tab view!", "");
 	splitTop.SetSplitterPanes(prjList, tabView, false);
-	splitTop.SetSplitterPos(200, 1); //Pct(15);
+	splitTop.SetSplitterPos(200, 1);
 
 	UIAddToolBar(hWndToolBar);
 	
@@ -184,14 +194,17 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 
 	CMenuHandle menuMain = cmdBar.GetMenu();
 	tabView.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
+	// This next line will result in the tabview taking
+	// control of the title bar and displaying the document name
+	// as the user tabs between editors. 
 	//tabView.SetTitleBarWindow(m_hWnd);
 
-	loadingMain = 0;
 	return 0;
 }
 
 //////////////// Internal functions ///////////////////////////////
 
+/// Toggle windows based on the bVisible variable.
 void MainFrame::EnablePanes()
 {
 	if (bVisible & PROJECT_PANE)
@@ -204,17 +217,42 @@ void MainFrame::EnablePanes()
 	UISetCheck(ID_VIEW_KEYBOARD, bVisible & KEYBOARD_PANE ? 1 : 0);
 }
 
+/// Adjust the size of the child windows based on the current frame size.
+/// This needs to be called whenever bVisible is changed or the frame
+/// window size is changed.
+// Note: something weird is going on with the keyboard window. When
+// the frame is resized, the keyboard position jumps up and down, causing
+// wierd flicker. Don't know yet what to do about that.
 void MainFrame::UpdateLayout(BOOL bResizeBars)
 {
-	// we get bunches of irrelevant calls here during window creation.
-	if (loadingMain)
+	WINDOWPLACEMENT wp;
+	wp.length = sizeof(wp);
+	GetWindowPlacement(&wp);
+	if (wp.showCmd == SW_MINIMIZE || wp.showCmd == SW_SHOWMINIMIZED)
 		return;
 
 	RECT rect = { 0 };
 	GetClientRect(&rect);
 
-	// position bars and offset their dimensions
-	UpdateBarsPosition(rect, bResizeBars);
+	// subtract out the areas for rebar and status bar and keyboard
+	// as appropriate. The remaining rectangle is the client area.
+
+	if (m_hWndToolBar)
+	{
+		RECT rectTB = { 0 };
+		::GetWindowRect(m_hWndToolBar, &rectTB);
+		rect.top += rectTB.bottom - rectTB.top;
+	}
+
+	if (m_hWndStatusBar && ::IsWindowVisible(m_hWndStatusBar))
+	{
+		RECT rectSB = { 0 };
+		::GetWindowRect(m_hWndStatusBar, &rectSB);
+		rect.bottom -= rectSB.bottom - rectSB.top;
+	}
+
+	HDWP pos = 0;
+
 	if (kbdWnd.IsWindow() && (bVisible & KEYBOARD_PANE))
 	{
 		RECT kbrect = { 0 };
@@ -223,7 +261,11 @@ void MainFrame::UpdateLayout(BOOL bResizeBars)
 		int kbtop = rect.bottom - kbh;
 		if (kbtop > 0)
 		{
-			kbdWnd.SetWindowPos(NULL, rect.left, kbtop, rect.right - rect.left, kbh, SWP_NOZORDER|SWP_NOACTIVATE/*|SWP_NOSIZE*/);
+			pos = ::BeginDeferWindowPos(2);
+			if (pos)
+				pos = kbdWnd.DeferWindowPos(pos, NULL, rect.left, kbtop, rect.right - rect.left, kbh, SWP_NOZORDER|SWP_NOACTIVATE/*|SWP_NOCOPYBITS*/);
+			else
+				kbdWnd.SetWindowPos(NULL, rect.left, kbtop, rect.right - rect.left, kbh, SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOCOPYBITS);
 			rect.bottom -= kbh;
 		}
 		else
@@ -234,14 +276,33 @@ void MainFrame::UpdateLayout(BOOL bResizeBars)
 		}
 	}
 
-	// resize client window
-	if(m_hWndClient != NULL)
-		::SetWindowPos(m_hWndClient, NULL, rect.left, rect.top,
-			rect.right - rect.left, rect.bottom - rect.top,
-			SWP_NOZORDER | SWP_NOACTIVATE);
+	// client window size is now set appropriately for the 
+	// other windows that are visible. 
+	if (splitTop.IsWindow())
+	{
+		// We don't need to redraw because the splitter will Invalidate
+		// the splitter bar areas when moving panes around. Without
+		// SWP_NOREDRAW, we get a lot of flicker. However, without
+		// redraw, the frame doesn't get redrawn. sigh
+		if (pos)
+			pos = splitTop.DeferWindowPos(pos, NULL, rect.left, rect.top,
+				rect.right - rect.left, rect.bottom - rect.top,
+				SWP_NOZORDER | SWP_NOACTIVATE /*| SWP_NOCOPYBITS | SWP_NOREDRAW*/);
+		else
+			splitTop.SetWindowPos(NULL, rect.left, rect.top,
+				rect.right - rect.left, rect.bottom - rect.top,
+				SWP_NOZORDER | SWP_NOACTIVATE /*| SWP_NOCOPYBITS | SWP_NOREDRAW*/);
+	}
+	if (pos)
+		::EndDeferWindowPos(pos);
 }
 
-
+/// Make a backup of the project file in the TEMP directory.
+/// This is intended to save the project changes in case
+/// the program exited abnormally with an open project.
+/// Currently, recovery is not automatic.
+/// The user must locate the project file and copy it somewhere
+/// or open the temp file and then do a Save As...
 void MainFrame::SaveTemp(int sv)
 {
 	char tmpdir[MAX_PATH];
@@ -260,6 +321,7 @@ void MainFrame::SaveTemp(int sv)
 	}
 }
 
+/// Things to do after a project is opened or created.
 void MainFrame::AfterOpenProject()
 {
 	if (errWnd)
@@ -280,7 +342,7 @@ void MainFrame::AfterOpenProject()
 	prjList.Expand((HTREEITEM)theProject->GetPSData(), TVE_EXPAND|TVE_EXPANDPARTIAL);
 	bVisible |= PROJECT_PANE|KEYBOARD_PANE;
 	EnablePanes();
-	UpdateLayout();
+	UpdateLayout(0);
 	UpdateProjectUI();
 	UpdateEditUI(-1);
 	UpdateItemUI(theProject);
@@ -291,6 +353,7 @@ void MainFrame::AfterOpenProject()
 	SetWindowText(title);
 }
 
+/// Enable various things based on the editor state.
 void MainFrame::UpdateEditUI(int pg)
 {
 	unsigned long flags = 0;
@@ -314,15 +377,12 @@ void MainFrame::UpdateEditUI(int pg)
 	UIEnable(ID_ITEM_CLOSE, flags & VW_ENABLE_FILE);
 }
 
+/// Enable functions based on project tree selection.
 void MainFrame::UpdateItemUI(ProjectItem *pi)
 {
-	//int file = 0;
 	int enable = 0;
 	if (pi)
-	{
 		enable = pi->ItemActions();
-		//file = pi->GetEditor() != 0;
-	}
 	UIEnable(ID_ITEM_ADD, enable & ITM_ENABLE_ADD);
 	UIEnable(ID_ITEM_NEW, enable & ITM_ENABLE_NEW);
 	UIEnable(ID_ITEM_EDIT, enable & ITM_ENABLE_EDIT);
@@ -333,6 +393,7 @@ void MainFrame::UpdateItemUI(ProjectItem *pi)
 	UIEnable(ID_ITEM_SAVE, enable & ITM_ENABLE_SAVE);
 }
 
+/// Enable functions associated with an open project.
 void MainFrame::UpdateProjectUI()
 {
 	int enable = theProject != 0;
@@ -346,35 +407,61 @@ void MainFrame::UpdateProjectUI()
 }
 
 //////////////// Callbacks ///////////////////////////////
+
+// Use position changed instead of WM_SIZE since it is more efficient.
+LRESULT MainFrame::OnPosChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	WINDOWPOS *pos = (WINDOWPOS*)lParam;
+	if (!(pos->flags & SWP_NOSIZE))
+	{
+		if (::IsWindowVisible(m_hWndToolBar))
+		{
+			::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0);
+			::InvalidateRect(m_hWndToolBar, NULL, FALSE);
+		}
+		if (::IsWindowVisible(m_hWndStatusBar))
+		{
+			::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
+			// The status bar seems to correctly invalidate.
+			//::InvalidateRect(m_hWndStatusBar, NULL, FALSE);
+		}
+		UpdateLayout();
+	}
+	return 0;
+}
+
+/// We recieved a WM_SIZE. Size changes are handled in OnPosChanged
+/// and the DefaultWindowProc is bypassed. So, we shouldnt get any
+/// WM_SIZE messages. However, we do get called here during the ShowWindow() at startup.
+/// We need to override this so that the WTL base class does not attempt to adjust
+/// the child windows layout with its funky recursive thingy.
+LRESULT MainFrame::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	bHandled = FALSE;
+	return 1;
+}
+
+/// WM_PAINT callback. 	All main window areas are covered by child windows.
+/// That's why we don't need to draw anything here. Of course we still need
+/// to handle the message in order to clear the repaint status of the window.
 LRESULT MainFrame::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	PAINTSTRUCT ps;
 	HDC dc = BeginPaint(&ps);
-/*	if (bVisible & KEYBOARD_PANE)
-	{
-		// all of the area of the main window is covered by child
-		// windows except for the small area to the right of the
-		// keyboard window. That's the only thing we ever need to
-		// paint, and we paint it with the dialog background color.
-		HBRUSH br = GetSysColorBrush(COLOR_BTNFACE);
-		if (IsRectEmpty(&ps.rcPaint))
-		{
-			RECT rc;
-			GetClientRect(&rc);
-			FillRect(dc, &rc, br);
-		}
-		else
-			FillRect(dc, &ps.rcPaint, br);
-	}*/
 	EndPaint(&ps);
 	return 0;
 }
 
+// Erase the background - see OnPaint.
 LRESULT MainFrame::OnErase(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	return 1;
 }
 
+/// This is the last message we handled. Everything should have been closed in the
+/// WM_CLOSE handler. We just disconnect the frame window from the message loop
+/// filters. This is not absolutely necessary since this window is only destroyed
+/// when we are about to exit. But in case things change...
 LRESULT MainFrame::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	// unregister message filtering and idle updates
@@ -387,11 +474,15 @@ LRESULT MainFrame::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	return 1;
 }
 
+/// WM_ACTIVATE handler. Right now this does nothing. It could be used
+/// to turn the player on/off to save unnecessary CPU use.
 LRESULT MainFrame::OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	if (wParam != WA_INACTIVE)
+	if (wParam == WA_INACTIVE)
 	{
+		// stop player?
 	}
+
 	return 0;
 }
 
@@ -403,17 +494,20 @@ LRESULT MainFrame::OnSuspend(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 
 LRESULT MainFrame::OnTerminate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	// Windows is trying to shutdown NOW...
 	StopPlayer();
 	//SaveTemp(1);
 	return 0;
 }
 
+/// Menu Exit command selected. Turn it into a CLOSE command
 LRESULT MainFrame::OnExit(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	PostMessage(WM_CLOSE);
 	return 0;
 }
 
+/// Request by the user to close the application.
 LRESULT MainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
 {
 	if (CloseProject(1))
@@ -425,6 +519,7 @@ LRESULT MainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandl
 	return 0;
 }
 
+/// Menu Open selected.
 LRESULT MainFrame::OnOpenProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	if (OpenProject(0))
@@ -438,18 +533,21 @@ LRESULT MainFrame::OnOpenProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 	return 0;
 }
 
+/// Menu Save command selected.
 LRESULT MainFrame::OnSaveProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	SaveProject();
 	return 0;
 }
 
+/// Menu Save As command selected.
 LRESULT MainFrame::OnSaveProjectAs(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	SaveProjectAs();
 	return 0;
 }
 
+/// File selected from the MRU list.
 LRESULT MainFrame::OnRecentProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	char fname[MAX_PATH];
@@ -465,6 +563,7 @@ LRESULT MainFrame::OnRecentProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOO
 	return 0;
 }
 
+/// Menu New command selected.
 LRESULT MainFrame::OnNewProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	if (NewProject())
@@ -478,6 +577,9 @@ LRESULT MainFrame::OnNewProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 	return 0;
 }
 
+/// OnItem* functions handle various commands associated with the currently
+/// selected project tree item. With a few exceptions, we just need to call
+/// the generic project frame function.
 LRESULT MainFrame::OnEditItem(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	EditItem();
@@ -546,11 +648,14 @@ LRESULT MainFrame::OnItemErrors(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 	return 0;
 }
 
+/// Show the generate dialog to produce sound output.
 LRESULT MainFrame::OnProjectGenerate(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	StopPlayer();
+	int wasPlaying = StopPlayer();
 	GenerateDlg dlg;
 	dlg.DoModal();
+	if (wasPlaying)
+		StartPlayer();
 	return 0;
 }
 
@@ -567,6 +672,7 @@ LRESULT MainFrame::OnProjectOptions(WORD wNotifyCode, WORD wID, HWND hWndCtl, BO
 	return 0;
 }
 
+/// OnEdit* functions are passed to the current editor.
 LRESULT MainFrame::OnEditUndo(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	EditUndo();
@@ -642,11 +748,13 @@ LRESULT MainFrame::OnMarkerClear(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 	MarkerClear();
 	return 0;
 }
+
 LRESULT MainFrame::OnEditUpdateUI(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	return 0;
 }
 
+/// OnView* functions toggle various child windows.
 LRESULT MainFrame::OnViewProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	bVisible ^= PROJECT_PANE;
@@ -668,7 +776,7 @@ LRESULT MainFrame::OnViewKeyboard(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 	bVisible ^= KEYBOARD_PANE;
 	UISetCheck(ID_VIEW_KEYBOARD, bVisible & KEYBOARD_PANE ? 1 : 0);
 	kbdWnd.ShowWindow(bVisible & KEYBOARD_PANE ? SW_SHOW : SW_HIDE);
-	UpdateLayout();
+	UpdateLayout(0);
 	return 0;
 }
 
@@ -680,17 +788,18 @@ LRESULT MainFrame::OnViewToolBar(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
 	rebar.ShowBand(nBandIndex, show);
 	UISetCheck(ID_VIEW_TOOLBAR, show);
-	UpdateLayout();
+	UpdateLayout(1);
 	return 0;
 }
 
 LRESULT MainFrame::OnViewStatusBar(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	BOOL show = !::IsWindowVisible(m_hWndStatusBar);
+	if (show)
+		::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
 	::ShowWindow(m_hWndStatusBar, show ? SW_SHOWNOACTIVATE : SW_HIDE);
 	UISetCheck(ID_VIEW_STATUS_BAR, show);
-	UpdateLayout();
-	kbdWnd.InvalidateRect(0,1);
+	UpdateLayout(1);
 	return 0;
 }
 
@@ -712,16 +821,10 @@ LRESULT MainFrame::OnHelpContents(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 	return 0;
 }
 
+/// OnWindow* and OnPage functions handle messages from the tab view window.
 LRESULT MainFrame::OnWindowClose(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	CloseFile();
-/*	int pg = tabView.GetActivePage();
-	if (pg >= 0)
-	{
-		EditorView *vw = (EditorView *)tabView.GetPageData(pg);
-		ProjectItem *itm = vw->GetItem();
-		itm->CloseItem();
-	}*/
 	return 0;
 }
 
@@ -734,7 +837,6 @@ LRESULT MainFrame::OnWindowSave(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 LRESULT MainFrame::OnWindowCloseAll(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	UpdateEditUI(-1);
-	//if (SaveAllEditors(1))
 	CloseAllEditors();
 	return 0;
 }
@@ -806,6 +908,8 @@ LRESULT MainFrame::OnTabContextMenu(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 	}
 	return 0;
 }
+
+////////////////////////////// Project tree functions /////////////////////////////////
 
 ProjectItem *MainFrame::GetClickedItem()
 {
@@ -941,8 +1045,6 @@ void MainFrame::RemoveNode(ProjectItem *itm)
 	if (itm == 0 || itm->GetPSData() == 0)
 		return;
 
-	//CloseEditor(itm);
-
 	HTREEITEM ht = (HTREEITEM) itm->GetPSData();
 	itm->SetPSData(0);
 	prjList.SetItemData(ht, 0);
@@ -1019,6 +1121,8 @@ int MainFrame::CloseAllEditors()
 	tabView.ShowWindow(SW_SHOW);
 	return 1;
 }
+
+///////////////////// Platform specific frame functions ////////////////////////////////////
 
 int MainFrame::Verify(const char *msg, const char *title)
 {
@@ -1393,7 +1497,9 @@ void MainFrame::GenerateFinished()
 
 void MainFrame::Generate(int autoStart, int todisk)
 {
-	StopPlayer();
+	int wasPlaying = StopPlayer();
 	GenerateDlg dlg(autoStart, todisk);
 	dlg.DoModal(m_hWnd);
+	if (wasPlaying)
+		StartPlayer();
 }
