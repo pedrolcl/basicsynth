@@ -435,10 +435,10 @@ int MixerItem::SaveProperties(PropertyBox *pb)
 	}
 	delete oldFx;
 
-	SetMixerInputs(chnls, 1);
-
 	fxUnits = newUnits;
 	effects = newFx;
+	SetMixerInputs(chnls, 1);
+
 	theProject->mix.SetFxChannels(fxUnits);
 
 	InitMixer();
@@ -510,7 +510,7 @@ void FxItem::SetChannels(short n)
 	for (int m = 0; m < n; m++)
 	{
 		if (m < nchnl)
-			newVals[m] = send[n];
+			newVals[m] = send[m];
 		else
 			newVals[m] = 0.0;
 	}
