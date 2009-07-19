@@ -48,7 +48,7 @@ void WaveFile::SetupWH(int ch)
 // Open wave output file, 
 // fname is file name, channels number of outputs
 // This is only designed for chnls = 1 or 2
-int WaveFile::OpenWaveFile(char *fname, int chnls)
+int WaveFile::OpenWaveFile(const char *fname, int chnls)
 {
 	wfp.FileClose();
 	if (AllocBuf(synthParams.isampleRate * bufSecs * chnls, chnls))

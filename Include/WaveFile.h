@@ -369,7 +369,7 @@ public:
 	/// @param fname path to the output file
 	/// @param chnls number of output channels, 1 or 2
 	/// @returns 0 on success, negative value on error
-	int OpenWaveFile(char *fname, int chnls = 1);
+	int OpenWaveFile(const char *fname, int chnls = 1);
 
 	/// Close the wave file. Closing the file will flush remaining output, update
 	/// the header and then close the file.

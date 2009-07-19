@@ -119,6 +119,13 @@
 #define T_FXPAN 394
 #define T_RAMP 395
 #define T_OSC  396
+#define T_MIDICC 397
+#define T_MIDIPRG 398
+#define T_MIDIPW 399
+#define T_MIDIAT 400
+#define T_TRACK 401
+#define T_STARTTRK 402
+#define T_STOPTRK 403
 
 #define MAXPARAM 10
 #define MAXFGEN  10

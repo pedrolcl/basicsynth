@@ -351,6 +351,8 @@ void MainFrame::AfterOpenProject()
 	title += " - ";
 	title += theProject->GetName();
 	SetWindowText(title);
+	SaveTemp(0); // discard any temp file.
+	//StartTimer()
 }
 
 /// Enable various things based on the editor state.
@@ -489,14 +491,36 @@ LRESULT MainFrame::OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 LRESULT MainFrame::OnSuspend(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	StopPlayer();
+	SaveTemp(1);
 	return 0;
 }
 
 LRESULT MainFrame::OnTerminate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	// Windows is trying to shutdown NOW...
 	StopPlayer();
-	//SaveTemp(1);
+	SaveTemp(1);
+	return 0;
+}
+
+LRESULT MainFrame::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	// only do this if the generate dialog is not up
+	if (theProject)
+		SaveTemp(1);
+	return 0;
+}
+
+LRESULT MainFrame::OnQueryTerminate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	// Windows is trying to shutdown NOW...
+	int n = MessageBox("Windows wants to shut down. Do it?", "Hey...", MB_YESNO);
+	if (n == IDYES)
+	{
+		StopPlayer();
+		CloseProject(1);
+		SaveTemp(0);
+		return 1;
+	}
 	return 0;
 }
 
@@ -512,6 +536,7 @@ LRESULT MainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandl
 {
 	if (CloseProject(1))
 	{
+		SaveTemp(0);
 		mruList.WriteToRegistry(mruRegKey);
 		prjOptions.Save();
 		DestroyWindow();
@@ -949,6 +974,7 @@ LRESULT MainFrame::OnPrjRClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		case PRJNODE_LIBLIST:
 		case PJRNODE_SCRIPTLIST:
 		case PRJNODE_WVFLIST:
+		case PRJNODE_SBLIST:
 			subMnu = 4;
 			break;
 		case PRJNODE_LIB:
@@ -1110,16 +1136,20 @@ void MainFrame::RemoveAll()
 int MainFrame::CloseAllEditors()
 {
 	tabView.ShowWindow(SW_HIDE);
+	int ret = 1;
 	int ndx = 0;
 	while (ndx < tabView.GetPageCount())
 	{
 		EditorView *vw = (EditorView*)tabView.GetPageData(0);
 		ProjectItem *pi = vw->GetItem();
 		if (!pi->CloseItem())
+		{
+			ret = 0;
 			ndx++;
+		}
 	}
 	tabView.ShowWindow(SW_SHOW);
-	return 1;
+	return ret;
 }
 
 ///////////////////// Platform specific frame functions ////////////////////////////////////
@@ -1183,6 +1213,7 @@ PropertyBox *MainFrame::CreatePropertyBox(ProjectItem *pi, int type)
 	case PRJNODE_SEQFILE:
 	case PRJNODE_TEXTFILE:
 	case PRJNODE_SCRIPT:
+	case PRJNODE_SOUNDBANK:
 		{
 			FilePropertiesDlg *f = new FilePropertiesDlg;
 			f->SetItem(pi);
@@ -1228,6 +1259,8 @@ PropertyBox *MainFrame::CreatePropertyBox(ProjectItem *pi, int type)
 			w->SetItem(pi);
 			pb = static_cast<PropertyBox*>(w);
 		}
+		break;
+	case PRJNODE_SBLIST:
 		break;
 	}
 	return pb;
@@ -1352,9 +1385,9 @@ int MainFrame::SaveAllEditors(int query)
 				msg = tabView.GetPageTitle(pg);
 				msg += " has changed. Save?";
 				int res = Verify(msg, "Wait...");
-				if (res == 0)
+				if (res == 0) // no
 					continue;
-				if (res == -1)
+				if (res == -1) // cancel
 					return 0;
 			}
 			ProjectItem *itm = vw->GetItem();

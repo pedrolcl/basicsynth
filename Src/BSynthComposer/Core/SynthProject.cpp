@@ -101,7 +101,6 @@ void SynthProject::Init()
 		ime = mgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
 		ime->paramToID = Chuffer::MapParamID;
 		ime->paramToName = Chuffer::MapParamName;
-		ime->paramToName = Chuffer::MapParamName;
 		ime->dumpTmplt = DestroyTemplate;
 	}
 	if (prjOptions.inclInstr & 0x200)
@@ -112,6 +111,13 @@ void SynthProject::Init()
 		ime->dumpTmplt = DestroyTemplate;
 		InstrConfig *mi = mgr.AddInstrument(0, ime, 0);
 		mi->SetName("[mixer]");
+	}
+	if (prjOptions.inclInstr & 0x400)
+	{
+		ime = mgr.AddType("SoundBank", SFPlayerInstr::SFPlayerInstrFactory, SFPlayerInstr::SFPlayerEventFactory);
+		ime->paramToID = SFPlayerInstr::MapParamID;
+		ime->paramToName = SFPlayerInstr::MapParamName;
+		ime->dumpTmplt = DestroyTemplate;
 	}
 }
 
@@ -166,8 +172,13 @@ void SynthProject::InitProject()
 	if (prjOptions.inclLibraries)
 		prjTree->AddNode(libInfo);
 
+	sblInfo = new SoundBankList;
+	sblInfo->SetParent(this);
+	prjTree->AddNode(sblInfo);
+
 	libPath = new PathList;
 	libPath->SetParent(this);
+
 }
 
 int SynthProject::ItemProperties()
@@ -315,6 +326,14 @@ int SynthProject::Load(XmlSynthElem *node)
 			if (prjOptions.inclScripts)
 				prjTree->AddNode(fi);
 		}
+		else if (child->TagMatch("sf2"))
+		{
+			SoundBankItem *sbi = new SoundBankItem;
+			sbi->SetParent(sblInfo);
+			sbi->Load(child);
+			if (prjOptions.inclSoundFonts)
+				prjTree->AddNode(sbi);
+		}
 
 		XmlSynthElem *sib = child->NextSibling();
 		delete child;
@@ -330,6 +349,8 @@ int SynthProject::Load(XmlSynthElem *node)
 	wfInfo->LoadFiles();
 	if (prjOptions.inclLibraries)
 		libInfo->LoadLibs();
+	if (prjOptions.inclSoundFonts)
+		sblInfo->LoadFiles();
 
 	// We need to wait to do instrument loading until after the synth is initialized
 	child = node->FirstChild();
@@ -382,6 +403,7 @@ int SynthProject::Save(XmlSynthElem *node)
 	mixInfo->Save(node);
 	wfInfo->Save(node);
 	libInfo->Save(node);
+	sblInfo->Save(node);
 	instrInfo->Save(node);
 	nlInfo->Save(node);
 	seqInfo->Save(node);
@@ -621,6 +643,8 @@ int SynthProject::GenerateToFile(long from, long to)
 // sound card, set NO_LIVE_PLAY to 0, copy this code to
 // the platform specific library, and add the implementation
 // of playback. See SynthProjectWin for an example.
+// For command line programs that only generate wave files,
+// define NO_LiVE_PLAY to 1.
 //////////////////////////////////////////////////////////
 
 #if NO_LIVE_PLAY
@@ -637,6 +661,21 @@ int SynthProject::Play()
 }
 
 int SynthProject::Stop()
+{
+	return 0;
+}
+
+int SynthProject::Pause()
+{
+	return 0;
+}
+
+int SynthProject::Resume()
+{
+	return 0;
+}
+
+int SynthProject::IsPlaying()
 {
 	return 0;
 }
@@ -665,8 +704,11 @@ ProjectOptions::ProjectOptions()
 	inclScripts = 0;
 	inclTextFiles = 0;
 	inclLibraries = 0;
+	inclSoundFonts = 1;
 	inclInstr = 0xfff;
-	playBuf = 0.2;
+	midiDevice = -1;
+	memset(midiDeviceName, 0, MAX_PATH);
+	playBuf = 0.02;
 }
 
 // ProjectOptions Load and Save are platform specific

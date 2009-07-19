@@ -64,6 +64,7 @@ public:
 	inline int CanUndo()    { return sciMsg(sciWnd, SCI_CANUNDO, 0, 0); }
 	inline int CanRedo()    { return sciMsg(sciWnd, SCI_CANREDO, 0, 0); }
 	inline void GotoLine(int line) { sciMsg(sciWnd, SCI_GOTOLINE, line, 0); }
+	inline void GotoPosition(int pos) { sciMsg(sciWnd, SCI_GOTOPOS, pos, 0); }
 
 	inline int Length()
 	{
@@ -261,8 +262,9 @@ public:
 	virtual void FindNext();
 	virtual void SelectAll();
 	virtual void GotoLine(int ln);
+	virtual void GotoPosition(int pos);
 	virtual void SetMarker();
-	virtual void SetMarkerAt(int line);
+	virtual void SetMarkerAt(int line, int on);
 	virtual void NextMarker();
 	virtual void PrevMarker();
 	virtual void ClearMarkers();

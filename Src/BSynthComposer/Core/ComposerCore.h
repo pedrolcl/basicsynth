@@ -33,7 +33,10 @@ public:
 	int inclScripts;
 	int inclTextFiles;
 	int inclLibraries;
+	int inclSoundFonts;
 	int inclInstr;
+	int midiDevice;
+	char midiDeviceName[MAX_PATH];
 	float playBuf;
 
 	ProjectOptions();

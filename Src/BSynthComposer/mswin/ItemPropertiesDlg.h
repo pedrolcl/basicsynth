@@ -160,5 +160,4 @@ public:
 	LRESULT OnFileMvdn(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnSelect(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 };
-
 #endif

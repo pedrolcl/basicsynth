@@ -118,6 +118,33 @@ int NotelistItem::CopyItem()
 	return 0; 
 }
 
+int NotelistItem::SyntaxCheck()
+{
+	ClearErrors();
+	ErrCB cb;
+	cb.itm = this;
+	nlConverter cvt;
+	cvt.SetSampleRate(synthParams.sampleRate);
+	cvt.SetInstrManager(&theProject->mgr);
+	cvt.SetDebugLevel(dbgLevel);
+	cvt.SetErrorCallback(&cb);
+	int ret = 0;
+	if (editor)
+	{
+		bsString text;
+		((TextEditor*)editor)->GetText(text);
+		nlLexFileMem lex(text, text.Length());
+		ret = cvt.Convert(name, &lex);
+	}
+	else
+	{
+		theProject->FindOnPath(fullPath, file);
+		nlLexFileIn lf(fullPath);
+		ret = cvt.Convert(name, &lf);
+	}
+	return ret;
+}
+
 ScoreError* NotelistItem::EnumErrors(ScoreError *e)
 {
 	if (e == 0)

@@ -49,8 +49,9 @@
 				AdditionalIncludeDirectories="$(BasicSynthInc)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				WarningLevel="3"
@@ -116,8 +117,9 @@
 				AdditionalIncludeDirectories="$(BasicSynthInc)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				WarningLevel="3"
@@ -185,6 +187,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -252,6 +255,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -440,6 +444,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GMPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LFO.cpp"
 				>
 			</File>
@@ -461,6 +469,10 @@
 			</File>
 			<File
 				RelativePath=".\PitchBend.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SFPlayer.cpp"
 				>
 			</File>
 			<File
@@ -494,6 +506,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GMPlayer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Includes.h"
 				>
 			</File>
@@ -523,6 +539,10 @@
 			</File>
 			<File
 				RelativePath=".\PitchBend.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SFPlayer.h"
 				>
 			</File>
 			<File

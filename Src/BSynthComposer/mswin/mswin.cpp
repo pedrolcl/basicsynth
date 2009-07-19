@@ -165,6 +165,8 @@ void ProjectOptions::Load()
 			inclTextFiles = dwval;
 		if (rk.QueryDWORDValue("InclLibraries", dwval) == ERROR_SUCCESS)
 			inclLibraries = dwval;
+		if (rk.QueryDWORDValue("InclSoundFonts", dwval) == ERROR_SUCCESS)
+			inclSoundFonts = dwval;
 		char buf[80];
 		len = 80;
 		if (rk.QueryStringValue("Latency", buf, &len) == ERROR_SUCCESS)
@@ -176,6 +178,10 @@ void ProjectOptions::Load()
 		rk.QueryStringValue("Author", defAuthor, &len);
 		len = MAX_PATH;
 		rk.QueryStringValue("Copyright", prjOptions.defCopyright, &len);
+		len = MAX_PATH;
+		rk.QueryStringValue("MIDIDeviceName", prjOptions.midiDeviceName, &len);
+		if (rk.QueryDWORDValue("MIDIDevice", dwval) == ERROR_SUCCESS)
+			midiDevice = (int) dwval;
 		rk.Close();
 	}
 	else
@@ -229,11 +235,14 @@ void ProjectOptions::Save()
 	rk.SetDWORDValue("InclScripts", inclScripts);
 	rk.SetDWORDValue("InclTextFiles", inclTextFiles);
 	rk.SetDWORDValue("InclLibraries", inclLibraries);
+	rk.SetDWORDValue("InclSoundFonts", inclSoundFonts);
 	char buf[40];
 	snprintf(buf, 40, "%x", inclInstr);
 	rk.SetStringValue("InclInstruments", buf);
 	snprintf(buf, 40, "%f", playBuf);
 	rk.SetStringValue("Latency", buf);
+	rk.SetDWORDValue("MIDIDevice", (DWORD)midiDevice);
+	rk.SetStringValue("MIDIDeviceName", midiDeviceName);
 	rk.Close();
 }
 

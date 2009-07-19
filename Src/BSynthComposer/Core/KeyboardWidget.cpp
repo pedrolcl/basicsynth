@@ -8,11 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
-
-
-#define KEY_DOWN   1
-#define KEY_UP     2
-#define KEY_CHANGE 3
+#include <MIDIDefs.h>
 
 KeyboardWidget::KeyboardWidget()
 {
@@ -38,10 +34,13 @@ KeyboardWidget::KeyboardWidget()
 	recHead = new RecNote(0,0,0);
 	recTail = new RecNote(0,0,0);
 	recHead->Insert(recTail);
+	midiOn = 0;
+	memset(eventIDS, 0, sizeof(eventIDS));
 }
 
 KeyboardWidget::~KeyboardWidget()
 {
+	MidiIn(0);
 	delete[] rcWhite;
 	delete[] rcBlack;
 	ClearNotes();
@@ -252,6 +251,93 @@ void KeyboardWidget::InvalidateLast()
 		upd.Combine(*rcLastKey);
 }
 
+void KeyboardWidget::MidiRcv(int mmsg, int val1, int val2, unsigned int ts)
+{
+	if (selectInstr == NULL || theProject == NULL)
+		return;
+
+	//char dbgmsg[200];
+	//_snprintf(dbgmsg, 200, "MIDI: %02x, %02d, %02d, %ul\r\n", mmsg, val1, val2, ts);
+	//OutputDebugString(dbgmsg);
+
+	// TODO: record event 
+
+	if (!theProject->IsPlaying())
+		return;
+
+	NoteEvent *nevt;
+	ControlEvent *cevt;
+	bsInt16 type;
+	bsInt32 id;
+	int cmd = mmsg & 0xf0;
+	int chnl = mmsg & 0x0f;
+	switch (cmd)
+	{
+	case MIDI_NOTEON:
+		if (val2 != 0)
+		{
+			// NOTE ON
+			type = SEQEVT_START;
+			id = (bsInt32) ts;
+			if (eventIDS[val1] != 0)
+				return;
+			eventIDS[val1] = ts;
+		}
+		else
+		{
+	case MIDI_NOTEOFF:
+			type = SEQEVT_STOP;
+			id = eventIDS[val1];
+			eventIDS[val1] = 0;
+			if (id == 0)
+				return;
+		}
+		nevt = (NoteEvent*) theProject->mgr.ManufEvent(selectInstr);
+		nevt->type = type;
+		nevt->evid = id;
+		nevt->chnl = chnl;
+		nevt->start = 0;
+		nevt->duration = curDur;
+		nevt->vol = curVol;
+		nevt->pitch = val1 - 12;
+		nevt->frq = synthParams.GetFrequency(nevt->pitch);
+		nevt->noteonvel = val2;
+		nevt->im = selectInstr;
+		nevt->inum = selectInstr->inum;
+		theProject->PlayEvent(nevt);
+		break;
+	case MIDI_CTLCHG:
+	case MIDI_PRGCHG:
+	case MIDI_CHNAT:
+	case MIDI_PWCHG:
+		cevt = new ControlEvent;
+		cevt->type = SEQEVT_CONTROL;
+		cevt->start = 0;
+		cevt->duration = 0;
+		cevt->evid = 0;
+		cevt->chnl = chnl;
+		cevt->mmsg = cmd;
+		if (cmd == MIDI_PWCHG)
+		{
+			cevt->ctrl = -1;
+			cevt->cval = (val1 + (val2 << 7)) - 8192;
+		}
+		else if (cmd == MIDI_CHNAT)
+		{
+			cevt->ctrl = -1;
+			cevt->cval = val1;
+		}
+		else
+		{
+			cevt->ctrl = val1;
+			cevt->cval = val2;
+		}
+		theProject->PlayEvent(cevt);
+		break;
+	}
+	// NB: player will delete event. Don't touch it after calling PlayEvent!
+}
+
 void KeyboardWidget::PlayNote(int key, int e)
 {
 	if (selectInstr == NULL || theProject == NULL)
@@ -264,16 +350,23 @@ void KeyboardWidget::PlayNote(int key, int e)
 		activeInstr = selectInstr;
 
 	NoteEvent *evt = (NoteEvent*) theProject->mgr.ManufEvent(activeInstr);
-	evt->SetParam(P_CHNL, curChnl);
-	evt->SetParam(P_START, 0);
-	evt->SetParam(P_DUR, curDur);
-	evt->SetParam(P_VOLUME, curVol);
-	evt->SetParam(P_PITCH, (float) key);
+	//evt->SetParam(P_CHNL, curChnl);
+	//evt->SetParam(P_START, 0);
+	//evt->SetParam(P_DUR, curDur);
+	//evt->SetParam(P_VOLUME, curVol);
+	//evt->SetParam(P_PITCH, (float) key);
+	evt->chnl = curChnl;
+	evt->start = 0;
+	evt->duration = curDur;
+	evt->vol = curVol;
+	evt->pitch = key;
+	evt->frq = synthParams.GetFrequency(key);
 	switch (e)
 	{
 	case KEY_DOWN:
 		evt->type = SEQEVT_START;
 		evtID = (evtID + 1) & 0x7FFFFFFF;
+		evt->evid = evtID;
 		break;
 	case KEY_UP:
 		evt->type = SEQEVT_STOP;
@@ -289,7 +382,7 @@ void KeyboardWidget::PlayNote(int key, int e)
 	}
 	evt->evid = evtID;
 
-	//ATLTRACE("Add event %d type = %d, pitch = %d\r\n", evt->evid, evt->type, evt->pitch);
+
 	theProject->PlayEvent(evt);
 	// NB: player will delete event. Don't touch it after calling PlayEvent!
 

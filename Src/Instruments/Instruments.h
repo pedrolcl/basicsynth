@@ -13,4 +13,5 @@
 #include <Chuffer.h>
 #include <MixerControl.h>
 #include <ModSynth.h>
+#include <SFPlayer.h>
 #include <LoadInstrLib.h>

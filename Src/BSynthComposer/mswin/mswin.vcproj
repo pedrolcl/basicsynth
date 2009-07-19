@@ -57,8 +57,9 @@
 				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -145,8 +146,9 @@
 				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -233,6 +235,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="0"
@@ -319,6 +322,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="0"
@@ -473,6 +477,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SoundBankSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -623,6 +631,10 @@
 			</File>
 			<File
 				RelativePath=".\ScoreErrorsDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBankSelect.h"
 				>
 			</File>
 			<File

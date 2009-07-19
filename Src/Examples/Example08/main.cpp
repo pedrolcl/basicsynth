@@ -14,11 +14,11 @@
 #include <math.h>
 #include <BasicSynth.h>
 
-#define P_FRQ   (P_XTRA)
-#define P_WT    (P_XTRA+1)
-#define P_AMP   (P_XTRA+2)
-#define P_ATK   (P_XTRA+3)
-#define P_REL   (P_XTRA+4)
+#define P_FRQ   (P_XTRA)         // 4
+#define P_WT    (P_XTRA+1)       // 5
+#define P_AMP   (P_XTRA+2)       // 6
+#define P_ATK   (P_XTRA+3)       // 7
+#define P_REL   (P_XTRA+4)       // 8
 
 struct Note : public SeqEvent
 {
@@ -129,8 +129,8 @@ public:
 	}
 };
 
-#define P_MODM  (P_REL+1)
-#define P_MODI  (P_REL+2)
+#define P_MODM  (P_REL+1)    // 9
+#define P_MODI  (P_REL+2)    // 10
 
 struct NoteFM : public Note
 {
@@ -275,10 +275,10 @@ int main(int argc, char *argv[])
 		infile.ParseMem("1 0  0.75  0.25 53  2  1.00 0.05 0.1");
 		infile.ParseMem("1 0  1.00  1.00 55  2  1.00 0.04 0.1");
 		infile.ParseMem("1 0  2.00  1.00 48  2  1.00 0.10 0.1");
-		infile.ParseMem("=2 4 5 6 7 10"); // default rel and mul
-		infile.ParseMem("2 1  0.00  1.00 36  0  1.00 0.20 4");
-		infile.ParseMem("2 1  1.00  0.50 31  0  1.00 0.05 4.2");
-		infile.ParseMem("2 1  1.50  0.50 35  0  1.00 0.05 4.6");
+		infile.ParseMem("=2 4 5 6 8 9"); // pitch wt amp rel mul
+		infile.ParseMem("2 1  0.00  1.00 36  0  1.00 0.20 2");
+		infile.ParseMem("2 1  1.00  0.50 31  0  1.00 0.05 2");
+		infile.ParseMem("2 1  1.50  0.50 35  0  1.00 0.05 4");
 		infile.ParseMem("2 1  2.00  1.00 36  0  1.00 0.10 5");
 	}
 

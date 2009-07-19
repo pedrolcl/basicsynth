@@ -34,6 +34,7 @@ LRESULT GenerateDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	EnableOK(1, 0);
 	SetButtonImage(IDC_START, IDI_GENERATE);
 	SetButtonImage(IDC_STOP, IDI_STOP);
+	SetButtonImage(IDC_PAUSE, IDI_PAUSE);
 	SetButtonImage(IDC_PLAY_LIVE, IDI_SPEAKER);
 	SetButtonImage(IDC_DISK, IDI_AUDIOCD);
 
@@ -91,8 +92,13 @@ LRESULT GenerateDlg::OnStart(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, B
 	if (genThreadH == INVALID_HANDLE_VALUE)
 		ed.AppendText("Cannot create playback thread.\r\n");
 	else
+	{
+		if (!SetThreadPriority(genThreadH, THREAD_PRIORITY_HIGHEST))
+			OutputDebugString("Can't up priority\r\n");
 		ResumeThread(genThreadH);
+	}
 	//genAuto = 0;
+	CheckDlgButton(IDC_PAUSE, BST_UNCHECKED);
 	EnableOK(0, 1);
 
 	return 0;
@@ -106,6 +112,18 @@ LRESULT GenerateDlg::OnStop(WORD cd, WORD wID, HWND hwnd, BOOL& bHandled)
 	lastMsg = "";
 	canceled = 1;
 	LeaveCriticalSection(&guard);
+	return 0;
+}
+
+LRESULT GenerateDlg::OnPause(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (IsDlgButtonChecked(IDC_PAUSE))
+	{
+		if (!theProject->Pause())
+			CheckDlgButton(IDC_PAUSE, 0);
+	}
+	else
+		theProject->Resume();
 	return 0;
 }
 
@@ -208,6 +226,7 @@ void GenerateDlg::EnableOK(int e, int c)
 	::EnableWindow(GetDlgItem(IDOK), e);
 	::EnableWindow(GetDlgItem(IDC_STOP), c);
 	::EnableWindow(GetDlgItem(IDC_START), !c);
+	::EnableWindow(GetDlgItem(IDC_PAUSE), c);
 }
 
 long GenerateDlg::GetTimeValue(int id)

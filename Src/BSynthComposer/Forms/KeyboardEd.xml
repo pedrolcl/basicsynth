@@ -11,15 +11,16 @@
     <pair knb="22" lbl="23" />
   </wdg>
 
-  <wdg id="30" ty="lamp" x="265" y="15" w="60" h="30" lbl="On" hi="#ffa0ffa0" lo="#ff00ff00" />
-  <wdg id="31" ty="switchgroup" x="350" y="5" w="250" h="50" val="1" >
+  <wdg id="30" ty="lamp" x="265" y="15" w="60" h="25" lbl="On" hi="#ffa0ffa0" lo="#ff00ff00" />
+  <wdg id="46" ty="lamp" x="325" y="15" w="60" h="25" lbl="MIDI" hi="#ffa0a0ff" lo="#ff0000ff" />
+  <wdg id="31" ty="switchgroup" x="400" y="5" w="250" h="50" val="1" >
 	  <wdg id="32" ty="imageswitch" x="0" y="0" w="50" h="50" val="1" fg="label" off="whole.jpg" on="whole.jpg" />
 	  <wdg id="33" ty="imageswitch" x="50" y="0" w="50" h="50" val="2" fg="label" off="half.jpg" on="half.jpg"/>
 	  <wdg id="34" ty="imageswitch" x="100" y="0" w="50" h="50" val="4" fg="label" off="quarter.jpg" on="quarter.jpg"/>
 	  <wdg id="35" ty="imageswitch" x="150" y="0" w="50" h="50" val="8" fg="label" off="eighth.jpg" on="eighth.jpg"/>
 	  <wdg id="36" ty="imageswitch" x="200" y="0" w="50" h="50" val="16" fg="label" off="sixteenth.jpg" on="sixteenth.jpg"/>
   </wdg>
-  <wdg id="43" ty="group" x="655" y="5" w="190" h="50" bord="0" >
+  <wdg id="43" ty="group" x="695" y="5" w="190" h="50" bord="0" >
 	  <wdg id="37" ty="imageswitch" x="0" y="0" w="50" h="50" fg="btnlabel"  on="recon.jpg" off="recoff.jpg" />
 	  <wdg id="38" ty="imageswitch" x="50" y="0" w="50" h="50" fg="btnlabel" on="notegroup.jpg" off="notegroup.jpg" />
 	  <wdg id="39" ty="switchgroup" x="100" y="0" w="25" h="50" bord="0" val="0" >
@@ -28,7 +29,7 @@
 	  </wdg>
 	  <wdg id="42" ty="imagebutton" x="125" y="0" w="50" h="50" fg="label" on="notecopy.jpg" off="notecopy.jpg" />
   </wdg>
-  <wdg id="44" ty="imagebutton" x="860" y="5" w="50" h="50" on="playspkr.jpg" off="playspkr.jpg" />
-  <wdg id="45" ty="imagebutton" x="910" y="5" w="50" h="50" on="playdisk.jpg" off="playdisk.jpg" />
+  <wdg id="44" ty="imagebutton" x="900" y="5" w="50" h="50" on="playspkr.jpg" off="playspkr.jpg" />
+  <wdg id="45" ty="imagebutton" x="950" y="5" w="50" h="50" on="playdisk.jpg" off="playdisk.jpg" />
   <wdg id="2" ty="keyboard" x="265" y="60" h="90" w="737" octs="7" base="12" />
 </layout>

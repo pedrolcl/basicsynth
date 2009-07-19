@@ -19,6 +19,9 @@ LRESULT ScoreErrorsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
 	errLst = GetDlgItem(IDC_ERROR_LIST);
 	itmSel = GetDlgItem(IDC_ERROR_ITEMS);
+	nextBtn = GetDlgItem(IDC_ERROR_NEXT);
+	prevBtn = GetDlgItem(IDC_ERROR_PREV);
+	gotoBtn = GetDlgItem(IDC_ERROR_GOTO);
 
 	Refresh();
 
@@ -56,9 +59,15 @@ LRESULT ScoreErrorsDlg::OnNext(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& b
 	return 0;
 }
 
-LRESULT ScoreErrorsDlg::OnClear(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+LRESULT ScoreErrorsDlg::OnCheck(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	Clear();
+	CheckSyntax();
+	return 0;
+}
+
+LRESULT ScoreErrorsDlg::OnMark(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	MarkErrors();
 	return 0;
 }
 
@@ -136,6 +145,17 @@ void ScoreErrorsDlg::Refresh()
 	ShowErrors();
 }
 
+void ScoreErrorsDlg::CheckSyntax()
+{
+	int index = itmSel.GetCurSel();
+	if (index >= 0)
+	{
+		NotelistItem *ni = (NotelistItem*)itmSel.GetItemDataPtr(index);
+		ni->SyntaxCheck();
+		ShowErrors();
+	}
+}
+
 void ScoreErrorsDlg::ShowErrors()
 {
 	errLst.ResetContent();
@@ -150,7 +170,8 @@ void ScoreErrorsDlg::ShowErrors()
 		{
 			snprintf(msg, 256, "%d: %s : %s", err->GetLine(), err->GetMsg(), err->GetToken());
 			index = errLst.AddString(msg);
-			errLst.SetItemDataPtr(index, err);
+			//errLst.SetItemData(index, err->GetLine()-1);
+			errLst.SetItemData(index, err->GetPosition());
 			err = ni->EnumErrors(err);
 			count++;
 		}
@@ -170,21 +191,39 @@ void ScoreErrorsDlg::GotoLine()
 		index = errLst.GetCurSel();
 		if (index < 0)
 			index = 0;
-		ScoreError *err = (ScoreError*)errLst.GetItemDataPtr(index);
-		if (err)
+		int errPos = errLst.GetItemData(index);
+		if (errPos > 0) // the editor places the cursor after the char at this position
+			errPos--;
+		prjFrame->OpenEditor(itm);
+		EditorView *ed = itm->GetEditor();
+		ed->GotoPosition(errPos);
+	}
+}
+
+void ScoreErrorsDlg::MarkErrors()
+{
+	int count = 0;
+	int index = itmSel.GetCurSel();
+	if (index >= 0)
+	{
+		NotelistItem *itm = (NotelistItem *)itmSel.GetItemDataPtr(index);
+
+		prjFrame->OpenEditor(itm);
+		EditorView *ed = itm->GetEditor();
+		ed->ClearMarkers();
+
+		ScoreError *err = itm->EnumErrors(0);
+		while (err)
 		{
-			prjFrame->OpenEditor(itm);
-			EditorView *ed = itm->GetEditor();
-			ed->GotoLine(err->GetLine()-1);
+			ed->SetMarkerAt(err->GetLine()-1, 1);
+			err = itm->EnumErrors(err);
 		}
 	}
 }
 
 void ScoreErrorsDlg::ErrSelect(int index, int count)
 {
-	int enbNext = index >= 0 && index < (count-1);
-	int enbPrev = index > 0 && count > 0;
-	::EnableWindow(GetDlgItem(IDC_ERROR_NEXT), enbNext);
-	::EnableWindow(GetDlgItem(IDC_ERROR_PREV), enbPrev);
-	::EnableWindow(GetDlgItem(IDC_ERROR_GOTO), count > 0);
+	nextBtn.EnableWindow(index >= 0 && index < (count-1));
+	prevBtn.EnableWindow(index > 0 && count > 0);
+	gotoBtn.EnableWindow(count > 0);
 }

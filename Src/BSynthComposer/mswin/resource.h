@@ -3,7 +3,9 @@
 // Used by mswin.rc
 //
 #define IDC_ERROR_CLEAR                 3
+#define IDC_ERROR_MARK                  3
 #define IDC_ERROR_REFRESH               4
+#define IDC_ERROR_CHECK                 5
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDS_PRODUCT                     129
@@ -98,6 +100,8 @@
 #define IDD_MODSYNTH_CONFIG             351
 #define IDD_MODSYNTH_CONNECT            352
 #define IDD_FILE_ORDER                  353
+#define IDI_PAUSE                       354
+#define IDD_SOUNDBANK_SEL               355
 #define IDC_FIND_TEXT                   1000
 #define IDC_REPL_TEXT                   1001
 #define IDC_MATCH_CASE                  1002
@@ -138,6 +142,7 @@
 #define IDC_PLAY_TO                     1046
 #define IDC_TIME                        1047
 #define IDC_STOP                        1048
+#define IDC_PAUSE                       1049
 #define IDC_WV_NAME                     1050
 #define IDC_LEFT_PEAK                   1050
 #define IDC_WV_DESCR                    1051
@@ -288,6 +293,7 @@
 #define IDC_SELTEXT                     1180
 #define IDC_BROWSE_COLORS               1180
 #define IDC_ALLTEXT                     1181
+#define IDC_INCL_SOUNDFONTS             1181
 #define IDC_ITEM_NAME                   1184
 #define IDC_ITEM_DESCR                  1185
 #define IDC_GENERATE                    1187
@@ -319,6 +325,10 @@
 #define IDC_FILE_LIST                   1218
 #define IDC_FILE_UP                     1219
 #define IDC_FILE_DN                     1220
+#define IDC_MIDI_IN                     1222
+#define IDC_SB_FILE                     1224
+#define IDC_SB_BANK                     1225
+#define IDC_SB_PRESET                   1226
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_VIEW_PROJECT                 32775
@@ -387,14 +397,17 @@
 #define ID_LIBITEMS_SAVELIBRARY         32986
 #define ID_LIBITEMS_REMOVE              32987
 #define ID_REMOVE_ITEM                  32988
+#define ID_PROJECTITEMS_CHECK           32989
+#define ID_ITEM_CHECK                   32990
+#define ID_EDIT_CHECK                   32991
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        354
-#define _APS_NEXT_COMMAND_VALUE         32989
-#define _APS_NEXT_CONTROL_VALUE         1222
+#define _APS_NEXT_RESOURCE_VALUE        356
+#define _APS_NEXT_COMMAND_VALUE         32992
+#define _APS_NEXT_CONTROL_VALUE         1229
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

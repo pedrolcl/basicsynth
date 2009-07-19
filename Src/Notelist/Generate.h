@@ -121,28 +121,65 @@ public:
 	virtual void GetValue(double *d);
 	virtual void CopyValue(nlVarValue *v);
 	virtual int  Compare(nlVarValue *v);
+	virtual int  Match(nlVarValue *v);
+};
+
+class nlNamedVal : public nlVarValue
+{
+public:
+	nlVarValue id;
+	nlNamedVal *next;
+
+	nlNamedVal()
+	{
+		next = 0;
+	}
+
+	void SetID(nlVarValue *p)
+	{
+		p->CopyValue(&id);
+	}
+
+	int MatchID(nlVarValue *p)
+	{
+		return id.Match(p);
+	}
 };
 
 /// A symbol table entry.
 /// A symbol consists of a name and a value.
+/// The symbol can be an associative array with
+/// a list of values. The Index function selects
+/// or creates the value.
 class nlSymbol : public nlVarValue
 {
 public:
 	char *name;
 	nlSymbol *next;
+	nlNamedVal *arrayVal;
 
 	nlSymbol()
 	{
+		arrayVal = NULL;
+		next = NULL;
 		name = NULL;
 	}
+
 	nlSymbol(const char *n)
 	{
 		if (n)
 			name = StrMakeCopy(n);
 		else
 			name = NULL;
+		arrayVal = NULL;
+		next = NULL;
 	}
+
+	nlVarValue *Index(nlVarValue *ndx);
+	void GetValue(nlVarValue *v, nlVarValue *ndx);
+	void SetValue(nlVarValue *v, nlVarValue *ndx);
 };
+
 
 /// A holder for a sync/mark location
 struct nlSyncMark
@@ -275,6 +312,7 @@ public:
 	long   articParam;
 	long   transpose;
 	long   doublex;
+	long   track;
 	double doublev;
 	long   loopCount;
 	char   *instname;
@@ -801,6 +839,32 @@ public:
 	}
 	virtual nlScriptNode *Exec();
 };
+
+/// Generate MIDI control change event
+class nlMidiNode : public nlScriptNode
+{
+private:
+	short mmsg;
+public:
+	nlMidiNode(short m)
+	{
+		token = T_MIDICC;
+		mmsg = m;
+	}
+	virtual nlScriptNode *Exec();
+};
+
+/// Generate start or stop track command
+class nlTrackNode : public nlScriptNode
+{
+public:
+	nlTrackNode(short f)
+	{
+		token = f;
+	}
+	virtual nlScriptNode *Exec();
+};
+
 
 /// @brief The Notelist generator class.
 /// @details nlGenerate is the second pass of the interpreter.

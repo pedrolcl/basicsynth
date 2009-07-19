@@ -98,6 +98,79 @@ void KeyboardWidget::CopyToClipboard(bsString& str)
 	CloseClipboard();
 }
 
+static HMIDIIN midiIn;
+
+struct MEvent
+{
+	short mmsg;
+	short val1;
+	short val2;
+	DWORD ts;
+};
+
+static MEvent eventBuf[500];
+static int ebWrite = 0;
+static int ebRead = 0;
+
+void CALLBACK MidiCB(HMIDIIN hMidiIn, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
+{
+	KeyboardWidget *kbd = (KeyboardWidget *) dwInstance;
+	if (wMsg == MIM_DATA)
+	{
+		while (ebRead != ebWrite)
+		{
+			ATLTRACE("Handle MEvent %d, %d\n", ebRead, ebWrite);
+			MEvent *p = &eventBuf[ebRead++];
+			if (ebRead >= 500)
+				ebRead = 0;
+			kbd->MidiRcv(p->mmsg, p->val1, p->val2, p->ts);
+			ATLTRACE("Handle MEvent %d\n", ebRead);
+		}
+
+		short mmsg = dwParam1 & 0xFF;
+		if (mmsg != 0xfe)
+			kbd->MidiRcv(mmsg, (dwParam1 >> 8) & 0xff, (dwParam1 >> 16) & 0xFF, dwParam2);
+	}
+	else if (wMsg == MIM_MOREDATA)
+	{
+		// buffer this event and return immediately.
+		// on the next MIM_DATA, process the buffered events
+		MEvent *p = &eventBuf[ebWrite++];
+		if (ebWrite >= 500)
+			ebWrite = 0;
+		p->mmsg = dwParam1 & 0xFF;
+		p->val1 = (dwParam1 >> 8) & 0xFF;
+		p->val2 = (dwParam1 >> 16) & 0xFF;
+		p->ts = dwParam2;
+	}
+	else
+	{
+		ATLTRACE(L"MIDI msg %d %ul %ul\n", wMsg, dwParam1, dwParam2);
+	}
+}
+
+void KeyboardWidget::MidiIn(int onoff)
+{
+	if (midiOn == onoff)
+		return;
+	midiOn = onoff;
+	if (onoff)
+	{
+		if (midiIn == 0)
+		{
+			MMRESULT err = midiInOpen(&midiIn, prjOptions.midiDevice, (DWORD_PTR) MidiCB, (DWORD_PTR) this, CALLBACK_FUNCTION|MIDI_IO_STATUS);
+			if (err != MMSYSERR_NOERROR)
+				return;
+		}
+		midiInStart(midiIn);
+	}
+	else if (midiIn)
+	{
+		midiInStop(midiIn);
+		midiInClose(midiIn);
+		midiIn = 0;
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +255,7 @@ LRESULT KeyboardDlg2::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 {
 	PAINTSTRUCT ps;
 	HDC dc = BeginPaint(&ps);
-	ATLTRACE("Kbd OnPaint %d,%d,%d,%d\n", ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+	//ATLTRACE("Kbd OnPaint %d,%d,%d,%d\n", ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 	Graphics gr(dc);
 	RECT rcWnd;
 	GetClientRect(&rcWnd);

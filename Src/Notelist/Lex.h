@@ -29,6 +29,7 @@ public:
 	virtual void Ungetc(int ch) = 0;
 	virtual int Open() = 0;
 	virtual int Close() = 0;
+	virtual int Position() = 0;
 };
 
 /// Lex buffer for a file
@@ -38,9 +39,11 @@ private:
 	char *filename;
 	FileReadBuf input;
 	int savch;
+	int position;
 public:
 	nlLexFileIn(const char *fn)
 	{
+		position = 0;
 		filename = StrMakeCopy(fn);
 		savch = -1;
 	}
@@ -64,16 +67,19 @@ public:
 			if (ch == -1)
 				return EOF;
 		}
+		position++;
 		return ch;
 	}
 
 	virtual void Ungetc(int ch)
 	{
 		savch = ch;
+		position--;
 	}
 
 	virtual int Open()
 	{
+		position = 0;
 		return input.FileOpen(filename) == 0;
 	}
 
@@ -81,6 +87,11 @@ public:
 	{
 		input.FileClose();
 		return 0;
+	}
+
+	virtual int Position()
+	{
+		return position;
 	}
 };
 
@@ -147,6 +158,14 @@ public:
 	{
 		savch = ch;
 	}
+
+	virtual int Position()
+	{
+		int p = (int) (current - start);
+		if (savch != -1)
+			p--;
+		return p;
+	}
 };
 
 /// @brief Lexical scanner. 
@@ -161,6 +180,7 @@ private:
 	char *cTokbuf;
 	int   theToken;
 	int   nLineno;
+	int   position;
 	nlLexIn *in;
 			
 public:
@@ -184,6 +204,11 @@ public:
 		return nLineno;
 	}
 
+	inline int Position()
+	{
+		//return in->Position();
+		return position;
+	}
 };
 
 #endif // !defined(_LEX_H_)

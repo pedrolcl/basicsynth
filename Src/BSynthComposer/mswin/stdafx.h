@@ -40,6 +40,8 @@ extern SynthAppModule _Module;
 #include <atlmisc.h>
 
 #include <ShlObj.h>
+#include <Mmsystem.h>
+#pragma comment(lib, "Winmm.lib")
 #include <Mmreg.h>
 #include <dsound.h>
 #pragma comment(lib, "dsound.lib")

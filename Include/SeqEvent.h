@@ -25,6 +25,12 @@
 #define SEQEVT_PARAM 2
 /// Restart the sound with new parameters
 #define SEQEVT_RESTART 3
+/// Start a sequencer track
+#define SEQEVT_STARTTRACK 4
+/// Stop a sequencer track
+#define SEQEVT_STOPTRACK 5
+/// MIDI (or other) Control change
+#define SEQEVT_CONTROL 6
 
 // Paramater index
 /// Instrument number
@@ -35,8 +41,8 @@
 #define P_START 2
 /// Duration in samples
 #define P_DUR   3
-/// First note parameter (don't use this!)
-#define P_XTRA  4
+/// First id for user params
+#define P_XTRA 4
 
 class InstrConfig;
 
@@ -96,8 +102,16 @@ public:
 	/// @param n the number of parameters needed.
 	virtual int AllocParam(bsInt16 n) { return 0; }
 
-	/// Get the maximum number of parameters.
-	virtual bsInt16 MaxParam() { return P_XTRA; }
+	/// Get the maximum parameter ID.
+	virtual bsInt16 MaxParam() { return P_DUR; }
+
+	virtual void SetInum(bsInt16 i) { inum = i; }
+	virtual void SetType(bsInt16 t) { type = t; }
+	virtual void SetID(bsInt16 id) { evid = id; }
+	virtual void SetChannel(bsInt16 c) { chnl = c; }
+	virtual void SetTrack(bsInt16 t) { track = t; }
+	virtual void SetStart(bsInt32 s) { start = s; }
+	virtual void SetDuration(bsInt32 d) { duration = d; }
 
 	/// Set a parameter
 	/// @param id unique id number for this value
@@ -107,16 +121,16 @@ public:
 		switch (id)
 		{
 		case P_INUM:
-			inum = (bsInt16) v;
+			SetInum((bsInt16) v);
 			break;
 		case P_CHNL:
-			chnl = (bsInt16) v;
+			SetChannel((bsInt16) v);
 			break;
-		case P_START:
-			start = (bsInt32) (synthParams.sampleRate * v);
+		case P_START: // in seconds
+			SetStart((bsInt32) (synthParams.sampleRate * v));
 			break;
-		case P_DUR:
-			duration = (bsInt32) (synthParams.sampleRate * v);
+		case P_DUR: // in seconds
+			SetDuration((bsInt32) (synthParams.sampleRate * v));
 			break;
 		}
 	}
@@ -164,10 +178,8 @@ public:
 #define P_VOLUME 6
 /// Track number
 #define P_TRACK  7
-/// Modulation level (MIDI)
-#define P_MODLEVEL 8
-/// Pitch bend (MIDI)
-#define P_PITCHBEND 9
+/// Note-on velocity (MIDI)
+#define P_NOTEONVEL 8
 /// First instrument specific parameter is P_USER = 16
 #define P_USER 16
 
@@ -183,23 +195,29 @@ public:
 class NoteEvent : public SeqEvent
 {
 public:
-	int pitch;
+	bsInt16 pitch;
+	bsInt16 noteonvel;
 	FrqValue frq;
 	AmpValue vol;
-	float modlevel;
-	float pitchbend;
 
 	NoteEvent()
 	{
 		pitch = 0;
+		noteonvel = 0;
 		frq = 0.0;
 		vol = 1.0;
-		modlevel = 0;
-		pitchbend = 0;
 	}
 
 	/// @copydoc SeqEvent::MaxParam
-	virtual bsInt16 MaxParam() { return P_VOLUME; }
+	virtual bsInt16 MaxParam() { return P_NOTEONVEL; }
+	virtual void SetFrequency(FrqValue f) { frq = f; }
+	virtual void SetPitch(bsInt16 p) 
+	{
+		pitch = p;
+		SetFrequency(synthParams.GetFrequency(pitch));
+	}
+	virtual void SetVolume(AmpValue v) { vol = v; }
+	virtual void SetVelocity(bsInt16 v) { noteonvel = v; }
 
 	/// @copydoc SeqEvent::SetParam
 	virtual void SetParam(bsInt16 id, float v)
@@ -207,23 +225,19 @@ public:
 		switch (id)
 		{
 		case P_PITCH:
-			pitch = (int) v;
-			frq = synthParams.GetFrequency(pitch);
+			SetPitch((bsInt16)v);
 			break;
 		case P_FREQ:
-			frq = FrqValue(v);
+			SetFrequency(FrqValue(v));
 			break;
 		case P_VOLUME:
-			vol = AmpValue(v);
+			SetVolume(AmpValue(v));
 			break;
 		case P_TRACK:
-			track = (int) v;
+			SetTrack((bsInt16) v);
 			break;
-		case P_MODLEVEL:
-			modlevel = v;
-			break;
-		case P_PITCHBEND:
-			pitchbend = v;
+		case P_NOTEONVEL:
+			SetVelocity((bsInt16)v);
 			break;
 		default:
 			SeqEvent::SetParam(id, v);
@@ -243,10 +257,8 @@ public:
 			return (float) vol;
 		case P_TRACK:
 			return (float) track;
-		case P_MODLEVEL:
-			return (float) modlevel;
-		case P_PITCHBEND:
-			return (float) pitchbend;
+		case P_NOTEONVEL:
+			return (float) noteonvel;
 		}
 		return SeqEvent::GetParam(id);
 	}
@@ -378,5 +390,134 @@ public:
 		SetParam(id, val);
 	}
 };
+
+#define P_MMSG  4
+#define P_CTRL  5
+#define P_CVAL  6
+
+/// A ControlEvent is used for global synthsizer control.
+/// For the most part, this is used to implement MIDI
+/// channel voice messages. It could be used for other
+/// things as well. These events are handled by the
+/// channel manager object of the Sequencer.
+class ControlEvent : public SeqEvent
+{
+public:
+	bsInt16 mmsg;
+	bsInt16 ctrl;
+	bsInt16 cval;
+
+	ControlEvent()
+	{
+		mmsg = 0;
+		ctrl = 0;
+		cval = 0;
+	}
+
+	/// Get the maximum parameter ID.
+	virtual bsInt16 MaxParam() { return P_CVAL; }
+	virtual void SetMessage(bsInt16 m) { mmsg = m; }
+	virtual void SetControl(bsInt16 c) { ctrl = c; }
+	virtual void SetValue(bsInt16 v)   { cval = v; }
+
+	/// Set a parameter
+	/// @param id unique id number for this value
+	/// @param v the parameter value
+	virtual void SetParam(bsInt16 id, float v)
+	{
+		switch (id)
+		{
+		case P_MMSG:
+			SetMessage((bsInt16) v);
+			break;
+		case P_CTRL:
+			SetControl((bsInt16) v);
+			break;
+		case P_CVAL:
+			SetValue((bsInt16) v);
+			break;
+		case P_TRACK:
+			SetTrack((bsInt16) v);
+			break;
+		default:
+			SeqEvent::SetParam(id, v);
+			break;
+		}
+	}
+	virtual float GetParam(bsInt16 id)
+	{
+		switch (id)
+		{
+		case P_MMSG:
+			return (float) mmsg;
+		case P_CTRL:
+			return (float) ctrl;
+		case P_CVAL:
+			return (float) cval;
+		case P_TRACK:
+			return (float) track;
+		}
+		return SeqEvent::GetParam(id);
+	}
+};
+
+#define P_TRKNO 5
+#define P_LOOP  6
+
+class TrackEvent : public SeqEvent
+{
+public:
+	bsInt16 trkNo;
+	bsInt16 loopCount;
+
+	TrackEvent()
+	{
+		trkNo = -1;
+		loopCount = 0;
+	}
+
+	virtual void SetTrkNo(bsInt16 tk) { trkNo = tk; }
+	virtual void SetLoop(bsInt16 lc) { loopCount = lc; }
+
+	/// Get the maximum number of parameters.
+	virtual bsInt16 MaxParam() { return P_LOOP; }
+
+	/// Set a parameter
+	/// @param id unique id number for this value
+	/// @param v the parameter value
+	virtual void SetParam(bsInt16 id, float v)
+	{
+		switch (id)
+		{
+		case P_TRKNO:
+			SetTrkNo((bsInt16) v);
+			break;
+		case P_LOOP:
+			SetLoop((bsInt16) v);
+			break;
+		case P_TRACK:
+			SetTrack((bsInt16) v);
+			break;
+		default:
+			SeqEvent::SetParam(id, v);
+			break;
+		}
+	}
+
+	virtual float GetParam(bsInt16 id)
+	{
+		switch (id)
+		{
+		case P_TRKNO:
+			return (float) trkNo;
+		case P_LOOP:
+			return (float) loopCount;
+		case P_TRACK:
+			return (float) track;
+		}
+		return SeqEvent::GetParam(id);
+	}
+};
+
 //@}
 #endif

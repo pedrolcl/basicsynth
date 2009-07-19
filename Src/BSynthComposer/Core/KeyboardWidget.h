@@ -7,6 +7,11 @@
 #ifndef KEYBOARD_WIDGET_H
 #define KEYBOARD_WIDGET_H
 
+#define KEY_DOWN   1
+#define KEY_UP     2
+#define KEY_CHANGE 3
+
+
 /// Virtual keyboard widget.
 /// This widget displays a piano keyboard and generates events
 /// when keys are pressed or released. It also can record
@@ -37,6 +42,8 @@ private:
 	FrqValue curDur;
 	int curRhythm;
 	int curChnl;
+	int midiOn;
+	bsInt32 eventIDS[128];
 
 	class RecNote : public SynthList<RecNote>
 	{
@@ -119,6 +126,8 @@ public:
 	void CopyNotes();
 
 	void PlayNote(int key, int e);
+	void MidiIn(int onoff);
+	void MidiRcv(int mmsg, int val1, int val2, unsigned int ts);
 };
 
 #endif

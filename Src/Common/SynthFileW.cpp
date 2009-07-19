@@ -170,7 +170,7 @@ int FileReadBuf::FileSkip(int n)
 	DWORD ret = SetFilePointer(fh, (LONG) skip, NULL, FILE_CURRENT);
 	if (ret == INVALID_SET_FILE_POINTER)
 		return -1;
-	return inpos + (int) LOWORD(ret);
+	return (int) LOWORD(ret) - inread + inpos;
 }
 
 int FileReadBuf::FileRewind(int pos)

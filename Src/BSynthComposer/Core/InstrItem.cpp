@@ -17,6 +17,7 @@
 #include "WFSynthEd.h"
 #include "ChufferEd.h"
 #include "ModSynthEd.h"
+#include "SoundBankEd.h"
 
 int InstrItem::ItemActions()
 {
@@ -210,6 +211,8 @@ WidgetForm *InstrItem::CreateForm(int xo, int yo)
 		ed = new ChufferEdit;
 	else if (strcmp("ModSynth", type) == 0)
 		ed = new ModSynthEdit;
+	else if (strcmp("SoundBank", type) == 0)
+		ed = new SoundBankEdit;
 	else
 		ed = new SynthEdit;
 	if (ed)

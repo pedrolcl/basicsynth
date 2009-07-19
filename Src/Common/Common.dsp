@@ -150,6 +150,14 @@ SOURCE=.\Sequencer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SFFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SMFFile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SynthFileW.cpp
 
 !IF  "$(CFG)" == "Common - Win32 Release"
@@ -357,6 +365,10 @@ SOURCE=..\..\Include\Instrument.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Include\MIDIDefs.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Include\MIDISequencer.h
 # End Source File
 # Begin Source File
@@ -382,6 +394,26 @@ SOURCE=..\..\Include\SequenceFile.h
 # Begin Source File
 
 SOURCE=..\..\Include\Sequencer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\SFDefs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\SFFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\SFGen.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\SFSoundBank.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\SMFFile.h
 # End Source File
 # Begin Source File
 

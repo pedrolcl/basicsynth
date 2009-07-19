@@ -66,8 +66,9 @@ public:
 	virtual void FindNext() = 0;
 	virtual void SelectAll() = 0;
 	virtual void GotoLine(int ln) = 0;
+	virtual void GotoPosition(int pos) = 0;
 	virtual void SetMarker() = 0;
-	virtual void SetMarkerAt(int line) = 0;
+	virtual void SetMarkerAt(int line, int on) = 0;
 	virtual void NextMarker() = 0;
 	virtual void PrevMarker() = 0;
 	virtual void ClearMarkers() = 0;

@@ -118,6 +118,11 @@ void TextEditorWin::GotoLine(int ln)
 	edwnd.GotoLine(ln);
 }
 
+void TextEditorWin::GotoPosition(int pos)
+{
+	edwnd.GotoPosition(pos);
+}
+
 void TextEditorWin::Cancel()
 {
 	edwnd.Undo();
@@ -125,15 +130,17 @@ void TextEditorWin::Cancel()
 
 void TextEditorWin::SetMarker()
 {
-	SetMarkerAt(edwnd.CurrentLine());
+	SetMarkerAt(edwnd.CurrentLine(), -1);
 }
 
-void TextEditorWin::SetMarkerAt(int line)
+void TextEditorWin::SetMarkerAt(int line, int on)
 {
-	if (edwnd.MarkerGet(line))
+	if (on == -1 && edwnd.MarkerGet(line))
 		edwnd.MarkerDel(line);
-	else
+	else if (on)
 		edwnd.MarkerAdd(line);
+	else
+		edwnd.MarkerDel(line);
 }
 
 void TextEditorWin::NextMarker()
@@ -226,7 +233,9 @@ int TextEditorWin::IsKeyword(char *txt)
 	case 'F':
 		if (strcmp(txt, "FIXED") == 0
 		 || strcmp(txt, "FGEN") == 0
-		 || strcmp(txt, "FREQUENCY") == 0)
+		 || strcmp(txt, "FREQUENCY") == 0
+		 || strcmp(txt, "FXRCV") == 0
+		 || strcmp(txt, "FXPAN") == 0)
 			kw = 1;
 		break;
 	case 'I':
@@ -234,7 +243,8 @@ int TextEditorWin::IsKeyword(char *txt)
 		 || strcmp(txt, "INSTRUMENT") == 0
 		 || strcmp(txt, "INIT") == 0
 		 || strcmp(txt, "INCLUDE") == 0
-		 || strcmp(txt, "IF") == 0)
+		 || strcmp(txt, "IF") == 0
+		 || strcmp(txt, "IN") == 0)
 			kw = 1;
 		break;
 	case 'L':
@@ -248,7 +258,11 @@ int TextEditorWin::IsKeyword(char *txt)
 		 || strcmp(txt, "MAP") == 0
 		 || strcmp(txt, "MAXPARAM") == 0
 		 || strcmp(txt, "MIXER") == 0
-		 || strcmp(txt, "MIDDLEC") == 0)
+		 || strcmp(txt, "MIDDLEC") == 0
+		 || strcmp(txt, "MIDICC") == 0
+		 || strcmp(txt, "MIDIPW") == 0
+		 || strcmp(txt, "MIDIPRG") == 0
+		 || strcmp(txt, "MIDIAT") == 0)
 			kw = 1;
 		break;
 	case 'N':
@@ -260,7 +274,8 @@ int TextEditorWin::IsKeyword(char *txt)
 		if (strcmp(txt, "ON") == 0
 		 || strcmp(txt, "OFF") == 0
 		 || strcmp(txt, "OR") == 0
-		 || strcmp(txt, "OPTION") == 0)
+		 || strcmp(txt, "OPTION") == 0
+		 || strcmp(txt, "OSC") == 0)
 			kw = 1;
 		break;
 	case 'P':
@@ -271,7 +286,8 @@ int TextEditorWin::IsKeyword(char *txt)
 		break;
 	case 'R':
 		if (strcmp(txt, "RAND") == 0
-		 || strcmp(txt, "REPEAT") == 0)
+		 || strcmp(txt, "REPEAT") == 0
+		 || strcmp(txt, "RAMP") == 0)
 			kw = 1;
 		break;
 	case 'S':

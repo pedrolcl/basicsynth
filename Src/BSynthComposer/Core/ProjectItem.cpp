@@ -38,7 +38,7 @@ int ProjectItem::CloseItem()
 			if (res > 0)
 				SaveItem();
 		}
-		return prjFrame->CloseEditor(this);
+		prjFrame->CloseEditor(this);
 	}
 	return 1;
 }
@@ -94,6 +94,9 @@ const char *ProjectItem::GetFileSpec(int type)
 	case PRJNODE_LIBLIST:
 	case PRJNODE_LIB:
 		return "Library Files|*.bslib|";
+	case PRJNODE_SOUNDBANK:
+	case PRJNODE_SBLIST:
+		return "SoundFont Files|*.sf2|";
 	}
 	return "All Files|*.*|";
 }
@@ -122,6 +125,9 @@ const char *ProjectItem::GetFileExt(int type)
 	case PRJNODE_LIBLIST:
 	case PRJNODE_LIB:
 		return "bslib";
+	case PRJNODE_SOUNDBANK:
+	case PRJNODE_SBLIST:
+		return "sf2";
 	}
 	return "";
 }

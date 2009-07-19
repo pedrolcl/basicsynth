@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <BasicSynth.h>
+#include <MIDIDefs.h>
 #include "NLConvert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -422,6 +423,7 @@ nlVoice::nlVoice()
 	params = 0;
 	instr = 1;
 	chnl = 0;
+	track = 0;
 	articType = T_OFF;
 	articParam = 0;
 	transpose = 0;
@@ -667,6 +669,49 @@ int nlVarValue::Compare(nlVarValue *p)
 
 	return -1; //??
 }
+
+/// Match performs a comparison with limited type conversion.
+/// This is used to match array subscripts. Strings only
+/// match strings, numbers only match numbers,
+/// and null only matches null.
+int nlVarValue::Match(nlVarValue *p)
+{
+	switch (vt)
+	{
+	case vtNull:
+		if (p->vt == vtNull)
+			return 1;
+		break;
+	case vtText:
+		if (p->vt == vtText)
+			return strcmp(txtVal, p->txtVal) == 0;
+		if (txtVal[0] >= '0' && txtVal[0] == '9')
+		{
+			// this really should check the whole string...
+			long tmp = atol(txtVal);
+			if (p->vt == vtNum)
+				return tmp == p->lVal;
+			if (p->vt == vtReal)
+				return tmp == (long) p->dblVal;
+		}
+		break;
+	case vtNum:
+		if (p->vt == vtNum)
+			return lVal == p->lVal;
+		if (p->vt == vtReal)
+			return (long) dblVal == p->lVal;
+		break;
+	case vtReal:
+		if (p->vt == vtReal)
+			return (long) dblVal == (long) p->dblVal;
+		if (p->vt == vtNum)
+			return (long) dblVal == p->lVal;
+		break;
+	}
+
+	return 0;
+}
+
 
 ///////////////////////////////////////////////////////////
 // VOICE expr notelist
@@ -1041,17 +1086,50 @@ void nlDurNode::CopyValue(nlVarValue *p)
 	GetValue(&p->dblVal);
 }
 
+nlVarValue *nlSymbol::Index(nlVarValue *ndx)
+{
+	if (ndx == 0)
+		return this;
+
+	nlNamedVal *val = arrayVal;
+	while (val)
+	{
+		if (val->MatchID(ndx))
+			return val;
+		val = val->next;
+	}
+	val = new nlNamedVal;
+	val->SetID(ndx);
+	val->next = arrayVal;
+	arrayVal = val;
+	return val;
+}
+
+void nlSymbol::GetValue(nlVarValue *val, nlVarValue *ndx)
+{
+	nlVarValue *item = Index(ndx);
+	if (item)
+		item->CopyValue(val);
+}
+
+
+void nlSymbol::SetValue(nlVarValue *val, nlVarValue *ndx)
+{
+	nlVarValue *item = Index(ndx);
+	if (item)
+		val->CopyValue(item);
+}
+
 ///////////////////////////////////////////////////////////
-// Variable Reference - a little wasteful, but we just
+// Variable Reference -
 // copy the current value into the var node so that the
 // expression evaluator can treat this just like a constant.
 // In other words, an indirect reference...
-// TODO:
-//  At present all variables are scalar. The plan is to
-//  make all variables dynamic arrays with the default
-//  array dimension = 1. When an array subscript is present
-//  the subscript is evaluated and then matched to a value
-//  in a linked list. If the subscript Id does not exist,
+//
+//  Variables may be scalar or dynamic associative arrays.
+//  When an array subscript is present, the subscript is
+//  evaluated and then matched to a value in the symbol's
+//  value list. If the subscript id does not exist,
 //  it is inserted in the list and initialized. Subscripts
 //  may be number or string allowing a pseudo structure:
 //   var["member"] = 1;
@@ -1059,9 +1137,20 @@ void nlDurNode::CopyValue(nlVarValue *p)
 
 nlScriptNode *nlVarNode::Exec()
 {
-	if (symb)
-		symb->CopyValue(this);
-	return next;
+	if (next == NULL || symb == NULL)
+		return NULL;
+	nlVarValue *id = 0;
+	nlScriptNode *np = next;
+	if (np->GetToken() == T_OBRACK)
+	{
+		nlScriptNode *ep = np->GetNext();
+		np = ep->Exec();
+		if (np->GetToken() == T_CBRACK)
+			np = np->GetNext();
+		id = ep;
+	}
+	symb->GetValue(this, id);
+	return np;
 }
 
 ///////////////////////////////////////////////////////////
@@ -1069,11 +1158,20 @@ nlScriptNode *nlVarNode::Exec()
 ///////////////////////////////////////////////////////////
 nlScriptNode *nlSetNode::Exec()
 {
-	if (next == NULL)
+	if (next == NULL || symb == NULL)
 		return NULL;
-	nlScriptNode *ret = next->Exec();
-	if (symb)
-		next->CopyValue(symb);
+	nlVarValue *id = 0;
+	nlScriptNode *np = next;
+	if (np->GetToken() == T_OBRACK)
+	{
+		nlScriptNode *ep = np->GetNext();
+		np = ep->Exec();
+		if (np->GetToken() == T_CBRACK)
+			np = np->GetNext();
+		id = ep;
+	}
+	nlScriptNode *ret = np->Exec();
+	symb->SetValue(np, id);
 	return ret;
 }
 
@@ -1130,9 +1228,12 @@ nlScriptNode *nlExprNode::Exec()
 			genPtr->PushStack(p);
 			break;
 		case T_VAR:
-			p->Exec();
-			genPtr->PushStack(p);
-			break;
+			{
+				nlScriptNode *np = p->Exec();
+				genPtr->PushStack(p);
+				p = np;
+			}
+			continue;
 		case T_ADDOP:
 			genPtr->PopStack(&d2);
 			genPtr->PopStack(&d1);
@@ -1622,6 +1723,67 @@ nlScriptNode *nlMixerNode::Exec()
 	if (cvt)
 		cvt->MixerEvent(mixFn, params);
 
+	return np;
+}
+
+nlScriptNode *nlMidiNode::Exec()
+{
+	if (next == NULL)
+		return NULL;
+
+	nlScriptNode *np = next->Exec();
+	long val1 = 0;
+	long val2 = 0;
+	next->GetValue(&val1);
+	if (np->GetToken() == T_COMMA)
+	{
+		nlScriptNode *vp;
+		if ((vp = np->GetNext()) != 0)
+		{
+			np = vp->Exec();
+			vp->GetValue(&val2);
+		}
+		else
+			np = NULL;
+	}
+	nlConverter *cvt = genPtr->GetConverter();
+	if (cvt)
+		cvt->MidiEvent(mmsg, (short)val1, (short)val2);
+	return np;
+}
+
+nlScriptNode *nlTrackNode::Exec()
+{
+	if (next == NULL)
+		return NULL;
+
+	nlScriptNode *np = next->Exec();
+	long trkNo = 0;
+	long count = -1;
+	next->GetValue(&trkNo);
+	if (token == T_TRACK)
+	{
+		nlVoice *vox = genPtr->GetCurVoice();
+		vox->track = trkNo;
+		vox->curTime = 0;
+		//genPtr->GetCurVoice()->track = trkNo;
+		return np;
+	}
+
+	if (np->GetToken() == T_COMMA)
+	{
+		nlScriptNode *vp;
+		if ((vp = np->GetNext()) != 0)
+		{
+			np = vp->Exec();
+			vp->GetValue(&count);
+		}
+		else
+			np = NULL;
+	}
+	nlConverter *cvt = genPtr->GetConverter();
+	if (cvt)
+		cvt->TrackOp(token == T_STARTTRK, trkNo, count);
 	return np;
 }
 

@@ -33,8 +33,9 @@ public:
 	virtual void FindNext() { }
 	virtual void SelectAll() { }
 	virtual void GotoLine(int ln) { }
+	virtual void GotoPosition(int n) { }
 	virtual void SetMarker() { }
-	virtual void SetMarkerAt(int line) { }
+	virtual void SetMarkerAt(int line, int on) { }
 	virtual void NextMarker() { }
 	virtual void PrevMarker() { }
 	virtual void ClearMarkers() { }

@@ -52,6 +52,10 @@ int KeyboardForm::Load(const char *fileName, int xo, int yo)
 	if (wdg)
 		wdg->SetValue(defacc);
 
+	wdg = mainGroup->FindID(46); // MIDI on/off
+	if (prjOptions.midiDevice < 0)
+		wdg->SetEnable(0);
+
 	return 0;
 }
 
@@ -141,6 +145,11 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 	case 45:
 		// pop-up generate and route to disk
 		prjFrame->Generate(1, 0);
+		break;
+	case 46:
+		// MIDI On/Off
+		if (kbd)
+			kbd->MidiIn(wdg->GetState());
 		break;
 	}
 }

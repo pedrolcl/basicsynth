@@ -193,7 +193,9 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
+		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_POWERBROADCAST, OnSuspend)
+		MESSAGE_HANDLER(WM_QUERYENDSESSION, OnQueryTerminate)
 		MESSAGE_HANDLER(WM_ENDSESSION, OnTerminate)
 		NOTIFY_CODE_HANDLER(RBN_AUTOSIZE, OnRBAutoSize)
 		CHAIN_MSG_MAP(CUpdateUI<MainFrame>)
@@ -216,7 +218,9 @@ public:
 	LRESULT OnExit(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnSuspend(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnQueryTerminate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnTerminate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 	LRESULT OnNewProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnOpenProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);

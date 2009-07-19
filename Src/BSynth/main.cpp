@@ -4,6 +4,8 @@
 // use: BSynth project
 ///////////////////////////////////////////////////////////
 #include "BSynth.h"
+#include <SFPlayer.h>
+#include <SFFile.h>
 
 class BSynthError : public nlErrOut
 {
@@ -38,6 +40,19 @@ public:
 	~ProjectFileList() { delete str; }
 };
 
+class SoundBankList :
+	public SynthList<SoundBankList>
+{
+public:
+	SFSoundBank *bnk;
+	bsString file;
+
+	SoundBankList()
+	{
+		bnk = 0;
+	}
+
+};
 
 class SynthProject
 {
@@ -154,6 +169,9 @@ public:
 		im = mgr.AddType("ModSynth", ModSynth::ModSynthFactory, ModSynth::ModSynthEventFactory);
 		im->paramToID = ModSynth::MapParamID;
 		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("SoundBank", SFPlayerInstr::SFPlayerInstrFactory, SFPlayerInstr::SFPlayerEventFactory);
+		im->paramToID = SFPlayerInstr::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
 	}
 
 	int LoadProject(char *prjFname)
@@ -224,6 +242,29 @@ public:
 						printf("Load wavefile '%s' as ID %d\n", file, id);
 					if (WFSynth::AddToCache(file, id) == -1)
 						fprintf(stderr, "Error loading wave file '%s'\n", file);
+					delete file;
+				}
+			}
+			else if (child->TagMatch("sf2"))
+			{
+				char *file = 0;
+				child->GetContent(&file);
+				if (file)
+				{
+					bsInt16 mods = 0;
+					child->GetAttribute("mods", mods);
+					SFFile sndfile;
+					SFSoundBank *bnk = sndfile.LoadSoundBank(file, mods);
+					if (bnk)
+					{
+						char *name = 0;
+						child->GetAttribute("name", &name);
+						if (name)
+							bnk->name.Attach(name);
+						else
+							bnk->name = file;
+						SFSoundBank::SoundBankList.Insert(bnk);
+					}
 					delete file;
 				}
 			}

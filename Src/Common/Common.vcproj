@@ -49,8 +49,9 @@
 				AdditionalIncludeDirectories="$(BasicSynthInc)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WINDOWS"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -114,8 +115,9 @@
 				AdditionalIncludeDirectories="$(BasicSynthInc)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WINDOWS"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -182,6 +184,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -248,6 +251,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -295,6 +299,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MIDIControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MIDISequencer.cpp"
 				>
 			</File>
@@ -308,6 +316,14 @@
 			</File>
 			<File
 				RelativePath=".\Sequencer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SFFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SMFFile.cpp"
 				>
 			</File>
 			<File
@@ -417,6 +433,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Include\MIDIControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\MIDIDefs.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Include\MIDISequencer.h"
 				>
 			</File>
@@ -442,6 +466,26 @@
 			</File>
 			<File
 				RelativePath="..\..\Include\Sequencer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFDefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFGen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFSoundBank.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SMFFile.h"
 				>
 			</File>
 			<File

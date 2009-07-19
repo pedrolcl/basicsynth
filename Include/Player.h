@@ -44,6 +44,12 @@
 /// The critical section mutex is used to synchronize access to the
 /// event list. Optionally, we could use a non-blocking pipe or message queue
 /// in place of directly adding to the event object list.
+///
+/// @note
+/// Beginning with version 1.2 the Sequencer class can do everything the
+/// Player can do plus run sequences and is the prefered way of doing
+/// this now. The Player is still useful for small, interactive synth programs, however.
+/// @endnote
 /////////////////////////////////////////////////////////////////////////////
 class Player
 {

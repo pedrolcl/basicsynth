@@ -80,7 +80,8 @@ void LFO::Reset(float initPhs)
 		atk.Reset(initPhs);
 	if (sigFrq)
 	{
-		FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
+		//FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
+		FrqValue f1 = sigFrq * synthParams.GetCentsMult((int)(depth * 100.0));
 		ampLvl = AmpValue(fabs(f1 - sigFrq));
 	}
 	else

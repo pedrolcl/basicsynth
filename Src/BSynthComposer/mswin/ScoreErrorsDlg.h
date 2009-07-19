@@ -15,6 +15,9 @@ class ScoreErrorsDlg :
 private:
 	CComboBox itmSel;
 	CListBox  errLst;
+	CButton   nextBtn;
+	CButton   prevBtn;
+	CButton   gotoBtn;
 
 public:
 	ScoreErrorsDlg();
@@ -24,7 +27,9 @@ public:
 	void Clear();
 	void Refresh();
 	void ShowErrors();
+	void MarkErrors();
 	void GotoLine();
+	void CheckSyntax();
 	void ErrSelect(int index, int count);
 
 	enum { IDD = IDD_SCORE_ERRORS };
@@ -34,7 +39,8 @@ public:
 		COMMAND_HANDLER(IDC_ERROR_NEXT, BN_CLICKED, OnNext)
 		COMMAND_HANDLER(IDC_ERROR_PREV, BN_CLICKED, OnPrev)
 		COMMAND_HANDLER(IDC_ERROR_GOTO, BN_CLICKED, OnGoto)
-		COMMAND_HANDLER(IDC_ERROR_CLEAR, BN_CLICKED, OnClear)
+		COMMAND_HANDLER(IDC_ERROR_CHECK, BN_CLICKED, OnCheck)
+		COMMAND_HANDLER(IDC_ERROR_MARK, BN_CLICKED, OnMark)
 		COMMAND_HANDLER(IDC_ERROR_REFRESH, BN_CLICKED, OnRefresh)
 		COMMAND_HANDLER(IDC_ERROR_ITEMS, CBN_SELCHANGE, OnItemSel)
 		COMMAND_HANDLER(IDC_ERROR_LIST, LBN_DBLCLK, OnErrGoto)
@@ -46,7 +52,8 @@ public:
 	LRESULT OnGoto(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnPrev(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnNext(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
-	LRESULT OnClear(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnMark(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnCheck(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnRefresh(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnItemSel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnErrGoto(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);

@@ -46,8 +46,8 @@ void Player::Play(InstrManager& instMgr)
 	actTail->ip = NULL;
 	actHead->evid = -1;
 	actTail->evid = -2;
-	actHead->ison = false;
-	actTail->ison = false;
+	actHead->ison = SEQ_AE_OFF;
+	actTail->ison = SEQ_AE_OFF;
 	actHead->Insert(actTail);
 
 	instMgr.Start();
@@ -78,7 +78,7 @@ void Player::Play(InstrManager& instMgr)
 						else if (typ == SEQEVT_STOP)
 						{
 							act->ip->Stop();
-							act->ison = false;
+							act->ison = SEQ_AE_REL;
 						}
 						break;
 					}
@@ -100,7 +100,7 @@ void Player::Play(InstrManager& instMgr)
 						actTail->InsertBefore(act);
 						act->count = evt->duration;
 						act->evid = evt->evid;
-						act->ison = true;
+						act->ison = SEQ_AE_ON;
 						act->ip->Start(evt);
 					}
 					else
@@ -116,7 +116,7 @@ void Player::Play(InstrManager& instMgr)
 		while (act != actTail)
 		{
 			act->ip->Tick();
-			if (!act->ison && act->ip->IsFinished())
+			if (act->ison == SEQ_AE_REL && act->ip->IsFinished())
 			{
 				instMgr.Deallocate(act->ip);
 				ActiveEvent *p = act->Remove();

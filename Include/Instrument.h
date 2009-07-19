@@ -697,6 +697,13 @@ public:
 	{
 		mix->ChannelIn2(ch, lft, rgt);
 	}
+
+	/// Handle a control event.
+	virtual int ControlEvent(SeqEvent *evt)
+	{
+		// TBD
+		return 0;
+	}
 };
 //@}
 #endif

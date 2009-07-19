@@ -1306,7 +1306,7 @@ public:
 	/// @param t curve type (\see EGSegType)
 	/// @param fix fixed or relative duration
 	virtual void InitADSR(AmpValue st, FrqValue ar, AmpValue al, FrqValue dr, 
-	                      AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = logSeg, int fix = 1)
+	                      AmpValue sl, FrqValue rr, AmpValue rl, EGSegType t = linSeg, int fix = 1)
 	{
 		SetStart(st);
 		SetSegN(0, ar, al, t, fix);

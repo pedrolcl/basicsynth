@@ -38,7 +38,10 @@ enum PIType
 	 PRJNODE_FLANGER,
 	 PRJNODE_ECHO,
 	 PRJNODE_FXITEM,
-	 PRJNODE_SELINSTR
+	 PRJNODE_SELINSTR,
+	 PRJNODE_SOUNDBANK,
+	 PRJNODE_SBLIST,
+	 PRJNODE_SELSOUND
 };
 
 #define ITM_ENABLE_NEW   0x0001
@@ -216,12 +219,14 @@ public:
 		err.msg = e->msg;
 		err.token = e->token;
 		err.lineno = e->lineno;
+		err.position = e->position;
 	}
 
 	inline const char *GetFile() { return err.file; }
 	inline const char *GetMsg()  { return err.msg;  }
 	inline const char *GetToken() { return err.token; }
 	inline long GetLine() { return err.lineno; }
+	inline long GetPosition() { return err.position; }
 };
 
 class NotelistItem;
@@ -269,10 +274,11 @@ public:
 	inline short GetDebug() { return dbgLevel; }
 
 	virtual int CopyItem();
-
+	
 	ScoreError* EnumErrors(ScoreError *e);
 	void AddError(nlSyntaxErr *e);
 	void ClearErrors();
+	int SyntaxCheck();
 	int Convert(nlConverter& cvt);
 	int Load(XmlSynthElem *node);
 	int Save(XmlSynthElem *node);
@@ -504,6 +510,55 @@ public:
 
 	virtual int AddItem();
 	virtual int NewItem();
+};
+
+/// A .sf2 file
+class SoundBankItem : public FileItem
+{
+private:
+	bsInt16 mods; // load modulator records
+
+public:
+	SoundBankItem() : FileItem(PRJNODE_SOUNDBANK)
+	{
+		mods = 0;
+		actions = ITM_ENABLE_ADD    // add an instrument
+			    | ITM_ENABLE_REM   // remove from project
+				| ITM_ENABLE_PROPS; // edit properties
+	}
+	virtual int ItemActions() { return actions; }
+	virtual int EditItem();
+	virtual int AddItem();
+	virtual int LoadFile();
+	virtual int RemoveItem();
+	virtual int LoadProperties(PropertyBox *pb);
+	virtual int SaveProperties(PropertyBox *pb);
+	virtual int Load(XmlSynthElem *node);
+	virtual int Save(XmlSynthElem *node);
+};
+
+/// A list of instrument libraries.
+class SoundBankList : public FileList
+{
+protected:
+
+public:
+	SoundBankList() : FileList(PRJNODE_SBLIST)
+	{
+		xmlChild = "sf2";
+		name = "SoundBank";
+		leaf = 0;
+		actions = ITM_ENABLE_ADD; // add existing library
+	}
+
+	virtual FileItem *NewChild()
+	{
+		return new SoundBankItem;
+	}
+
+	int LoadFiles();
+
+	virtual int AddItem();
 };
 
 /// A wavetable.
@@ -1096,6 +1151,7 @@ public:
 	WaveoutItem   *wvoutInfo;
 	WavefileList  *wfInfo;
 	LibfileList   *libInfo;
+	SoundBankList *sblInfo;
 	PathList      *libPath;
 
 	Mixer mix;
@@ -1131,6 +1187,8 @@ public:
 	int PlayEvent(SeqEvent *evt);
 	int Start();
 	int Stop();
+	int Pause();
+	int Resume();
 
 	void SetProjectPath(const char *path)
 	{

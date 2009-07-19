@@ -29,6 +29,7 @@ nlLex::nlLex()
 	cTokbuf = new char[TOKBUFSIZ];
 	theToken = -1;
 	nLineno = 0;
+	position = 0;
 }
 
 nlLex::~nlLex()
@@ -83,6 +84,7 @@ int nlLex::Next()
 		else if (inch != 0)
 			break;
 	}
+	position = in->Position();
 
 	insv = inch;
 	*bp++ = inch;
@@ -204,7 +206,9 @@ int nlLex::Next()
 
 	// save the terminal character for the next call to lex.
 	if (inch != EOF)
+	{
 		in->Ungetc(inch);
+	}
 
 	bp = cTokbuf;
 	inch = insv;
@@ -278,22 +282,33 @@ int nlLex::Next()
 			return T_BEGIN;
 		break;
 	case 'C':
-		if (CompareToken(cTokbuf, "CHANNEL") == 0)
-			return T_CHNL;
-		if (CompareToken(cTokbuf, "CHNL") == 0)
-			return T_CHNL;
-		if (CompareToken(cTokbuf, "COUNT") == 0)
-			return T_COUNT;
-		if (CompareToken(cTokbuf, "CALL") == 0)
-			return T_CALL;
-		if (CompareToken(cTokbuf, "CURPIT") == 0)
-			return T_CURPIT;
-		if (CompareToken(cTokbuf, "CURDUR") == 0)
-			return T_CURDUR;
-		if (CompareToken(cTokbuf, "CURVOL") == 0)
-			return T_CURVOL;
-		if (CompareToken(cTokbuf, "CURTIME") == 0)
-			return T_CURTIME;
+		switch (toupper(cTokbuf[1]))
+		{
+		case 'A':
+			if (CompareToken(cTokbuf, "CALL") == 0)
+				return T_CALL;
+			break;
+		case 'H':
+			if (CompareToken(cTokbuf, "CHANNEL") == 0)
+				return T_CHNL;
+			if (CompareToken(cTokbuf, "CHNL") == 0)
+				return T_CHNL;
+			break;
+		case 'O':
+			if (CompareToken(cTokbuf, "COUNT") == 0)
+				return T_COUNT;
+			break;
+		case 'U':
+			if (CompareToken(cTokbuf, "CURPIT") == 0)
+				return T_CURPIT;
+			if (CompareToken(cTokbuf, "CURDUR") == 0)
+				return T_CURDUR;
+			if (CompareToken(cTokbuf, "CURVOL") == 0)
+				return T_CURVOL;
+			if (CompareToken(cTokbuf, "CURTIME") == 0)
+				return T_CURTIME;
+			break;
+		}
 		break;
 	case 'D':
 		if (CompareToken(cTokbuf, "DOUBLE") == 0)
@@ -348,16 +363,31 @@ int nlLex::Next()
 			return T_LOG;
 		break;
 	case 'M':
-		if (CompareToken(cTokbuf, "MARK") == 0)
-			return T_MARK;
-		if (CompareToken(cTokbuf, "MAP") == 0)
-			return T_MAP;
-		if (CompareToken(cTokbuf, "MAXPARAM") == 0)
-			return T_MAXPARAM;
-		if (CompareToken(cTokbuf, "MIXER") == 0)
-			return T_MIX;
-		if (CompareToken(cTokbuf, "MIDDLEC") == 0)
-			return T_MIDC;
+		switch (toupper(cTokbuf[1]))
+		{
+		case 'A':
+			if (CompareToken(cTokbuf, "MARK") == 0)
+				return T_MARK;
+			if (CompareToken(cTokbuf, "MAP") == 0)
+				return T_MAP;
+			if (CompareToken(cTokbuf, "MAXPARAM") == 0)
+				return T_MAXPARAM;
+			break;
+		case 'I':
+			if (CompareToken(cTokbuf, "MIXER") == 0)
+				return T_MIX;
+			if (CompareToken(cTokbuf, "MIDDLEC") == 0)
+				return T_MIDC;
+			if (CompareToken(cTokbuf, "MIDICC") == 0)
+				return T_MIDICC;
+			if (CompareToken(cTokbuf, "MIDIPW") == 0)
+				return T_MIDIPW;
+			if (CompareToken(cTokbuf, "MIDIPRG") == 0)
+				return T_MIDIPRG;
+			if (CompareToken(cTokbuf, "MIDIAT") == 0)
+				return T_MIDIAT;
+			break;
+		}
 		break;
 	case 'N':
 		if (CompareToken(cTokbuf, "NOT") == 0)
@@ -398,26 +428,42 @@ int nlLex::Next()
 			return T_RAMP;
 		break;
 	case 'S':
-		if (CompareToken(cTokbuf, "SUS") == 0)
-			return T_SUS;
-		if (CompareToken(cTokbuf, "SUSTAIN") == 0)
-			return T_SUS;
-		if (CompareToken(cTokbuf, "SEQ") == 0)
-			return T_SEQ;
-		if (CompareToken(cTokbuf, "SEQUENCE") == 0)
-			return T_SEQ;
-		if (CompareToken(cTokbuf, "SYNC") == 0)
-			return T_SYNC;
-		if (CompareToken(cTokbuf, "SET") == 0)
-			return T_SET;
-		if (CompareToken(cTokbuf, "SCRIPT") == 0)
-			return T_SCRIPT;
-		if (CompareToken(cTokbuf, "SYS") == 0)
-			return T_SYSTEM;
-		if (CompareToken(cTokbuf, "SYSTEM") == 0)
-			return T_SYSTEM;
-		if (CompareToken(cTokbuf, "SEND") == 0)
-			return T_MIXSEND;
+		switch (toupper(cTokbuf[1]))
+		{
+		case 'E':
+			if (CompareToken(cTokbuf, "SEQ") == 0)
+				return T_SEQ;
+			if (CompareToken(cTokbuf, "SEQUENCE") == 0)
+				return T_SEQ;
+			if (CompareToken(cTokbuf, "SET") == 0)
+				return T_SET;
+			if (CompareToken(cTokbuf, "SEND") == 0)
+				return T_MIXSEND;
+			break;
+		case 'T':
+			if (CompareToken(cTokbuf, "START") == 0)
+				return T_STARTTRK;
+			if (CompareToken(cTokbuf, "STOP") == 0)
+				return T_STOPTRK;
+			break;
+		case 'U':
+			if (CompareToken(cTokbuf, "SUS") == 0)
+				return T_SUS;
+			if (CompareToken(cTokbuf, "SUSTAIN") == 0)
+				return T_SUS;
+			break;
+		case 'Y':
+			if (CompareToken(cTokbuf, "SYNC") == 0)
+				return T_SYNC;
+			if (CompareToken(cTokbuf, "SYS") == 0)
+				return T_SYSTEM;
+			if (CompareToken(cTokbuf, "SYSTEM") == 0)
+				return T_SYSTEM;
+			break;
+		default:
+			if (CompareToken(cTokbuf, "SCRIPT") == 0)
+				return T_SCRIPT;
+		}
 		break;
 	case 'T':
 		if (CompareToken(cTokbuf, "TIE") == 0)
@@ -430,22 +476,32 @@ int nlLex::Next()
 			return T_TEMPO;
 		if (CompareToken(cTokbuf, "THEN") == 0)
 			return T_THEN;
+		if (CompareToken(cTokbuf, "TRACK") == 0)
+			return T_TRACK;
 		break;
 	case 'V':
-		if (CompareToken(cTokbuf, "VOICE") == 0)
-			return T_VOICE;
-		if (CompareToken(cTokbuf, "VOL") == 0)
-			return T_VOL;
-		if (CompareToken(cTokbuf, "VOLUME") == 0)
-			return T_VOL;
-		if (CompareToken(cTokbuf, "VAR") == 0)
-			return T_DECLARE;
-		if (CompareToken(cTokbuf, "VARIABLE") == 0)
-			return T_DECLARE;
-		if (CompareToken(cTokbuf, "VERSION") == 0)
-			return T_VER;
-		if (CompareToken(cTokbuf, "VER") == 0)
-			return T_VER;
+		switch (toupper(cTokbuf[1]))
+		{
+		case 'O':
+			if (CompareToken(cTokbuf, "VOICE") == 0)
+				return T_VOICE;
+			if (CompareToken(cTokbuf, "VOL") == 0)
+				return T_VOL;
+			if (CompareToken(cTokbuf, "VOLUME") == 0)
+				return T_VOL;
+			break;
+		case 'A':
+			if (CompareToken(cTokbuf, "VAR") == 0)
+				return T_DECLARE;
+			if (CompareToken(cTokbuf, "VARIABLE") == 0)
+				return T_DECLARE;
+			break;
+		case 'E':
+			if (CompareToken(cTokbuf, "VERSION") == 0)
+				return T_VER;
+			if (CompareToken(cTokbuf, "VER") == 0)
+				return T_VER;
+		}
 		break;
 	case 'W':
 		if (CompareToken(cTokbuf, "WHILE") == 0)

@@ -99,6 +99,10 @@ SOURCE=.\FMSynth.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GMPlayer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\LFO.cpp
 # End Source File
 # Begin Source File
@@ -120,6 +124,10 @@ SOURCE=.\ModSynth.cpp
 # Begin Source File
 
 SOURCE=.\PitchBend.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SFPlayer.cpp
 # End Source File
 # Begin Source File
 
@@ -148,6 +156,10 @@ SOURCE=.\Chuffer.h
 # Begin Source File
 
 SOURCE=.\FMSynth.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GMPlayer.h
 # End Source File
 # Begin Source File
 
@@ -184,6 +196,10 @@ SOURCE=.\ModSynthUG.h
 # Begin Source File
 
 SOURCE=.\PitchBend.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SFPlayer.h
 # End Source File
 # Begin Source File
 

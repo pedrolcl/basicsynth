@@ -80,7 +80,7 @@ public:
 /// sequencer event base class. The format of one event line
 /// in the sequence file is as follows:
 /// @code
-///    [+|-|&]inum chnl time duration { param }
+///    [+|-|&]inum chnl time duration track { param }
 /// @endcode
 /// A line beginning with a plus (+) will generate a PARAM event.
 /// Lines beginning with a minus (-) will generate a STOP event. 

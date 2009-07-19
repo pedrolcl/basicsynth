@@ -22,6 +22,7 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	CheckDlgButton(IDC_INCL_SEQUENCE, prjOptions.inclSequence);
 	CheckDlgButton(IDC_INCL_TEXTFILES, prjOptions.inclTextFiles);
 	CheckDlgButton(IDC_INCL_LIBRARIES, prjOptions.inclLibraries);
+	CheckDlgButton(IDC_INCL_SOUNDFONTS, prjOptions.inclSoundFonts);
 	SetDlgItemText(IDC_DEF_PROJECTS, prjOptions.defPrjDir);
 	SetDlgItemText(IDC_DEF_WAVEIN, prjOptions.defWaveIn);
 	SetDlgItemText(IDC_DEF_FORMS, prjOptions.formsDir);
@@ -33,6 +34,19 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	char buf[40];
 	snprintf(buf, 40, "%f", prjOptions.playBuf);
 	SetDlgItemText(IDC_LATENCY, buf);
+
+	int midiDev = prjOptions.midiDevice;
+	UINT ndev = midiInGetNumDevs(); 
+	for (UINT n = 0; n < ndev; n++)
+	{
+		MIDIINCAPS caps;
+		memset(&caps, 0, sizeof(caps));
+		midiInGetDevCaps(n, &caps, sizeof(caps));
+		if (strcmp(caps.szPname, prjOptions.midiDeviceName) == 0)
+			midiDev = n;
+		SendDlgItemMessage(IDC_MIDI_IN, CB_ADDSTRING, 0, (LPARAM) caps.szPname);
+	}
+	SendDlgItemMessage(IDC_MIDI_IN, CB_SETCURSEL, midiDev, 0);
 
 	return 1;
 }
@@ -103,6 +117,7 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 	prjOptions.inclSequence = IsDlgButtonChecked(IDC_INCL_SEQUENCE);
 	prjOptions.inclTextFiles = IsDlgButtonChecked(IDC_INCL_TEXTFILES);
 	prjOptions.inclLibraries = IsDlgButtonChecked(IDC_INCL_LIBRARIES);
+	prjOptions.inclSoundFonts = IsDlgButtonChecked(IDC_INCL_SOUNDFONTS);
 	GetDlgItemText(IDC_DEF_PROJECTS, prjOptions.defPrjDir, MAX_PATH);
 	GetDlgItemText(IDC_DEF_WAVEIN, prjOptions.defWaveIn, MAX_PATH);
 	GetDlgItemText(IDC_DEF_FORMS, prjOptions.formsDir, MAX_PATH);
@@ -116,6 +131,14 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 	prjOptions.playBuf = atof(buf);
 	if (prjOptions.playBuf < 0.02)
 		prjOptions.playBuf = 0.02;
+
+	prjOptions.midiDevice = SendDlgItemMessage(IDC_MIDI_IN, CB_GETCURSEL);
+	if (prjOptions.midiDevice == CB_ERR)
+		memset(prjOptions.midiDeviceName, 0, MAX_PATH);
+	else
+		GetDlgItemText(IDC_MIDI_IN, prjOptions.midiDeviceName, MAX_PATH);
+
+	prjOptions.Save();
 
 	EndDialog(IDOK);
 	return 0;

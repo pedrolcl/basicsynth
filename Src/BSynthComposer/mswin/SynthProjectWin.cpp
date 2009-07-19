@@ -5,13 +5,22 @@
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 
 // This object is set when the keyboard player is active.
 // it is accessible from multiple threads.
-static Player *thePlayer;
+static HANDLE genThreadH = INVALID_HANDLE_VALUE;
+static DWORD  genThreadID;
+static WaveOutDirect *wop = 0;
+static MIDIControl genMidiCtrl;
 
 int SynthProject::Generate(int todisk, long from, long to)
 {
+	SeqState oldState = seq.GetState();
+	if (oldState != seqOff)
+		Stop();
+
 	mixInfo->InitMixer();
 	if (todisk)
 		return GenerateToFile(from, to);
@@ -27,14 +36,26 @@ int SynthProject::Generate(int todisk, long from, long to)
 	if (GenerateSequence(cvt))
 		return -1;
 
-	long nbuf = 5;
+	long nbuf = 4;
+	// because Windows locks 20ms of the buffer, we should use least 40ms total.
+	if (prjOptions.playBuf < 0.01)
+		prjOptions.playBuf = 0.01;
 	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, nbuf))
 		return -1;
 
 	if (prjGenerate)
 		prjGenerate->AddMessage("Start sequencer...");
-	// This line generates the output...
-	seq.Sequence(mgr, from*synthParams.isampleRate, to*synthParams.isampleRate);
+
+	// Generate the output...
+	wop = &wvd;
+	seq.SetController(&genMidiCtrl.seqControl);
+	bsInt32 fromSamp = from*synthParams.isampleRate;
+	bsInt32 toSamp = to*synthParams.isampleRate;
+	if (seq.GetTrackCount() > 1 || oldState & seqPlay)
+		seq.SequenceMulti(mgr, fromSamp, toSamp, seqSeqOnce | (oldState & seqPlay));
+	else
+		seq.Sequence(mgr, fromSamp, toSamp);
+	wop = 0;
 
 	AmpValue lv, rv;
 	long pad = (long) (synthParams.sampleRate * prjOptions.playBuf) * nbuf;
@@ -51,10 +72,6 @@ int SynthProject::Generate(int todisk, long from, long to)
 	return 0;
 }
 
-static int kbdRunning;
-static HANDLE genThreadH = INVALID_HANDLE_VALUE;
-static DWORD  genThreadID;
-
 static DWORD WINAPI PlayerProc(LPVOID param)
 {
 	return theProject->Play();
@@ -65,42 +82,47 @@ int SynthProject::Play()
 	WaveOutDirect wvd;
 	mix.Reset();
 	mgr.Init(&mix, &wvd);
-	if (wvd.Setup(_Module.mainWnd, 0.02, 4))
+	if (prjOptions.playBuf < 0.01)
+		prjOptions.playBuf = 0.01;
+	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, 3))
 		return 0;
-	ATLTRACE("Starting live playback...\n");
-	thePlayer = new Player;
-	thePlayer->Play(mgr);
-	ATLTRACE("Stopping live playback...");
+	//ATLTRACE("Starting live playback...\n");
+	wop = &wvd;
+	seq.SetController(&genMidiCtrl.seqControl);
+	seq.Play(mgr);
+//	seq.SetCB(0, 0, 0);
+//	seq.Reset();
+//	seq.Sequence(mgr, 0, 0, seqPlay);
+	wop = 0;
+	//ATLTRACE("Stopping live playback...");
 	wvd.Stop();
-	delete thePlayer;
-	thePlayer = 0;
-	ATLTRACE("Done\n");
+	//ATLTRACE("Done\n");
 	return 1;
 }
 
 int SynthProject::Start()
 {
-	if (!kbdRunning)
+	if (seq.GetState() == seqOff)
 	{
 		genThreadH = CreateThread(NULL, 0, PlayerProc, NULL, CREATE_SUSPENDED, &genThreadID);
 		if (genThreadH != INVALID_HANDLE_VALUE)
 		{
-			kbdRunning = 1;
+			SetThreadPriority(genThreadH, THREAD_PRIORITY_ABOVE_NORMAL);
 			ResumeThread(genThreadH);
+			return 1;
 		}
 	}
-	return kbdRunning;
+	return seq.GetState() != seqOff;
 }
 
 int SynthProject::Stop()
 {
-	int wasRunning = kbdRunning;
+	SeqState wasRunning = seq.GetState();
 	if (genThreadH != INVALID_HANDLE_VALUE)
 	{
 		try
 		{
-			if (thePlayer)
-				thePlayer->Halt();
+			seq.Halt();
 			WaitForSingleObject(genThreadH, 10000);
 		}
 		catch (...)
@@ -108,25 +130,49 @@ int SynthProject::Stop()
 		}
 		genThreadH = INVALID_HANDLE_VALUE;
 	}
-	kbdRunning = 0;
-	return wasRunning;
+	return wasRunning != seqOff;
+}
+
+int SynthProject::Pause()
+{
+	if (seq.GetState() != seqPaused)
+	{
+		seq.Pause();
+		while (seq.GetState() != seqPaused)
+			Sleep(0);
+		if (wop)
+			wop->Stop();
+		return 1;
+	}
+	return 0;
+}
+
+int SynthProject::Resume()
+{
+	if (seq.GetState() == seqPaused)
+	{
+		if (wop)
+			wop->Restart();
+		seq.Resume();
+		return 1;
+	}
+	return 0;
 }
 
 int SynthProject::PlayEvent(SeqEvent *evt)
 {
-	if (thePlayer)
+	if (seq.GetState() & seqPlay)
 	{
-		thePlayer->AddEvent(evt);
+		seq.AddImmediate(evt);
 		return 1;
 	}
+
 	delete evt;
 	return 0;
 }
 
 int SynthProject::IsPlaying()
 {
-	if (thePlayer)
-		return thePlayer->IsPlaying();
-	return 0;
+	return seq.GetState() & seqPlay;
 }
 

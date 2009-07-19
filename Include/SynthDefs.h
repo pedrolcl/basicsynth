@@ -90,6 +90,8 @@ public:
 	bsInt32  itableLength;
 	/// table to convert pitch index into frequency
 	FrqValue tuning[128];
+	/// table to convert cents +/-1200 into frequency multiplier
+	FrqValue cents[2401];
 	/// first quadrant of a sine wave (used by Panner)
 	AmpValue sinquad[PANTBLLEN];
 	/// square roots of 0-1 (used by Panner)
@@ -120,6 +122,13 @@ public:
 			tuning[i] = (FrqValue) frq;
 			frq *= two12;
 			//printf("%d = %f\n", i, tuning[i]);
+		}
+
+		frq = -1200;
+		for (i = 0; i <= 2400; i++)
+		{
+			cents[i] = pow(2.0, frq/1200.0);
+			frq += 1;
 		}
 
 		// lookup tables for non-linear panning
@@ -170,6 +179,20 @@ public:
 		if (pitch < 0 || pitch > 127)
 			return tuning[0] * pow(2.0, (double) pitch / 12.0);
 		return tuning[pitch];
+	}
+
+	/// Convert cents to frequency multiplier.
+	/// Cents represent a tuning variation of 1/100 semitone
+	/// and should range +/- one octave [-1200,+1200]. Values outside
+	/// that range result in a direct calculation. The returned
+	/// value is multiplied by a base frequency to get the detuned
+	/// frequency.
+	/// @param cents deviation in pitch in 1/100 of a semitone.
+	FrqValue GetCentsMult(int c)
+	{
+		if (c < -1200 || c > 1200)
+			return pow(2.0, (double) c / 1200);
+		return cents[c + 1200];
 	}
 
 	/// Function to locate a file on the wave file path (synthParams.wvPath).

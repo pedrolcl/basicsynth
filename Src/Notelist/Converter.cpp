@@ -163,10 +163,11 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 		return;
 	if (evtType == SEQEVT_START)
 		evtCount++;
-	evt->evid = evtCount;
-	evt->type = evtType;
-	evt->SetParam(P_INUM, (long) curVoice->instr);
-	evt->SetParam(P_CHNL, (long) curVoice->chnl);
+	evt->SetID(evtCount);
+	evt->SetType(evtType);
+	evt->SetParam(P_TRACK, (float) curVoice->track);
+	evt->SetParam(P_INUM, (float) curVoice->instr);
+	evt->SetParam(P_CHNL, (float) curVoice->chnl);
 	evt->SetParam(P_START, (float) start);
 	evt->SetParam(P_DUR, (float) dur);
 	if (gen.GetFrequencyMode())
@@ -176,7 +177,7 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 	if (amp > 0)
 	{
 		if (gen.GetVoldbMode())
-			amp = pow(10, amp / 20.0) / 100000.0;
+			amp = pow(10, (amp - 100) / 20.); 
 		else
 			amp /= 100.0;
 	}
@@ -220,8 +221,9 @@ void nlConverter::MixerEvent(int fn, double *params)
 		return;
 
 	SeqEvent *evt = mgr->ManufEvent(mixInstr);
-	evt->evid = ++evtCount;
-	evt->type = SEQEVT_START;
+	evt->SetID(++evtCount);
+	evt->SetType(SEQEVT_START);
+	evt->SetParam(P_TRACK, curVoice->track);
 	evt->SetParam(P_INUM, (long) mixInstr);
 	evt->SetParam(P_CHNL, (long) curVoice->chnl);
 	evt->SetParam(P_START, (float) curVoice->curTime);
@@ -240,6 +242,37 @@ void nlConverter::MixerEvent(int fn, double *params)
 			evt->SetParam(P_MIX_WT, (float) params[5]);
 		}
 	}
+	seq->AddEvent(evt);
+}
+
+void nlConverter::MidiEvent(short mmsg, short val1, short val2)
+{
+	if (!curVoice)
+		return;
+	ControlEvent *evt = new ControlEvent;
+	evt->SetID(++evtCount);
+	evt->SetType(SEQEVT_CONTROL);
+	evt->SetParam(P_START, curVoice->curTime);
+	evt->SetParam(P_CHNL, curVoice->chnl);
+	evt->SetParam(P_TRACK, curVoice->track);
+	evt->SetParam(P_MMSG, mmsg);
+	evt->SetParam(P_CTRL, val1);
+	evt->SetParam(P_CVAL, val2);
+	seq->AddEvent(evt);
+}
+
+void nlConverter::TrackOp(int op, int trk, int cnt)
+{
+	if (!curVoice)
+		return;
+	TrackEvent *evt = new TrackEvent;
+	evt->SetID(++evtCount);
+	evt->SetType(op ? SEQEVT_STARTTRACK : SEQEVT_STOPTRACK);
+	evt->SetParam(P_START, curVoice->curTime);
+	evt->SetParam(P_CHNL, curVoice->chnl);
+	evt->SetParam(P_TRACK, curVoice->track);
+	evt->SetParam(P_TRKNO, trk);
+	evt->SetParam(P_LOOP, cnt);
 	seq->AddEvent(evt);
 }
 

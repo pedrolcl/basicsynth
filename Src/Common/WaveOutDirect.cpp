@@ -30,6 +30,7 @@ WaveOutDirect::WaveOutDirect()
 	sizeLock = 0;
 	pauseTime = 20;
 	outState = 0;
+	channels = 2;
 }
 
 WaveOutDirect::~WaveOutDirect()
@@ -43,7 +44,10 @@ WaveOutDirect::~WaveOutDirect()
 void WaveOutDirect::Stop()
 {
 	if (dirSndBuf)
+	{
+		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
 		dirSndBuf->Stop();
+	}
 	outState = 0;
 }
 
@@ -52,8 +56,14 @@ void WaveOutDirect::Restart()
 	if (dirSndBuf)
 	{
 		// Lock the first block
+		dirSndBuf->SetCurrentPosition(0);
 		dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
+		nxtSamp = (SampleValue*)startLock;
+		endSamp = nxtSamp + sampleMax;
+		nextWrite = 0;
 		outState = 1;
+		if (nxtSamp == 0)
+			OutputDebugString("nxtSamp == NULL\r\n");
 	}
 }
 
@@ -78,6 +88,7 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
 	if (dirSndBuf)
 	{
 		dirSndBuf->Stop();
+		// in case the format has changed, we release the old buffer.
 		dirSndBuf->Release();
 		dirSndBuf = 0;
 	}
@@ -111,7 +122,8 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
 	outState = 1;
 	nextWrite = 0;
 	// when we must wait, we wait 1/4 of a block length
-	pauseTime = (DWORD) (leadtm * 250);
+	// ms = leadtm * 0.25 * 1000
+	pauseTime = (DWORD) (leadtm * 250.0f);
 
 	return 0;
 }
@@ -127,6 +139,7 @@ int WaveOutDirect::Setup(HWND w, float leadtm, int nb)
 	// Lock the first block
 	if (dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0) != S_OK)
 		return -1;
+	channels = 2;
 	samples = (SampleValue *) startLock;
 	nxtSamp = samples;
 	endSamp = nxtSamp + sampleMax;
@@ -161,7 +174,7 @@ int WaveOutDirect::FlushOutput()
 	{
 	case 0:
 		// suspended state...
-		Sleep(pauseTime*4);
+		Sleep(pauseTime);
 		break;
 	case 1:
 		// Initial write. Start playback
@@ -215,6 +228,8 @@ int WaveOutDirect::FlushOutput()
 	}
 	nxtSamp = (SampleValue*)startLock;
 	endSamp = nxtSamp + sampleMax;
+	if (nxtSamp == 0)
+		OutputDebugString("nxtSamp == NULL\r\n");
 	return 0;
 }
 

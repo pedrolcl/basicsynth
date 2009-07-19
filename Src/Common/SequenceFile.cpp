@@ -106,6 +106,7 @@ int SequenceFile::ParseMem(char *linbuf)
 		curmap->AddEntry(P_CHNL, P_CHNL);
 		curmap->AddEntry(P_START, P_START);
 		curmap->AddEntry(P_DUR, P_DUR);
+		curmap->AddEntry(P_TRACK, P_TRACK);
 		argn = P_XTRA;
 		while ((parg = NextParam(parg, argbuf)) != NULL)
 		{
@@ -144,9 +145,9 @@ int SequenceFile::ParseMem(char *linbuf)
 			evt = inMgr->ManufEvent(inum);
 			if (evt == NULL)
 				return -1;
-			evt->type = evtype;
-			evt->evid = lastID;
-			evt->inum = inum;
+			evt->SetType(evtype);
+			evt->SetID(lastID);
+			evt->SetParam(P_INUM, inum);
 			argn = P_INUM + 1;
 			argmax = evt->MaxParam();
 			if (!curmap || curmap->inum != inum)

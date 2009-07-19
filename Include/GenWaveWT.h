@@ -243,6 +243,188 @@ public:
 		return v; 
 	}
 };
+
+/// Specialized wavetable oscillator for sample playback.
+/// Sampled systems typically use a wavetable containing
+/// multiple periods. In addition, the wavetable is divided
+/// into multiple segments: attack, loop, and optional release.
+/// This oscillator implements generic looped wavetable playback
+/// with pitch shifting. Interpolation is linear between adjacent
+/// samples.
+///
+/// The oscillator can operate in one of three states:
+/// 1. Scanning the wavetable up to the loop (attack)
+/// 2. Looping between loopStart and loopEnd (sustain)
+/// 3. Playing the wavetable through to the end.
+///
+/// The loopMode variable determines the interpretation
+/// of the wavetable. Mode 1 indicates no looping. Mode 2 indicates
+/// a loop through decay. Mode 3 indicates play to end during decay.
+///
+/// This oscillator supports 2-channel capability so that stereo
+/// recordings are preserved when desired. If both left
+/// and right wavetables are set, the values for each channel
+/// are determined individually. The sum of the two channels is
+/// returned by the Gen() function. After Gen() is called, the
+/// GetLeft() and GetRight() accessor functions can be used to
+/// retrieve the separate left and right values.
+///
+/// Values can be set directly using the SetWavetable and Init
+/// functions. However, this class is normally used as a base class
+/// to a sample file specific class that provides initialization from
+/// data contained in a sample file.
+class GenWaveWTLoop : public GenUnit
+{
+protected:
+	AmpValue *wavetable;
+	PhsAccum phase;
+	PhsAccum phsIncr;
+	PhsAccum period;
+	PhsAccum loopStart;
+	PhsAccum loopEnd;
+	PhsAccum loopLen;
+	PhsAccum tableEnd;
+	FrqValue rateRatio;
+	FrqValue frq;
+	FrqValue recFrq;
+	FrqValue piMult;
+	int state;
+	int loopMode;
+
+public:
+	GenWaveWTLoop()
+	{
+		// To save a little cpu time we skip initialization.
+		// This is useless until you call InitWT() anyway...
+		/*
+		wavetable = wtSet.GetWavetable(WT_SIN);
+		tableEnd = synthParams.ftableLength;
+		period = tableEnd;
+		loopStart = 0;
+		loopEnd = tableEnd;
+		loopLen = tableEnd;
+		phase = 0.0;
+		phsIncr = 1.0;
+		frq = 440.0;
+		state = 1;
+		loopMode = 0;
+		rateRatio = 1.0;
+		recFrq = synthParams.sampleRate / tableEnd;
+		piMult = 1.0 / recFrq;
+		*/
+		tableEnd = 0.0;
+		phase = 0.0;
+	}
+
+	void SetFrequency(FrqValue f)
+	{
+		frq = f;
+	}
+
+	void SetWavetable(AmpValue *wt)
+	{
+		wavetable = wt;
+	}
+
+	/// Initialize from an array of values.
+	/// The wavetable must be set directly with SetWavetable().
+	void Init(int n, float *values)
+	{
+		if (n >= 7)
+		{
+			InitWTLoop(values[0], values[1], values[2], 
+				(bsInt32) values[3], (bsInt32) values[4], 
+				(bsInt32) values[5], (bsInt16) values[6], 
+				wavetable);
+		}
+	}
+
+	void InitWTLoop(FrqValue fo, FrqValue fr, FrqValue sr, 
+		bsInt32 te, bsInt32 ls, bsInt32 le, bsInt16 lm, AmpValue *wt)
+	{
+		frq = fo;
+		recFrq = fr;
+		rateRatio = (FrqValue) sr / synthParams.sampleRate;
+		piMult = rateRatio / recFrq; // pre-calculate for Modulate code
+		period = sr / recFrq;
+		tableEnd = (PhsAccum) te;
+		loopStart = (PhsAccum) ls;
+		loopEnd = (PhsAccum) le;
+		loopLen = loopEnd - loopStart;
+		loopMode = lm;
+		if (loopMode == 0)
+			state = 2;
+		else
+			state = 1;
+		wavetable = wt;
+		phase = 0.0;
+		Reset(0);
+	}
+
+	void Reset(float initPhs)
+	{
+		if (initPhs >= 0)
+			phase = initPhs;
+		//phsIncr = rateRatio * frq / recFrq;
+		phsIncr = frq * piMult;
+	}
+
+	/// Release is called to stop any more looping.
+	/// The user of this object must determine when
+	/// the release begins and call this method in
+	/// the case where the wavetable as a separate
+	/// release segment.
+	void Release()
+	{
+		if (loopMode == 3)
+			state = 2;
+	}
+
+	void Modulate(FrqValue d)
+	{
+		phsIncr = (frq + d) * piMult;
+	}
+	
+	AmpValue Gen()
+	{
+		if (phase < 0)
+			phase += period;
+		if (phase > tableEnd)
+			return 0;
+		if (state == 0) // attack - segment prior to loopStart
+		{
+			if (phase >= loopStart)
+				state = 1;
+		}
+		else if (state == 1) // looping from loopStart to loopEnd
+		{
+			if (phase >= loopEnd)
+				phase -= loopLen;
+			else if (phase < loopStart)
+				phase += loopLen;
+		}
+		// else (state == 2) // playing through to the end (release or no loop)
+
+		// no interpolation is faster...
+		//int ii = (int)(phase+0.5);
+		//phase += phsIncr;
+		//return wavetable[ii];
+
+		// ...but interpolation sounds a little better:
+		int ii = (int) phase;
+		PhsAccum fr = phase - (PhsAccum) ii;
+		phase += phsIncr;
+		AmpValue v1 = wavetable[ii];
+		AmpValue v2 = wavetable[ii+1];
+		return v1 + ((v2 - v1) * fr);
+	}
+
+	int IsFinished()
+	{
+		return phase >= tableEnd;
+	}
+};
+
 //@}
 #endif
 

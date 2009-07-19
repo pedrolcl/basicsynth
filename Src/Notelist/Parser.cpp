@@ -20,9 +20,11 @@
 #include <ctype.h>
 #include <math.h>
 #include <BasicSynth.h>
+#include <MIDIDefs.h>
 #include "NLConvert.h"
 
 static int skiptoend[] = { T_ENDSTMT, T_END, -1 };
+static int skiptodelim[] = { T_COMMA, T_ENDSTMT, T_END, -1 };
 
 //////////////////////////////////////////////////////////////////////
 // Print a message about invalid token. (used for debuggin scripts)
@@ -78,6 +80,7 @@ int nlParser::Error(char *s, int *skiplist)
 	errBuf.msg  = s;
 	errBuf.token = lexPtr->Tokbuf();
 	errBuf.lineno = lexPtr->Lineno();
+	errBuf.position = lexPtr->Position();
 	cvtPtr->ShowError(&errBuf);
 	if (skiplist)
 		SkipTo(skiplist);
@@ -90,7 +93,8 @@ int nlParser::Error(char *s, int *skiplist)
 
 int nlParser::SkipTo(int *skiplist)
 {
-	while (theToken != T_ENDOF)
+	int thisLine = lexPtr->Lineno();
+	while (theToken != T_ENDOF && thisLine == lexPtr->Lineno())
 	{
 		for (int *ptok = skiplist; *ptok != -1; ptok++)
 		{
@@ -215,7 +219,7 @@ int nlParser::Statement()
 
 	// Keywords not allowed at the Statement level.
 	case T_END:
-		Error("END is not matched to BEGIN.", skiptoend);
+		Error("END is not matched to BEGIN.", 0);
 		break;
 	case T_ELSE:
 		Error("ELSE is not matched to IF.", skiptoend);
@@ -236,6 +240,10 @@ int nlParser::Statement()
 	case T_LOOP:
 	case T_IF:
 	case T_WHILE:
+	case T_MIDICC:
+	case T_TRACK:
+	case T_STARTTRK:
+	case T_STOPTRK:
 		Error("Keyword must be inside a VOICE.", skiptoend);
 		break;
 	case T_PIT:
@@ -345,17 +353,24 @@ int nlParser::Declare()
 	cvtPtr->DebugNotify(2, "Parse: VAR");
 	nlSymbol *symb;
 	theToken = lexPtr->Next();
-	while (theToken == T_VAR)
+	while (theToken != T_END)
 	{
-		cnt++;
-		symb = cvtPtr->Lookup(lexPtr->Tokbuf());
-		if (symb != NULL)
-			err = Error("Variable redefined", skiptoend);
+		if (theToken != T_VAR)
+			err = Error("Expected variable name", skiptodelim);
 		else
-			symb = cvtPtr->AddSymbol(lexPtr->Tokbuf());
-		theToken = lexPtr->Next();
+		{
+			cnt++;
+			symb = cvtPtr->Lookup(lexPtr->Tokbuf());
+			if (symb != NULL)
+				err = Error("Variable redefined", 0);
+			else
+				symb = cvtPtr->AddSymbol(lexPtr->Tokbuf());
+			theToken = lexPtr->Next();
+		}
 		if (theToken == T_COMMA)
 			theToken = lexPtr->Next();
+		else
+			break;
 	}
 	if (theToken != T_ENDSTMT || cnt == 0)
 		err = Error("Missing or invalid variable name.", 0);
@@ -377,9 +392,27 @@ int nlParser::Set()
 			sp->SetSymbol(symb);
 			genPtr->AddNode(sp);
 			theToken = lexPtr->Next();
-			if (theToken == T_EQ)
+			if (theToken == T_OBRACK)
+			{
+				genPtr->AddNode(T_OBRACK, 0L);
+				static int skiplist[] = { T_CBRACK, T_EQ, T_ENDSTMT, T_END, -1 };
 				theToken = lexPtr->Next();
-			err = Expr();
+				if ((err = Expr()) != 0)
+					Error("Invalid subscript", skiplist);
+				else if (theToken != T_CBRACK)
+					Error("Expected ']'", skiplist);
+				else
+					theToken = lexPtr->Next();
+				genPtr->AddNode(T_CBRACK, 0L);
+			}
+			if (theToken == T_EQ)
+			{
+				theToken = lexPtr->Next();
+				if ((err = Expr()) != 0)
+					Error("Invalid value for SET", skiptoend);
+			}
+			else
+				err = Error("Expected =", skiptoend);
 		}
 		else
 			err = Error("Undefined variable", skiptoend);
@@ -479,16 +512,15 @@ int nlParser::Tempo()
 	theToken = lexPtr->Next();
 	if ((err = Expr()) == 0)
 	{
-		if (theToken == T_COMMA)
-		{
-			theToken = lexPtr->Next();
-			err = Expr();
-		}
+		if (theToken != T_COMMA)
+			err = Error("Expected ,", 0);
 		else
-			err = -1;
+			theToken = lexPtr->Next();
+		if ((err = Expr()) != 0)
+			Error("Missing or invalid time value for TEMPO", skiptoend);
 	}
-	if (err)
-		Error("Missing value(s) for TEMPO", skiptoend);
+	else
+		err = Error("Missing value(s) for TEMPO", skiptoend);
 	return CheckEnd(err);
 }
 
@@ -529,9 +561,12 @@ int nlParser::Mix()
 	theToken = lexPtr->Next();
 	if (fn & mixFx)
 	{
-		err = Expr();
+		if ((err = Expr()) != 0)
+			Error("Invalid mixer fx unit", skiptodelim);
 		if (theToken == T_COMMA)
 			theToken = lexPtr->Next();
+		else
+			Error("Expected , after mixer fx unit", 0);
 	}
 	else // no FX unit expression
 		genPtr->AddNode(T_NUM, -1L);
@@ -604,7 +639,7 @@ int nlParser::Map()
 			{
 				genPtr->AddNode(T_OBRACE, 0L);
 				theToken = lexPtr->Next();
-				while (theToken != EOF)
+				while (theToken != T_END)
 				{
 					if (MapExpr())
 						break;
@@ -815,6 +850,44 @@ int nlParser::Transpose()
 	return Param1("Transpose");
 }
 
+int nlParser::MidiCC()
+{
+	cvtPtr->DebugNotify(2, "Parse: MIDICC");
+	genPtr->AddNode(new nlMidiNode(MIDI_CTLCHG));
+
+	theToken = lexPtr->Next();
+	if (Expr() != 0)
+		return Error("Missing cc number for MIDICC", skiptoend);
+	if (theToken != T_COMMA)
+		return Error("Expected ',' for MIDICC", skiptoend);
+	genPtr->AddNode(T_COMMA, 0L);
+	theToken = lexPtr->Next();
+	if (Expr() != 0)
+		return Error("Missing cc value MIDICC", skiptoend);
+	return CheckEnd(0);
+}
+
+int nlParser::MidiPW()
+{
+	cvtPtr->DebugNotify(2, "Parse: MIDIPW");
+	genPtr->AddNode(new nlMidiNode(MIDI_PWCHG));
+	return Param1("MIDIPW");
+}
+
+int nlParser::MidiPRG()
+{
+	cvtPtr->DebugNotify(2, "Parse: MIDIPRG");
+	genPtr->AddNode(new nlMidiNode(MIDI_PRGCHG));
+	return Param1("MIDIPRG");
+}
+
+int nlParser::MidiAT()
+{
+	cvtPtr->DebugNotify(2, "Parse: MIDIAT");
+	genPtr->AddNode(new nlMidiNode(MIDI_CHNAT));
+	return Param1("MIDIAT");
+}
+
 // double = 'double' dblparam ';'
 // dblparam = 'OFF' | expr | expr ',' expr
 int nlParser::Double()
@@ -989,6 +1062,10 @@ int nlParser::Note()
 		return Sync();
 	case T_PLAY:
 		return Play();
+	case T_TRACK:
+	case T_STARTTRK:
+	case T_STOPTRK:
+		return Track();
 	case T_XPOSE:
 		return Transpose();
 	case T_DOUBLE:
@@ -1007,6 +1084,14 @@ int nlParser::Note()
 		return WhileStmt();
 	case T_MIX:
 		return Mix();
+	case T_MIDICC:
+		return MidiCC();
+	case T_MIDIPW:
+		return MidiPW();
+	case T_MIDIPRG:
+		return MidiPRG();
+	case T_MIDIAT:
+		return MidiAT();
 
 	case T_NOTE:
 		// syntactic sugar...
@@ -1039,17 +1124,24 @@ int nlParser::Note()
 	pNote->SetAdd(bAdd);
 	genPtr->AddNode(pNote);
 
-	if (Valgroup())
-		err = Error("Invalid note", skiptoend);
-	else
+//	if (Valgroup())
+//		err = Error("Invalid note", skiptoend);
+	err = Valgroup();
+	if (theToken != T_ENDSTMT)
 	{
-		while (theToken == T_COMMA)
+		while (theToken != T_END)
 		{
-			genPtr->AddNode(T_COMMA, 0L);
-			theToken = lexPtr->Next();
-			if (Valgroup())
-			{	
-				err = Error("Invalid parameter list", skiptoend);
+			if (theToken == T_COMMA)
+			{
+				genPtr->AddNode(T_COMMA, 0L);
+				theToken = lexPtr->Next();
+				Valgroup();
+			}
+			else if (theToken == T_ENDSTMT)
+				break;
+			else
+			{
+				err = Error("Expected , or ;", skiptoend);
 				break;
 			}
 		}
@@ -1075,12 +1167,11 @@ int nlParser::Param()
 		if (theToken == T_COMMA)
 		{
 			theToken = lexPtr->Next();
-			err = Expr();
+			if (Expr() != 0)
+				err = Error("Missing or invalid parameter value.", skiptoend);
 		}
 		else
-			err = -1;
-		if (err)
-			Error("Missing or invalid parameter value.", skiptoend);
+			err = Error("Expected , after parameter number.", skiptoend);
 	}
 
 	return CheckEnd(err);
@@ -1092,6 +1183,24 @@ int nlParser::Play()
 	cvtPtr->DebugNotify(2, "Parse: PLAY");
 	genPtr->AddNode(new nlPlayNode);
 	return Param1("Play");
+}
+
+// track = 'start' trackexpr | 'stop' trackexpr  ';'
+// trackexpr =  expr (',' expr)?
+int nlParser::Track()
+{
+	genPtr->AddNode(new nlTrackNode(theToken));
+	theToken = lexPtr->Next();
+	if (Expr() != 0)
+		return Error("Missing or invalid track number.", skiptoend);
+	if (theToken == T_COMMA)
+	{
+		genPtr->AddNode(T_COMMA, 0L);
+		theToken = lexPtr->Next();
+		if (Expr() != 0)
+			return Error("Missing or invalid track loop value.", skiptoend);
+	}
+	return CheckEnd(0);
 }
 
 // loop = 'loop' '(' expr ')' notelist
@@ -1213,32 +1322,45 @@ int nlParser::Valgroup()
 		nEndTok = T_CBRACK;
 	if (nEndTok != 0)
 	{
+		static int tolist[] = { 0, T_ENDSTMT, T_END, -1 };
+		tolist[0] = nEndTok;
 		long count = 0;
 		nlScriptNode *pNode = genPtr->AddNode(theToken, 0L);
 		theToken = lexPtr->Next();
-		while (theToken != nEndTok)
+		while (theToken != T_END)
 		{
 			if ((err = Expr()) != 0)
 			{
-				static int tolist[] = { 0, T_ENDSTMT, T_END, -1 };
-				tolist[0] = nEndTok;
-				SkipTo(tolist);
+				err = Error("Invalid note value", tolist);
 				break;
 			}
+			count++;
 			if (theToken == T_COMMA)
 			{
 				genPtr->AddNode(T_COMMA, 0L);
 				theToken = lexPtr->Next();
 			}
-			count++;
+			else if (theToken == nEndTok)
+			{
+				theToken = lexPtr->Next();
+				break;
+			}
+			else
+			{
+				//                   012345678901234
+				static char msg[] = "Expected , or } ";
+				msg[14] = nEndTok;
+				err = Error(msg, tolist);
+				break;
+			}
 		}
 		pNode->SetValue(count);
 		genPtr->AddNode(nEndTok, 0L);
-		theToken = lexPtr->Next();
 	}
 	else
 	{
-		err = Expr();
+		if ((err = Expr()) != 0)
+			Error("Invalid note value", skiptodelim);
 	}
 	return err;
 }
@@ -1364,8 +1486,9 @@ int nlParser::Factor()
 int nlParser::Value()
 {
 	nlDurNode *pdur;
-	double d;
+	nlVarNode *sp;
 	nlSymbol *symb;
+	double d;
 	int dot;
 	int sav;
 
@@ -1440,14 +1563,22 @@ int nlParser::Value()
 		break;
 	case T_VAR:
 		symb = cvtPtr->Lookup(lexPtr->Tokbuf());
-		if (symb != NULL)
-		{
-			nlVarNode *sp = new nlVarNode;
-			sp->SetSymbol(symb);
-			genPtr->AddNode(sp);
-			break;
-		}
-		return -1;
+		if (symb == NULL)
+			return Error("Undefined symbol", 0);
+		sp = new nlVarNode;
+		sp->SetSymbol(symb);
+		genPtr->AddNode(sp);
+		theToken = lexPtr->Next();
+		if (theToken != T_OBRACK) // subscript
+			return 0;
+		theToken = lexPtr->Next();
+		genPtr->AddNode(T_OBRACK, 0L);
+		if (Expr())
+			return Error("Invalid subscript", 0);
+		genPtr->AddNode(T_CBRACK, 0L);
+		if (theToken != T_CBRACK)
+			return Error("Expected ]", 0);
+		break;
 
 	default:
 		return -1;

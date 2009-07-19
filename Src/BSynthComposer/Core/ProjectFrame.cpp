@@ -271,7 +271,8 @@ int ProjectFrame::CloseProject(int query)
 				return 0;
 		}
 
-		CloseAllEditors();
+		if (CloseAllEditors() == 0)
+			return 0;
 		ClearPlayer();
 		prjTree->RemoveAll();
 		theProject = 0;
@@ -282,7 +283,7 @@ int ProjectFrame::CloseProject(int query)
 int ProjectFrame::SaveProject()
 {
 	if (!theProject)
-		return -1;
+		return 0;
 
 	bsString path;
 	theProject->GetProjectPath(path);

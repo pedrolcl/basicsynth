@@ -111,9 +111,14 @@ public:
 	int Artic();
 	int Instrument();
 	int Channel();
+	int MidiCC();
+	int MidiPW();
+	int MidiPRG();
+	int MidiAT();
 	int Note();
 	int Param();
 	int Play();
+	int Track();
 	int Loop();
 	int IfStmt();
 	int WhileStmt();
