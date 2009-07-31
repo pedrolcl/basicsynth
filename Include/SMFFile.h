@@ -151,20 +151,18 @@ struct SMFInstrMap
 /// The BasicSynth sequencer uses an absolute time model instead
 /// of the relative time model of SMF. We convert by "playing" the
 /// MIDI event sequence, measuring the total time between note-on
-/// and note-off events. On a note-on, the current sample time and
-/// volume levels are stored for the key number. The note-off then
-/// calculates the duration (currentTime - noteonTime) and then
-/// outputs the absolute time event at the volume level that was
-/// in effect at the point of the note-on. This object also keeps
-/// track of all CC values and current pitchbend sensitivity.
+/// and note-off events. On a note-on, the current sample time, key
+/// and velocity are stored for the key number and the note is
+/// marked as "on". The note-off event calculates the duration 
+/// in samples and outputs the absolute time event. This object also
+/// keeps track of all CC values and current pitchbend sensitivity.
 class SMFChnlStatus
 {
 public:
 	short noteison[128];
 	short velocity[128];
 	FrqValue noteOn[128];
-	AmpValue noteVol[128];
-	AmpValue volume; // temporary...
+	AmpValue volume;
 	bsInt32 bank;
 	bsInt32 patch;
 	bsInt32 pbcents;
@@ -185,7 +183,6 @@ public:
 		{
 			noteison[i] = 0;
 			velocity[i] = 0;
-			noteVol[i] = 0;
 			noteOn[i] = 0.0;
 			cc[i] = 0;
 		}
@@ -200,13 +197,17 @@ public:
 	}
 };
 
-/// Processor for a Standard MIDI format file (SMF or .mid).
+/// Processor for a Standard MIDI format file (SMF a/k/a .mid).
 /// Processing a file is a two step process. The file is first
-/// read into memory and stored as an list of tracks. Each track
+/// read into memory and stored as a list of tracks. Each track
 /// maintains a list of raw MIDI events for the track. If desired,
 /// that information can be used to edit the MIDI file. To play
 /// using the BasicSynthesizer, invoke the Generate method, passing
-/// in the sequencer object and an instrument map.
+/// in the sequencer object and an instrument map. Generate converts
+/// the MIDI events into absolute time events and merges Note ON/OFF
+/// into a single START event with duration.
+/// The gmbank flag indicates we are doing General MIDI. This affects
+/// the processing of the bank/preset number. GM always uses bank 0 or 128.
 class SMFFile
 {
 protected:
@@ -232,6 +233,7 @@ protected:
 	SMFInstrMap *instrMap;
 	bsInt32 eventID;
 	Sequencer *seq;
+	int gmbank;
 
 	/// Process META messages.
 	void MetaEvent();
@@ -310,6 +312,7 @@ public:
 		instrMap = 0;
 		eventID = 1;
 		seq = 0;
+		gmbank = 1;
 		chnlStatus[9].bank = 128;
 	}
 
@@ -322,43 +325,61 @@ public:
 		}
 	}
 
+	/// Turn GM bank off.
+	/// By default, we consider the SMF file to be played
+	/// on bank 0 for all channels except 10, which is
+	/// bank 128. Setting this flag off will allow exact
+	/// specification of bank number from the SMF file.
+	inline void GMBank(int onoff)
+	{
+		gmbank = onoff;
+	}
+
+	/// Return the meta text records.
 	const char *MetaText()
 	{
 		return metaText;
 	}
 
+	/// Return the copyright record.
 	const char *Copyright()
 	{
 		return metaCpyr;
 	}
 
+	/// Return the sequence name record.
 	const char *SeqName()
 	{
 		return metaSeqName;
 	}
 
+	/// Return the formatted time signature.
 	const char *TimeSignature()
 	{
 		return timeSig;
 	}
 
+	/// Return the formatted key signature.
 	const char *KeySignature()
 	{
 		return keySig;
 	}
 
+	/// Generate sequencer event.
 	/// These are the generate functions and should
 	/// only be called by the Track object or internally.
 	/// They are public so that SMFTrack can get at them.
-	void NoteOn(short chnl, short key, short vel);
-	void NoteOff(short chnl, short key, short vel);
+	//@{
+	void NoteOn(short chnl, short key, short vel, short track = 0);
+	void NoteOff(short chnl, short key, short vel, short track = 0);
 	void SetTempo(long val);
-	void ProgChange(short chnl, short val);
-	void ControlChange(short chnl, short ctl, short val);
-	void KeyAfterTouch(short chnl, short key, short val);
-	void ChannelAfterTouch(short chnl, short val);
-	void PitchBend(short chnl, short val);
-	ControlEvent *AddControlEvent(short mmsg, short chnl, short ctl, short val);
+	void ProgChange(short chnl, short val, short track = 0);
+	void ControlChange(short chnl, short ctl, short val, short track = 0);
+	void KeyAfterTouch(short chnl, short key, short val, short track = 0);
+	void ChannelAfterTouch(short chnl, short val, short track = 0);
+	void PitchBend(short chnl, short val, short track = 0);
+	void AddControlEvent(short mmsg, short chnl, short ctl, short val, short track = 0);
+	//@}
 
 	/// Load a SMF file.
 	int LoadFile(const char *file);

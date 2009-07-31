@@ -131,8 +131,8 @@
 /// A RIFF chunk header
 struct sfChunk
 {
-	unsigned long ckid; //char ckid[4];
-	unsigned long cksz;
+	bsUint32 ckid; //char ckid[4];
+	bsUint32 cksz;
 	// data[cksz]
 };
 
@@ -141,8 +141,8 @@ struct sfChunk
 /// Two bytes 
 typedef struct
 {
-	unsigned char byLo;
-	unsigned char byHi;
+	bsUint8 byLo;
+	bsUint8 byHi;
 } rangesType;
 
 /// A generator or modulator value
@@ -150,20 +150,20 @@ typedef struct
 typedef union
 {
 	rangesType ranges;
-	short shAmount;
-	unsigned short wAmount;
+	bsInt16 shAmount;
+	bsUint16 wAmount;
 } genAmountType;
 
 /// Preset header record layout.
 struct sfPresetHeader
 {
 	char achPresetName[20];
-	unsigned short wPreset;
-	unsigned short wBank;
-	unsigned short wPresetBagNdx;
-	unsigned long dwLibrary;
-	unsigned long dwGenre;
-	unsigned long dwMorphology;
+	bsUint16 wPreset;
+	bsUint16 wBank;
+	bsUint16 wPresetBagNdx;
+	bsUint32 dwLibrary;
+	bsUint32 dwGenre;
+	bsUint32 dwMorphology;
 };
 
 #define sfPresetHeaderSize 38
@@ -171,8 +171,8 @@ struct sfPresetHeader
 /// Preset or Instrument bag record layout.
 struct sfBag
 {
-	unsigned short wGenNdx;
-	unsigned short wModNdx;
+	bsUint16 wGenNdx;
+	bsUint16 wModNdx;
 };
 
 #define sfBagSize 4
@@ -180,11 +180,11 @@ struct sfBag
 /// Modulator record layout.
 struct sfModList
 {
-	short sfModSrcOper;
-	short sfModDestOper;
-	short modAmount;
-	short sfModAmtSrcOper;
-	short sfModTransOper;
+	bsInt16 sfModSrcOper;
+	bsInt16 sfModDestOper;
+	bsInt16 modAmount;
+	bsInt16 sfModAmtSrcOper;
+	bsInt16 sfModTransOper;
 };
 
 #define sfModListSize 10
@@ -192,7 +192,7 @@ struct sfModList
 /// Generator record layout.
 struct sfGenList
 {
-	short sfGenOper;
+	bsInt16 sfGenOper;
 	genAmountType genAmount;
 };
 
@@ -202,7 +202,7 @@ struct sfGenList
 struct sfInst
 {
 	char achInstName[20];
-	unsigned short wInstBagNdx;
+	bsUint16 wInstBagNdx;
 };
 
 #define sfInstSize 22
@@ -211,15 +211,15 @@ struct sfInst
 struct sfSample
 {
 	char achSampleName[20];
-	unsigned long dwStart;
-	unsigned long dwEnd;
-	unsigned long dwStartloop;
-	unsigned long dwEndloop;
-	unsigned long dwSampleRate;
-	unsigned char byOriginalKey;
-	char chCorrection;
-	unsigned short wSampleLink;
-	short sfSampleType;
+	bsUint32 dwStart;
+	bsUint32 dwEnd;
+	bsUint32 dwStartloop;
+	bsUint32 dwEndloop;
+	bsUint32 dwSampleRate;
+	bsUint8  byOriginalKey;
+	bsInt8   chCorrection;
+	bsUint16 wSampleLink;
+	bsInt16  sfSampleType;
 };
 
 #define sfSampleSize 46

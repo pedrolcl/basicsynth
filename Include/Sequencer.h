@@ -233,8 +233,8 @@ private:
 	void DestroyMutex();
 	inline void EnterCritical();
 	inline void LeaveCritical();
-	inline void Sleep();
-	inline void Wakeup();
+	void Sleep();
+	void Wakeup();
 
 	void ProcessEvent(SeqEvent *evt, bsInt16 flags);
 	int Tick();
