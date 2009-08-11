@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout type="GMPlayer" x="0" y="0" w="400" h="500" bg="bg" fg="fg" >
+  <wdg id="-2" ty="label" filled="1" x="10" y="10" w="150" h="20" val="0" th="16" align="0" lbl="Sound Bank File" bold="0" fg="label" />
+  <wdg id="2"  ty="label" filled="1" x="160" y="10" w="200" h="20" val="0" align="0" th="16" lbl="" bold="0" fg="label" bg="black" edit="1"/>
+
+  <wdg id="-3" ty="label" x="10" y="60" w="100" h="20" th="14" align="1" lbl="Override" bold="0" fg="label" />
+  <wdg id="3" ip="16" ty="switchset" x="10" y="80" w="100" h="130" val="0" >
+    <wdg id="4" ty="pushswitch" x="0" y="0" w="90" h="25" val="1" lbl="Volume" fg="btnlabel" />
+    <wdg id="5" ty="pushswitch" x="0" y="30" w="90" h="25" val="2" lbl="Patch" fg="btnlabel" />
+    <wdg id="6" ty="pushswitch" x="0" y="60" w="90" h="25" val="4" lbl="Pan" fg="btnlabel" />
+  </wdg>
+  <wdg id="-7" ty="group" x="120" y="60" w="300" h="130" >
+    <wdg id="7" ty="label" x="0" y="0" w="70" h="20" lbl="Volume" th="14" fg="label" />
+    <wdg id="8" ip="17" ty="baseknob" x="10" y="25" h="50" w="50" lo="0" hi="1" hiclr="volhi" loclr="vollo"/>
+    <wdg id="9" ty="label" x="10" y="80" h="20" w="50" filled="1" edit="1" val="0" fg="volume" bg="black"/>
+    <pair knb="8" lbl="9" />
+
+    <wdg id="10" ty="label" x="80" y="0" w="100" h="20" lbl="Patch" th="14" fg="label" />
+    <wdg id="11" ty="label" x="80" y="25" w="50" h="20" lbl="Bank" fg="label" />
+    <wdg id="12" ty="label" x="80" y="50" w="50" h="20" lbl="Prog" fg="label" />
+    <wdg id="13" ip="18" ty="label" x="130" y="25" w="50" h="20" val="0" filled="1" edit="1" fmt="%3.0f" fg="label" bg="black" />
+    <wdg id="14" ip="19" ty="label" x="130" y="50" w="50" h="20" val="0" filled="1" edit="1" fmt="%3.0f" fg="label" bg="black" />
+    <wdg id="15" ty="pushbutton" x="90" y="80" w="90" h="25" lbl="Select" fg="btnlabel" />
+  </wdg>
+</layout>

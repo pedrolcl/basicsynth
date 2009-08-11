@@ -14,10 +14,8 @@
 
 #include "LFO.h"
 #include <SFDefs.h>
-#include <SFSoundBank.h>
+#include <SoundBank.h>
 #include <SFGen.h>
-#include <MIDIDefs.h>
-#include <MIDIControl.h>
 
 class GMManager;
 
@@ -35,26 +33,28 @@ private:
 	AmpValue vol;       // playback volume level
 	GenWaveSF oscl;     // left channel oscillator
 	GenWaveSF oscr;     // right channel oscillator
-	EnvGenSegSus volEnv;  // volume envelope
-	LFO vibrato;        // a/k/a LF pitch variation
-	SFPreset *preset;   // instrument patch
-	SFZone *zonel;      // left channel zone
-	SFZone *zoner;      // right channel zone
+	EnvGenSF  volEnv;   // volume envelope (EG1)
+	EnvGenSF  modEnv;   // modulation envelope (EG2)
+	LFO viblfo;         // LF pitch variation
+	LFO modlfo;         // LF amplitude variation
+	SBInstr *preset;    // instrument patch
+	SBZone *zonel;      // left channel zone
+	SBZone *zoner;      // right channel zone
 	Panner panr;
 	Panner panl;
 	InstrManager *im;
 	GMManager *gm;
-	SFSoundBank *sndbnk;
-	MIDIControl *midiCtl;
+	SoundBank *sndbnk;
+	MIDIControl *midiCtrl;
 public:
 	GMPlayer();
 	GMPlayer(GMManager *g, InstrManager *m);
 	virtual ~GMPlayer();
 	void Reset();
 
-	void SetSoundBank(SFSoundBank *s) { sndbnk = s; }
+	void SetSoundBank(SoundBank *s) { sndbnk = s; }
 	void SetLocalPan(bsInt16 n) { localPan = n; }
-	void SetMidiControl(MIDIControl *mc) { midiCtl = mc; }
+	void SetMidiControl(MIDIControl *mc) { midiCtrl = mc; }
 
 	virtual void Start(SeqEvent *evt);
 	virtual void Param(SeqEvent *evt);
@@ -64,13 +64,17 @@ public:
 	virtual void Destroy();
 };
 
+#define GMM_LOCAL_VOL   0x01
+#define GMM_LOCAL_PATCH 0x02
+#define GMM_LOCAL_PAN   0x04
+
 /// BasicSynth Instrument to play GM SoundFont files.
 ///
 /// This class emulates a MIDI keyboard instrument. It manages a 
 /// set of instruments, each containing an oscillator/envelope combination,
 /// that share the same global patch and modulation oscillators for
 /// vibrato and tremolo. The aggregate instrument maintains a reference
-/// to a MIDIControl object and a SFSoundBank object that is passed to
+/// to a MIDIControl object and a SoundBank object that is passed to
 /// the instruments when they are instantiated. One instance of this
 /// class is created as the template object for the instrument type.
 /// The one instance manages all 16 MIDI channels and instantiates
@@ -79,12 +83,14 @@ public:
 class GMManager : public InstrumentVP
 {
 protected:
-	MIDIControl *midiCtl;
-	SFSoundBank *sndbnk;
+	SoundBank *sndbnk;
 	InstrManager *im;
 	GMPlayer instrHead;
 	GMPlayer instrTail;
-	bsInt16 localPan;
+	bsInt32 localVals;
+	AmpValue volValue;
+	bsInt16 bankValue;
+	bsInt16 progValue;
 	bsString sndFile;
 
 public:
@@ -94,16 +100,17 @@ public:
 	static void TmpltDump(Opaque tmplt);
 	static bsInt16 MapParamID(const char *name, Opaque tmplt);
 	static const char *MapParamName(bsInt16 id, Opaque tmplt);
+	static MIDIControl *midiCtrl;
 
 	GMManager();
 	virtual ~GMManager();
 
 	MIDIControl *GetMidiControl()
 	{
-		return midiCtl;
+		return midiCtrl;
 	}
 
-	inline SFSoundBank *GetSoundBank()
+	inline SoundBank *GetSoundBank()
 	{ 
 		return sndbnk; 
 	}
@@ -115,11 +122,11 @@ public:
 
 	inline bsInt16 GetLocalPan()
 	{ 
-		return localPan; 
+		return (localVals & GMM_LOCAL_PAN) ? 1 : 0; 
 	}
 
 	void SetMidiControl(MIDIControl *mc);
-	void SetSoundBank(SFSoundBank *b);
+	void SetSoundBank(SoundBank *b);
 	void SetSoundFile(const char *b);
 	void SetLocalPan(bsInt16 lp);
 	
@@ -127,37 +134,48 @@ public:
 
 	inline FrqValue GetPitchbend(int chnl)
 	{
-		return midiCtl->GetPitchbend(chnl);
+		return midiCtrl->GetPitchbend(chnl);
 	}
 
 	inline FrqValue GetModwheel(int chnl)
 	{
-		return midiCtl->GetModwheel(chnl);
+		return midiCtrl->GetModwheel(chnl);
 	}
 
 	inline AmpValue GetVolume(int chnl)
 	{
-		return midiCtl->GetVolume(chnl);
+		if (localVals & GMM_LOCAL_VOL)
+			return volValue;
+		return midiCtrl->GetVolume(chnl);
 	}
 
 	inline AmpValue GetAftertouch(int chnl)
 	{
-		return midiCtl->GetAftertouch(chnl);
+		return midiCtrl->GetAftertouch(chnl);
 	}
 
 	inline bsInt16 GetPatch(int chnl)
 	{
-		return midiCtl->GetPatch(chnl);
+		if (localVals & GMM_LOCAL_PATCH)
+			return progValue;
+		return midiCtrl->GetPatch(chnl);
 	}
 
 	inline bsInt16 GetBank(int chnl)
 	{
-		return midiCtl->GetBank(chnl);
+		if (localVals & GMM_LOCAL_PATCH)
+			return bankValue;
+		return midiCtrl->GetBank(chnl);
 	}
 
 	inline bsInt16 GetCC(int chnl, int ccn)
 	{
-		return midiCtl->GetCC(chnl, ccn);
+		return midiCtrl->GetCC(chnl, ccn);
+	}
+
+	inline void SetCC(int chnl, bsInt16 ccn, bsInt16 val)
+	{
+		midiCtrl->SetCC(chnl, ccn, val);
 	}
 
 	// InstrumentVP functions

@@ -13,7 +13,9 @@
 #include "Includes.h"
 #include "GMPlayer.h"
 
-/// Create an instance of the SFPlayer instrument
+MIDIControl *GMManager::midiCtrl;
+
+/// Create an instance of the GMPlayer instrument
 Instrument *GMManager::InstrFactory(InstrManager *m, Opaque tmplt)
 {
 	GMPlayer *ip = 0;
@@ -29,7 +31,8 @@ Instrument *GMManager::InstrFactory(InstrManager *m, Opaque tmplt)
 Opaque GMManager::TmpltFactory(XmlSynthElem *tmplt)
 {
 	GMManager *gm = new GMManager;
-	gm->Load(tmplt);
+	if (tmplt)
+		gm->Load(tmplt);
 	return gm;
 }
 
@@ -44,17 +47,16 @@ void GMManager::TmpltDump(Opaque tmplt)
 SeqEvent *GMManager::EventFactory(Opaque tmplt)
 {
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = 16;
+	ep->maxParam = 19;
 	return (SeqEvent*)ep;
 }
 
 GMManager::GMManager()
 {
-	midiCtl = 0;
 	sndbnk = 0;
 	im = 0;
 	instrHead.Insert(&instrTail);
-	localPan = 1;
+	localVals = 0;
 }
 
 GMManager::~GMManager()
@@ -73,10 +75,10 @@ VarParamEvent *GMManager::AllocParams()
 void GMManager::SetSoundFile(const char *b)
 {
 	sndFile = b;
-	SetSoundBank(SFSoundBank::FindBank(b));
+	SetSoundBank(SoundBank::FindBank(b));
 }
 
-void GMManager::SetSoundBank(SFSoundBank *b)
+void GMManager::SetSoundBank(SoundBank *b)
 {
 	sndbnk = b;
 	GMPlayer *ip;
@@ -86,7 +88,7 @@ void GMManager::SetSoundBank(SFSoundBank *b)
 
 void GMManager::SetMidiControl(MIDIControl *mc)
 {
-	midiCtl = mc;
+	midiCtrl = mc;
 	GMPlayer *ip;
 	for (ip = instrHead.next; ip != &instrTail; ip = ip->next)
 		ip->SetMidiControl(mc);
@@ -94,7 +96,10 @@ void GMManager::SetMidiControl(MIDIControl *mc)
 
 void GMManager::SetLocalPan(bsInt16 lp)
 {
-	localPan = lp;
+	if (lp)
+		localVals |= GMM_LOCAL_PAN;
+	else
+		localVals &= ~GMM_LOCAL_PAN;
 	GMPlayer *ip;
 	for (ip = instrHead.next; ip != &instrTail; ip = ip->next)
 		ip->SetLocalPan(lp);
@@ -112,7 +117,12 @@ int GMManager::Load(XmlSynthElem *parent)
 	{
 		if (elem.TagMatch("gm"))
 		{
-			elem.GetAttribute("locpan", localPan);
+			long lv = 0;
+			elem.GetAttribute("local", lv);
+			localVals = lv;
+			elem.GetAttribute("vol", volValue);
+			elem.GetAttribute("bank", bankValue);
+			elem.GetAttribute("prog", progValue);
 			elem.GetContent(&cval);
 			if (cval)
 				sndFile.Attach(cval);
@@ -120,7 +130,7 @@ int GMManager::Load(XmlSynthElem *parent)
 		next = elem.NextSibling(&elem);
 	}
 	if (sndFile.Length() > 0)
-		sndbnk = SFSoundBank::FindBank(sndFile);
+		sndbnk = SoundBank::FindBank(sndFile);
 
 	return 0;
 }
@@ -132,7 +142,10 @@ int GMManager::Save(XmlSynthElem *parent)
 	if (!parent->AddChild("gm", &elem))
 		return -1;
 
-	elem.SetAttribute("locpan", localPan);
+	elem.SetAttribute("local", (long) localVals);
+	elem.SetAttribute("vol",  (float) volValue);
+	elem.SetAttribute("bank", bankValue);
+	elem.SetAttribute("prog", progValue);
 	elem.SetContent(sndFile);
 
 	return 0;
@@ -154,7 +167,16 @@ int GMManager::SetParam(bsInt16 idval, float val)
 	switch (idval)
 	{
 	case 16:
-		SetLocalPan((bsInt16) val);
+		localVals = (bsInt32) val;
+		break;
+	case 17:
+		volValue = AmpValue(val);
+		break;
+	case 18:
+		bankValue = (bsInt16) val;
+		break;
+	case 19:
+		progValue = (bsInt16) val;
 		break;
 	default:
 		return 1;
@@ -164,7 +186,10 @@ int GMManager::SetParam(bsInt16 idval, float val)
 
 int GMManager::GetParams(VarParamEvent *params)
 {
-	params->SetParam(16, (float) localPan);
+	params->SetParam(16, (float) localVals);
+	params->SetParam(17, (float) volValue);
+	params->SetParam(18, (float) bankValue);
+	params->SetParam(19, (float) progValue);
 	return 0;
 }
 
@@ -173,7 +198,16 @@ int GMManager::GetParam(bsInt16 idval, float *val)
 	switch (idval)
 	{
 	case 16:
-		*val = (bsInt16) localPan;
+		*val = (float) localVals;
+		break;
+	case 17:
+		*val = volValue;
+		break;
+	case 18:
+		*val = (float) bankValue;
+		break;
+	case 19:
+		*val = (float) progValue;
 		break;
 	default:
 		return 1;
@@ -185,7 +219,10 @@ int GMManager::GetParam(bsInt16 idval, float *val)
 
 static InstrParamMap gmManagerParams[] = 
 {
-	{"locpan", 17 }, 
+	{"bank", 18 },
+	{"local", 16 }, 
+	{"prog", 19 },
+	{"volume", 17 }
 };
 
 bsInt16 GMManager::MapParamID(const char *name, Opaque tmplt)
@@ -204,7 +241,7 @@ GMPlayer::GMPlayer()
 {
 	im = 0;
 	gm = 0;
-	midiCtl = 0;
+	midiCtrl = 0;
 	sndbnk = 0;
 	localPan = 1;
 	Reset();
@@ -228,21 +265,7 @@ void GMPlayer::Reset()
 	mkey = 69;
 	novel = 0;
 	frq = 440.0;
-
-	// 5 segments: delay, attack, hold, decay, release
-	volEnv.SetSegs(5);
-	// default is a 'boxcar' envelope
-	volEnv.SetStart(0.0);
-	volEnv.SetSusOn(1);
-	volEnv.SetRate(0, 0.0);
-	volEnv.SetRate(1, 0.0);
-	volEnv.SetRate(2, 0.0);
-	volEnv.SetRate(3, 0.0);
-	volEnv.SetRate(4, 0.0);
-	volEnv.SetLevel(0, 0.0);
-	volEnv.SetLevel(1, 1.0);
-	volEnv.SetLevel(2, 1.0);
-	volEnv.SetLevel(4, 0.0);
+	volEnv.InitEnv(0, 0);
 }
 
 GMPlayer::~GMPlayer()
@@ -254,60 +277,68 @@ GMPlayer::~GMPlayer()
 /// Initialize oscillators and envelopes.
 void GMPlayer::Start(SeqEvent *se)
 {
-//	if (!gm || !sndbnk)
-//		return;
-
 	VarParamEvent *evt = (VarParamEvent *)se;
 	chnl = evt->chnl;
 	frq = evt->frq;
-	vol = evt->vol;
 	mkey = evt->pitch + 12;
 	novel = evt->noteonvel;
+	if (novel == 0)
+		novel = 127;
+	vol = evt->vol;
 
 	zoner = 0;
 	zonel = 0;
 
 	sostenuto = gm->GetCC(chnl, 67) > 64;
-	preset = sndbnk->GetPreset(gm->GetBank(chnl), gm->GetPatch(chnl));
+	preset = sndbnk->GetInstr(gm->GetBank(chnl), gm->GetPatch(chnl));
 	if (preset)
 	{
 		FrqValue oscFrq = frq;
 		if (gm)
 			oscFrq *= gm->GetPitchbend(chnl);
-		zoner = preset->GetSample(mkey, novel, 0);
+		zoner = preset->GetZone(mkey, novel, 0);
 		if (zoner)
 		{
 			oscr.InitSF(oscFrq, zoner);
 			panr.Set(panSqr, zoner->pan);
-			volEnv.SetRate(0, SFEnvRate(zoner->genVals[sfgDelayVolEnv]));
-			volEnv.SetRate(1, SFEnvRate(zoner->genVals[sfgAttackVolEnv]));
-			volEnv.SetRate(2, SFEnvRate(zoner->genVals[sfgHoldVolEnv]));
-			volEnv.SetRate(3, SFEnvRate(zoner->genVals[sfgDecayVolEnv]));
-			volEnv.SetLevel(3,SFEnvLevel(zoner->genVals[sfgSustainVolEnv]));
-			volEnv.SetRate(4, SFEnvRate(zoner->genVals[sfgReleaseVolEnv]));
-			short vibamt = zoner->genVals[sfgVibLfoToPitch];
-			if (vibamt != 0)
+			vol *= zoner->volAtten ;//* preset->velVolume[novel];
+			volEnv.InitEnv(preset, &zoner->volEg, mkey, novel);
+			//modEnv.InitEnv(preset, &zoner->modEG, mkey, novel);
+			AmpValue vibamt = zoner->vibAmount;
+			if (vibamt != 0.0)
 			{
-				vibrato.InitLFO(SFAbsCents(zoner->genVals[sfgFreqVibLFO]), WT_SIN,
-					SFEnvRate(zoner->genVals[sfgDelayVibLFO]), 
-					SFRelCents(frq, vibamt), 0);
+				viblfo.InitLFO(zoner->vibRate, WT_SIN, 
+					zoner->vibDelay, frq * vibamt, 0);
 			}
 			else
-				vibrato.SetLevel(0.0);
+				viblfo.SetLevel(0.0);
 		}
-		zonel = preset->GetSample(mkey, novel, 1);
+		zonel = preset->GetZone(mkey, novel, 1);
 		if (zonel)
 		{
+			if (zoner->sample == 0)
+			{
+				SBSample *samp = sndbnk->GetSample(zoner->sampleNdx, 1);
+				zoner->sample = samp->sample;
+			}
 			oscl.InitSF(oscFrq, zonel);
 			panl.Set(panSqr, zonel->pan);
 		}
 	}
 	volEnv.Reset(0);
+	modEnv.Reset(0);
 }
 
-void GMPlayer::Param(SeqEvent *evt)
+void GMPlayer::Param(SeqEvent *se)
 {
 	// variable params are set indirectly through the MIDI controller object
+	// We handle a pitch change here so that the virtual keyboard works,
+	// and treat it like a note-off immediately followed by a note-on,
+	// iow - do a "START" with the new information...
+	VarParamEvent *evt = (VarParamEvent *)se;
+	int nkey = evt->pitch + 12;
+	if (nkey != mkey)
+		Start(se);
 }
 
 void GMPlayer::Stop()
@@ -324,8 +355,8 @@ void GMPlayer::Tick()
 	AmpValue ampVal = vol * volEnv.Gen() * gm->GetVolume(chnl);
 	int modFrq = 0;
 
-	if (vibrato.On())
-		frqVal += vibrato.Gen();
+	if (viblfo.On())
+		frqVal += viblfo.Gen();
 
 	AmpValue oscValR = 0.0;
 	AmpValue oscValL = 0.0;

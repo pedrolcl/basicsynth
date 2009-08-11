@@ -2,7 +2,7 @@
 // BasicSynth - Example 2a (Chapter 6)
 //
 // Envelope Generators
-// 1 - interpolate linear, log, exponential
+// 1 - interpolate linear, convex, log, exponential
 // 2 - state machine
 // 3 - interpolate multiple segments ADSR
 // 4 - multiple segments, state machine
@@ -70,6 +70,18 @@ int main(int argc, char *argv[])
 	}
 
 	/////////////////////////////////////////////////
+	// AR convex (x^2)
+	/////////////////////////////////////////////////
+	EnvGenSqr egsqr;
+	egsqr.InitEG(peakAmp, duration, 0.2, 0.4);
+	while (!egsqr.IsFinished())
+	{
+		wf.Output1(egsqr.Gen() * sinv(phase));
+		if ((phase += phaseIncr) >= twoPI)
+			phase -= twoPI;
+	}
+
+	/////////////////////////////////////////////////
 	// AR - exponential
 	/////////////////////////////////////////////////
 	EnvGenExp egexp;
@@ -100,9 +112,11 @@ int main(int argc, char *argv[])
 	// AR w/sustain - lin, exp, log
 	/////////////////////////////////////////////////
 	totalSamples = (long) (synthParams.sampleRate * (duration - 0.4));
-	EGSegType egTypes[] = { linSeg, expSeg, logSeg };
+	EGSegType egTypes[] = { linSeg, sqrSeg, expSeg, logSeg };
+	int numEgTypes = sizeof(egTypes) / sizeof(EGSegType);
+
 	EnvGenAR egar;
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < numEgTypes; i++)
 	{
 		egar.InitAR(0.2, peakAmp, 0.4, 1, egTypes[i]);
 		for (n = 0; n < totalSamples; n++)
@@ -124,10 +138,10 @@ int main(int argc, char *argv[])
 		wf.Output1(0.0);
 
 	/////////////////////////////////////////////////
-	// ADSR - lin, exp, log
+	// ADSR - lin, sqr, exp, log
 	/////////////////////////////////////////////////
 	EnvGenADSR adsr;
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < numEgTypes; i++)
 	{
 		adsr.InitADSR(0, 0.1, 1.0, 0.1, 0.707, 0.4, 0.0, egTypes[i]);
 		for (n = 0; n < totalSamples; n++)
@@ -156,7 +170,7 @@ int main(int argc, char *argv[])
 	a3sr.SetSegs(4);
 	a3sr.SetStart(0);
 	a3sr.SetSusOn(1);
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < numEgTypes; i++)
 	{
 		a3sr.SetSegN(0, 0.2, 1.0, egTypes[i]);
 		a3sr.SetSegN(1, 0.1, 0.5, egTypes[i]);

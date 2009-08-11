@@ -80,6 +80,10 @@ void ProjectOptions::Load()
 					prjOptions.inclInstr = xtoi(eq);
 				else if (strcmp(lnbuf, "Latency") == 0)
 					prjOptions.playBuf = atof(eq);
+				else if (strcmp(lnbuf, "MIDIDeviceName") == 0)
+					strcpy(prjOptions.midiDeviceName, eq);
+				else if (strcmp(lnbuf, "MIDIDevice") == 0)
+					midiDevice = atoi(eq);
 			}
 		}
 		fclose(fp);
@@ -140,6 +144,8 @@ void ProjectOptions::Save()
 		fprintf(fp, "InclLibraries=%d\n", prjOptions.inclLibraries);
 		fprintf(fp, "InclInstruments=%x\n", prjOptions.inclInstr);
 		fprintf(fp, "Latency=%f\n", prjOptions.playBuf);
+		fprintf(fp, "MIDIDeviceName=%s\n", prjOptions.midiDeviceName);
+		fprintf(fp, "MIDIDevice=%d\n", prjOptions.midiDevice);
 		fclose(fp);
 	}
 }

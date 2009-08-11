@@ -104,6 +104,12 @@ void TextEditorFltk::GotoLine(int ln)
 	buf->skip_lines(0, ln);
 }
 
+void TextEditorFltk::GotoPosition(int pos)
+{
+	Fl_Text_Buffer *buf = buffer();
+	buf->skip_displayed_characters(0, pos);
+}
+
 void TextEditorFltk::Cancel()
 {
 }

@@ -184,6 +184,12 @@ int FileReadBuf::FileRewind(int pos)
 	return (int) LOWORD(ret);
 }
 
+int FileReadBuf::FilePosition()
+{
+	DWORD pos = SetFilePointer(fh, 0, NULL, FILE_CURRENT);
+	return (int) pos + inpos - inread;
+}
+
 int FileReadBuf::FileClose()
 {
 	CloseHandle(fh);

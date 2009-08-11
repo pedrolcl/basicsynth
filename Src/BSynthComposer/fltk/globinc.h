@@ -1,5 +1,8 @@
 #if _WIN32
 #include <windows.h>
+#pragma comment(lib, "Winmm.lib")
+#include <Mmreg.h>
+#pragma comment(lib, "dsound.lib")
 #endif
 #include <stdlib.h>
 #include <string.h>
@@ -34,8 +37,10 @@
 #if !NO_LIVE_PLAY
 # if _WIN32
 #  include <dsound.h>
-#  include <Player.h>
 #  include <WaveOutDirect.h>
+# endif
+# if UNIX
+#  include <WaveOutALSA.h>
 # endif
 #endif
 #include <Instruments.h>

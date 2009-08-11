@@ -213,6 +213,8 @@ WidgetForm *InstrItem::CreateForm(int xo, int yo)
 		ed = new ModSynthEdit;
 	else if (strcmp("SoundBank", type) == 0)
 		ed = new SoundBankEdit;
+	else if (strcmp("GMPlayer", type) == 0)
+		ed = new GMPlayerEdit;
 	else
 		ed = new SynthEdit;
 	if (ed)

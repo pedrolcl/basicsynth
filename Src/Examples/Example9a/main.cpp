@@ -15,13 +15,14 @@
 #include <BasicSynth.h>
 #include <Instruments.h>
 #include <SFFile.h>
+#include <DLSFile.h>
 #include <SMFFile.h>
 #include <MIDIControl.h>
 #include <GMPlayer.h>
 
 void useage()
 {
-	fprintf(stderr, "use: example09a [-vn] soundfount midifile wavfile\n");
+	fprintf(stderr, "use: example9a [-vn] soundfount midifile wavfile\n");
 	exit(1);
 }
 
@@ -34,10 +35,10 @@ void GenCallback(bsInt32 count, Opaque arg)
 
 int main(int argc, char *argv[])
 {
-	InitSynthesizer(22050);
+	InitSynthesizer();
 
 	bsString midFile;
-	bsString sf2File;
+	bsString sbFile;
 	bsString wavFile;
 	AmpValue vol = 2.0;
 
@@ -47,6 +48,7 @@ int main(int argc, char *argv[])
 	Mixer mix;
 	InstrManager inmgr;
 	SFFile sf;
+	DLSFile dls;
 	SMFFile smf;
 	SMFInstrMap map[16];
 	int i;
@@ -62,18 +64,23 @@ int main(int argc, char *argv[])
 	}
 
 	if (argn < argc)
-		sf2File = argv[argn++];
+		sbFile = argv[argn++];
 	if (argn < argc)
 		midFile = argv[argn++];
 	if (argn < argc)
 		wavFile = argv[argn];
-	if (sf2File.Length() == 0 || midFile.Length() == 0 || wavFile.Length() == 0)
+	if (sbFile.Length() == 0 || midFile.Length() == 0 || wavFile.Length() == 0)
 		useage();
 
-	SFSoundBank *sb = sf.LoadSoundBank(sf2File, 0);
+	
+	SoundBank *sb = 0;
+	if (SFFile::IsSF2File(sbFile))
+		sb = sf.LoadSoundBank(sbFile, 0, 0.375);
+	else if (DLSFile::IsDLSFile(sbFile))
+		sb = dls.LoadSoundBank(sbFile, 0, 1.0);
 	if (!sb)
 	{
-		fprintf(stderr, "Failed to load soundbank %s\n", (const char *)sf2File);
+		fprintf(stderr, "Failed to load soundbank %s\n", (const char *)sbFile);
 		exit(1);
 	}
 
@@ -118,8 +125,9 @@ int main(int argc, char *argv[])
 		map[i].bnkParam = -1;
 		map[i].preParam = -1;
 	}
+	mc.channel[9].bank = 128; // channel 10 is always drum bank
 
-	smf.GenerateSeq(&seq, &map[0]);
+	smf.GenerateSeq(&seq, &map[0], sb);
 	nchnls = smf.GetChannelMap(chnls);
 	if (nchnls == 0)
 	{

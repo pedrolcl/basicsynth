@@ -98,6 +98,10 @@ SOURCE=.\Global.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MIDIControl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MIDISequencer.cpp
 
 !IF  "$(CFG)" == "Common - Win32 Release"
@@ -362,6 +366,10 @@ SOURCE=..\..\Include\GenWaveX.h
 # Begin Source File
 
 SOURCE=..\..\Include\Instrument.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\MIDIControl.h
 # End Source File
 # Begin Source File
 

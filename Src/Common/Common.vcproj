@@ -295,6 +295,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\DLSFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.cpp"
 				>
 			</File>
@@ -324,6 +328,10 @@
 			</File>
 			<File
 				RelativePath=".\SMFFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBank.cpp"
 				>
 			</File>
 			<File
@@ -386,6 +394,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Include\DelayLine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\DLSDefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\DLSFile.h"
 				>
 			</File>
 			<File
@@ -481,11 +497,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\SFSoundBank.h"
+				RelativePath="..\..\Include\SMFFile.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\SMFFile.h"
+				RelativePath="..\..\Include\SoundBank.h"
 				>
 			</File>
 			<File

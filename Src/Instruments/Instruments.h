@@ -14,4 +14,5 @@
 #include <MixerControl.h>
 #include <ModSynth.h>
 #include <SFPlayer.h>
+#include <GMPlayer.h>
 #include <LoadInstrLib.h>

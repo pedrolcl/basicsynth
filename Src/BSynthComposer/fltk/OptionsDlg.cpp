@@ -87,6 +87,9 @@ ProjectOptionsDlg::ProjectOptionsDlg()
 	snprintf(buf, 80, "%f", prjOptions.playBuf);
 	latency->value(buf);
 
+	midiDev = new Fl_Input(300, ypos, 100, txtHeight, "MIDI In");
+	midiDev->value(prjOptions.midiDeviceName);
+
 	okBtn = new Fl_Button(420, ypos, 50, txtHeight, "OK");
 	okBtn->callback(OkCB, (void*)this);
 
@@ -100,20 +103,22 @@ ProjectOptionsDlg::ProjectOptionsDlg()
 
 void ProjectOptionsDlg::OnOK()
 {
-	strcpy(prjOptions.defAuthor, nameInp->value());
-	strcpy(prjOptions.defCopyright, cpyrInp->value());
+	strncpy(prjOptions.defAuthor, nameInp->value(), MAX_PATH);
+	strncpy(prjOptions.defCopyright, cpyrInp->value(), MAX_PATH);
 	prjOptions.inclNotelist = incSco->value();
 	prjOptions.inclSequence = incSeq->value();
 	prjOptions.inclTextFiles = incTxt->value();
 	prjOptions.inclScripts = incScr->value();
 	prjOptions.inclLibraries = incLib->value();
-	strcpy(prjOptions.defPrjDir, prjfInp->value());
-	strcpy(prjOptions.defWaveIn, wvinInp->value());
-	strcpy(prjOptions.formsDir, formInp->value());
-	strcpy(prjOptions.colorsFile, colorsInp->value());
-	strcpy(prjOptions.defLibDir, libsInp->value());
+	strncpy(prjOptions.defPrjDir, prjfInp->value(), MAX_PATH);
+	strncpy(prjOptions.defWaveIn, wvinInp->value(), MAX_PATH);
+	strncpy(prjOptions.formsDir, formInp->value(), MAX_PATH);
+	strncpy(prjOptions.colorsFile, colorsInp->value(), MAX_PATH);
+	strncpy(prjOptions.defLibDir, libsInp->value(), MAX_PATH);
 	prjOptions.playBuf = atof(latency->value());
+	strncpy(prjOptions.midiDeviceName, midiDev->value(), MAX_PATH);
 	doneInput = 1;
+	prjOptions.Save();
 }
 
 void ProjectOptionsDlg::OnCancel()

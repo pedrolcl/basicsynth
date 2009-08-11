@@ -526,8 +526,9 @@ int nlParser::Tempo()
 
 // mixer = 'mixer' {mixin | mixpan | mixsend | fxin | fxpan } ';'
 // mixer = 'mixer' mixfn (mixopt)? mixvals ';'
-// mixfn = 'in' | 'pan' | 'send' | 'fxin' | 'fxpan'
-// mixopt = 'ramp' | 'osc'
+// mixfn = 'in' | 'pan' | fxfn expr
+// fxfn = 'send' | 'fxin' | 'fxpan' 
+// mixopt = 'ramp' | 'osc' | 'set'
 // mixvals = expr | {expr ','}*
 // values are in the order: [fxunit] , start , end , time , freq , wt
 int nlParser::Mix()
@@ -565,8 +566,6 @@ int nlParser::Mix()
 			Error("Invalid mixer fx unit", skiptodelim);
 		if (theToken == T_COMMA)
 			theToken = lexPtr->Next();
-		else
-			Error("Expected , after mixer fx unit", 0);
 	}
 	else // no FX unit expression
 		genPtr->AddNode(T_NUM, -1L);

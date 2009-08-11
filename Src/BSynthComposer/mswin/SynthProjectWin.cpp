@@ -5,15 +5,12 @@
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include <MIDIDefs.h>
-#include <MIDIControl.h>
 
 // This object is set when the keyboard player is active.
 // it is accessible from multiple threads.
 static HANDLE genThreadH = INVALID_HANDLE_VALUE;
 static DWORD  genThreadID;
 static WaveOutDirect *wop = 0;
-static MIDIControl genMidiCtrl;
 
 int SynthProject::Generate(int todisk, long from, long to)
 {
@@ -48,7 +45,6 @@ int SynthProject::Generate(int todisk, long from, long to)
 
 	// Generate the output...
 	wop = &wvd;
-	seq.SetController(&genMidiCtrl.seqControl);
 	bsInt32 fromSamp = from*synthParams.isampleRate;
 	bsInt32 toSamp = to*synthParams.isampleRate;
 	if (seq.GetTrackCount() > 1 || oldState & seqPlay)
@@ -88,11 +84,7 @@ int SynthProject::Play()
 		return 0;
 	//ATLTRACE("Starting live playback...\n");
 	wop = &wvd;
-	seq.SetController(&genMidiCtrl.seqControl);
 	seq.Play(mgr);
-//	seq.SetCB(0, 0, 0);
-//	seq.Reset();
-//	seq.Sequence(mgr, 0, 0, seqPlay);
 	wop = 0;
 	//ATLTRACE("Stopping live playback...");
 	wvd.Stop();

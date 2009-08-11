@@ -15,11 +15,5 @@
 
 #include <BasicSynth.h>
 #include <SynthString.h>
-
-#ifdef WIN32
-#include <dsound.h>
-#include <WaveOutDirect.h>
-#include <Player.h>
-#endif
 #include <Instruments.h>
 #include <NLConvert.h>

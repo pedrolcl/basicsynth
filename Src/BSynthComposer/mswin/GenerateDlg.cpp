@@ -145,7 +145,7 @@ LRESULT GenerateDlg::OnGenFinished(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	}
 	prjGenerate = 0;
 	char pk[1024];
-	snprintf(pk, 1024, "Peak: [%f, %f]\r\n-------- Finished ---------\r\n", lftMax, rgtMax);
+	snprintf(pk, 1024, "Peak: [%.3f, %.3f]\r\n-------- Finished ---------\r\n", lftMax, rgtMax);
 	ed.AppendText(pk);
 	EnableOK(1, 0);
 	prjFrame->GenerateFinished();
@@ -205,13 +205,13 @@ void GenerateDlg::FormatTime(HWND w, long secs)
 void GenerateDlg::FormatPeak()
 {
 	char pkText[256];
-	snprintf(pkText, 256, "%f", lftPeak);
+	snprintf(pkText, 256, "%.3f", lftPeak);
 	lpk.SetWindowText(pkText);
-	snprintf(pkText, 256, "%f", rgtPeak);
+	snprintf(pkText, 256, "%.3f", rgtPeak);
 	rpk.SetWindowText(pkText);
 	if (lftPeak > 1.0 || rgtPeak > 1.0)
 	{
-		snprintf(pkText, 256, "Out of range (%f, %f) at %02d:%02d\r\n", 
+		snprintf(pkText, 256, "Out of range (%.3f, %.3f) at %02d:%02d\r\n", 
 			lftPeak, rgtPeak, lastTime / 60, lastTime % 60);
 		ed.AppendText(pkText);
 	}

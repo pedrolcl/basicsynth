@@ -65,10 +65,11 @@ public:
 	void Redo() { }
 	void SelectAll() { }
 	void GotoLine(int ln) { }
+	void GotoPosition(int pos) { }
 	void Find() { }
 	void FindNext() { }
 	void SetMarker() { }
-	void SetMarkerAt(int line) { }
+	void SetMarkerAt(int line, int on) { }
 	void NextMarker() { }
 	void PrevMarker() { }
 	void ClearMarkers() { }

@@ -21,6 +21,7 @@ private:
 	Fl_Input *libsInp;
 	Fl_Button *libsBrowse;
 	Fl_Input *latency;
+	Fl_Input *midiDev;
 	Fl_Button *okBtn;
 	Fl_Button *canBtn;
 

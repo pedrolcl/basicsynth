@@ -965,3 +965,4 @@ int QueryValueDlg::Activate(const char *prompt, char *val, int len)
 		Fl::wait();
 	return done == 1;
 }
+

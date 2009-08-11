@@ -29,8 +29,9 @@ public:
 	virtual void FindNext() { }
 	virtual void SelectAll() { }
 	virtual void GotoLine(int ln) { }
+	virtual void GotoPosition(int pos) { }
 	virtual void SetMarker() { }
-	virtual void SetMarkerAt(int line) { }
+	virtual void SetMarkerAt(int line, int on) { }
 	virtual void NextMarker() { }
 	virtual void PrevMarker() { }
 	virtual void ClearMarkers() { }
@@ -106,19 +107,18 @@ private:
 	Fl_Input *toInp;
 	Fl_Button *startBtn;
 	Fl_Button *stopBtn;
+	Fl_Check_Button *pauseBtn;
 	Fl_Text_Display *msgInp;
 	Fl_Button *closeBtn;
 	Fl_Input *tmInp;
 	Fl_Output *pkLft;
 	Fl_Output *pkRgt;
 
-	KbdGenDlg *kbdDlg;
-
 	int StartThread();
 	void EndThread();
 
 public:
-	GenerateDlg(KbdGenDlg *d);
+	GenerateDlg(int live);
 	~GenerateDlg();
 
 	static long playLive;
@@ -133,6 +133,7 @@ public:
 
 	void OnStart(int autoStart);
 	void OnStop();
+	void OnPause();
 	void OnClose();
 	void FormatPeak();
 };

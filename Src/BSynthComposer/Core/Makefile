@@ -22,6 +22,8 @@ NotelistItem.o \
 PathList.o \
 ProjectFrame.o \
 ProjectItem.o \
+SoundBankItem.o \
+SoundBankEd.o \
 SliderWidget.o \
 SubSynthEd.o \
 SwitchWidget.o \

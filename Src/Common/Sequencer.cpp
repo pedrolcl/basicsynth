@@ -635,12 +635,21 @@ inline void Sequencer::Wakeup()
 #include <sys/types.h>
 #include <pthread.h>
 
+struct pthread_event
+{
+	pthread_mutex_t m;
+	pthread_cond_t  c;
+};
+
 void Sequencer::CreateMutex()
 {
 	pthread_mutex_t *cs = new pthread_mutex_t;
 	pthread_mutex_init(cs, NULL);
 	critMutex = (void*)cs;
-	//TODO: pauseSignal = create signal
+	pthread_event *e = new pthread_event;
+	pthread_mutex_init(&e->m, NULL);
+	pthread_cond_init(&e->c, NULL);
+	pauseSignal = (void*)e;
 }
 
 void Sequencer::DestroyMutex()
@@ -652,7 +661,14 @@ void Sequencer::DestroyMutex()
 		delete cs;
 		critMutex = 0;
 	}
-	//TODO: delect pauseSignal
+	pthread_event *e = (pthread_event*)pauseSignal;
+	if (e)
+	{
+		pthread_cond_destroy(&e->c);
+		pthread_mutex_destroy(&e->m);
+		delete e;
+		pauseSignal = 0;
+	}
 }
 
 inline void Sequencer::EnterCritical()
@@ -665,14 +681,20 @@ inline void Sequencer::LeaveCritical()
 	pthread_mutex_unlock((pthread_mutex_t*)critMutex);
 }
 
-inline void Sleep()
+inline void Sequencer::Sleep()
 {
-	// TODO: wait on pause signal
+	pthread_event *e = (pthread_event*)pauseSignal;
+	pthread_mutex_lock(&e->m);
+    pthread_cond_wait(&e->c, &e->m);
+	pthread_mutex_unlock(&e->m);
 }
 
-inline void Wakeup()
+inline void Sequencer::Wakeup()
 {
-	// TODO: send pause signal
+	pthread_event *e = (pthread_event*)pauseSignal;
+	pthread_mutex_lock(&e->m);
+	pthread_cond_signal(&e->c);
+	pthread_mutex_unlock(&e->m);
 }
 #endif
 

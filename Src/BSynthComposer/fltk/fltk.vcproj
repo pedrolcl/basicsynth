@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib ../../../Lib/SciLexerD.lib ../../../OpenSource/fltk-1.1.9/lib/fltkd.lib ../../../OpenSource/fltk-1.1.9/lib/fltkjpegd.lib ../../../OpenSource/fltk-1.1.9/lib/fltkimagesd.lib ../../../OpenSource/flu_2.14/lib/flulibd.lib opengl32.lib wsock32.lib comctl32.lib"
+				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib ../../../Lib/SciLexerD.lib ../../../OpenSource/fltk-1.1.9/lib/fltkd.lib ../../../OpenSource/fltk-1.1.9/lib/fltkjpegd.lib ../../../OpenSource/fltk-1.1.9/lib/fltkimagesd.lib  opengl32.lib wsock32.lib comctl32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -210,7 +210,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib ../../../Lib/SciLexer.lib ../../../OpenSource/fltk-1.1.9/lib/fltk.lib ../../../OpenSource/fltk-1.1.9/lib/fltkjpeg.lib ../../../OpenSource/fltk-1.1.9/lib/fltkimages.lib  opengl32.lib wsock32.lib comctl32.lib"
+				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib ../../../Lib/SciLexer.lib ../../../OpenSource/fltk-1.1.9/lib/fltk.lib ../../../OpenSource/fltk-1.1.9/lib/fltkjpeg.lib ../../../OpenSource/fltk-1.1.9/lib/fltkimages.lib  opengl32.lib wsock32.lib dsound.lib comctl32.lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -446,6 +446,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\SoundBankSelectFltk.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SynthProjectFltk.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SynthWidgetFltk.cpp"
 				>
 				<FileConfiguration
@@ -533,6 +541,10 @@
 			</File>
 			<File
 				RelativePath=".\PropertiesDlgFltk.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBankSelectFltk.h"
 				>
 			</File>
 			<File

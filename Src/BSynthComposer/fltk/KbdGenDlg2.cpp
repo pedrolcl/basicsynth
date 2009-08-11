@@ -105,7 +105,7 @@ void GenerateDlg::EndThread()
 static void FormatTime(Fl_Input *wdg, long secs)
 {
 	char txt[40];
-	snprintf(txt, 40, "%02d:%02d", secs / 60, secs % 60);
+	snprintf(txt, 40, "%3d:%02d", secs / 60, secs % 60);
 	wdg->value(txt);
 }
 
@@ -143,9 +143,14 @@ static void StopCB(Fl_Widget *wdg, void *arg)
 	((GenerateDlg*)arg)->OnStop();
 }
 
-GenerateDlg::GenerateDlg(KbdGenDlg *d) : Fl_Window(100, 100, 600, 320, "Generate")
+static void PauseCB(Fl_Widget *wdg, void *arg)
 {
-	kbdDlg = d;
+	((GenerateDlg*)arg)->OnPause();
+}
+
+GenerateDlg::GenerateDlg(int live) : Fl_Window(100, 100, 600, 320, "Generate")
+{
+	playLive = live;
 	prjGenerate = static_cast<GenerateWindow*>(this);
 
 	lastTime = 0;
@@ -180,13 +185,18 @@ GenerateDlg::GenerateDlg(KbdGenDlg *d) : Fl_Window(100, 100, 600, 320, "Generate
 	lbl = new Fl_Box(5, 110, 80, 30, "To");
 	toInp = new Fl_Input(90, 110, 170, 30, 0);
 
-	startBtn = new Fl_Button(90, 145, 80, 30, "Start"); 
+	startBtn = new Fl_Button(10, 145, 80, 30, "Start"); 
 	startBtn->callback(StartCB, (void*)this);
 	startBtn->activate();
 
-	stopBtn = new Fl_Button(180, 145, 80, 30, "Stop"); 
+	stopBtn = new Fl_Button(95, 145, 80, 30, "Stop"); 
 	stopBtn->callback(StopCB, (void*)this);
 	stopBtn->deactivate();
+
+	pauseBtn = new Fl_Check_Button(180, 145, 80, 30, "Pause"); 
+	pauseBtn->callback(PauseCB, (void*)this);
+	pauseBtn->deactivate();
+	pauseBtn->value(0);
 
 	lbl = new Fl_Box(5, 180, 80, 30, "Time");
 	tmInp = new Fl_Output(90, 180, 170, 30, 0);
@@ -277,9 +287,12 @@ void GenerateDlg::OnStart(int autoStart)
 	FormatTime(tmInp, playFrom);
 	lftPeak = 0;
 	rgtPeak = 0;
+	lftMax = 0;
+	rgtMax = 0;
 	FormatPeak();
 	StartThread();
 	stopBtn->activate();
+	pauseBtn->activate();
 	startBtn->deactivate();
 	closeBtn->deactivate();
 	while (Fl::wait() > 0)
@@ -307,16 +320,27 @@ void GenerateDlg::OnStart(int autoStart)
 	}
 	EndThread();
 	char buf[100];
-	snprintf(buf, 100, "Peak: [%f, %f]\n-------- Finished ---------\n", lftMax, rgtMax);
+	snprintf(buf, 100, "Peak: [%.6f, %.6f]\n-------- Finished ---------\n", lftMax, rgtMax);
 	msgbuf->append(buf);
 	stopBtn->deactivate();
+	pauseBtn->deactivate();
 	startBtn->activate();
 	closeBtn->activate();
 }
 
 void GenerateDlg::OnStop()
 {
+	Fl_Text_Buffer *msgbuf = msgInp->buffer();
+	msgbuf->append("*Cancel*\nHalting sequencer...\n");
 	canceled = 1;
+}
+
+void GenerateDlg::OnPause()
+{
+	if (pauseBtn->value())
+		theProject->Pause();
+	else
+		theProject->Resume();
 }
 
 void GenerateDlg::OnClose()
@@ -327,28 +351,27 @@ void GenerateDlg::OnClose()
 void GenerateDlg::FormatPeak()
 {
 	char pkText[200];
-	snprintf(pkText,80, "%.6f", lftPeak);
+	snprintf(pkText,80, " %.6f", lftPeak);
 	pkLft->value(pkText);
 
-	snprintf(pkText,80, "%.6f", rgtPeak);
+	snprintf(pkText,80, " %.6f", rgtPeak);
 	pkRgt->value(pkText);
 
 	if (lftPeak > 1.0 || rgtPeak > 1.0)
 	{
-		snprintf(pkText, 200, "Out of range (%f, %f) at %02d:%02d\n", 
+		snprintf(pkText, 200, "Out of range (%.6f, %.6f) at %02d:%02d\n", 
 			lftPeak, rgtPeak, lastTime / 60, lastTime % 60);
 		msgInp->buffer()->append(pkText);
 	}
+	if (lftPeak > lftMax)
+		lftMax = lftPeak;
+	if (rgtPeak > rgtMax)
+		rgtMax = rgtPeak;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 /// Virtual Keyboard
 ////////////////////////////////////////////////////////////////////////////
-
-static void GenCB(Fl_Widget *wdg, void *arg)
-{
-	mainWnd->Generate(1, GenerateDlg::playLive);
-}
 
 static void InstrSelCB(Fl_Widget *wdg, void *arg)
 {
@@ -421,11 +444,8 @@ void KbdGenDlg::resize(int X, int Y, int W, int H)
 
 void KbdGenDlg::draw()
 {
-	//Fl_Widget *const*a = array();
 	if (damage() == FL_DAMAGE_CHILD)
-	{ // only redraw some children
-	//    for (int i = children(); i--; a ++)
-	//		update_child(**a);
+	{
 		update_child(*instrList);
 	}
 	else
@@ -435,27 +455,17 @@ void KbdGenDlg::draw()
 		int part = damage() == FL_DAMAGE_USER1;
 		if (!part)
 			fl_push_clip(x(), y(), w(), h());
-		//Fl_Color clr = fl_rgb_color((int) (bgColor >> 16) & 0xff, (int) (bgColor >> 8) & 0xff, (int) bgColor & 0xff);
 		Fl_Color clr = (Fl_Color) (bgColor << 8);
 		fl_color(clr);
 		fl_rectf(x(), y(), w(), h());
 		fl_draw_box(FL_EMBOSSED_FRAME, x(), y(), w(), h(), clr);
-		//fl_color((int) (bgColor >> 16) & 0xff, (int) (bgColor >> 8) & 0xff, (int) bgColor & 0xff);
-		//fl_rectf(x(), y(), w(), h());
-		//fl_color(0,0,0);
-		//fl_rect(x(), y(), w(), h());
-
-		//printf("FormEditor: draw(%d,%d,%d,%d) hon=%d, von=%d\n", x(), y(), fw, fh, hon, von);
 		if (form)
 			form->RedrawForm(ctx);
 		if (!part)
 			fl_pop_clip();
 		// now draw all the children atop the background:
-		//for (int i = children(); i--; a++) 
-		//	draw_child(**a);
 		draw_child(*instrList);
 	}
-//	Fl_Group::draw();
 }
 
 void KbdGenDlg::Load()
@@ -632,64 +642,90 @@ void KeyboardWidget::Paint(DrawContext dc)
 	fl_rect(rcWhite[0].x, rcWhite[0].y, rw, rcWhite[0].h);
 }
 
-/*
-int KbdWdgFltk::handle(int e)
+#ifdef _WIN32
+static HMIDIIN midiIn;
+
+struct MEvent
 {
-	int mx = Fl::event_x();
-	int my = Fl::event_y();
-	switch (e)
+	short mmsg;
+	short val1;
+	short val2;
+	DWORD ts;
+};
+
+static MEvent eventBuf[500];
+static int ebWrite = 0;
+static int ebRead = 0;
+
+void CALLBACK MidiCB(HMIDIIN hMidiIn, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
+{
+	KeyboardWidget *kbd = (KeyboardWidget *) dwInstance;
+	if (wMsg == MIM_DATA)
 	{
-	case FL_PUSH:
-		OnBtnDown(mx, my);
-		return 1;
-	case FL_DRAG:
-		OnMouseMove(mx, my);
-		return 1;
-	case FL_RELEASE:
-		OnBtnUp(mx, my);
-		return 1;
+		while (ebRead != ebWrite)
+		{
+			MEvent *p = &eventBuf[ebRead++];
+			if (ebRead >= 500)
+				ebRead = 0;
+			kbd->MidiRcv(p->mmsg, p->val1, p->val2, p->ts);
+		}
+
+		short mmsg = dwParam1 & 0xFF;
+		if (mmsg != 0xfe)
+			kbd->MidiRcv(mmsg, (dwParam1 >> 8) & 0xff, (dwParam1 >> 16) & 0xFF, dwParam2);
 	}
-	return 0;
-}
-*/
-
-/////////////////////////////////////////////////////////////////////////////
-// Platform-specific project functions
-/////////////////////////////////////////////////////////////////////////////
-
-int SynthProject::Generate(int todisk, long from, long to)
-{
-	if (!todisk)
+	else if (wMsg == MIM_MOREDATA)
 	{
-		prjGenerate->AddMessage("Live playback is not supported.\n");
-		return -1;
+		// buffer this event and return immediately.
+		// on the next MIM_DATA, process the buffered events
+		MEvent *p = &eventBuf[ebWrite++];
+		if (ebWrite >= 500)
+			ebWrite = 0;
+		p->mmsg = dwParam1 & 0xFF;
+		p->val1 = (dwParam1 >> 8) & 0xFF;
+		p->val2 = (dwParam1 >> 16) & 0xFF;
+		p->ts = dwParam2;
 	}
-	if (!wvoutInfo)
+}
+
+void KeyboardWidget::MidiIn(int onoff)
+{
+	if (midiOn == onoff)
+		return;
+	midiOn = onoff;
+	if (onoff)
 	{
-		prjGenerate->AddMessage("Wave output info is NULL\n");
-		return -1;
+		if (midiIn == 0)
+		{
+			MMRESULT err = midiInOpen(&midiIn, prjOptions.midiDevice, (DWORD_PTR) MidiCB, 
+				(DWORD_PTR) this, CALLBACK_FUNCTION|MIDI_IO_STATUS);
+			if (err != MMSYSERR_NOERROR)
+				return;
+		}
+		midiInStart(midiIn);
 	}
-	return GenerateToFile(from, to);
+	else if (midiIn)
+	{
+		midiInStop(midiIn);
+		midiInClose(midiIn);
+		midiIn = 0;
+	}
 }
+#endif
 
-int SynthProject::Play()
+#ifdef UNIX
+void KeyboardWidget::MidiIn(int onoff)
 {
-	prjFrame->Alert("Live playback is not supported at this time.", "Sorry.");
-	return 0;
+	// TODO: connect/disconnect MIDI keyboard input.
+	// 1) Start a background thread
+	// 2) Open the ALSA SEQ device.
+	// 3) on an event call: kbd->MidiRcv(msg, val1, val2, timestamp);
+	//
+	// If I can ever decode the cryptic info on connecting 
+	// my Midi-sport UNO on Linux, I might add some code here...
+	// On Windoze I just plug the thing in and I'm good to go.
+	if (onoff)
+		prjFrame->Alert("No MIDI yet.", "Sorry...");
 }
+#endif
 
-int SynthProject::Start()
-{
-	return 0;
-}
-
-int SynthProject::Stop()
-{
-	return 0;
-}
-
-int SynthProject::PlayEvent(SeqEvent *evt)
-{
-	delete evt;
-	return 0;
-}

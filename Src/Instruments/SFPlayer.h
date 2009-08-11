@@ -14,7 +14,7 @@
 
 #include "LFO.h"
 #include <SFDefs.h>
-#include <SFSoundBank.h>
+#include <SoundBank.h>
 #include <SFGen.h>
 
 /// BasicSynth Instrument to play SoundFont files.
@@ -89,15 +89,15 @@ protected:
 	bsString sndFile;   // sound bank name (alias or file)
 	bsString preName;   // preset name (for reference)
 
-	SFSoundBank *sndbnk; // run-time sound bank object
-	SFPreset *preset;    // run-time preset object
+	SoundBank *sndbnk; // run-time sound bank object
+	SBInstr *preset;    // run-time preset object
 	bsInt16 bnkNum;     // bank number, 0-128, 128=drum kit
 	bsInt16 preNum;     // preset number 0-127
 
-	SFZone *zonel;      // left channel zone
-	SFZone *zonel2;     // portamento zone
-	SFZone *zoner;      // right channel zone
-	SFZone *zoner2;
+	SBZone *zonel;      // left channel zone
+	SBZone *zonel2;     // portamento zone
+	SBZone *zoner;      // right channel zone
+	SBZone *zoner2;
 	Panner panl;        // left channel pan
 	Panner panr;        // right channel pan
 
@@ -125,14 +125,14 @@ public:
 	virtual int  IsFinished();
 	virtual void Destroy();
 
-	void SetSoundBank(SFSoundBank *b);
-	SFSoundBank *GetSoundBank()       { return sndbnk; }
+	void SetSoundBank(SoundBank *b);
+	SoundBank *GetSoundBank()       { return sndbnk; }
 
 	const char *GetSoundFile()        { return sndFile; }
-	const char *GetPresetName()       { return preName; }
+	const char *GetInstrName()       { return preName; }
 
 	void SetSoundFile(const char *str) { sndFile = str; }
-	void SetPresetName(const char *str) { preName = str; }
+	void SetInstrName(const char *str) { preName = str; }
 
 	virtual int Load(XmlSynthElem *parent);
 	virtual int Save(XmlSynthElem *parent);

@@ -133,10 +133,13 @@ void MainFrame::ViewKeyboard()
 
 void MainFrame::Generate(int autostart, int todisk)
 {
-	GenerateDlg *dlg = new GenerateDlg(kbd);
+	int wasPlaying = StopPlayer();
+	GenerateDlg *dlg = new GenerateDlg(todisk);
 	dlg->show();
 	if (autostart)
 		dlg->OnStart(1);
+	if (wasPlaying)
+		StartPlayer();
 }
 
 

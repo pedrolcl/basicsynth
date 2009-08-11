@@ -98,7 +98,7 @@ SFPlayerInstr::~SFPlayerInstr()
 
 /// Set the sound bank object directly.
 /// This can also be done by setting the sound bank alias
-void SFPlayerInstr::SetSoundBank(SFSoundBank *b)
+void SFPlayerInstr::SetSoundBank(SoundBank *b)
 {
 	sndbnk = b;
 	preset = 0;
@@ -107,9 +107,9 @@ void SFPlayerInstr::SetSoundBank(SFSoundBank *b)
 void SFPlayerInstr::FindPreset()
 {
 	if (sndbnk == 0)
-		sndbnk = SFSoundBank::FindBank(sndFile);
+		sndbnk = SoundBank::FindBank(sndFile);
 	if (sndbnk != 0)
-		preset = sndbnk->GetPreset(bnkNum, preNum);
+		preset = sndbnk->GetInstr(bnkNum, preNum);
 }
 
 void SFPlayerInstr::Copy(SFPlayerInstr *tp)
@@ -170,15 +170,26 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 	if (preset)
 	{
 		int sfpit = pitch+12; // shift from BasicSynth to MIDI range
-		zoner = preset->zoneMap[0][sfpit];
+		zoner = preset->GetZone(sfpit, 64, 0);
 		if (zoner)
 		{
+			// FIXME
+			if (zoner->sample == 0)
+			{
+				SBSample *samp = sndbnk->GetSample(zoner->sampleNdx);
+				zoner->sample = samp->sample;
+			}
 			oscr.InitSF(oscFrq, zoner);
 			panr.Set(panSqr, zoner->pan);
 		}
-		zonel = preset->zoneMap[1][sfpit];
+		zonel = preset->GetZone(sfpit, 64, 1);
 		if (zonel)
 		{
+			if (zonel->sample == 0)
+			{
+				SBSample *samp = sndbnk->GetSample(zonel->sampleNdx);
+				zonel->sample = samp->sample;
+			}
 			oscl.InitSF(oscFrq, zonel);
 			panl.Set(panSqr, zonel->pan);
 		}
@@ -186,16 +197,11 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 			mono = 1;
 		if (sfEnv && zoner)
 		{
-			//AmpValue it = SFEnvLevel(zoner->genVals[sfgInitialAttenuation]);
-			volEnv.SetAtkRt(
-				  SFEnvRate(zoner->genVals[sfgAttackVolEnv]) 
-				+ SFEnvRate(zoner->genVals[sfgDelayVolEnv]));
+			volEnv.SetAtkRt(zoner->volEg.attack);
 			volEnv.SetAtkLvl(1.0);
-			volEnv.SetDecRt(
-				  SFEnvRate(zoner->genVals[sfgDecayVolEnv])
-				+ SFEnvRate(zoner->genVals[sfgHoldVolEnv]));
-			volEnv.SetSusLvl(SFEnvLevel(zoner->genVals[sfgSustainVolEnv]));
-			volEnv.SetRelRt(SFEnvRate(zoner->genVals[sfgReleaseVolEnv]));
+			volEnv.SetDecRt(zoner->volEg.decay);
+			volEnv.SetSusLvl(zoner->volEg.sustain);
+			volEnv.SetRelRt(zoner->volEg.release);
 		}
 		else
 			volEnv.SetEnvDef(&volSet);
@@ -231,13 +237,16 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 	{
 		pitch = params->pitch;
 		int sfpit = pitch+12;
-		zoner2 = preset->zoneMap[0][sfpit];
+		zoner2 = preset->GetZone(sfpit, 65, 0);
 		if (zoner2 != zoner)
 		{
 			// begin cross-fade to new sample.
 			oscr2.InitSF(params->frq, zoner2, 1);
 			if (zonel)
-				oscl2.InitSF(params->frq, zonel2 = preset->zoneMap[1][sfpit], 1);
+			{
+				zonel2 = preset->GetZone(sfpit, 65, 1);
+				oscl2.InitSF(params->frq, zonel2, 1);
+			}
 			// 50ms cross fade
 			xfade = synthParams.sampleRate / 10;
 			fadeEG.InitSegTick(xfade, 0.0, 1.0);
@@ -324,7 +333,7 @@ void SFPlayerInstr::Tick()
 		if (modFrq)
 			oscl.UpdateFrequency(newFrq);
 		oscValL = oscl.Gen();
-		out = (out + oscValL) / 2;
+		out = (out + oscValL) * 0.5;
 	}
 	if (xfade > 0)
 	{
@@ -338,7 +347,7 @@ void SFPlayerInstr::Tick()
 		if (zonel2)
 		{
 			oscValL = (amp0 * oscValL) + (amp1 * oscl2.Gen());
-			out = (out + oscValL) / 2;
+			out = (out + oscValL) * 0.5;
 		}
 		if (--xfade == 0)
 		{
@@ -840,7 +849,7 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 		next = elem.NextSibling(&elem);
 	}
 	if (sndFile.Length() > 0)
-		sndbnk = SFSoundBank::FindBank(sndFile);
+		sndbnk = SoundBank::FindBank(sndFile);
 
 	return 0;
 }

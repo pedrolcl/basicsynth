@@ -168,6 +168,11 @@ int FileReadBuf::FileRewind(int pos)
 	return (int) lseek(fd, (off_t) pos, SEEK_SET);
 }
 
+int FileReadBuf::FilePosition()
+{
+	return (int) lseek(fd, 0, SEEK_CUR) - inread + inpos;
+}
+
 int FileReadBuf::FileClose()
 {
 	if (fd >= 0)

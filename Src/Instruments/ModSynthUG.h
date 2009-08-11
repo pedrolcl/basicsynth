@@ -122,7 +122,7 @@ public:
 	UG gen;
 	AmpValue out;
 	float inputs[IP];
-	unsigned long anyChange;
+	bsInt32 anyChange;
 	bsInt16 id;
 	bsString name;
 	ModSynthConn chead;

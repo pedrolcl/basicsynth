@@ -2,10 +2,11 @@
 // BasicSynth - Example 2 (Chapter 6)
 //
 // Envelope Generators
-// 1 - interpolate linear, log, exponential
+// 1 - interpolate linear, square, log, exponential
 // 2 - state machine
 // 3 - interpolate multiple segments ADSR
 // 4 - multiple segments, state machine
+// 5 - constant rate
 //
 // This example has all code in-line. For the class-based versions, see Example02a
 //
@@ -82,7 +83,30 @@ int main(int argc, char *argv[])
 		wf.Output1(0);
 
 	/////////////////////////////////////////////////
-	// Method 1 - exponential
+	// Method 1 - convex exponential (n^2)
+	/////////////////////////////////////////////////
+	sampleNumber = 0;
+	volume = 0;
+	phase = 0;
+	envInc = peakAmp / (float) attackTime;
+	for (n = 0; n < totalSamples; n++)
+	{
+		if (n < attackTime || n > decayStart)
+			volume += envInc;
+		else if (n == attackTime)
+			volume = peakAmp;
+		else if (n == decayStart)
+			envInc = -volume / (float) decayTime;
+		wf.Output1(volume * volume * sinv(phase));
+		if ((phase += phaseIncr) >= twoPI)
+			phase -= twoPI;
+	}
+
+	for (n = 0; n < silence; n++)
+		wf.Output1(0);
+
+	/////////////////////////////////////////////////
+	// Method 1 - variable exponential
 	/////////////////////////////////////////////////
 	phase = 0;
 	volume = 0;
@@ -145,6 +169,37 @@ int main(int argc, char *argv[])
 	for (n = 0; n < silence; n++)
 		wf.Output1(0);
 
+	/////////////////////////////////////////////////
+	// Method 1 - dB
+	/////////////////////////////////////////////////
+	phase = 0;
+	volume = 0;
+	float dbLevel = -96;
+	float dbIncr = 96.0 / attackTime;
+
+	for (n = 0; n < totalSamples; n++)
+	{
+		if (n < attackTime || n > decayStart)
+		{
+			dbLevel += dbIncr;
+			volume = pow(10.0, dbLevel / 20.0);
+		}
+		else if (n == attackTime)
+		{
+			volume = 1.0;
+			dbLevel = 0.0;
+		}
+		else if (n == decayStart)
+		{
+			dbIncr = -96.0 / decayTime;
+		}
+		wf.Output1(peakAmp * volume * sinv(phase));
+		if ((phase += phaseIncr) >= twoPI)
+			phase -= twoPI;
+	}
+
+	for (n = 0; n < silence; n++)
+		wf.Output1(0);
 
 	/////////////////////////////////////////////////
 	// Method 2 - simple state machine
@@ -351,6 +406,131 @@ int main(int argc, char *argv[])
 				volume += envStep;
 			break;
 		case 3:
+			break;
+		}
+		wf.Output1(volume * sinv(phase));
+		if ((phase += phaseIncr) >= twoPI)
+			phase -= twoPI;
+	}
+	for (n = 0; n < silence; n++)
+		wf.Output1(0);
+
+	/////////////////////////////////////////////////
+	// Method 5 - constant rate ADSR
+	/////////////////////////////////////////////////
+	phase = 0;
+	volume = 0;
+	envState = 0;
+	float sustainAmpCR = 0.8;
+	float atkTimeCR = 0.1;
+	float decTimeCR = 0.5;
+	float relTimeCR = 0.5;
+	float atkIncrCR = 1.0 / (atkTimeCR * synthParams.sampleRate);
+	float decIncrCR = 1.0 / (decTimeCR * synthParams.sampleRate);
+	float relIncrCR = 1.0 / (relTimeCR * synthParams.sampleRate);
+
+	float susTimeCR;
+
+	for (n = 0; n < totalSamples; n++)
+	{
+		switch (envState) 
+		{
+		case 0:
+			if ((volume += atkIncrCR) >= 1.0)
+			{
+				volume = 1.0;
+				envState = 1;
+			}
+			break;
+		case 1:
+			if ((volume -= decIncrCR) <= sustainAmpCR)
+			{
+				volume = sustainAmpCR;
+				envState = 2;
+				// for testing. This type envelope would normally sustain until release signal.
+				susTimeCR = totalSamples - n - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);			
+			}
+			break;
+		case 2:
+			if (--susTimeCR <= 0)
+				envState = 3;
+			break;
+		case 3:
+			if ((volume -= decIncrCR) <= 0)
+			{
+				volume = 0;
+				envState = 4;
+			}
+			break;
+		}
+		wf.Output1(volume * volume * sinv(phase)); // convex curve
+		//wf.Output1(volume * sinv(phase)); // linear
+		if ((phase += phaseIncr) >= twoPI)
+			phase -= twoPI;
+	}
+	for (n = 0; n < silence; n++)
+		wf.Output1(0);
+
+	/////////////////////////////////////////////////
+	// Method 5 - constant rate ADSR, transformed
+	/////////////////////////////////////////////////
+
+	float envTblLen = 960; // 96 dB range
+	float envTblNdx = 0;
+	float atkTblCR[960];
+	float decTblCR[960];
+	atkTblCR[0] = 0.0;
+	decTblCR[0] = 0.0;
+	for (n = 1; n < envTblLen; n++) 
+	{
+		volume = pow(10, (double)(959 - n) / -200.0);
+		atkTblCR[n] = volume;
+		decTblCR[n] = volume;
+	}
+
+	sustainAmpCR = 0.5;
+	atkIncrCR = 960.0 / (atkTimeCR * synthParams.sampleRate);
+	decIncrCR = 960.0 / (decTimeCR * synthParams.sampleRate);
+	relIncrCR = 960.0 / (relTimeCR * synthParams.sampleRate);
+
+	susTimeCR = totalSamples - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);
+	phase = 0;
+	volume = 0;
+	envState = 0;
+	for (n = 0; n < totalSamples; n++)
+	{
+		switch (envState) 
+		{
+		case 0:
+			if ((envTblNdx += atkIncrCR) >= envTblLen)
+			{
+				envTblNdx = envTblLen-1;
+				envState = 1;
+			}
+			volume = atkTblCR[(int)envTblNdx];
+			break;
+		case 1:
+			if ((envTblNdx -= decIncrCR) < 0)
+				envTblNdx = 0;
+			volume = decTblCR[(int)envTblNdx];
+			if (volume <= sustainAmpCR)
+			{
+				volume = sustainAmpCR;
+				envState = 2;
+				susTimeCR = totalSamples - n - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);			
+			}
+			break;
+		case 2:
+			if (--susTimeCR <= 0)
+				envState = 3;
+			break;
+		case 3:
+			if ((envTblNdx -= decIncrCR) <= 0)
+			{
+				envTblNdx = 0;
+				envState = 4;
+			}
+			volume = decTblCR[(int)envTblNdx];
 			break;
 		}
 		wf.Output1(volume * sinv(phase));

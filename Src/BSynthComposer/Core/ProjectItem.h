@@ -41,7 +41,8 @@ enum PIType
 	 PRJNODE_SELINSTR,
 	 PRJNODE_SOUNDBANK,
 	 PRJNODE_SBLIST,
-	 PRJNODE_SELSOUND
+	 PRJNODE_SELSOUND,
+	 PRJNODE_MIDICTRL
 };
 
 #define ITM_ENABLE_NEW   0x0001
@@ -512,16 +513,18 @@ public:
 	virtual int NewItem();
 };
 
-/// A .sf2 file
+/// A .sf2 or .dls file
 class SoundBankItem : public FileItem
 {
 private:
-	bsInt16 mods; // load modulator records
+	bsInt16 preload; // load samples on file open
+	bsInt16 normalize; // rescale samples
 
 public:
 	SoundBankItem() : FileItem(PRJNODE_SOUNDBANK)
 	{
-		mods = 0;
+		preload = 0;
+		normalize = 0;
 		actions = ITM_ENABLE_ADD    // add an instrument
 			    | ITM_ENABLE_REM   // remove from project
 				| ITM_ENABLE_PROPS; // edit properties
@@ -1066,6 +1069,21 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
+class MidiItem : public ProjectItem
+{
+public:
+	MidiItem() : ProjectItem(PRJNODE_MIDICTRL)
+	{
+		actions = ITM_ENABLE_EDIT;
+		name = "MIDI Control";
+	}
+
+	virtual int EditItem();
+	virtual WidgetForm *CreateForm(int xo, int yo);
+	virtual int Load(XmlSynthElem *node);
+	virtual int Save(XmlSynthElem *node);
+};
+
 /// A list of files/directories, e.g., a search path.
 class PathListItem  : public SynthList<PathListItem >
 {
@@ -1153,6 +1171,8 @@ public:
 	LibfileList   *libInfo;
 	SoundBankList *sblInfo;
 	PathList      *libPath;
+	MidiItem      *midiInfo;
+	MIDIControl   prjMidiCtrl;
 
 	Mixer mix;
 	InstrManager mgr;

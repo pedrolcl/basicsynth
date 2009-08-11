@@ -25,6 +25,7 @@ static void DestroyTemplate(Opaque tp)
 void SynthProject::Init()
 {
 	synthInfo = 0;
+	midiInfo = 0;
 	nlInfo = 0;
 	seqInfo = 0;
 	txtInfo = 0;
@@ -36,6 +37,8 @@ void SynthProject::Init()
 	libInfo = 0;
 	libPath = 0;
 	change = 0;
+
+	seq.SetController(&prjMidiCtrl.seqControl);
 
 	InstrMapEntry *ime;
 	if (prjOptions.inclInstr & 0x001)
@@ -119,6 +122,15 @@ void SynthProject::Init()
 		ime->paramToName = SFPlayerInstr::MapParamName;
 		ime->dumpTmplt = DestroyTemplate;
 	}
+	if (prjOptions.inclInstr & 0x800)
+	{
+		ime = mgr.AddType("GMPlayer", GMManager::InstrFactory, GMManager::EventFactory);
+		ime->paramToID = GMManager::MapParamID;
+		ime->paramToName = GMManager::MapParamName;
+		ime->manufTmplt = GMManager::TmpltFactory;
+		ime->dumpTmplt = GMManager::TmpltDump;
+		GMManager::midiCtrl = &prjMidiCtrl;
+	}
 }
 
 void SynthProject::InitProject()
@@ -134,6 +146,10 @@ void SynthProject::InitProject()
 	wvoutInfo = new WaveoutItem;
 	wvoutInfo->SetParent(this);
 	prjTree->AddNode(wvoutInfo);
+
+	midiInfo = new MidiItem;
+	midiInfo->SetParent(this);
+	prjTree->AddNode(midiInfo);
 
 	mixInfo = new MixerItem;
 	mixInfo->SetParent(this);
@@ -261,6 +277,10 @@ int SynthProject::Load(XmlSynthElem *node)
 		else if (child->TagMatch("synth"))
 		{
 			synthInfo->Load(child);
+		}
+		else if (child->TagMatch("midi"))
+		{
+			midiInfo->Load(child);
 		}
 		else if (child->TagMatch("out"))
 		{
@@ -399,6 +419,7 @@ int SynthProject::Save(XmlSynthElem *node)
 	delete child;
 
 	synthInfo->Save(node);
+	midiInfo->Save(node);
 	wvoutInfo->Save(node);
 	mixInfo->Save(node);
 	wfInfo->Save(node);
@@ -575,8 +596,8 @@ void SynthProject::UpdateGenerator(bsInt32 count)
 	prjGenerate->UpdateTime(count);
 	if (prjGenerate->WasCanceled())
 	{
-		if (prjGenerate)
-			prjGenerate->AddMessage("Halting sequencer...");
+//		if (prjGenerate)
+//			prjGenerate->AddMessage("Halting sequencer...");
 		seq.Halt();
 	}
 }

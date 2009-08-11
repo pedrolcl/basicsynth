@@ -322,6 +322,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;USE_OSCILI_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"

@@ -7,8 +7,8 @@
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
-#include "WindowTypes.h"
-#include "ProjectItem.h"
+#include "ComposerCore.h"
+#include "MIDIControlEd.h"
 
 ///////////////////////////////////////////////
 // FIXME: Wavetables can also be allocated
@@ -191,3 +191,72 @@ int SynthItem::Save(XmlSynthElem *node)
 	return err;
 }
 
+//////////////////////////////////////////////
+
+int MidiItem::Load(XmlSynthElem *node)
+{
+	short chnl;
+	bsInt16 val;
+	AmpValue vol;
+
+	XmlSynthElem *chnlNode = node->FirstChild();
+	while (chnlNode)
+	{
+		if (chnlNode->TagMatch("chnl"))
+		{
+			chnlNode->GetAttribute("cn", chnl);
+			chnlNode->GetAttribute("bnk", val);
+			theProject->prjMidiCtrl.SetBank(chnl, val);
+			chnlNode->GetAttribute("prg", val);
+			theProject->prjMidiCtrl.SetPatch(chnl, val);
+			chnlNode->GetAttribute("vol", vol);
+			theProject->prjMidiCtrl.SetVolume(chnl, vol);
+		}
+		XmlSynthElem *n = chnlNode->NextSibling();
+		delete chnlNode;
+		chnlNode = n;
+	}
+
+	return 0;
+}
+
+int MidiItem::Save(XmlSynthElem *node)
+{
+	XmlSynthElem *midi = node->AddChild("midi");
+	if (!midi)
+		return -1;
+
+	XmlSynthElem *chnlNode;
+	short chnl;
+
+	for (chnl = 0; chnl < 16; chnl++)
+	{
+		chnlNode = midi->AddChild("chnl");
+		if (!chnlNode)
+			return -1;
+		chnlNode->SetAttribute("cn", chnl);
+		chnlNode->SetAttribute("bnk", theProject->prjMidiCtrl.GetBank(chnl));
+		chnlNode->SetAttribute("prg", theProject->prjMidiCtrl.GetPatch(chnl));
+		chnlNode->SetAttribute("vol", theProject->prjMidiCtrl.GetVolume(chnl));
+		delete chnlNode;
+	}
+
+	return 0;
+
+}
+
+WidgetForm *MidiItem::CreateForm(int xo, int yo)
+{
+	bsString path;
+	theProject->FindForm(path, "MIDIControlEd.xml");
+
+	MIDIControlEd *ed = new MIDIControlEd;
+	ed->Load(path, xo, yo);
+	return ed;
+}
+
+int MidiItem::EditItem()
+{
+	FormEditor *fe = prjFrame->CreateFormEditor(this);
+	return 1;
+}

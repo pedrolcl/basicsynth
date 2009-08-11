@@ -293,17 +293,16 @@ void KeyboardWidget::MidiRcv(int mmsg, int val1, int val2, unsigned int ts)
 				return;
 		}
 		nevt = (NoteEvent*) theProject->mgr.ManufEvent(selectInstr);
-		nevt->type = type;
-		nevt->evid = id;
-		nevt->chnl = chnl;
-		nevt->start = 0;
-		nevt->duration = curDur;
-		nevt->vol = curVol;
-		nevt->pitch = val1 - 12;
-		nevt->frq = synthParams.GetFrequency(nevt->pitch);
-		nevt->noteonvel = val2;
+		nevt->SetType(type);
+		nevt->SetID(id);
+		nevt->SetChannel(curChnl);
+		nevt->SetStart(0);
+		nevt->SetDuration((bsInt32) (synthParams.sampleRate * curDur));
+		nevt->SetVolume(curVol);
+		nevt->SetPitch(val1-12);
+		nevt->SetVelocity(val2);
 		nevt->im = selectInstr;
-		nevt->inum = selectInstr->inum;
+		nevt->SetInum(selectInstr->inum);
 		theProject->PlayEvent(nevt);
 		break;
 	case MIDI_CTLCHG:
@@ -311,26 +310,26 @@ void KeyboardWidget::MidiRcv(int mmsg, int val1, int val2, unsigned int ts)
 	case MIDI_CHNAT:
 	case MIDI_PWCHG:
 		cevt = new ControlEvent;
-		cevt->type = SEQEVT_CONTROL;
-		cevt->start = 0;
-		cevt->duration = 0;
-		cevt->evid = 0;
-		cevt->chnl = chnl;
-		cevt->mmsg = cmd;
+		cevt->SetType(SEQEVT_CONTROL);
+		cevt->SetStart(0);
+		cevt->SetDuration(0);
+		cevt->SetID(0);
+		cevt->SetChannel(chnl);
+		cevt->SetMessage(cmd);
 		if (cmd == MIDI_PWCHG)
 		{
-			cevt->ctrl = -1;
-			cevt->cval = (val1 + (val2 << 7)) - 8192;
+			cevt->SetControl(-1);
+			cevt->SetValue((val1 + (val2 << 7)) - 8192);
 		}
 		else if (cmd == MIDI_CHNAT)
 		{
-			cevt->ctrl = -1;
-			cevt->cval = val1;
+			cevt->SetControl(-1);
+			cevt->SetValue(val1);
 		}
 		else
 		{
-			cevt->ctrl = val1;
-			cevt->cval = val2;
+			cevt->SetControl(val1);
+			cevt->SetValue(val2);
 		}
 		theProject->PlayEvent(cevt);
 		break;
@@ -350,38 +349,31 @@ void KeyboardWidget::PlayNote(int key, int e)
 		activeInstr = selectInstr;
 
 	NoteEvent *evt = (NoteEvent*) theProject->mgr.ManufEvent(activeInstr);
-	//evt->SetParam(P_CHNL, curChnl);
-	//evt->SetParam(P_START, 0);
-	//evt->SetParam(P_DUR, curDur);
-	//evt->SetParam(P_VOLUME, curVol);
-	//evt->SetParam(P_PITCH, (float) key);
-	evt->chnl = curChnl;
-	evt->start = 0;
-	evt->duration = curDur;
-	evt->vol = curVol;
-	evt->pitch = key;
-	evt->frq = synthParams.GetFrequency(key);
+	evt->SetChannel(curChnl);
+	evt->SetStart(0);
+	evt->SetDuration((bsInt32) (synthParams.sampleRate * curDur));
+	evt->SetVolume(curVol);
+	evt->SetPitch(key);
+
 	switch (e)
 	{
 	case KEY_DOWN:
-		evt->type = SEQEVT_START;
 		evtID = (evtID + 1) & 0x7FFFFFFF;
-		evt->evid = evtID;
+		evt->SetType(SEQEVT_START);
 		break;
 	case KEY_UP:
-		evt->type = SEQEVT_STOP;
+		evt->SetType(SEQEVT_STOP);
 		activeInstr = 0;
 		break;
 	case KEY_CHANGE:
-		evt->type = SEQEVT_PARAM;
+		evt->SetType(SEQEVT_PARAM);
 		break;
 	default:
 		//OutputDebugString("Kbd event is unknown...\r\n");
 		evt->Destroy();
 		return;
 	}
-	evt->evid = evtID;
-
+	evt->SetID(evtID);
 
 	theProject->PlayEvent(evt);
 	// NB: player will delete event. Don't touch it after calling PlayEvent!

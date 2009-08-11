@@ -22,7 +22,6 @@
 #include <Sequencer.h>
 #include <SMFFile.h>
 
-
 int SMFFile::LoadFile(const char *file)
 {
 	CloseFile();
@@ -259,8 +258,9 @@ void SMFFile::ChnlMessage(bsUint16 msg)
 	trackObj->AddEvent(evt);
 }
 
-int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map)
+int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb)
 {
+	sbnk = sb;
 	seq = s;
 	instrMap = map;
 	int trkNum = 0;
@@ -301,39 +301,38 @@ int SMFFile::GetChannelMap(bsInt32 *ch)
 	return maxChnl+1;
 }
 
-void SMFFile::NoteOn(short chnl, short key, short vel)
+void SMFFile::NoteOn(short chnl, short key, short vel, short track)
 {
-	if (chnlStatus[chnl].noteison[key])
+	SMFChnlStatus *cs = &chnlStatus[chnl];
+	if (++cs->noteison[key] > 1)
 	{
 		// ruh-roh... In *theory* this should never happen.
 		// you can't have more than one note-on active
-		// since a keyboard MUST send a note-off before
+		// since a keyboard SHOULD send a note-off before
 		// it can possibly send another note-on! Right?
 		// But it happens (possibly from someone manually
 		// editing the .mid file) and we need to do something.
 		// I'm not sure what the *official* MIDI protocol is --
-		// I just blow-off the multiple note-on events and 
-		// let the note-off code detect that no note is now sounding.
+		// I just count the multiple note-on/note-off events and 
+		// do the note-off when the count is zero.
 		return;
 	}
-	chnlStatus[chnl].noteOn[key] = theTick;
-	chnlStatus[chnl].noteVol[key] = (vel / 127.0);// * chnlStatus[chnl].volume; <- applied during playback
-	chnlStatus[chnl].velocity[key] = vel;
-	chnlStatus[chnl].noteison[key] = 1;
+	cs->noteOn[key] = theTick;
+	cs->velocity[key] = vel;
 }
 
-void SMFFile::NoteOff(short chnl, short key, short vel)
+void SMFFile::NoteOff(short chnl, short key, short vel, short track)
 {
-	if (!chnlStatus[chnl].noteison[key])
-		return; // see comment above in NoteOn
+	SMFChnlStatus *cs = &chnlStatus[chnl];
+	short on = --cs->noteison[key];
+	if (on > 0)
+		return; // multiple note-on; see comment above
+	cs->noteison[key] = 0;
+	if (on < 0)
+		return; // note-off without note-on?
 
-	chnlStatus[chnl].noteison[key] = 0;
-
-	AmpValue vol = chnlStatus[chnl].noteVol[key];
-	chnlStatus[chnl].noteVol[key] = 0;
-
-	FrqValue start = chnlStatus[chnl].noteOn[key];
-	chnlStatus[chnl].noteOn[key] = 0;
+	FrqValue start = cs->noteOn[key];
+	cs->noteOn[key] = 0;
 
 	FrqValue dur = theTick - start;
 	if (dur < 1.0) // "it happens..."
@@ -346,20 +345,23 @@ void SMFFile::NoteOff(short chnl, short key, short vel)
 	evt->type = SEQEVT_START;
 	evt->evid = eventID++;
 	evt->im = pm->inc;
-	evt->track = 0; // TODO: optionally put each track on a different sequencer track
+	if (hdr.format == 2)
+		evt->track = track;
+	else
+		evt->track = 0;
 	evt->chnl = chnl;
 	evt->start = (bsInt32) start;
 	evt->duration = (bsInt32) dur;
 	evt->pitch = key - 12;
 	evt->frq = synthParams.GetFrequency(evt->pitch);
-	evt->vol = vol;
-	evt->noteonvel = chnlStatus[chnl].velocity[key];
+	evt->vol = cs->volume;
+	evt->noteonvel = cs->velocity[key];
 	if (pm->bnkParam > 0)
-		evt->SetParam(pm->bnkParam, chnlStatus[chnl].bank);
+		evt->SetParam(pm->bnkParam, cs->bank);
 	if (pm->preParam > 0)
-		evt->SetParam(pm->preParam, chnlStatus[chnl].patch);
+		evt->SetParam(pm->preParam, cs->patch);
 	seq->AddEvent(evt);
-	chnlStatus[chnl].count++;
+	cs->count++;
 	//printf("Add Note @%f for %f key %d on channel %d\n", start / synthParams.sampleRate, dur / synthParams.sampleRate, key, chnl);
 }
 
@@ -368,56 +370,65 @@ void SMFFile::SetTempo(long val)
 	srTicks = ((FrqValue)val * synthParams.sampleRate) / ppqn;
 }
 
-void SMFFile::ProgChange(short chnl, short val)
+void SMFFile::ProgChange(short chnl, short val, short track)
 {
 	chnlStatus[chnl].patch = val;
-	AddControlEvent(MIDI_PRGCHG, chnl, -1, val);
+	if (sbnk)
+		sbnk->GetInstr(chnlStatus[chnl].bank, chnlStatus[chnl].patch, 1);
+	AddControlEvent(MIDI_PRGCHG, chnl, -1, val, track);
 }
 
-void SMFFile::ControlChange(short chnl, short ctl, short val)
+void SMFFile::ControlChange(short chnl, short ctl, short val, short track)
 {
 	if (chnl < 0 || chnl > 15)
 		return;
+	SMFChnlStatus *cs = &chnlStatus[chnl];
 	switch (ctl)
 	{
-	case MIDI_CTRL_DATA:
-		if (chnlStatus[chnl].rpnmsb == 0)
-			chnlStatus[chnl].pbsemi = val;
-		break;
-	case MIDI_CTRL_DATA_LSB:
-		if (chnlStatus[chnl].rpnlsb == 0)
-			chnlStatus[chnl].pbcents = val;
-		break;
-	case MIDI_CTRL_RPNLSB:
-		chnlStatus[chnl].rpnlsb = val;
-		break;
-	case MIDI_CTRL_RPNMSB:
-		chnlStatus[chnl].rpnmsb = val;
-		break;
-	case MIDI_CTRL_VOL:
-		chnlStatus[chnl].volume = (AmpValue) val / 127.0;
-		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val);
+	case MIDI_CTRL_BANK_LSB:
+		if (gmbank)
+		{
+			if (chnl == 9) // channel 9 is 'magic' and is always the drum track
+				val = 128;
+			else
+				val = 0;
+			cs->bank = val;
+		}
+		else
+		{
+			cs->bank &= ~0x7f;
+			cs->bank |= val;
+		}
+		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;
 	case MIDI_CTRL_BANK:
-		if (chnl == 9) // channel 9 is 'magic' and is always the drum track
-			break;
-		chnlStatus[chnl].bank = val;
-		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val);
+		if (gmbank)
+			break; // for GM, bank is always 0 or 128, and the MSB is redundant
+		cs->bank &= ~0x3F8;
+		cs->bank |= (val << 7);
+		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;
+	case MIDI_CTRL_VOL:
+		cs->volume = (float) val / 127.0;
 	default:
-		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val);
+		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;
 	}
 }
 
-ControlEvent *SMFFile::AddControlEvent(short mmsg, short chnl, short ctl, short val)
+void SMFFile::AddControlEvent(short mmsg, short chnl, short ctl, short val, short track)
 {
-	chnlStatus[chnl].count++;
+	if (chnl >= 0 && chnl <= 15)
+		chnlStatus[chnl].count++;
 
 	ControlEvent *evt = new ControlEvent;
 	evt->type = SEQEVT_CONTROL;
 	evt->chnl = chnl;
-	evt->start = theTick;
+	if (hdr.format == 2)
+		evt->track = track;
+	else
+		evt->track = 0;
+	evt->start = (bsInt32) theTick;
 	evt->duration = 0;
 	evt->evid = eventID++;
 	evt->mmsg = mmsg;
@@ -426,23 +437,21 @@ ControlEvent *SMFFile::AddControlEvent(short mmsg, short chnl, short ctl, short 
 	seq->AddEvent(evt);
 	//printf("AddEvent @%f chnl=%d mmsg=%d ctrl=%d cval=%d\n", (FrqValue) evt->start / synthParams.sampleRate,
 	//	evt->mmsg, evt->ctrl, evt->cval);
-	return evt;
 }
 
-void SMFFile::KeyAfterTouch(short chnl, short key, short val)
+void SMFFile::KeyAfterTouch(short chnl, short key, short val, short track)
 {
 	// Not implemented
 }
 
-void SMFFile::ChannelAfterTouch(short chnl, short val)
+void SMFFile::ChannelAfterTouch(short chnl, short val, short track)
 {
-	AddControlEvent(MIDI_CHNAT, chnl, -1, val);
+	AddControlEvent(MIDI_CHNAT, chnl, -1, val, track);
 }
 
-void SMFFile::PitchBend(short chnl, short val)
+void SMFFile::PitchBend(short chnl, short val, short track)
 {
-	bsInt32 cents = (bsInt32) val * ((chnlStatus[chnl].pbsemi * 100) + chnlStatus[chnl].pbcents) / 8192;
-	AddControlEvent(MIDI_PWCHG, chnl, -1, cents);
+	AddControlEvent(MIDI_PWCHG, chnl, -1, val, track);
 }
 
 int SMFTrack::Generate()
@@ -458,25 +467,25 @@ int SMFTrack::Generate()
 		{
 		case MIDI_NOTEON:
 			if (evtLast->val2 != 0)
-				smf->NoteOn(chan, val1, val2);
+				smf->NoteOn(chan, val1, val2, trkNum);
 			else // heh, heh
 		case MIDI_NOTEOFF:
-			smf->NoteOff(chan, val1, val2);
+			smf->NoteOff(chan, val1, val2, trkNum);
 			break;
 		case MIDI_KEYAT:
-			smf->KeyAfterTouch(chan, val1, val2);
+			smf->KeyAfterTouch(chan, val1, val2, trkNum);
 			break;
 		case MIDI_CTLCHG:
-			smf->ControlChange(chan, val1, val2);
+			smf->ControlChange(chan, val1, val2, trkNum);
 			break;
 		case MIDI_PRGCHG:
-			smf->ProgChange(chan, val1);
+			smf->ProgChange(chan, val1, trkNum);
 			break;
 		case MIDI_CHNAT:
-			smf->ChannelAfterTouch(chan, val1);
+			smf->ChannelAfterTouch(chan, val1, trkNum);
 			break;
 		case MIDI_PWCHG:
-			smf->PitchBend(chan, val1);
+			smf->PitchBend(chan, val1, trkNum);
 			break;
 		case MIDI_META:
 			if (chan == MIDI_META_TMPO)
