@@ -31,8 +31,17 @@ public:
 	bsInt16 patch;
 	bsInt16 cc[128]; // "raw" values
 	int enable;
+	bsInt32 pbcents;
+	bsInt32 pbsemi;
+	bsInt16 rpnlsb;
+	bsInt16 rpnmsb;
 
 	MIDIChannelStatus()
+	{
+		Reset();
+	}
+
+	void Reset()
 	{
 		volume = 1.0;
 		aftertouch = 0.0;
@@ -41,6 +50,10 @@ public:
 		modwheel = 0.0;
 		bank = 0;
 		patch = 0;
+		rpnlsb = -1;
+		rpnmsb = -1;
+		pbsemi = 2; // should this be 1 or 2 by default?
+		pbcents = 0;
 		memset(cc, 0, sizeof(cc));
 		cc[MIDI_CTRL_VOL] = 127;
 		cc[MIDI_CTRL_VOL_LSB] = 127;
@@ -97,6 +110,12 @@ public:
 	{
 	}
 	
+	void Reset()
+	{
+		for (int ch = 0; ch < 16; ch++)
+			channel[ch].Reset();
+	}
+
 	void EnableChannel(int ch, int enable)
 	{
 		channel[ch].enable = enable;
@@ -119,6 +138,12 @@ public:
 		return channel[chnl].volume;
 	}
 
+	inline void SetVolume(int chnl, AmpValue vol)
+	{
+		channel[chnl].cc[7] = (bsInt16) (vol * 127.0);
+		channel[chnl].volume = vol;
+	}
+
 	inline AmpValue GetAftertouch(int chnl)
 	{
 		return channel[chnl].aftertouch;
@@ -129,14 +154,29 @@ public:
 		return channel[chnl].patch;
 	}
 
+	inline void SetPatch(int chnl, bsInt16 patch)
+	{
+		channel[chnl].patch = patch;
+	}
+
 	inline bsInt16 GetBank(int chnl)
 	{
 		return channel[chnl].bank;
 	}
 
+	inline void SetBank(int chnl, bsInt16 bank)
+	{
+		channel[chnl].bank = bank;
+	}
+
 	inline bsInt16 GetCC(int chnl, int ccn)
 	{
 		return channel[chnl].cc[ccn];
+	}
+
+	inline void SetCC(int chnl, bsInt16 ccn, bsInt16 val)
+	{
+		channel[chnl].ControlMessage(MIDI_CTLCHG, ccn, val);
 	}
 };
 

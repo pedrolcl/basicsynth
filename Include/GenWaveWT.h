@@ -389,8 +389,6 @@ public:
 	{
 		if (phase < 0)
 			phase += period;
-		if (phase > tableEnd)
-			return 0;
 		if (state == 0) // attack - segment prior to loopStart
 		{
 			if (phase >= loopStart)
@@ -403,6 +401,8 @@ public:
 			else if (phase < loopStart)
 				phase += loopLen;
 		}
+		if (phase >= tableEnd)
+			return 0;
 		// else (state == 2) // playing through to the end (release or no loop)
 
 		// no interpolation is faster...

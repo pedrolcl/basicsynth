@@ -29,6 +29,9 @@
 #include <Sequencer.h>
 #include <SequenceFile.h>
 
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
+
 //////////////////////////////////////////
 // These two files are not included by
 // default since they are used only for live 

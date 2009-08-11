@@ -119,6 +119,7 @@ public:
 	virtual void Output2(AmpValue vleft, AmpValue vright) = 0;
 
 	virtual long GetOOR()  = 0;
+	virtual void ClrOOR() = 0;
 
 };
 
@@ -269,6 +270,7 @@ public:
 
 	/// Get the number of out-of-range samples
 	virtual long GetOOR() { return sampleOOR; }
+	virtual void ClrOOR() { sampleOOR = 0; }
 };
 
 /// Wave output class for 16-bit PCM sample output.

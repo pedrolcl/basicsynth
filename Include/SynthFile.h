@@ -120,6 +120,10 @@ public:
 	/// @return the new file position
 	int FileRewind(int pos = 0);
 
+	/// Get the file position.
+	/// @return the current file position
+	int FilePosition();
+
 	/// Close the file. The SynthFile object can be reused after the file is closed
 	/// by calling FileOpen().
 	int FileClose();

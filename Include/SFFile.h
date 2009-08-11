@@ -13,7 +13,7 @@
 #define SFFILE_H
 
 #include <SFDefs.h>
-#include <SFSoundBank.h>
+#include <SoundBank.h>
 
 class SFFile
 {
@@ -45,10 +45,17 @@ public:
 	int nshdrs;
 	sfSample *shdr;
 
-	int loadMods;
+	int preload;
+	float atnScl;
 
 	FileReadBuf file;
-	SFSoundBank *sfbnk;
+	SoundBank *sfbnk;
+	short hdrVals[sfgEndOper];
+
+	short *samples;
+	bsUint32 sampleSize;
+	bsUint32 sampleFileOffs1;
+	bsUint32 sampleFileOffs2;
 
 	void ReadString(long len, bsString *str);
 	int ReadData(void **pdata, long cksz);
@@ -58,18 +65,29 @@ public:
 	int PDTAChunk(long cksz);
 	int ListChunk(sfChunk& chk);
 
-	void BuildInstrument(SFInstr *in, int n);
+	SBSample *CreateSample(sfSample *shdr, short id);
+
+	int  AddHeaderGen(short gen);
+	void BuildInstrument(SBInstr *in, int n);
 	void BuildPreset(int n);
 	void BuildSoundBank();
+
+	FrqValue SFEnvRate(short rt);
+	AmpValue SFEnvLevel(short amt);
+	AmpValue SFAttenuation(short amt);
+	FrqValue SFAbsCents(short amt);
+	FrqValue SFRelCents(short amt);
+	FrqValue SFTimeCents(short amt);
+	FrqValue SFKeyScaleTime(short key, short amt);
+	char *CopyName(char *dst, char *src);
+	void InitGenVals(short *genVals);
 
 public:
 	SFFile();
 	~SFFile();
 
-	SFSoundBank *LoadSoundBank(const char *fname, int mods = 0);
+	static int IsSF2File(const char *fname);
+	SoundBank *LoadSoundBank(const char *fname, int pre = 1, float scl = 0.375);
 };
 
-extern void InitGenVals(short *genVals);
-
 #endif
-

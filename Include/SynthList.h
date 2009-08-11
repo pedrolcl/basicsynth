@@ -14,9 +14,9 @@
 #define _SYNTHLIST_
 
 /////////////////////////////////////////////////////
-/// Linked list template. A variety of BasicSynth
-/// classes derived from this base. It is used wherever
-/// the library code needs to store things in a 
+/// Linked list item template. 
+/// A variety of BasicSynth classes derive from this base.
+/// It is used wherever the library code needs to store things in a 
 /// dynamic list.
 /// @note This is NOT a general purpose linked list class.
 /// This is low-overhead, fast and simple, which is what 
@@ -76,5 +76,61 @@ public:
 		return pold;
 	}
 };
+
+/// Enumerated list of SynthList items.
+/// T must be derived from SynthList<> and must
+/// implement a constructor without arguments.
+template <class T> class SynthEnumList
+{
+public:
+	T head;
+	T tail;
+
+	SynthEnumList()
+	{
+		head.Insert(&tail);
+	}
+
+	~SynthEnumList()
+	{
+		T *itm;
+		while ((itm = head.next) != &tail)
+		{
+			itm->Remove();
+			delete itm;
+		}
+	}
+
+	/// Enumerate the list.
+	/// Pass a null pointer to get the first
+	/// item in the list. Thereafter pass the
+	/// previous item:
+	/// @code
+	/// T *itm = 0;
+	/// while ((itm = list.EnumItem(itm)) != 0)
+	///     ;
+	/// @endcode
+	/// @returns pointer to item or null
+	T *EnumItem(T *itm)
+	{
+		if (itm == 0)
+			itm = &head;
+		itm = itm->next;
+		if (itm == &tail)
+			return 0;
+		return itm;
+	}
+
+	/// Add a new item to the linked list.
+	/// @returns pointer to new item
+	T *AddItem()
+	{
+		T *itm = new T;
+		if (itm)
+			tail.InsertBefore(itm);
+		return itm;
+	}
+};
+
 //@}
 #endif

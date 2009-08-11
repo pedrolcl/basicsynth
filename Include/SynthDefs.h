@@ -100,6 +100,8 @@ public:
 	bsInt32  sqNdx;
 	/// wave file path (semi-colon separated)
 	bsString wvPath;
+	/// cB value table
+	AmpValue cbVals[960];
 
 	/// Constructor. The constructor for \p SynthConfig initializes
 	/// member variables to default values by calling \p Init().
@@ -127,8 +129,8 @@ public:
 		frq = -1200;
 		for (i = 0; i <= 2400; i++)
 		{
-			cents[i] = pow(2.0, frq/1200.0);
-			frq += 1;
+			cents[i] = (FrqValue) pow(2.0, frq/1200.0);
+			frq += 1.0;
 		}
 
 		// lookup tables for non-linear panning
@@ -144,6 +146,13 @@ public:
 			sinquad[i] = sin(phs) * scl;
 			phs += phsInc;
 			sq += sqInc;
+		}
+
+		double lvl = 0;
+		for (i = 0; i < 960; i++)
+		{
+			cbVals[i] = (AmpValue) pow(10.0, (double) lvl / -200.0);
+			lvl += 1.0;
 		}
 	}
 
@@ -193,6 +202,16 @@ public:
 		if (c < -1200 || c > 1200)
 			return pow(2.0, (double) c / 1200);
 		return cents[c + 1200];
+	}
+
+	/// Convert cB (centibel) of attenuation into amplitude level.
+	AmpValue AttenCB(int cb)
+	{
+		if (cb <= 0)
+			return 1.0;
+		if (cb >= 960)
+			return 0.0;
+		return cbVals[cb];
 	}
 
 	/// Function to locate a file on the wave file path (synthParams.wvPath).

@@ -14,6 +14,7 @@
 #define _SMFFILE_H_
 
 #include <MIDIDefs.h>
+#include <SoundBank.h>
 
 /// A MIDI event.
 /// The MIDI event holds information needed
@@ -165,10 +166,6 @@ public:
 	AmpValue volume;
 	bsInt32 bank;
 	bsInt32 patch;
-	bsInt32 pbcents;
-	bsInt32 pbsemi;
-	bsInt16 rpnlsb;
-	bsInt16 rpnmsb;
 	bsInt32 cc[128];
 	bsInt32 count;
 
@@ -186,10 +183,6 @@ public:
 			noteOn[i] = 0.0;
 			cc[i] = 0;
 		}
-		rpnlsb = -1;
-		rpnmsb = -1;
-		pbsemi = 1;
-		pbcents = 0;
 		count = 0;
 		bank = 0;
 		patch = 0;
@@ -233,6 +226,7 @@ protected:
 	SMFInstrMap *instrMap;
 	bsInt32 eventID;
 	Sequencer *seq;
+	SoundBank *sbnk;
 	int gmbank;
 
 	/// Process META messages.
@@ -313,6 +307,7 @@ public:
 		eventID = 1;
 		seq = 0;
 		gmbank = 1;
+		sbnk = 0;
 		chnlStatus[9].bank = 128;
 	}
 
@@ -385,7 +380,7 @@ public:
 	int LoadFile(const char *file);
 
 	/// Generate sequencer events from the SMF file.
-	int GenerateSeq(Sequencer *seq, SMFInstrMap *map);
+	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0);
 
 	/// Determine how many notes are on each channel.
 	/// This is only valid after calling GenerateSeq.

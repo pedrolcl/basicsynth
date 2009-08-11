@@ -3,7 +3,7 @@
 //
 /// @file SFDefs.h SoundFont(R) file "generator" types
 //
-// These definitions are common between SFFile and SFSoundBank
+// These definitions are common between SFFile and SoundBank
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -91,7 +91,11 @@
 
 /////////////////// BEGIN RIFF STRUCTURES //////////////////////////
 #ifndef FOURCC
+#if BS_BIG_ENDIAN
+#define FOURCC(a,b,c,d) ((a<<24)|(b<<16)|(c<<8)|d)
+#else
 #define FOURCC(a,b,c,d) (a|(b<<8)|(c<<16)|(d<<24))
+#endif
 #endif
 
 // chunk header ids found in the SF2 file
