@@ -14,80 +14,211 @@
 #ifndef SFGEN_H
 #define SFGEN_H
 
-class GenWaveSF : public GenWaveWTLoop
+/// GenWaveSF classes handle four distinct scenarios:
+/// 1) A single sample with mono sample data
+/// 2) A single sample with stereo sample data
+/// 3) Two linked and phase-locked zones, each with separate sample
+/// 3) Two unlinked zones that are not phase locked.
+class GenWaveSF
 {
+public:
+	virtual void InitSF(FrqValue f, SBZone *zone, int skipAttack) = 0;
+	virtual void UpdateFrequency(FrqValue f) = 0;
+	virtual void Tick(AmpValue& lft, AmpValue& rgt) = 0;
+	virtual void Release() = 0;
+	virtual int  IsFinished() = 0;
+};
+
+class GenWaveSF1 : public GenWaveSF
+{
+private:
+	GenWaveWTLoop osc;
+
 public:
 	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
 	{
-		//InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
-		//           zone->loopStart, zone->loopEnd, 
-		//           zone->loopMode, zone->sample);
-		frq = f;
-		phase = 0;
-		if (zone && zone->sample)
+		if (zone)
 		{
-			recFrq = zone->recFreq;
-			//period = (PhsAccum) zone->rate / recFrq;
-			period = (PhsAccum) zone->recPeriod;
-			rateRatio = zone->rate / synthParams.sampleRate;
-			piMult = rateRatio / recFrq;
-			tableEnd = zone->tableEnd;
-			loopStart = zone->loopStart;
-			loopEnd = zone->loopEnd;
-			loopLen = loopEnd - loopStart;
-			wavetable = zone->sample;
-			loopMode = zone->mode;
-			if (loopMode == 0) // no looping
-				state = 2;
+			osc.InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
+		           zone->loopStart, zone->loopEnd, 
+		           zone->mode, zone->sample->sample);
+			if (skipAttack)
+				osc.Reset(zone->loopStart);
+		}
+		else
+		{
+			osc.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wtSet.GetWavetable(WT_SIN));
+		}
+	}
+
+	/// Combination of SetFrequency(f) + Reset(-1)
+	void UpdateFrequency(FrqValue f)
+	{
+		osc.UpdateFrequency(f);
+	}
+
+	void Tick(AmpValue& lft, AmpValue& rgt)
+	{
+		lft = osc.Gen() * 0.5;
+		rgt = lft;
+	}
+
+	void Release()
+	{
+		osc.Release();
+	}
+
+	int IsFinished()
+	{
+		return osc.IsFinished();
+	}
+};
+
+class GenWaveSF2  : public GenWaveSF
+{
+private:
+	GenWaveWTLoop2 osc;
+
+public:
+	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
+	{
+		if (zone)
+		{
+			AmpValue *wtr;
+			AmpValue *wtl;
+			SBSample *samp = zone->sample;
+			if (samp->channels == 2)
+			{
+				wtl = &samp->sample[zone->tableStart];
+				wtr = &samp->linked[zone->tableStart];
+			}
+			else if (samp->linkSamp)
+			{
+				wtr = &samp->sample[zone->tableStart];
+				samp = samp->linkSamp;
+				wtl = &samp->sample[zone->tableStart];
+				if (zone->chan == 1) // sample is the left channel
+				{
+					AmpValue *tmp = wtr;
+					wtr = wtl;
+					wtl = tmp;
+				}
+			}
+			osc.InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
+		           zone->loopStart, zone->loopEnd, zone->mode, wtl);
+			osc.SetWavetable2(wtr);
+			if (skipAttack)
+				osc.Reset(zone->loopStart);
+		}
+		else
+		{
+			AmpValue *wt = wtSet.GetWavetable(WT_SIN);
+			osc.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wt);
+			osc.SetWavetable2(wt);
+		}
+	}
+
+	/// Combination of SetFrequency(f) + Reset(-1)
+	void UpdateFrequency(FrqValue f)
+	{
+		osc.UpdateFrequency(f);
+	}
+
+	void Tick(AmpValue& lft, AmpValue& rgt)
+	{
+		osc.Gen2(lft, rgt);
+	}
+
+	void Release()
+	{
+		osc.Release();
+	}
+
+	int IsFinished()
+	{
+		return osc.IsFinished();
+	}
+};
+
+
+class GenWaveSF3 : public GenWaveSF
+{
+private:
+	GenWaveWTLoop oscl;
+	GenWaveWTLoop oscr;
+
+public:
+	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
+	{
+		if (zone)
+		{
+			SBZone *zone1;
+			SBZone *zone2;
+			if (zone->chan == 1)
+			{
+				zone2 = zone;
+				zone1 = zone->linkZone;
+				if (zone1 == 0)
+					zone1 = zone2;
+			}
 			else
 			{
-				state = 0;
-				if (skipAttack)
-					phase = loopStart;
+				zone1 = zone;
+				zone2 = zone->linkZone;
+				if (zone2 == 0)
+					zone2 = zone1;
+			}
+			oscr.InitWTLoop(f, zone1->recFreq, zone1->rate, zone1->tableEnd, 
+		           zone1->loopStart, zone1->loopEnd, zone1->mode,
+				   &zone1->sample->sample[zone1->tableStart]);
+			oscl.InitWTLoop(f, zone2->recFreq, zone2->rate, zone2->tableEnd, 
+		           zone2->loopStart, zone2->loopEnd, zone2->mode, 
+				   &zone2->sample->sample[zone2->tableStart]);
+			if (skipAttack)
+			{
+				oscl.Reset(zone1->loopStart);
+				oscr.Reset(zone2->loopStart);
 			}
 		}
 		else
 		{
-			wavetable = wtSet.wavSin;
-			period = synthParams.ftableLength;
-			loopMode = 0;
-			state = 2;
-			tableEnd = 0;
+			AmpValue *wt = wtSet.GetWavetable(WT_SIN);
+			oscl.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wt);
+			oscr.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wt);
 		}
-		phsIncr = f * piMult;
 	}
 
 	/// Combination of SetFrequency(f) + Reset(-1)
-	inline void UpdateFrequency(FrqValue f)
+	void UpdateFrequency(FrqValue f)
 	{
-		phsIncr = f * piMult;
+		oscl.UpdateFrequency(f);
+		oscr.UpdateFrequency(f);
 	}
 
-	void Copy(GenWaveSF *o)
+	void Tick(AmpValue& lft, AmpValue& rgt)
 	{
-		frq = o->frq;
-		recFrq = o->recFrq;
-		period = o->period;
-		rateRatio = o->rateRatio;
-		piMult = o->piMult;
-		tableEnd = o->tableEnd;
-		loopStart = o->loopStart;
-		loopEnd = o->loopEnd;
-		loopLen = o->loopLen;
-		wavetable = o->wavetable;
-		loopMode = o->loopMode;
-		state = o->state;
-		phase = o->phase;
-		phsIncr = o->phsIncr;
+		lft = oscl.Gen();
+		rgt = oscr.Gen();
 	}
+
+	void Release()
+	{
+		oscl.Release();
+		oscr.Release();
+	}
+
+	int IsFinished()
+	{
+		return oscl.IsFinished() && oscr.IsFinished();
+	}
+
 };
 
 /// Envelop generator for sound founts.
 /// This EG differs from the typical BasicSynth EG in the following ways:
-/// 1. Start, peak and end levels are fixed at 0, 1, 0 respectively
+/// 1. Start, peak and end levels are normalized to 0, 1, 0.
 /// 2. Attack, decay and relase are constant-rate calculations
-/// 3. Levels values follow an exponential convex curve (n^2)
-/// 4. Initialization is from values in a SBZone object.
+/// 3. Attack level follows an exponential convex curve (n^2)
 class EnvGenSF : public GenUnit
 {
 private:
@@ -126,17 +257,20 @@ public:
 		}
 	}
 
-	void InitEnv(SBInstr *in, SBEnv *eg, int key = 60, int vel = 127)
+	inline AmpValue GetCurLevel() { return curLevel; }
+	inline void SetCurLevel(AmpValue n) { curLevel = n; }
+
+	void InitEnv(SBEnv *eg, int key = 60, int vel = 127)
 	{
 		if (eg)
 		{
-			FrqValue km = (FrqValue) (60 - key);
-			SetDelay(eg->delay);
-			SetAttack(eg->attack * in->velAtkRate[vel]);
-			SetHold(eg->hold * in->keyHoldRate[key]);
-			SetDecay(eg->decay * in->keyDecRate[key]);
-			SetRelease(eg->release);
 			SetSustain(eg->sustain);
+			FrqValue km = (FrqValue) (60 - key);
+			SetDelay(SoundBank::EnvRate(eg->delay));
+			SetAttack(SoundBank::EnvRate(eg->attack + (((AmpValue) vel / 127.0) * eg->velAttack)));
+			SetHold(SoundBank::EnvRate(eg->hold + (km * eg->keyHold)));
+			SetDecay(SoundBank::EnvRate(eg->decay + (km * eg->keyDecay)));
+			SetRelease(SoundBank::EnvRate(eg->release));
 		}
 		else
 		{
@@ -190,7 +324,7 @@ public:
 
 	void SetSustain(AmpValue a)
 	{
-		if (a >= 1.0)
+		if (a > 1.0)
 			susLevel = 1.0;
 		else
 			susLevel = a;
@@ -221,41 +355,39 @@ public:
 		switch (segNdx)
 		{
 		case 0: // delay
-			if (delayCount > 1)
-			{
-				delayCount--;
+			if (--delayCount > 0)
 				return 0.0;
-			}
 			segNdx++;
 		case 1:
 			curLevel += atkIncr;
-			if (curLevel < 1.0)
-				return curLevel * curLevel;
-			segNdx++;
-			curLevel = 1.0;
-		case 2:
-			if (holdCount > 1)
+			if (curLevel >= 1.0)
 			{
-				holdCount--;
-				return 1.0;
+				segNdx++;
+				return curLevel = 1.0;
 			}
+			return curLevel;// * curLevel;
+		case 2:
+			if (--holdCount > 0)
+				return 1.0;
 			segNdx++;
 		case 3:
 			curLevel -= decIncr;
 			if (curLevel > susLevel)
-				return curLevel * curLevel;
+				return curLevel;// * curLevel;
 			segNdx++;
 			curLevel = susLevel;
 		case 4:
 			return susLevel;
 		case 5:
 			curLevel -= relIncr;
-			if (curLevel > 0)
-				return curLevel * curLevel;
+			if (curLevel > 0.00001)
+				return curLevel;// * curLevel;
 			segNdx++;
-			curLevel = 0;
-		case 6:
-			return 0.0;
+			curLevel = 0.0;
+			break;
+		//case 6:
+		//default:
+		//	return 0.0;
 		}
 		return 0.0;
 	}

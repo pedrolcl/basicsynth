@@ -71,20 +71,20 @@ SFPlayerInstr::SFPlayerInstr()
 	fmCM = 0;
 	fmIM = 0.0;
 
-	zonel = 0;
-	zoner = 0;
-	zonel2 = 0;
-	zoner2 = 0;
+	osc1 = 0;
+	osc2 = 0;
+	zone = 0;
+	zone2 = 0;
 	im = 0;
 }
 
 /// Constructor - with template
 SFPlayerInstr::SFPlayerInstr(SFPlayerInstr *tp)
 {
-	zonel = 0;
-	zoner = 0;
-	zonel2 = 0;
-	zoner2 = 0;
+	osc1 = 0;
+	osc2 = 0;
+	zone = 0;
+	zone2 = 0;
 	im = 0;
 	xfade = 0;
 	mono = 1;
@@ -159,10 +159,14 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 
 	SetParams(params);
 
-	zoner = zoner2 = 0;
-	zonel = zonel2 = 0;
+	zone = 0;
 	xfade = 0;
 	mono = monoSet;
+
+	if (osc1)
+		delete osc1;
+	if (osc2)
+		delete osc2;
 
 	FrqValue oscFrq = frq;
 	if (preset == 0)
@@ -170,42 +174,34 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 	if (preset)
 	{
 		int sfpit = pitch+12; // shift from BasicSynth to MIDI range
-		zoner = preset->GetZone(sfpit, 64, 0);
-		if (zoner)
+		zone = preset->GetZone(sfpit, 64, 0);
+		if (zone)
 		{
-			// FIXME
-			if (zoner->sample == 0)
+			if (zone->sample->linkSamp || zone->sample->channels == 2)
+				osc1 = new GenWaveSF2;
+			else if (zone->linkZone)
+				osc1 = new GenWaveSF3;
+			else
+				osc1 = new GenWaveSF1;
+
+			osc1->InitSF(oscFrq, zone, 0);
+			if (sfEnv)
 			{
-				SBSample *samp = sndbnk->GetSample(zoner->sampleNdx);
-				zoner->sample = samp->sample;
+				volEnv.SetAtkRt(SoundBank::EnvRate(zone->volEg.attack));
+				volEnv.SetAtkLvl(1.0);
+				volEnv.SetDecRt(SoundBank::EnvRate(zone->volEg.decay));
+				volEnv.SetSusLvl(zone->volEg.sustain);
+				volEnv.SetRelRt(SoundBank::EnvRate(zone->volEg.release));
 			}
-			oscr.InitSF(oscFrq, zoner);
-			panr.Set(panSqr, zoner->pan);
 		}
-		zonel = preset->GetZone(sfpit, 64, 1);
-		if (zonel)
-		{
-			if (zonel->sample == 0)
-			{
-				SBSample *samp = sndbnk->GetSample(zonel->sampleNdx);
-				zonel->sample = samp->sample;
-			}
-			oscl.InitSF(oscFrq, zonel);
-			panl.Set(panSqr, zonel->pan);
-		}
-		if (!zonel && zoner->pan == 0.0)
-			mono = 1;
-		if (sfEnv && zoner)
-		{
-			volEnv.SetAtkRt(zoner->volEg.attack);
-			volEnv.SetAtkLvl(1.0);
-			volEnv.SetDecRt(zoner->volEg.decay);
-			volEnv.SetSusLvl(zoner->volEg.sustain);
-			volEnv.SetRelRt(zoner->volEg.release);
-		}
-		else
-			volEnv.SetEnvDef(&volSet);
 	}
+	if (!osc1)
+	{
+		osc1 = new GenWaveSF1;
+		osc1->InitSF(oscFrq, 0, 0);
+	}
+	if (!preset || !zone || !sfEnv)
+		volEnv.SetEnvDef(&volSet);
 	volEnv.Reset(0);
 	if (modFrq & 4)
 	{
@@ -237,27 +233,25 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 	{
 		pitch = params->pitch;
 		int sfpit = pitch+12;
-		zoner2 = preset->GetZone(sfpit, 65, 0);
-		if (zoner2 != zoner)
+		zone2 = preset->GetZone(sfpit, 65, 0);
+		if (zone2 != zone)
 		{
-			// begin cross-fade to new sample.
-			oscr2.InitSF(params->frq, zoner2, 1);
-			if (zonel)
-			{
-				zonel2 = preset->GetZone(sfpit, 65, 1);
-				oscl2.InitSF(params->frq, zonel2, 1);
-			}
-			// 50ms cross fade
+			if (zone2->sample->linkSamp || zone2->sample->channels == 2)
+				osc2 = new GenWaveSF2;
+			else if (zone2->linkZone)
+				osc2 = new GenWaveSF3;
+			else
+				osc2 = new GenWaveSF1;
+
+			osc2->InitSF(params->frq, zone, 1);
+			
+			// begin 50ms cross-fade to new sample.
 			xfade = synthParams.sampleRate / 10;
 			fadeEG.InitSegTick(xfade, 0.0, 1.0);
 		}
 		else
-		{
-			zoner2 = 0;
-			zonel2 = 0;
-			oscr.UpdateFrequency(params->frq);
-			oscl.UpdateFrequency(params->frq);
-		}
+			osc1->UpdateFrequency(params->frq);
+
 		frq = params->frq;
 		if (modFrq & 1)
 			vibLFO.SetSigFrq(frq);
@@ -275,8 +269,7 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 
 void SFPlayerInstr::Stop()
 {
-	oscr.Release();
-	oscl.Release();
+	osc1->Release();
 	volEnv.Release();
 	modEnv.Release();
 }
@@ -321,51 +314,31 @@ void SFPlayerInstr::Tick()
 	AmpValue oscValR = 0.0;
 	AmpValue oscValL = 0.0;
 	AmpValue out = 0.0;
-	if (zoner)
-	{
-		if (modFrq)
-			oscr.UpdateFrequency(newFrq);
-		oscValR = oscr.Gen();
-		out = oscValR;
-	}
-	if (zonel)
-	{
-		if (modFrq)
-			oscl.UpdateFrequency(newFrq);
-		oscValL = oscl.Gen();
-		out = (out + oscValL) * 0.5;
-	}
+	if (modFrq)
+		osc1->UpdateFrequency(newFrq);
+	osc1->Tick(oscValL, oscValR);
 	if (xfade > 0)
 	{
 		AmpValue amp1 = fadeEG.Gen();
 		AmpValue amp0 = 1.0 - amp1;
-		if (zoner2)
-		{
-			oscValR = (amp0 * oscValR) + (amp1 * oscr2.Gen());
-			out = oscValR;
-		}
-		if (zonel2)
-		{
-			oscValL = (amp0 * oscValL) + (amp1 * oscl2.Gen());
-			out = (out + oscValL) * 0.5;
-		}
+		AmpValue oscValR2;
+		AmpValue oscValL2;
+		osc2->Tick(oscValL2, oscValR2);
+		oscValR = (amp0 * oscValR) + (amp1 * oscValR2);
+		oscValL = (amp0 * oscValL) + (amp1 * oscValL2);
 		if (--xfade == 0)
 		{
-			if ((zoner = zoner2) != 0)
-			{
-				oscr.Copy(&oscr2);
-				zoner2 = 0;
-			}
-			if ((zonel = zonel2) != 0)
-			{
-				oscl.Copy(&oscl2);
-				zonel2 = 0;
-			}
+			delete osc1;
+			osc1 = osc2;
+			delete osc2;
+			osc2 = 0;
+			zone = zone2;
+			zone2 = 0;
 		}
 	}
 	if (monoSet || mono)
 	{
-		im->Output(chnl, out * ampVal);
+		im->Output(chnl, (oscValR + oscValL) * 0.5 * ampVal);
 	}
 	else
 	{
@@ -383,7 +356,7 @@ void SFPlayerInstr::Tick()
 
 int  SFPlayerInstr::IsFinished()
 {
-	return volEnv.IsFinished() || (zoner && oscr.IsFinished());
+	return volEnv.IsFinished() || (osc1->IsFinished());
 }
 
 void SFPlayerInstr::Destroy()

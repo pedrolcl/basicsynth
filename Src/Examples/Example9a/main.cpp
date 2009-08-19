@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <math.h>
 #include <BasicSynth.h>
 #include <Instruments.h>
@@ -26,12 +27,99 @@ void useage()
 	exit(1);
 }
 
+time_t clkTime = 0;
 long genTime = 0;
 void GenCallback(bsInt32 count, Opaque arg)
 {
 	fprintf(stderr, "Time %02d:%02d\r", (genTime / 60), (genTime %60));
 	genTime++;
 }
+
+// Specialized instrument manager that bypasses the mixer.
+// We can do this because the volume levels are controlled
+// by the MIDI CC# 7 on a per-channel basis. The mixer inputs
+// are therefore, redunant.
+class GMInstrManager : public InstrManager
+{
+protected:
+	AmpValue outLft;
+	AmpValue outRgt;
+	AmpValue masterVol;
+//	GMManager *gm;
+
+public:
+	GMInstrManager()
+	{
+		masterVol = 1.0;
+//		gm = new GMManager;
+	}
+
+	~GMInstrManager()
+	{
+//		delete gm;
+	}
+
+	void SetVolume(AmpValue v)
+	{
+		masterVol = v;
+	}
+
+/*	virtual Instrument *Allocate(bsInt16 inum)
+	{
+		return GMManager::InstrFactory(this, gm);
+	}
+
+	virtual Instrument *Allocate(InstrConfig *in)
+	{
+		return GMManager::InstrFactory(this, gm);
+	}
+
+	virtual void Deallocate(Instrument *ip)
+	{
+		ip->Destroy();
+	}
+
+	virtual SeqEvent *ManufEvent(bsInt16 inum)
+	{
+		return GMManager::EventFactory(gm);
+	}
+
+	virtual SeqEvent *ManufEvent(InstrConfig *in)
+	{
+		return GMManager::EventFactory(gm);
+	}
+*/
+	/// Start is called by the sequencer when the sequence starts.
+	virtual void Start()
+	{
+		outLft = 0;
+		outRgt = 0;
+	}
+	
+	virtual void Tick()
+	{
+		wvf->Output2(masterVol * outLft, masterVol * outRgt);
+		outLft = 0;
+		outRgt = 0;
+	}
+
+	virtual void FxSend(int unit, AmpValue val)
+	{
+		// TODO: send to reverb/chorus
+	}
+
+	virtual void Output(int ch, AmpValue val)
+	{
+		outLft += val;
+		outRgt += val;
+	}
+
+	virtual void Output2(int ch, AmpValue lft, AmpValue rgt)
+	{
+		outLft += lft;
+		outRgt += rgt;
+	}
+};
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +134,8 @@ int main(int argc, char *argv[])
 	WaveFile wvf;
 	Sequencer seq;
 	Mixer mix;
-	InstrManager inmgr;
+	//InstrManager inmgr;
+	GMInstrManager inmgr;
 	SFFile sf;
 	DLSFile dls;
 	SMFFile smf;
@@ -137,23 +226,31 @@ int main(int argc, char *argv[])
 
 	fprintf(stderr, "%s%s%s%s\n", smf.SeqName(), smf.Copyright(), smf.TimeSignature(), smf.KeySignature());
 
+	inmgr.SetVolume(vol);
+
 	// Initialize the mixer
 	mix.MasterVolume(vol, vol);
 	mix.SetChannels(nchnls);
 	for (i = 0; i < nchnls; i++)
 	{
-		mix.ChannelVolume(i, 0.25);
+		mix.ChannelVolume(i, 1.0);
 		mix.ChannelOn(i, chnls[i] > 0);
 		//printf("%d events on channel %d\n", chnls[i], i);
 	}
 
-	wvf.OpenWaveFile(wavFile);
+	wvf.OpenWaveFile(wavFile, 2);
 	inmgr.Init(&mix, &wvf);
 	seq.SetController(&mc.seqControl);
 	seq.SetCB(GenCallback, synthParams.isampleRate, 0);
 	genTime = 0;
+	time(&clkTime);
 	seq.Sequence(inmgr, 0, 0);
 	wvf.CloseWaveFile();
+
+	long clkTimeDiff = (long) (time(0) - clkTime);
+	printf("\n%02d:%02d in %02ld:%02ld %d%%\n", 
+		genTime / 60, genTime % 60, clkTimeDiff / 60, clkTimeDiff % 60,
+		(clkTimeDiff * 100) / genTime);
 
 	return 0;
 }

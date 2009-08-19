@@ -361,6 +361,16 @@ SBSample *SFFile::CreateSample(sfSample *shdr, short id)
 	if (preload)
 		sfbnk->LoadSample(samp, file);
 
+	if (shdr->wSampleLink)
+	{
+		samp->linkSamp = sfbnk->GetSample(shdr->wSampleLink, 0);
+		if (samp->linkSamp)
+		{
+			samp->linkSamp->linkSamp = samp;
+			if (preload)
+				sfbnk->LoadSample(samp->linkSamp, file);
+		}
+	}
 	return samp;
 }
 
@@ -395,12 +405,66 @@ int SFFile::AddHeaderGen(short gen)
 	case sfgReserved1:
 	case sfgReserved2:
 	case sfgReserved3:
+		// not applicable at PHDR level
 		return 0;
 	}
 	return 1;
 }
 
-void SFFile::BuildInstrument(SBInstr *in, int n)
+void SFFile::ApplyModulator(SBZone *zone, sfModList *mp)
+{
+	if (mp->sfModSrcOper & 0x80) // MIDI CC#
+	{
+		switch(mp->sfModSrcOper & 0x7f)
+		{
+		case 1:   // Mod-wheel
+			if (mp->sfModDestOper == sfgModLfoToVolume)
+				zone->mwaScale = (float) mp->modAmount;
+			if (mp->sfModDestOper == sfgVibLfoToPitch)
+				zone->mwfScale = (float) mp->modAmount;
+			break;
+		case 2:   // Breath controller
+			if (mp->sfModDestOper == sfgInitialAttenuation)
+				zone->bthaScale = (float) mp->modAmount;
+			//if (mp->sfModDestOper == ??)
+			//	zone->bthfScale = mp->modAmount;
+			break;
+		case 7:   // volume
+			//if (mp->sfModDestOper == sfgInitialAttenuation)
+			//	zone->volScale = (float) mp->modAmount;
+			break;
+		case 11:  // expression
+			if (mp->sfModDestOper == sfgInitialAttenuation)
+				zone->expaScale = (float) mp->modAmount;
+			//if (mp->sfModDestOper == ??)
+			//	zone->expfScale = mp->modAmount;
+			break;
+		}
+	}
+	else
+	{
+		switch( mp->sfModSrcOper & 0x7f)
+		{
+		case 0:   // No Controller
+			break;
+		case 2:   // Note-on velocity
+			if (mp->sfModDestOper == sfgInitialAttenuation)
+				zone->velScale = (float) mp->modAmount;
+			break;
+		case 3:   // Note-on key
+			break;
+		case 10:  // Poly Pressure
+		case 13:  // Channel Pressure
+			break;
+		case 14:  // Pitch Wheel
+			break;
+		case 16:  // Pitch Wheel Sensitivity
+			break;
+		}
+	}
+}
+
+void SFFile::BuildInstrument(SBInstr *in, int n, int pbagNdx)
 {
 	if (n < 0 || n >= ninsts)
 		return;
@@ -411,7 +475,6 @@ void SFFile::BuildInstrument(SBInstr *in, int n)
 	sfSample *sh;
 	sfGenList *ig;
 
-	double modval;
 	short genVals[sfgEndOper];
 	short globVals[sfgEndOper];
 	InitGenVals(globVals);
@@ -465,14 +528,10 @@ void SFFile::BuildInstrument(SBInstr *in, int n)
 				zone->recFreq *= synthParams.GetCentsMult(-zone->cents);
 			zone->recPeriod = (bsInt32) (zone->rate / zone->recFreq);
 			zone->sampleLen = sh->dwEnd - sh->dwStart;
-			zone->volAtten = SFAttenuation(-genVals[sfgInitialAttenuation]);
-			zone->pan = (FrqValue) genVals[sfgPan] / 500.0;
-			if (zone->pan < -1.0)
-				zone->pan = -1.0;
-			else if (zone->pan > 1.0)
-				zone->pan = 1.0;
 			if (sh->sfSampleType == 4)
 				zone->chan = 1;
+			else if (sh->sfSampleType == 2)
+				zone->chan = 0;
 			else if (sh->sfSampleType == 8)
 			{
 				// hmmm... "not fully defined in SF2" (I'm guessing here...)
@@ -481,10 +540,9 @@ void SFFile::BuildInstrument(SBInstr *in, int n)
 					zone->chan = 1;
 				else
 					zone->chan = 0;
-
 			}
-			else //if (sh->sfSampleType == 1 || sh->sfSampleType == 2)
-				zone->chan = 0; // right channel or mono sample
+			else
+				zone->chan = 0; // mono sample
 			// HACK around non-standard stuff...
 			SBZone *z2 = 0;
 			while ((z2 = in->EnumZones(z2)) != 0)
@@ -510,6 +568,8 @@ void SFFile::BuildInstrument(SBInstr *in, int n)
 						z2->chan = 0;
 						zone->chan = 1;
 					}
+					zone->linkZone = z2;
+					z2->linkZone = zone;
 					break;
 				}
 			}
@@ -530,52 +590,60 @@ void SFFile::BuildInstrument(SBInstr *in, int n)
 						  + zone->tableStart;
 
 			samp = CreateSample(sh, genVals[sfgSampleID]);
-			if (samp->sample)
-				zone->sample = &samp->sample[zone->tableStart];
-			else
-				zone->sample = 0;
+			zone->sample = samp;
 			zone->sampleNdx = samp->index;
+			zone->volAtten = SFAttenuation(genVals[sfgInitialAttenuation]);
+			zone->pan = (FrqValue) genVals[sfgPan] / 500.0;
+			if (zone->pan < -1.0)
+				zone->pan = -1.0;
+			else if (zone->pan > 1.0)
+				zone->pan = 1.0;
 			zone->volEg.delay = SFEnvRate(genVals[sfgDelayVolEnv]);
 			zone->volEg.attack = SFEnvRate(genVals[sfgAttackVolEnv]);
 			zone->volEg.hold = SFEnvRate(genVals[sfgHoldVolEnv]);
 			zone->volEg.decay = SFEnvRate(genVals[sfgDecayVolEnv]);
 			zone->volEg.release = SFEnvRate(genVals[sfgReleaseVolEnv]);
-			zone->volEg.sustain = SFEnvLevel(-genVals[sfgSustainVolEnv]);
+			zone->volEg.sustain = SFEnvLevel(genVals[sfgSustainVolEnv]);
+			zone->volEg.keyDecay = (FrqValue) genVals[sfgKeynumToVolEnvDecay];
+			zone->volEg.keyHold = (FrqValue) genVals[sfgKeynumToVolEnvHold];
+
 			zone->modEg.delay = SFEnvRate(genVals[sfgDelayModEnv]);
 			zone->modEg.attack = SFEnvRate(genVals[sfgAttackModEnv]);
 			zone->modEg.hold = SFEnvRate(genVals[sfgHoldModEnv]);
 			zone->modEg.decay = SFEnvRate(genVals[sfgDecayModEnv]);
 			zone->modEg.release = SFEnvRate(genVals[sfgReleaseModEnv]);
-			zone->modEg.sustain = SFEnvLevel(-genVals[sfgSustainModEnv]);
-			zone->vibAmount = SFRelCents(genVals[sfgVibLfoToPitch]);
-			zone->vibRate = SFAbsCents(genVals[sfgFreqVibLFO]);
-			zone->vibDelay = SFEnvRate(genVals[sfgDelayVibLFO]);
-			if (genVals[sfgKeynumToVolEnvDecay])
+			zone->modEg.sustain = SFPercent(genVals[sfgSustainModEnv]);
+			zone->modEg.keyDecay = (FrqValue) genVals[sfgKeynumToModEnvDecay];
+			zone->modEg.keyHold = (FrqValue) genVals[sfgKeynumToModEnvHold];
+			zone->modEnvFrq = (FrqValue) genVals[sfgModEnvToPitch];
+
+			zone->vibLfoFrq = (FrqValue) genVals[sfgVibLfoToPitch];
+			zone->vibLfo.rate = SFFrequency(genVals[sfgFreqVibLFO]);
+			zone->vibLfo.delay = SFEnvRate(genVals[sfgDelayVibLFO]);
+			zone->modLfoVol = (AmpValue) genVals[sfgModLfoToVolume];
+			zone->modLfoFrq = (AmpValue) genVals[sfgModLfoToPitch];
+			zone->modLfo.rate = SFFrequency(genVals[sfgFreqModLFO]);
+			zone->modLfo.delay = SFEnvRate(genVals[sfgDelayModLFO]);
+
+			// Apply preset modulators
+			genNdx1 = pbag[pbagNdx].wModNdx;
+			genNdx2 = pbag[pbagNdx+1].wModNdx;
+			while (genNdx1 < genNdx2)
 			{
-				modval = (double) genVals[sfgKeynumToVolEnvDecay];
-				for (int k = zone->lowKey; k <= zone->highKey; k++)
-					in->keyDecRate[k] = SFEnvRate(((60.0 - (double)k) * modval));
+				ApplyModulator(zone, &pmod[genNdx1]);
+				genNdx1++;
 			}
-			if (genVals[sfgKeynumToVolEnvHold])
-			{
-				modval = (double) genVals[sfgKeynumToVolEnvHold];
-				for (int k = zone->lowKey; k <= zone->highKey; k++)
-					in->keyHoldRate[k] = SFEnvRate(((60.0 - (double)k) * modval));
-			}
+
+			// Apply zone modulators
 			genNdx1 = ibag[bagNdx1].wModNdx;
 			genNdx2 = ibag[bagNdx1+1].wModNdx;
 			while (genNdx1 < genNdx2)
 			{
-				//ApplyModulator(&imod[genNdx1], instr);
-				sfModList *mp = &imod[genNdx1];
-				SBModInfo *mi = zone->AddModInfo();
-				mi->srcOp = mp->sfModSrcOper;
-				mi->dstOp = mp->sfModDestOper;
-				mi->value = mp->modAmount;
-				mi->srcAmntOp = mp->sfModAmtSrcOper;
-				mi->transOp = mp->sfModTransOper;
+				ApplyModulator(zone, &imod[genNdx1]);
 				genNdx1++;
 			}
+
+			zone->SetGenFlags();
 		}
 		else // global zone
 			memcpy(globVals, genVals, sizeof(globVals));
@@ -583,6 +651,7 @@ void SFFile::BuildInstrument(SBInstr *in, int n)
 		bagNdx1++;
 	}
 }
+
 
 void SFFile::BuildPreset(int n)
 {
@@ -621,27 +690,16 @@ void SFFile::BuildPreset(int n)
 			{
 				hdrVals[pg->sfGenOper] = pg->genAmount.shAmount;
 			}
+			if (pg->sfGenOper == sfgKeynum)
+				instr->fixedKey = pg->genAmount.shAmount;
+			if (pg->sfGenOper == sfgVelocity)
+				instr->fixedVel = pg->genAmount.shAmount;
 			if (pg->sfGenOper == sfgInstrument)
 			{
-				BuildInstrument(instr, pg->genAmount.shAmount);
+				BuildInstrument(instr, pg->genAmount.shAmount, bagNdx1);
 				// anything after this record should be ignored
 				//break;
 			}
-			genNdx1++;
-		}
-
-		genNdx1 = pbag[bagNdx1].wModNdx;
-		genNdx2 = pbag[bagNdx1+1].wModNdx;
-		while (genNdx1 < genNdx2)
-		{
-			//ApplyModulator(&imod[genNdx1], instr);
-			sfModList *ml = &pmod[genNdx1];
-			SBModInfo *mi = instr->AddModInfo();
-			mi->srcOp = ml->sfModSrcOper;
-			mi->dstOp = ml->sfModDestOper;
-			mi->value = ml->modAmount;
-			mi->srcAmntOp = ml->sfModAmtSrcOper;
-			mi->transOp = ml->sfModTransOper;
 			genNdx1++;
 		}
 
@@ -662,25 +720,28 @@ void SFFile::BuildSoundBank()
 
 FrqValue SFFile::SFEnvRate(short rt)
 {
-	if (rt <= -12000)
-		return 0.0;
-	return (FrqValue) pow(2.0, (double) rt / 1200.0);
+	return (FrqValue) rt;
+//	if (rt <= -12000)
+//		return 0.0;
+//	return (FrqValue) pow(2.0, (double) rt / 1200.0);
 }
 
 AmpValue SFFile::SFEnvLevel(short amt)
 {
 	if (amt >= 960)
 		return 0.0;
-	return (AmpValue) pow(10.0, (double) amt / 200.0);
+	return (AmpValue) pow(10.0, (double) amt / -200.0);
 }
 
 AmpValue SFFile::SFAttenuation(short amt)
 {
 	if (amt >= 960)
-		return 0.0;
-	return (AmpValue) pow(10.0, ((float) amt * atnScl)/ 200.0);
+		return 960.0;
+	return (AmpValue) (amt * atnScl);
+	//	return (AmpValue) pow(10.0, ((float) amt * atnScl) / -200.0);
 }
 
+/*
 FrqValue SFFile::SFTimeCents(short val)
 {
 	if (val <= -1200)
@@ -694,8 +755,9 @@ FrqValue SFFile::SFKeyScaleTime(short key, short amt)
 {
 	return SFTimeCents((60 - key) * amt);
 }
+*/
 
-FrqValue SFFile::SFAbsCents(short amt)
+FrqValue SFFile::SFFrequency(short amt)
 {
 	return 8.197 * SFRelCents(amt);
 }
@@ -707,11 +769,17 @@ FrqValue SFFile::SFRelCents(short amt)
 	return pow(2, (double) amt / 12000);
 }
 
+AmpValue SFFile::SFPercent(short amt)
+{
+	return (AmpValue) amt / 1000.0;
+}
+
 char *SFFile::CopyName(char *dst, char *src)
 {
 	memcpy(dst, src, 20);
 	dst[20] = '\0';
-	for (int ndx = 19; ndx >= 0 && dst[ndx] == ' '; ndx--)
+	int ndx;
+	for (ndx = 19; ndx >= 0 && dst[ndx] == ' '; ndx--)
 		dst[ndx] = '\0';
 	return dst;
 }

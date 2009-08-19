@@ -86,22 +86,33 @@ int SoundBank::LoadInstr(SBInstr *in, FileReadBuf& f)
 	SBZone *zone = 0;
 	while ((zone = in->EnumZones(zone)) != 0)
 	{
-		SBSample *samp = samples;
-		while (samp)
+		SBSample *samp = zone->sample;
+		if (samp == 0)
 		{
-			if (samp->index == zone->sampleNdx)
+			samp = samples;
+			while (samp)
 			{
-				err |= LoadSample(samp, f);
-				zone->sample = &samp->sample[zone->tableStart];
-				zone->sampleLen = samp->sampleLen;
-				zone->tableEnd = zone->sampleLen+1;
-				break;
+				if (samp->index == zone->sampleNdx)
+				{
+					zone->sample = samp;
+					zone->sampleLen = samp->sampleLen;
+					zone->tableEnd = zone->sampleLen;
+					break;
+				}
+				samp = samp->next;
 			}
-			samp = samp->next;
 		}
+		if (samp && samp->sample == 0)
+			err |= LoadSample(samp, f);
 	}
 	in->loaded = 1;
 	return err;
+}
+
+static void ZeroSample(AmpValue *sp, bsUint32 len)
+{
+	while (--len >= 0)
+		*sp++ = 0.0;
 }
 
 int SoundBank::LoadSample(SBSample *samp)
@@ -113,13 +124,9 @@ int SoundBank::LoadSample(SBSample *samp)
 	f.SetBufSize(samp->sampleLen * 2 * samp->channels); // typical
 	if (f.FileOpen(file) != 0)
 	{
-		bsUint32 samplen = samp->sampleLen;
-		samp->sample = new AmpValue[samplen+2];
-		AmpValue *sp = samp->sample;
-		for (bsUint32 cnt = 0; cnt < samplen; cnt++)
-			*sp++ = 0.0;
-		*sp++ = 0.0;
-		*sp++ = 0.0;
+		bsUint32 samplen = samp->sampleLen+2;
+		samp->sample = new AmpValue[samplen];
+		ZeroSample(samp->sample, samplen);
 		return -1;
 	}
 	int r = LoadSample(samp, f);
@@ -128,8 +135,8 @@ int SoundBank::LoadSample(SBSample *samp)
 }
 
 // We can have one block of either 1 or 2 channel,
-// or one block for each channel
-//  
+// or one block for each channel.
+// Two zeros are added at the end as guard points.
 int SoundBank::LoadSample(SBSample *samp, FileReadBuf& f)
 {
 	if (samp->sample)
@@ -141,7 +148,10 @@ int SoundBank::LoadSample(SBSample *samp, FileReadBuf& f)
 	if (samp->channels == 1)
 		err = ReadSamples1(samp, f);
 	else
+	{
+		samp->linked = new AmpValue[samp->sampleLen + 2];
 		err = ReadSamples2(samp, f);
+	}
 
 	return err;
 }
@@ -150,12 +160,11 @@ int SoundBank::ReadSamples1(SBSample *samp, FileReadBuf& f)
 {
 	bsInt32 cnt;
 	bsInt32 samplen = samp->sampleLen;
-
 	AmpValue *sp = samp->sample;
+
 	if (samp->filepos == 0)
 	{
-		for (cnt = 0; cnt < samplen; cnt++)
-			*sp++ = 0.0;
+		ZeroSample(sp, samplen+2);
 		return -1;
 	}
 	f.FileRewind(samp->filepos);
@@ -190,7 +199,7 @@ int SoundBank::ReadSamples1(SBSample *samp, FileReadBuf& f)
 		}
 	}
 	*sp++ = 0;
-	*sp++ = 0;
+	*sp = 0;
 	return 0;
 }
 
@@ -198,12 +207,13 @@ int SoundBank::ReadSamples2(SBSample *samp, FileReadBuf& f)
 {
 	bsInt32 cnt;
 	bsInt32 samplen = samp->sampleLen;
-	AmpValue *sp = samp->sample;
+	AmpValue *sp1 = samp->sample;
+	AmpValue *sp2 = samp->linked;
 
 	if (samp->filepos == 0)
 	{
-		for (cnt = 0; cnt <= samplen; cnt++)
-			*sp++ = 0;
+		ZeroSample(sp1, samplen+2);
+		ZeroSample(sp2, samplen+2);
 		return -1;
 	}
 
@@ -212,31 +222,36 @@ int SoundBank::ReadSamples2(SBSample *samp, FileReadBuf& f)
 	{
 		for (cnt = 0; cnt < samplen; cnt++)
 		{
-			short val1 = f.ReadCh() - 128;
-			short val2 = f.ReadCh() - 128;
-			*sp++ = ((AmpValue) val1 + (AmpValue) val2) / 256.0;
+			*sp1++ = (AmpValue) (f.ReadCh() - 128) / 128.0;
+			*sp2++ = (AmpValue) (f.ReadCh() - 128) / 128.0;
 		}
 	}
 	else if (samp->format == 1)
 	{
+		short val;
 		for (cnt = 0; cnt < samplen; cnt++)
 		{
-			short val1 = (short) (f.ReadCh() | (f.ReadCh() << 8));
-			short val2 = (short) (f.ReadCh() | (f.ReadCh() << 8));
-			*sp++ = ((AmpValue) val1 + (AmpValue) val2) / 65536.0;
+			val = (short) (f.ReadCh() | (f.ReadCh() << 8));
+			*sp1++ = (AmpValue) val / 32768.0;
+			val = (short) (f.ReadCh() | (f.ReadCh() << 8));
+			*sp2++ = (AmpValue) val / 32768.0;
 		}
 	}
 	else if (samp->format == 2)
 	{
-		float val1, val2;
+		// N.B.: Little-endian only here...
+		float val;
 		for (cnt = 0; cnt < samplen; cnt++)
 		{
-			f.FileRead(&val1, 4);
-			f.FileRead(&val2, 4);
-			*sp++ = (val1 + val2) / 2.0;
+			f.FileRead(&val, 4);
+			*sp1++ = val;
+			f.FileRead(&val, 4);
+			*sp2++ = val;
 		}
 	}
-	*sp++ = 0;
-	*sp = 0;
+	*sp1++ = 0;
+	*sp1 = 0;
+	*sp2++ = 0;
+	*sp2 = 0;
 	return 0;
 }

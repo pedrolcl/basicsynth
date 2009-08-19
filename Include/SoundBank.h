@@ -44,14 +44,58 @@ struct SBInfo
 	}
 };
 
+// Flags indicating active generators
+#define SBGEN_VIBLFOF 0x0001
+#define SBGEN_MODLFOF 0x0002
+#define SBGEN_MODENVF 0x0004
+#define SBGEN_MODWHLF 0x0008
+#define SBGEN_MODLFOA 0x0100
+#define SBGEN_BRTHAMP 0x0200
+#define SBGEN_EXPRAMP 0x0400
+#define SBGEN_MODWHLA 0x0800
+#define SBGEN_MODLFOX (SBGEN_MODLFOF|SBGEN_MODLFOA)
+#define SBGEN_MODWHLX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODLFOA)
+#define SBGEN_MODFRQX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODENVF)
+#define SBGEN_MODAMPX (SBGEN_MODLFOA|SBGEN_BRTHAMP|SBGEN_EXPRAMP)
+
+/// Internal generator Source or Destination values
+#define SBGEN_PITCH   0x0000
+#define SBGEN_VOLUME  0x0001
+#define SBGEN_VIBFRQ  0x0002
+#define SBGEN_VIBDLY  0x0003
+#define SBGEN_VIBAMNT 0x0004
+#define SBGEN_MODFRQ  0x0005
+#define SBGEN_MODDLY  0x0006
+#define SBGEN_MODAMNT 0x0007
+#define SBGEN_EG1DLY  0x0009
+#define SBGEN_EG1ATK  0x000A
+#define SBGEN_EG1HOLD 0x000B
+#define SBGEN_EG1DEC  0x000C
+#define SBGEN_EG1SUS  0x000D
+#define SBGEN_EG1REL  0x000E
+#define SBGEN_EG2DLY  0x000F
+#define SBGEN_EG2ATK  0x0010
+#define SBGEN_EG2HOLD 0x0011
+#define SBGEN_EG2DEC  0x0012
+#define SBGEN_EG2SUS  0x0013
+#define SBGEN_EG2REL  0x0014
+#define SBGEN_EG2AMNT 0x0015
+#define SBGEN_IATTEN  0x0016
+#define SBGEN_KEYHLD  0x0017
+#define SBGEN_KEYDEC  0x0018
+#define SBGEN_VELATK  0x0019
+#define SBGEN_VELCTY  0x001A
+#define SBGEN_KEYNUM  0x001B
+#define SBGEN_MODLIST 0x001C
+
 class SBModInfo : public SynthList<SBModInfo>
 {
 public:
 	short srcOp;
 	short dstOp;
-	short transOp;
 	short srcAmntOp;
-	bsInt32 value;
+	short transOp;
+	float value;
 };
 
 /// @brief SBSample contains a block of samples read from the file.
@@ -64,6 +108,8 @@ class SBSample : public SynthList<SBSample>
 {
 public:
 	AmpValue *sample;    ///< mono sample
+	AmpValue *linked;    ///< second array for 2 channel
+	SBSample *linkSamp;  ///< linked, phase-locked sample object
 	bsUint32  filepos;   ///< file offset for samples
 	bsUint32  filepos2;  ///< offset for LSB in SF2 24-bit format
 	bsInt32   rate;      ///< recording sample rate
@@ -76,6 +122,8 @@ public:
 	{
 		index = n;
 		sample = 0;
+		linked = 0;
+		linkSamp = 0;
 		sampleLen = 0;
 		rate = synthParams.sampleRate;
 		filepos = 0;
@@ -87,32 +135,50 @@ public:
 	~SBSample()
 	{
 		delete sample;
+		delete linked;
 	}
 };
 
 /// @brief Envelope definition for a soundbank instrument.
 /// This is a 6-segment envelope: delay, attack, hold,
-/// decay, sustain, release. 
+/// decay, sustain, release. Time values are in timecents.
 class SBEnv
 {
 public:
-	FrqValue  delay;
-	FrqValue  attack;
-	FrqValue  hold;
-	FrqValue  decay;
-	FrqValue  release;
-	AmpValue  peak;
-	AmpValue  sustain;
+	FrqValue  delay;        ///< delay time (timecents
+	FrqValue  attack;       ///< attack rate (timecents)
+	FrqValue  hold;         ///< hold time (timecents)
+	FrqValue  decay;        ///< decay rate (timecents)
+	FrqValue  release;      ///< release rate (timecents)
+	AmpValue  sustain;      ///< sustain level (percent)
+	FrqValue  keyDecay;     ///< Key # to decay rate scale (timecents)
+	FrqValue  keyHold;      ///< Key # to hold rate scale (timecents)
+	FrqValue  velAttack;    ///< Velocity to attack rate scale (timecents)
 
 	SBEnv()
 	{
+		delay = -12000.0;
+		attack = -12000.0;
+		hold = -12000.0;
+		decay = -12000.0;
+		release = -12000.0;
+		sustain = 0.0;
+		keyHold = 0.0;
+		keyDecay = 0.0;
+		velAttack = 0.0;
+	}
+};
+
+class SBLfo
+{
+public:
+	FrqValue  rate;   ///< LFO rate (frequency)
+	FrqValue  delay;  ///< LFO onset delay
+
+	SBLfo()
+	{
+		rate = 4.5;
 		delay = 0;
-		attack = 0;
-		hold = 0;
-		decay = 0;
-		release = 0;
-		peak = 1.0;
-		sustain = 0;
 	}
 };
 
@@ -130,10 +196,11 @@ class SBZone : public SynthList<SBZone>
 public:
 	bsString  name;      ///< zone name
 	bsInt32   sampleNdx; ///< index into sample list
-	AmpValue *sample;    ///< array of amp values (the wavetable)
+	SBSample *sample;    ///< the wavetable
+	SBZone   *linkZone;  ///< link to another zone (stereo sample)
 	bsUint32  sampleLen;
 	AmpValue  pan;       ///< pan 
-	FrqValue  rate;
+	FrqValue  rate;      ///< sample rate
 	FrqValue  recFreq;   ///< recording frequency
 	bsInt32   tableStart;///< first playable sample (usually 0)
 	bsInt32   tableEnd;  ///< one past last playable sample
@@ -152,43 +219,49 @@ public:
 	bsInt16   lowVel;    ///< lowest MIDI note-on velocity
 	bsInt16   highVel;   ///< highest MIDI note-on velocity
 
+	bsInt32   genFlags;  ///< flags indicating active modulators
 	AmpValue  volAtten;  ///< Peak volume in dB of attenuation
+	AmpValue  velScale;  ///< Attenuation scaling from note-on velocity
 	SBEnv     volEg;     ///< Volume envelope
 	SBEnv     modEg;     ///< Modulator envelope
+	SBLfo     vibLfo;    ///< LFO 1 (vibrato)
+	SBLfo     modLfo;    ///< LFO 2 (modulation)
 
-	AmpValue  vibAmount; ///< LFO 1 (vibrato) amount
-	FrqValue  vibRate;   ///< LFO 1 (vibrato) rate (frequency)
-	FrqValue  vibDelay;  ///< LFO 1 (vibrato) onset delay
+	FrqValue  vibLfoFrq; ///< Vib LFO amount applied to frequency (cents)
+	AmpValue  modLfoVol; ///< Mod LFO amount appiled to volume (centibels)
+	FrqValue  modLfoFrq; ///< Mod LFO amount applied to frequency (cents)
+	FrqValue  modEnvFrq; ///< Mod ENV amount applied to frequency (cents)
+	AmpValue  volEnvAmp; ///< Vol ENV amount applied to amplitude
 
-	AmpValue  modAmount; ///< LFO 2 (modulation) amount
-	FrqValue  modRate;   ///< LFO 2 (modulation) rate (frequency)
-	FrqValue  modDelay;  ///< LFO 2 (modulation) onset delay
+	FrqValue  pbfScale;  ///< Pitchwheel amount
+	AmpValue  mwaScale;  ///< Modwheel CC volume amount
+	FrqValue  mwfScale;  ///< Modwheel CC pitch amount
+	AmpValue  expaScale; ///< Expression CC volume amount
+	FrqValue  expfScale; ///< Expression CC pitch amount
+	AmpValue  bthaScale; ///< Breath CC volume amount
+	FrqValue  bthfScale; ///< Breath CC pitch amount
+	AmpValue  rvrbSend;  ///< % to send to reverb unit
+	AmpValue  chorusSend; ///< % to send to chorus unit
 
-	SBModInfo modHead;
-	SBModInfo modTail;
+	SynthEnumList<SBModInfo> modList;
 
 	SBZone()
 	{
 		Init();
-		modHead.Insert(&modTail);
 	}
 
 	~SBZone()
 	{
-		SBModInfo *mod;
-		while ((mod = modHead.next) != &modTail)
-		{
-			mod->Remove();
-			delete mod;
-		}
 	}
 
 	void Init()
 	{
+		genFlags = 0;
 		sampleNdx = 0;
 		tableStart = 0;
 		tableEnd = 0;
 		sample = 0;
+		linkZone = 0;
 		loopStart = 0;
 		loopEnd = 0;
 		loopLen = 0;
@@ -202,21 +275,29 @@ public:
 		lowVel = 0;
 		highVel = 127;
 		pan = 0.0;
-		volAtten = 1.0;
+		volAtten = 0.0;
+		velScale = 1.0;
 
-		vibAmount = 0;
-		vibRate = 5.2;
-		vibDelay = 0;
+		vibLfoFrq = 0;
+		modLfoVol = 0;
+		modLfoFrq = 0;
+		modEnvFrq = 0;
+		volEnvAmp = 960.0;
 
-		modAmount = 0;
-		modRate = 5.2;
-		modDelay = 0;
+		mwaScale = 0.0;
+		mwfScale = 0.0;
+		expaScale = 0.0;
+		expfScale = 0.0;
+		bthaScale = 0.0;
+		bthfScale = 0.0;
+		rvrbSend = 0.0;
+		chorusSend = 0.0;
 	}
 
 	SBModInfo *GetModInfo(short src, short dst)
 	{
-		SBModInfo *mod;
-		for (mod = modHead.next; mod != &modTail; mod = mod->next)
+		SBModInfo *mod = 0;
+		while ((mod = modList.EnumItem(mod)) != 0)
 		{
 			if (mod->srcOp == src && mod->dstOp == dst)
 				return mod;
@@ -224,21 +305,14 @@ public:
 		return 0;
 	}
 
-	SBModInfo *AddModInfo()
+	inline SBModInfo *AddModInfo()
 	{
-		SBModInfo *mod = new SBModInfo;
-		modTail.InsertBefore(mod);
-		return mod;
+		return modList.AddItem();
 	}
 
-	SBModInfo *EnumModInfo(SBModInfo *mi)
+	inline SBModInfo *EnumModInfo(SBModInfo *mi)
 	{
-		if (mi == 0)
-			mi = &modHead;
-		mi = mi->next;
-		if (mi == &modTail)
-			return 0;
-		return mi;
+		return modList.EnumItem(mi);
 	}
 
 	/// @brief Check this zone for a match to key and velocity.
@@ -257,15 +331,35 @@ public:
 	{
 		return key >= lowVel && key <= highVel;
 	}
+
+	void SetGenFlags()
+	{
+		if (vibLfoFrq != 0)
+			genFlags |= SBGEN_VIBLFOF;
+		if (modLfoFrq != 0)
+			genFlags |= SBGEN_MODLFOF;
+		if (modLfoVol != 0)
+			genFlags |= SBGEN_MODLFOA;
+		if (modEnvFrq != 0)
+			genFlags |= SBGEN_MODENVF;
+		if (mwfScale != 0)
+			genFlags |= SBGEN_MODWHLF;
+		if (mwaScale != 0)
+			genFlags |= SBGEN_MODWHLA;
+		if (bthaScale != 0)
+			genFlags |= SBGEN_BRTHAMP;
+		if (expaScale != 0)
+			genFlags |= SBGEN_EXPRAMP;
+		if (modList.EnumItem(0) != 0)
+			genFlags |= SBGEN_MODLIST;
+	}
 };
 
 class SBInstr : public SynthList<SBInstr>
 {
 public:
-	SBZone zoneHead;
-	SBZone zoneTail;
-	SBModInfo modHead;
-	SBModInfo modTail;
+	SynthEnumList<SBZone> zoneList;
+	SynthEnumList<SBModInfo> modList;
 	bsString instrName;
 	bsInt16  instrNdx;
 	bsInt16  bank;
@@ -273,53 +367,32 @@ public:
 	bsInt16  loaded;
 	bsInt16  lowKey;
 	bsInt16  highKey;
+	bsInt16  fixedKey;
+	bsInt16  fixedVel;
 	SBZone *zoneMap[2][128];
-	FrqValue keyDecRate[128];
-	FrqValue keyHoldRate[128];
-	FrqValue velAtkRate[128];
-	FrqValue velVolume[128];
 
 	SBInstr()
 	{
+		fixedKey = -1;
+		fixedVel = -1;
 		lowKey = 0;
 		highKey = 127;
 		instrNdx = -1;
 		bank = 0;
 		prog = 0;
 		loaded = 0;
-		zoneHead.Insert(&zoneTail);
-		modHead.Insert(&modTail);
+		//zoneHead.Insert(&zoneTail);
+		//modHead.Insert(&modTail);
 		memset(zoneMap, 0, sizeof(zoneMap));
-		for (int n = 0; n < 128; n++)
-		{
-			keyDecRate[n] = 1.0;
-			keyHoldRate[n] = 1.0;
-			velAtkRate[n] = 1.0;
-			velVolume[n] = synthParams.AttenCB(960.0 * (127 - (double) n) / 127.0);
-		}
 	}
 
 	~SBInstr()
 	{
-		SBZone *zone;
-		while ((zone = zoneHead.next) != &zoneTail)
-		{
-			zone->Remove();
-			delete zone;
-		}
-		SBModInfo *mod;
-		while ((mod = modHead.next) != &modTail)
-		{
-			mod->Remove();
-			delete mod;
-		}
 	}
 
 	SBZone *AddZone()
 	{
-		SBZone *zone = new SBZone;
-		zoneTail.InsertBefore(zone);
-		return zone;
+		return zoneList.AddItem();
 	}
 
 	int InitZoneMap()
@@ -332,7 +405,7 @@ public:
 		}
 
 		SBZone *zone = 0;
-		for (zone = zoneHead.next; zone != &zoneTail; zone = zone->next)
+		while ((zone = zoneList.EnumItem(zone)) != 0)
 		{
 			int lr = zone->chan & 1;
 			for (k = zone->lowKey; k <= zone->highKey; k++)
@@ -356,8 +429,8 @@ public:
 			return zone;
 
 		// do a complete search of all zones to try and match key+velocity
-		SBZone *zone2;
-		for (zone2 = zoneHead.next; zone2 != &zoneTail; zone2 = zone2->next)
+		SBZone *zone2 = 0;
+		while ((zone2 = zoneList.EnumItem(zone2)) != 0)
 		{
 			if (zone2->chan == lr && zone2->Match(key, vel))
 				return zone2;
@@ -369,19 +442,13 @@ public:
 
 	SBZone *EnumZones(SBZone *zone)
 	{
-		if (zone)
-			zone = zone->next;
-		else
-			zone = zoneHead.next;
-		if (zone == &zoneTail)
-			return 0;
-		return zone;
+		return zoneList.EnumItem(zone);
 	}
 
 	SBModInfo *GetModInfo(short src, short dst)
 	{
-		SBModInfo *mod;
-		for (mod = modHead.next; mod != &modTail; mod = mod->next)
+		SBModInfo *mod = 0;
+		while ((mod = modList.EnumItem(mod)) != 0)
 		{
 			if (mod->srcOp == src && mod->dstOp == dst)
 				return mod;
@@ -391,19 +458,12 @@ public:
 
 	SBModInfo *AddModInfo()
 	{
-		SBModInfo *mod = new SBModInfo;
-		modTail.InsertBefore(mod);
-		return mod;
+		return modList.AddItem();
 	}
 
 	SBModInfo *EnumModInfo(SBModInfo *mi)
 	{
-		if (mi == 0)
-			mi = &modHead;
-		mi = mi->next;
-		if (mi == &modTail)
-			return 0;
-		return mi;
+		return modList.EnumItem(mi);
 	}
 
 };

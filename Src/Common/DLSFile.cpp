@@ -513,36 +513,32 @@ int DLSInfoStr::Read(FileReadBuf& file, bsUint32 cksz)
 	return -1;
 }
 
-FrqValue DLSFile::DLSTimeCents(bsInt32 tc)
-{
-	return SoundBank::EnvRate((FrqValue) tc / 65536.0);
-}
-
-AmpValue DLSFile::DLSRelGain(bsInt32 cb)
-{
-	return SoundBank::Attenuation((AmpValue) cb / 65536.0);
-}
-
 AmpValue DLSFile::DLSAttenuation(bsInt32 cb)
 {
-	return SoundBank::Attenuation(((AmpValue) cb * atnScl)/ 65536.0);
+	return ((AmpValue) cb * atnScl) / 65536.0;
+	//return SoundBank::Attenuation(((AmpValue) cb * atnScl)/ 65536.0);
 }
 
-FrqValue DLSFile::DLSPitchCents(bsInt32 pc)
+FrqValue DLSFile::DLSFrequency(bsInt32 pc)
 {
 	return 440.0 * pow(2.0, (((double)pc / 65536.0) - 6900.0) / 1200.0);
 }
 
-FrqValue DLSFile::DLSCents(bsInt32 pc)
+AmpValue DLSFile::DLSEnvRate(bsInt32 tc)
 {
-	if (pc == 0)
-		return 1.0;
-	return SoundBank::PitchCents((FrqValue) pc / 65536.0);
+	// we must calculate actual rate at playback
+	//return SoundBank::EnvRate((FrqValue)tc / 65536.0);
+	return (FrqValue) tc / 65536.0;
 }
 
 AmpValue DLSFile::DLSPercent(bsInt32 pct)
 {
 	return (AmpValue) pct / (1000.0 * 65536.0);
+}
+
+AmpValue DLSFile::DLSScale(bsInt32 scl)
+{
+	return (AmpValue) scl / 65536.0;
 }
 
 SoundBank *DLSFile::BuildSoundBank(const char *fname)
@@ -579,8 +575,6 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 			sbnk->LoadSample(sp, file);
 	}
 
-	double modval;
-
 	DLSInsInfo *ins = 0;
 	DLSRgnInfo *rgn;
 	DLSArtInfo *art;
@@ -592,30 +586,11 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 
 		instr->instrName = ins->info.GetInfo(DLS_INAM_CHUNK);
 
-		art = 0;
-		while ((art = ins->lart.EnumArt(art)) != 0)
-		{
-			modval = art->GetConnection(CONN_SRC_KEYNUMBER, CONN_SRC_NONE, CONN_DST_EG1_DECAYTIME, 0) / 65536.0;
-			if (modval != 0)
-			{
-				for (int n = 0; n < 128; n++)
-					instr->keyDecRate[n] = SoundBank::EnvRate(((double)n / 128.0) * modval);
-			}
-			modval = art->GetConnection(CONN_SRC_KEYONVELOCITY, CONN_SRC_NONE, CONN_DST_EG1_ATTACKTIME, 0) / 65536.0;
-			if (modval != 0)
-			{
-				for (int v = 0; v < 128; v++)
-					instr->velAtkRate[v] = SoundBank::EnvRate(((double)v / 128.0) * modval);
-			}
-		}
-
 		rgn = 0;
 		while ((rgn = ins->rgnlist.EnumRgn(rgn)) != 0)
 		{
 			SBZone *zone = instr->AddZone();
 
-			zone->keyNum = rgn->wsmp.unityNote;
-			zone->cents = rgn->wsmp.fineTune;
 			zone->lowKey = rgn->rgnh.rangeKey.low;
 			zone->highKey = rgn->rgnh.rangeKey.high;
 			zone->lowVel = rgn->rgnh.rangeVel.low;
@@ -623,7 +598,9 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 			zone->chan = (rgn->wlnk.channel & 2) ? 1 : 0;
 			if (rgn->wsmpValid)
 			{
-				zone->volAtten = DLSAttenuation(rgn->wsmp.attenuation);
+				zone->keyNum = rgn->wsmp.unityNote;
+				zone->cents = rgn->wsmp.fineTune;
+				zone->volAtten = DLSScale(rgn->wsmp.attenuation);
 				zone->mode = rgn->wsmp.sampleLoops > 0;
 				zone->loopStart = rgn->loop.start;
 				zone->loopLen = rgn->loop.length;
@@ -638,29 +615,26 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 			// Apply zone articulation
 			art = 0;
 			while ((art = rgn->lart.EnumArt(art)) != 0)
-			{
 				ApplyArt(zone, art);
-				//zone->volAtten = DLSAttenuation(art->GetDefault(CONN_DST_ATTENUATION, rgn->wsmp.attenuation));
-				modval = art->GetConnection(CONN_SRC_KEYNUMBER, CONN_SRC_NONE, CONN_DST_EG1_DECAYTIME, 0) / 65536.0;
-				if (modval != 0)
-				{
-					for (int n = zone->lowKey; n <= zone->highKey; n++)
-						instr->keyDecRate[n] = SoundBank::EnvRate(((double)n / 128.0) * modval);
-				}
-			}
 
 			// Connect to sample
 			DLSWaveInfo *wv = info.wvpl.FindWave(rgn->wlnk.tableIndex);
 			if (wv)
 			{
-				// is the info in the wv->wvfmt the same as
-				// what is in the region?
-				zone->rate = wv->wvfmt.sampleRate;
-				if (zone->cents == 0)
+				if (!rgn->wsmpValid)
+				{
+					// if we didn't see a wsmp chunk in the region,
+					// apply information from the wave chunk.
 					zone->cents = wv->wvsmp.fineTune;
-				if (zone->keyNum == 0)
 					zone->keyNum = wv->wvsmp.unityNote;
-				zone->sample = wv->samples;
+					zone->volAtten = DLSScale(wv->wvsmp.attenuation);
+					zone->mode = wv->wvsmp.sampleLoops > 0;
+					zone->loopStart = wv->loop.start;
+					zone->loopLen = wv->loop.length;
+					zone->loopEnd = zone->loopStart + zone->loopLen;
+				}
+				zone->rate = wv->wvfmt.sampleRate;
+				zone->sample = sbnk->GetSample(wv->index, 0);
 				zone->sampleNdx = wv->index;
 				zone->sampleLen = wv->sampsize;
 				zone->tableEnd = wv->sampsize;
@@ -669,15 +643,8 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 				if (zone->cents != 0)
 					zone->recFreq *= synthParams.GetCentsMult(-zone->cents);
 				zone->recPeriod = (bsInt32) (zone->rate / zone->recFreq);
-				if (!rgn->wsmpValid)
-				{
-					zone->volAtten = DLSAttenuation(rgn->wsmp.attenuation);
-					zone->mode = wv->wvsmp.sampleLoops > 0;
-					zone->loopStart = wv->loop.start;
-					zone->loopLen = wv->loop.length;
-					zone->loopEnd = zone->loopStart + zone->loopLen;
-				}
 			}
+			zone->SetGenFlags();
 		}
 
 		instr->InitZoneMap();
@@ -691,24 +658,167 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 
 void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 {
-	//zone->volAtten = DLSRelGain(art->GetDefault(CONN_DST_ATTENUATION, 0));
+	SBModInfo *mi;
+	dlsConnection *ci = art->info;
+	for (bsUint32 n = 0; n < art->connections; n++)
+	{
+		switch (ci->source)
+		{
+		case CONN_SRC_NONE:
+			switch (ci->destination)
+			{
+			case CONN_DST_ATTENUATION:
+				zone->volAtten = DLSScale(ci->scale);
+				break;
 
-	zone->vibRate = DLSPitchCents(art->GetDefault(CONN_DST_LFO_FREQUENCY, 0));
-	zone->vibDelay = DLSTimeCents(art->GetDefault(CONN_DST_LFO_STARTDELAY, TC0));
-	zone->vibAmount = DLSCents(art->GetConnection(CONN_SRC_LFO, CONN_SRC_NONE, CONN_DST_PITCH, 0));
+			case CONN_DST_EG1_ATTACKTIME:
+				zone->volEg.attack = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG1_HOLDTIME:
+				zone->volEg.hold = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG1_DECAYTIME:
+				zone->volEg.decay = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG1_RELEASETIME:
+				zone->volEg.release = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG1_SUSTAINLEVEL:
+				zone->volEg.sustain = DLSPercent(ci->scale);
+				break;
 
-	zone->volEg.attack = DLSTimeCents(art->GetDefault(CONN_DST_EG1_ATTACKTIME, TC0));
-	zone->volEg.hold = DLSTimeCents(art->GetDefault(CONN_DST_EG1_HOLDTIME, TC0));
-	zone->volEg.decay = DLSTimeCents(art->GetDefault(CONN_DST_EG1_DECAYTIME, TC0));
-	zone->volEg.release = DLSTimeCents(art->GetDefault(CONN_DST_EG1_RELEASETIME, TC0));
-	zone->volEg.sustain = DLSPercent(art->GetDefault(CONN_DST_EG1_SUSTAINLEVEL, 0));
+			case CONN_DST_EG2_ATTACKTIME:
+				zone->modEg.attack = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG2_HOLDTIME:
+				zone->modEg.hold = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG2_DECAYTIME:
+				zone->modEg.decay = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG2_RELEASETIME:
+				zone->modEg.release = DLSEnvRate(ci->scale);
+				break;
+			case CONN_DST_EG2_SUSTAINLEVEL:
+				zone->modEg.sustain = DLSPercent(ci->scale);
+				break;
+			case CONN_DST_LFO_FREQUENCY:
+				zone->vibLfo.rate = DLSFrequency(ci->scale);
+				zone->modLfo.rate = zone->vibLfo.rate;
+				break;
+			case CONN_DST_LFO_STARTDELAY:
+				zone->vibLfo.delay = DLSEnvRate(ci->scale);
+				zone->modLfo.delay = zone->vibLfo.delay;
+				break;
+			case CONN_DST_PAN:
+				zone->pan = DLSPercent(ci->scale);
+				break;
+			// default:
+			// SRC_NONE only can apply to known parameters
+			}
+			break;
+		case CONN_SRC_LFO:
+			switch (ci->destination)
+			{
+			case CONN_DST_PITCH:
+				zone->vibLfoFrq = DLSScale(ci->scale);
+				break;
+			case CONN_DST_ATTENUATION:
+				zone->modLfoVol = DLSAttenuation(ci->scale);
+				break;
+			}
+			break;
+		case CONN_SRC_KEYONVELOCITY:
+			switch (ci->destination)
+			{
+			case CONN_DST_ATTENUATION:
+				zone->velScale = DLSAttenuation(ci->scale);
+				break;
+			case CONN_DST_EG1_ATTACKTIME:
+				zone->volEg.velAttack = DLSScale(ci->scale);
+				break;
+			case CONN_DST_EG2_ATTACKTIME:
+				zone->modEg.velAttack = DLSScale(ci->scale);
+				break;
+			default:
+				// add to Init list
+				mi = zone->AddModInfo();
+				mi->srcOp = ci->source;
+				mi->dstOp = ci->destination;
+				mi->value = ci->scale;
+				mi->srcAmntOp = ci->control;
+				mi->transOp = ci->transform;
+				break;
+			}
+			break;
 
-	zone->modEg.attack = DLSTimeCents(art->GetDefault(CONN_DST_EG2_ATTACKTIME, TC0));
-	zone->modEg.hold = DLSTimeCents(art->GetDefault(CONN_DST_EG2_HOLDTIME, TC0));
-	zone->modEg.decay = DLSTimeCents(art->GetDefault(CONN_DST_EG2_DECAYTIME, TC0));
-	zone->modEg.release = DLSTimeCents(art->GetDefault(CONN_DST_EG2_RELEASETIME, TC0));
-	zone->modEg.sustain = DLSPercent(art->GetDefault(CONN_DST_EG2_SUSTAINLEVEL, 0));
+		case CONN_SRC_KEYNUMBER:
+			if (ci->destination == CONN_DST_EG1_DECAYTIME)
+			{
+				float km = DLSScale(ci->scale);
+				zone->volEg.attack += (60.0/128.0 * km);
+				zone->volEg.keyDecay = fabs(km/128.0);
+			}
+			else if (ci->destination == CONN_DST_EG2_DECAYTIME)
+			{
+				float km = DLSScale(ci->scale);
+				zone->modEg.attack += (60.0/128.0 * km);
+				zone->modEg.keyDecay = fabs(km/128.0);
+			}
+			// else add to InitList
+			break;
 
-	zone->pan = DLSPercent(art->GetDefault(CONN_DST_PAN, 0));
+		case CONN_SRC_EG1:
+			if (ci->destination == CONN_DST_ATTENUATION)
+				zone->volEnvAmp = DLSScale(ci->scale);
+			break;
+		case CONN_SRC_EG2:
+			if (ci->destination == CONN_DST_PITCH)
+				zone->modEnvFrq = DLSScale(ci->scale);
+			break;
+		case CONN_SRC_PITCHWHEEL:
+			// Set by RPN 0
+			break;
+		case CONN_SRC_CC1:
+			if (ci->destination == CONN_DST_PITCH)
+				zone->mwfScale = DLSScale(ci->scale);
+			else if (ci->destination == CONN_DST_ATTENUATION)
+				zone->mwaScale = DLSScale(ci->scale);
+			break;
+		case CONN_SRC_CC2:
+			if (ci->destination == CONN_DST_PITCH)
+				zone->bthfScale = DLSScale(ci->scale);
+			else if (ci->destination == CONN_DST_ATTENUATION)
+				zone->bthaScale = DLSScale(ci->scale);
+			break;
+		case CONN_SRC_CC7:
+			// vol scale?
+			break;
+		case CONN_SRC_CC10:
+			// pan scale?
+			break;
+		case CONN_SRC_CC11:
+			if (ci->destination == CONN_DST_PITCH)
+				zone->expfScale = DLSScale(ci->scale);
+			else if (ci->destination == CONN_DST_ATTENUATION)
+				zone->expaScale = DLSScale(ci->scale);
+			break;
+		default:
+			//if (source & 0x80) 
+			//	add to Init list
+			//else
+			//	add to CTRL list
+			//else 
+			//	unknown control source - ignore
+			mi = zone->AddModInfo();
+			mi->srcOp = ci->source;
+			mi->dstOp = ci->destination;
+			mi->srcAmntOp = ci->control;
+			mi->transOp = ci->transform;
+			mi->value = DLSScale(ci->scale);
+			break;
+		}
+		ci++;
+	}
 
 }

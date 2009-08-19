@@ -288,6 +288,8 @@ protected:
 	FrqValue frq;
 	FrqValue recFrq;
 	FrqValue piMult;
+	int ii;
+	PhsAccum fr;
 	int state;
 	int loopMode;
 
@@ -295,23 +297,8 @@ public:
 	GenWaveWTLoop()
 	{
 		// To save a little cpu time we skip initialization.
-		// This is useless until you call InitWT() anyway...
-		/*
-		wavetable = wtSet.GetWavetable(WT_SIN);
-		tableEnd = synthParams.ftableLength;
-		period = tableEnd;
-		loopStart = 0;
-		loopEnd = tableEnd;
-		loopLen = tableEnd;
-		phase = 0.0;
-		phsIncr = 1.0;
-		frq = 440.0;
-		state = 1;
-		loopMode = 0;
-		rateRatio = 1.0;
-		recFrq = synthParams.sampleRate / tableEnd;
-		piMult = 1.0 / recFrq;
-		*/
+		// This object is useless until you call InitWT() anyway...
+		piMult = 0.0;
 		tableEnd = 0.0;
 		phase = 0.0;
 	}
@@ -355,7 +342,7 @@ public:
 		if (loopMode == 0)
 			state = 2;
 		else
-			state = 1;
+			state = 0;
 		wavetable = wt;
 		phase = 0.0;
 		Reset(0);
@@ -372,7 +359,7 @@ public:
 	/// Release is called to stop any more looping.
 	/// The user of this object must determine when
 	/// the release begins and call this method in
-	/// the case where the wavetable as a separate
+	/// the case where the wavetable has a separate
 	/// release segment.
 	void Release()
 	{
@@ -383,6 +370,11 @@ public:
 	void Modulate(FrqValue d)
 	{
 		phsIncr = (frq + d) * piMult;
+	}
+
+	inline void UpdateFrequency(FrqValue f)
+	{
+		phsIncr = f * piMult;
 	}
 	
 	AmpValue Gen()
@@ -406,13 +398,13 @@ public:
 		// else (state == 2) // playing through to the end (release or no loop)
 
 		// no interpolation is faster...
-		//int ii = (int)(phase+0.5);
+		//ii = (int)(phase+0.5);
 		//phase += phsIncr;
 		//return wavetable[ii];
 
 		// ...but interpolation sounds a little better:
-		int ii = (int) phase;
-		PhsAccum fr = phase - (PhsAccum) ii;
+		ii = (int) phase;
+		fr = phase - (PhsAccum) ii;
 		phase += phsIncr;
 		AmpValue v1 = wavetable[ii];
 		AmpValue v2 = wavetable[ii+1];
@@ -421,7 +413,49 @@ public:
 
 	int IsFinished()
 	{
-		return phase >= tableEnd;
+		return state == 2 && phase >= tableEnd;
+	}
+};
+
+/// Two-channel oscillator.
+/// GenWaveWTLoop2 produces two-channel output.
+/// The wavetable2 array must be "phase-locked" with
+/// the wavetable in the base class. The base class
+/// performs the heavy lifting; this calculates
+/// the second channel using the phase calculated
+/// by the base class Gen() method.
+class GenWaveWTLoop2 : public GenWaveWTLoop
+{
+protected:
+	AmpValue *wavetable2;
+
+public:
+	GenWaveWTLoop2()
+	{
+		wavetable2 = 0;
+	}
+
+	AmpValue Gen()
+	{
+		return GenWaveWTLoop::Gen();
+	}
+
+	void Gen2(AmpValue& lft, AmpValue& rgt)
+	{
+		lft = GenWaveWTLoop::Gen();
+		if (phase >= tableEnd)
+			rgt = 0;
+		else
+		{
+			AmpValue v1 = wavetable2[ii];
+			AmpValue v2 = wavetable2[ii+1];
+			rgt = v1 + ((v2 - v1) * fr);
+		}
+	}
+
+	void SetWavetable2(AmpValue *wt)
+	{
+		wavetable2 = wt;
 	}
 };
 

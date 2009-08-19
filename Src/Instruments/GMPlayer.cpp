@@ -100,9 +100,6 @@ void GMManager::SetLocalPan(bsInt16 lp)
 		localVals |= GMM_LOCAL_PAN;
 	else
 		localVals &= ~GMM_LOCAL_PAN;
-	GMPlayer *ip;
-	for (ip = instrHead.next; ip != &instrTail; ip = ip->next)
-		ip->SetLocalPan(lp);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -243,7 +240,7 @@ GMPlayer::GMPlayer()
 	gm = 0;
 	midiCtrl = 0;
 	sndbnk = 0;
-	localPan = 1;
+	osc = 0;
 	Reset();
 }
 
@@ -252,15 +249,18 @@ GMPlayer::GMPlayer(GMManager *g, InstrManager *m)
 	im = m;
 	gm = g;
 	sndbnk = gm->GetSoundBank();
-	localPan = gm->GetLocalPan();
+	midiCtrl = gm->GetMidiControl();
+	osc = 0;
 	Reset();
 }
 
 void GMPlayer::Reset()
 {
+	if (osc)
+		delete osc;
 	preset = 0;
-	zonel = 0;
-	zoner = 0;
+	zone = 0;
+	osc = 0;
 	chnl = 0;
 	mkey = 69;
 	novel = 0;
@@ -270,6 +270,7 @@ void GMPlayer::Reset()
 
 GMPlayer::~GMPlayer()
 {
+	delete osc;
 }
 
 /// Start playing a note.
@@ -283,50 +284,81 @@ void GMPlayer::Start(SeqEvent *se)
 	mkey = evt->pitch + 12;
 	novel = evt->noteonvel;
 	if (novel == 0)
-		novel = 127;
-	vol = evt->vol;
+		novel = 100;
+	vol = MIDIControl::volCB[novel];
+	sustainOn = midiCtrl->GetCC(chnl, MIDI_CTRL_SUS_ON) > 64;
+	sostenuto = midiCtrl->GetCC(chnl, 67) > 64;
 
-	zoner = 0;
-	zonel = 0;
-
-	sostenuto = gm->GetCC(chnl, 67) > 64;
+	vibDelay = 0;
+	modDelay = 0;
+	genFlags = 0;
+	zone = 0;
 	preset = sndbnk->GetInstr(gm->GetBank(chnl), gm->GetPatch(chnl));
 	if (preset)
 	{
-		FrqValue oscFrq = frq;
-		if (gm)
-			oscFrq *= gm->GetPitchbend(chnl);
-		zoner = preset->GetZone(mkey, novel, 0);
-		if (zoner)
+		if (preset->fixedKey != -1)
+			mkey = preset->fixedKey;
+		if (preset->fixedVel != -1)
+			novel = preset->fixedVel;
+		zone = preset->GetZone(mkey, novel, 0);
+		if (zone)
 		{
-			oscr.InitSF(oscFrq, zoner);
-			panr.Set(panSqr, zoner->pan);
-			vol *= zoner->volAtten ;//* preset->velVolume[novel];
-			volEnv.InitEnv(preset, &zoner->volEg, mkey, novel);
-			//modEnv.InitEnv(preset, &zoner->modEG, mkey, novel);
-			AmpValue vibamt = zoner->vibAmount;
-			if (vibamt != 0.0)
-			{
-				viblfo.InitLFO(zoner->vibRate, WT_SIN, 
-					zoner->vibDelay, frq * vibamt, 0);
-			}
+			genFlags = zone->genFlags;
+			if (zone->sample->channels == 2 || zone->sample->linkSamp)
+				osc = new GenWaveSF2;
+			else if (zone->linkZone)
+				osc = new GenWaveSF3;
 			else
-				viblfo.SetLevel(0.0);
-		}
-		zonel = preset->GetZone(mkey, novel, 1);
-		if (zonel)
-		{
-			if (zoner->sample == 0)
+				osc = new GenWaveSF1;
+			osc->InitSF(frq, zone, 0);
+			vol += zone->volAtten;
+			volEnv.InitEnv(&zone->volEg, mkey, novel);
+			if (genFlags & SBGEN_VIBLFOF)
 			{
-				SBSample *samp = sndbnk->GetSample(zoner->sampleNdx, 1);
-				zoner->sample = samp->sample;
+				viblfo.InitWT(zone->vibLfo.rate, WT_SIN);
+				vibDelay = (bsInt32) (zone->vibLfo.delay * synthParams.sampleRate);
 			}
-			oscl.InitSF(oscFrq, zonel);
-			panl.Set(panSqr, zonel->pan);
+			if (genFlags & SBGEN_MODLFOX)
+			{
+				modlfo.InitWT(zone->modLfo.rate, WT_SIN);
+				modDelay = (bsInt32) (zone->modLfo.delay * synthParams.sampleRate);
+			}
+			if (genFlags & SBGEN_MODENVF)
+				modEnv.InitEnv(&zone->modEg, mkey, novel);
 		}
+
+		AmpValue panLft = midiCtrl->GetPan(chnl);
+		AmpValue panRgt = panLft;
+		if (zone->chan == 0)
+			panRgt += zone->pan;
+		else
+			panLft += zone->pan;
+		if (zone->linkZone)
+		{
+			if (zone->linkZone->chan == 0)
+				panRgt += zone->linkZone->pan;
+			else
+				panLft += zone->linkZone->pan;
+		}
+		else
+		{
+			if (zone->chan == 0)
+				panLft += (0 - zone->pan);
+			else
+				panRgt += (0 - zone->pan);
+		}
+		panr.Set(panSqr, panRgt);
+		panl.Set(panSqr, panLft);
 	}
-	volEnv.Reset(0);
-	modEnv.Reset(0);
+	if (!zone)
+	{
+		// failsafe - init so that output is all zeros
+		osc = new GenWaveSF1;
+		osc->InitSF(frq, 0, 0);
+		volEnv.InitEnv(NULL, mkey, novel);
+		panr.Set(panSqr, 0);
+		panl.Set(panSqr, 0);
+	}
 }
 
 void GMPlayer::Param(SeqEvent *se)
@@ -334,59 +366,98 @@ void GMPlayer::Param(SeqEvent *se)
 	// variable params are set indirectly through the MIDI controller object
 	// We handle a pitch change here so that the virtual keyboard works,
 	// and treat it like a note-off immediately followed by a note-on,
-	// iow - do a "START" with the new information...
+	// iow - do a "START", but retain ENV level
 	VarParamEvent *evt = (VarParamEvent *)se;
 	int nkey = evt->pitch + 12;
 	if (nkey != mkey)
+	{
+		AmpValue v = volEnv.GetCurLevel();
 		Start(se);
+		volEnv.SetCurLevel(v);
+	}
 }
 
 void GMPlayer::Stop()
 {
-	oscr.Release();
-	oscl.Release();
+	sustainOn = (gm->GetCC(chnl, MIDI_CTRL_SUS_ON) > 64)
+		     || (!sostenuto && gm->GetCC(chnl, MIDI_CTRL_SOS_ON) > 64);
+	if (sustainOn)
+		return;
+	osc->Release();
 	volEnv.Release();
+	modEnv.Release();
 }
 
 /// Produce the next sample.
 void GMPlayer::Tick()
 {
-	FrqValue frqVal = frq * gm->GetPitchbend(chnl);
-	AmpValue ampVal = vol * volEnv.Gen() * gm->GetVolume(chnl);
-	int modFrq = 0;
+	FrqValue frqPC = midiCtrl->GetPitchbendN(chnl);
+	AmpValue ampCB = vol + midiCtrl->GetVolumeCB(chnl) + ((1.0 - volEnv.Gen()) * 960.0);
 
-	if (viblfo.On())
-		frqVal += viblfo.Gen();
+	if (genFlags)
+	{
+		FrqValue mwFrq = 0;
+		AmpValue mwAmp = 0;
+		if (genFlags & SBGEN_MODENVF)
+			frqPC +=  modEnv.Gen() * zone->modEnvFrq;
+		if (genFlags & SBGEN_MODWHLX)
+		{
+			AmpValue mw = midiCtrl->GetCCN(chnl, MIDI_CTRL_MOD);
+			mwFrq = mw * zone->mwfScale;
+			mwAmp = mw * zone->mwaScale;
+		}
+		if (genFlags & SBGEN_VIBLFOF)
+		{
+			if (vibDelay == 0)
+				frqPC += viblfo.Gen() * (zone->vibLfoFrq + mwFrq);
+			else
+				vibDelay--;
+		}
+		if (genFlags & SBGEN_MODLFOX)
+		{
+			if (modDelay == 0)
+			{
+				AmpValue m = modlfo.Gen();
+				if (genFlags & SBGEN_MODLFOA)
+					ampCB += m * (zone->modLfoVol + mwAmp);
+				if (genFlags & SBGEN_MODLFOF)
+					frqPC += m * (zone->modLfoFrq + mwFrq);
+			}
+			else
+				modDelay--;
+		}
 
-	AmpValue oscValR = 0.0;
-	AmpValue oscValL = 0.0;
-	if (zoner)
-	{
-		oscl.UpdateFrequency(frqVal);
-		oscValR = ampVal * oscr.Gen();
+		if (genFlags & SBGEN_BRTHAMP)
+			ampCB += (zone->bthaScale * midiCtrl->GetCCN(chnl, MIDI_CTRL_BRTH));
+		if (genFlags & SBGEN_EXPRAMP)
+			ampCB += (zone->expaScale * midiCtrl->GetCCN(chnl, MIDI_CTRL_EXPR));
 	}
-	if (zonel)
-	{
-		oscl.UpdateFrequency(frqVal);
-		oscValL = ampVal * oscl.Gen();
-	}
-	if (localPan)
-	{
-		im->Output2(chnl,
-			(oscValR * panr.panlft) + (oscValL * panl.panlft),
-			(oscValR * panr.panrgt) + (oscValL * panl.panrgt));
-	}
-	else
-		im->Output(chnl, (oscValR + oscValL) / 2.0);
+
+	FrqValue frqVal = frq * synthParams.GetCentsMult((int)frqPC);
+	AmpValue ampVal = synthParams.AttenCB((int)ampCB);
+
+	osc->UpdateFrequency(frqVal);
+
+	AmpValue oscValR;
+	AmpValue oscValL;
+	osc->Tick(oscValL, oscValR);
+
+	im->Output2(chnl,
+		ampVal * ((oscValR * panr.panlft) + (oscValL * panl.panlft)),
+		ampVal * ((oscValR * panr.panrgt) + (oscValL * panl.panrgt)));
 }
 
 int  GMPlayer::IsFinished()
 {
-	if (gm->GetCC(chnl, 64) > 64) // sustain on
-		return 0;
-	if (!sostenuto && gm->GetCC(chnl, 67) > 64)
-		return 0;
-	return volEnv.IsFinished() || (zoner && oscr.IsFinished());
+	if (sustainOn)
+	{
+		if (midiCtrl->GetCC(chnl, MIDI_CTRL_SUS_ON) > 64) // sustain on
+			return 0;
+		if (!sostenuto && midiCtrl->GetCC(chnl, MIDI_CTRL_SOS_ON) > 64)
+			return 0;
+		Stop(); // sustain was on during Stop(), so do it now.
+	}
+	return volEnv.IsFinished() || osc->IsFinished();
 }
 
 void GMPlayer::Destroy()

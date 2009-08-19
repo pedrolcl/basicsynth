@@ -68,17 +68,19 @@ public:
 	SBSample *CreateSample(sfSample *shdr, short id);
 
 	int  AddHeaderGen(short gen);
-	void BuildInstrument(SBInstr *in, int n);
+	void ApplyModulator(SBZone *zone, sfModList *mp);
+	void BuildInstrument(SBInstr *in, int n, int pbagNdx);
 	void BuildPreset(int n);
 	void BuildSoundBank();
 
 	FrqValue SFEnvRate(short rt);
 	AmpValue SFEnvLevel(short amt);
 	AmpValue SFAttenuation(short amt);
-	FrqValue SFAbsCents(short amt);
+	AmpValue SFPercent(short amt);
+	FrqValue SFFrequency(short amt);
 	FrqValue SFRelCents(short amt);
-	FrqValue SFTimeCents(short amt);
-	FrqValue SFKeyScaleTime(short key, short amt);
+	//FrqValue SFTimeCents(short amt);
+	//FrqValue SFKeyScaleTime(short key, short amt);
 	char *CopyName(char *dst, char *src);
 	void InitGenVals(short *genVals);
 

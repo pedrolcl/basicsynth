@@ -58,10 +58,8 @@ protected:
 	int mono;           // force monophonic output
 	AmpValue vol;       // volume level
 	FrqValue frq;       // playback frequency
-	GenWaveSF oscl;     // left channel oscillator
-	GenWaveSF oscr;     // right channel oscillator
-	GenWaveSF oscl2;    // cross-fade oscillator right
-	GenWaveSF oscr2;    // cross-fade oscillator right
+	GenWaveSF *osc1;    // wavetable oscillator
+	GenWaveSF *osc2;    // cross-fade oscillator
 	EnvSegLin fadeEG;
 	bsInt32 xfade;
 	GenWaveWT oscfm;    // FM 'boost' oscillator
@@ -94,10 +92,8 @@ protected:
 	bsInt16 bnkNum;     // bank number, 0-128, 128=drum kit
 	bsInt16 preNum;     // preset number 0-127
 
-	SBZone *zonel;      // left channel zone
-	SBZone *zonel2;     // portamento zone
-	SBZone *zoner;      // right channel zone
-	SBZone *zoner2;
+	SBZone *zone;      // left channel zone
+	SBZone *zone2;     // portamento zone
 	Panner panl;        // left channel pan
 	Panner panr;        // right channel pan
 

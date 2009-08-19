@@ -21,51 +21,32 @@
 class MIDIChannelStatus
 {
 public:
-	AmpValue volume;
-	AmpValue aftertouch;
-	AmpValue expression;
-	FrqValue pitchbend;
-	FrqValue modwheel;
-	Panner pan;
-	bsInt16 bank;
-	bsInt16 patch;
-	bsInt16 cc[128]; // "raw" values
-	int enable;
-	bsInt32 pbcents;
-	bsInt32 pbsemi;
-	bsInt16 rpnlsb;
-	bsInt16 rpnmsb;
+	FrqValue pitchbendN;  ///< Normalized pitch bend (a/k/a pitch wheel)
+	AmpValue aftertouchN; ///< Normalized channel aftertouch
+	bsInt16 pitchbend;    ///< Raw pitch bend
+	bsInt16 aftertouch;   ///< raw channel aftertouch
+	bsInt16 cc[128];      ///< "raw" values
+	float   ccn[128];     ///< "normalized" values
+	bsInt16 bank;         ///< calculated bank number
+	bsInt16 patch;        ///< patch (aka program)
+	bsInt32 pbcents;      ///< pitch bend resolution, cents
+	bsInt32 pbsemi;       ///< pitch bend resolution, semi-tones
+	bsInt16 rpnlsb;       ///< currently selected parameter, lsb
+	bsInt16 rpnmsb;       ///< currently selected parameter, msb
+	int enable;           ///< channel is enabled to process messages
+	int channel;          ///< channel number, for reference
+	bsUint32 tickcnt;     ///< tick count - for recording, debugging or notification of changes
+	bsUint32 tickchng;    ///< tick number of last changed value
 
-	MIDIChannelStatus()
-	{
-		Reset();
-	}
-
-	void Reset()
-	{
-		volume = 1.0;
-		aftertouch = 0.0;
-		expression = 0.0;
-		pitchbend = 1.0;
-		modwheel = 0.0;
-		bank = 0;
-		patch = 0;
-		rpnlsb = -1;
-		rpnmsb = -1;
-		pbsemi = 2; // should this be 1 or 2 by default?
-		pbcents = 0;
-		memset(cc, 0, sizeof(cc));
-		cc[MIDI_CTRL_VOL] = 127;
-		cc[MIDI_CTRL_VOL_LSB] = 127;
-		cc[MIDI_CTRL_PAN] = 64;
-		enable = 1;
-	}
-
+	MIDIChannelStatus();
+	void Reset();
 	void ControlMessage(bsInt16 mmsg, bsInt16 ctrl, bsInt16 cval);
 
 	void Tick()
 	{
+		tickcnt++;
 		// at present - nothing to do here
+		// possbile: send out notifications of changes to registered objects
 	}
 };
 
@@ -87,27 +68,47 @@ public:
 	virtual void Tick();
 };
 
-/// MIDI Instrument control information.
-/// This class aggregates the bits and pieces needed to
+/// MIDI channel control information.
+/// This class aggregates some of the bits and pieces needed to
 /// emulate a MIDI keyboard synth. Sequencer control events
 /// are routed through the seqControl object and stored
 /// in the channel[] objects. The channel objects can be
 /// accessed directly for programatic control, i.e. when
 /// live MIDI data is being received.
+///
 /// A MIDI-aware instrument should be passed a reference
 /// to a MIDIControl object when then instrument is created.
 /// During playback, the instrument retrieves various
 /// parameters from the channel[] objects rather than
 /// having the information passed in a BasicSynth START or PARAM
-/// event. All MIDI-aware instruments should use the common LFO object as well.
+/// event.
+///
+/// Functions with 'N' return normalized values in the
+/// range [0,1]. Functions with 'CB' return centibels
+/// of attenation, range [0,960] where 0 is no attenuation and
+/// 960 is silence. The volCB[] and volAmp[] tables can also
+/// be used to perform transforms on raw values into either
+/// centibels of attenuation or linear volume using a convex curve.
 class MIDIControl
 {
 public:
-	MIDIChannelStatus channel[16];  // Channel status information
-	MIDISeqControl seqControl;      // Sequencer event handler
+	MIDIChannelStatus channel[16];  ///< Channel status information
+	MIDISeqControl seqControl;      ///< Sequencer event handler
+	static AmpValue volCB[128];     ///< volume (or velocity) to centibels (960 - 0)
+	static AmpValue volAmp[128];    ///< volume (or velocity) to amplitude (0 - 1)
 
 	MIDIControl() : seqControl(channel)
 	{
+		for (int ch = 0; ch < 16; ch++)
+			channel[ch].channel = ch;
+		volCB[0] = 960.0;
+		volAmp[0] = 0.0;
+		for (int vol = 1; vol < 128; vol++)
+		{
+			double cb = 200.0 * log10((127.0*127.0) / (double) (vol * vol));
+			volCB[vol] = (AmpValue) cb;
+			volAmp[vol] = synthParams.AttenCB((int)(cb+0.5));
+		}
 	}
 	
 	void Reset()
@@ -121,32 +122,76 @@ public:
 		channel[ch].enable = enable;
 	}
 
-	// Convenience functions
+	/// Convenience functions
 
 	inline FrqValue GetPitchbend(int chnl)
 	{
 		return channel[chnl].pitchbend;
 	}
 
-	inline FrqValue GetModwheel(int chnl)
+	inline FrqValue GetPitchbendN(int chnl)
 	{
-		return channel[chnl].modwheel;
+		return channel[chnl].pitchbendN;
 	}
 
-	inline AmpValue GetVolume(int chnl)
+	inline bsInt16 GetVolume(int chnl)
 	{
-		return channel[chnl].volume;
+		return channel[chnl].cc[MIDI_CTRL_VOL];
 	}
 
-	inline void SetVolume(int chnl, AmpValue vol)
+	inline float GetVolumeN(int chnl)
 	{
-		channel[chnl].cc[7] = (bsInt16) (vol * 127.0);
-		channel[chnl].volume = vol;
+		return channel[chnl].ccn[MIDI_CTRL_VOL];
 	}
 
-	inline AmpValue GetAftertouch(int chnl)
+	inline AmpValue GetVolumeCB(int chnl)
+	{
+		return volCB[channel[chnl].cc[MIDI_CTRL_VOL]];
+	}
+
+	inline bsInt16 GetModwheel(int chnl)
+	{
+		return channel[chnl].cc[MIDI_CTRL_MOD];
+	}
+
+	inline float GetModwheelN(int chnl)
+	{
+		return channel[chnl].ccn[MIDI_CTRL_MOD];
+	}
+
+	inline AmpValue GetModwheelCB(int chnl)
+	{
+		return volCB[channel[chnl].cc[MIDI_CTRL_MOD]];
+	}
+
+	inline bsInt16 GetExpr(int chnl)
+	{
+		return channel[chnl].cc[MIDI_CTRL_EXPR];
+	}
+
+	inline float GetExprN(int chnl)
+	{
+		return channel[chnl].ccn[MIDI_CTRL_EXPR];
+	}
+
+	inline AmpValue GetExprCB(int chnl)
+	{
+		return volCB[channel[chnl].cc[MIDI_CTRL_EXPR]];
+	}
+
+	inline bsInt16 GetAftertouch(int chnl)
 	{
 		return channel[chnl].aftertouch;
+	}
+
+	inline AmpValue GetAftertouchN(int chnl)
+	{
+		return (AmpValue) channel[chnl].aftertouchN;
+	}
+
+	inline AmpValue GetAftertouchCB(int chnl)
+	{
+		return volCB[channel[chnl].aftertouch];
 	}
 
 	inline bsInt16 GetPatch(int chnl)
@@ -169,9 +214,19 @@ public:
 		channel[chnl].bank = bank;
 	}
 
+	inline AmpValue GetPan(int chnl)
+	{
+		return channel[chnl].ccn[MIDI_CTRL_PAN];
+	}
+
 	inline bsInt16 GetCC(int chnl, int ccn)
 	{
 		return channel[chnl].cc[ccn];
+	}
+
+	inline AmpValue GetCCN(int chnl, int ccn)
+	{
+		return channel[chnl].ccn[ccn];
 	}
 
 	inline void SetCC(int chnl, bsInt16 ccn, bsInt16 val)

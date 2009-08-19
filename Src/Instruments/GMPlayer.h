@@ -24,28 +24,29 @@ class GMPlayer :
 	public SynthList<GMPlayer>
 {
 private:
-	bsInt16 chnl;       // MIDI channel
-	bsInt16 mkey;       // MIDI key number
-	bsInt16 novel;      // note-on velocity
-	bsInt16 localPan;   // use zone pan information
-	bsInt16 sostenuto;  // true when sostenuto was on before note start
-	FrqValue frq;       // playback frequency
-	AmpValue vol;       // playback volume level
-	GenWaveSF oscl;     // left channel oscillator
-	GenWaveSF oscr;     // right channel oscillator
-	EnvGenSF  volEnv;   // volume envelope (EG1)
-	EnvGenSF  modEnv;   // modulation envelope (EG2)
-	LFO viblfo;         // LF pitch variation
-	LFO modlfo;         // LF amplitude variation
-	SBInstr *preset;    // instrument patch
-	SBZone *zonel;      // left channel zone
-	SBZone *zoner;      // right channel zone
+	bsInt16 chnl;       ///< MIDI channel
+	bsInt16 mkey;       ///< MIDI key number
+	bsInt16 novel;      ///< note-on velocity
+	bsInt16 sostenuto;  ///< true when sostenuto was on before note start
+	bsInt16 sustainOn;  ///< true when sustain was on at release
+	bsInt32 vibDelay;   ///< delay before vibrato begins to affect output
+	bsInt32 modDelay;   ///< delay before modulator begins to affect output
+	FrqValue frq;       ///< playback frequency
+	AmpValue vol;       ///< playback volume level (centibels)
+	GenWaveSF *osc;      ///< wavetable oscillator
+	EnvGenSF  volEnv;   ///< volume envelope (EG1)
+	EnvGenSF  modEnv;   ///< modulation envelope (EG2)
+	GenWaveWT viblfo;   ///< LF pitch variation
+	GenWaveWT modlfo;   ///< LF amplitude variation
+	SBInstr *preset;    ///< instrument patch
+	SBZone *zone;       ///< zone for current pitch
 	Panner panr;
 	Panner panl;
 	InstrManager *im;
 	GMManager *gm;
 	SoundBank *sndbnk;
 	MIDIControl *midiCtrl;
+	bsInt32 genFlags;
 public:
 	GMPlayer();
 	GMPlayer(GMManager *g, InstrManager *m);
@@ -53,7 +54,6 @@ public:
 	void Reset();
 
 	void SetSoundBank(SoundBank *s) { sndbnk = s; }
-	void SetLocalPan(bsInt16 n) { localPan = n; }
 	void SetMidiControl(MIDIControl *mc) { midiCtrl = mc; }
 
 	virtual void Start(SeqEvent *evt);
@@ -152,6 +152,11 @@ public:
 	inline AmpValue GetAftertouch(int chnl)
 	{
 		return midiCtrl->GetAftertouch(chnl);
+	}
+
+	inline AmpValue GetPan(int chnl)
+	{
+		return midiCtrl->GetPan(chnl);
 	}
 
 	inline bsInt16 GetPatch(int chnl)

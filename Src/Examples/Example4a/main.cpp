@@ -166,14 +166,27 @@ void Dump(SBZone *zp)
 {
 	printf("  Zone %s\n", (const char *)zp->name);
 	printf("   Range: {%d,%d} {%d,%d}\n", zp->lowKey, zp->highKey, zp->lowVel, zp->highVel);
-	printf("   Vol EG: A=%f H=%f D=%f S=%f R=%f V=%f\n",
+	printf("   Vol EG: A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f V=%6.3f\n",
 		zp->volEg.attack, zp->volEg.hold, zp->volEg.decay, 
 		zp->volEg.sustain, zp->volEg.release, zp->volAtten);
-	printf("   Mod EG: A=%f H=%f D=%f S=%f R=%f\n",
+	printf("         : A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f V=%6.3f\n",
+		SoundBank::EnvRate(zp->volEg.attack),
+		SoundBank::EnvRate(zp->volEg.hold),
+		SoundBank::EnvRate(zp->volEg.decay), 
+		zp->volEg.sustain, 
+		SoundBank::EnvRate(zp->volEg.release),
+		SoundBank::Attenuation(zp->volAtten));
+	printf("   Mod EG: A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f F=%6.3f\n",
 		zp->modEg.attack, zp->modEg.hold, zp->modEg.decay, 
-		zp->modEg.sustain, zp->modEg.release);
-	printf("   Vib LFO: F=%f D=%f A=%f\n", zp->vibRate, zp->vibDelay, zp->vibAmount);
-	printf("   Mod LFO: F=%f D=%f A=%f\n", zp->modRate, zp->modDelay, zp->modAmount);
+		zp->modEg.sustain, zp->modEg.release, zp->modEnvFrq);
+	printf("         : A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f\n",
+		SoundBank::EnvRate(zp->modEg.attack),
+		SoundBank::EnvRate(zp->modEg.hold),
+		SoundBank::EnvRate(zp->modEg.decay), 
+		zp->modEg.sustain, 
+		SoundBank::EnvRate(zp->modEg.release));
+	printf("   Vib LFO: F=%6.3f D=%6.3f F=%6.3f\n", zp->vibLfo.rate, zp->vibLfo.delay, zp->vibLfoFrq);
+	printf("   Mod LFO: F=%6.3f D=%6.3f F=%6.3f A=%6.3f\n", zp->modLfo.rate, zp->modLfo.delay, zp->modLfoFrq, zp->modLfoVol);
 	printf("   Sample sr=%5.1f rf=%5.3f chan=%d key=%d cents=%d loop{%d,%d}, end=%d pan=%1.3f mode=%d\n",
 		zp->rate, zp->recFreq, zp->chan, zp->keyNum, zp->cents,
 		zp->loopStart, zp->loopEnd, zp->tableEnd, zp->pan, zp->mode);
@@ -197,14 +210,6 @@ void Dump(SBInstr *ip)
 			ModName(mi->srcOp), OpName(mi->dstOp),
 			mi->transOp, mi->srcAmntOp, mi->value);
 	}
-	/*
-	printf("  Key to decay rate:");
-	for (int k = 0; k < 128; k++)
-	{
-		if ((k & 0x7) == 0)
-			printf("\n");
-		printf("%8.4f ", ip->keyDecRate[k]);
-	}*/
 	SBZone *z = 0;
 	while ((z = ip->EnumZones(z)) != 0)
 		Dump(z);
@@ -710,110 +715,150 @@ class SFPlayer
 {
 private:
 	AmpValue vol;
-	GenWaveSF oscl;
-	GenWaveSF oscr;
+	GenWaveSF *osc;
 	GenWaveWT vib;
-	SFEnvelope volEnv;  // volume envelope
+	GenWaveWT mod;
+	EnvGenSF volEnv;  // volume envelope
+	EnvGenSF modEnv;
 	Panner panr;
 	Panner panl;
-	SBZone *zoner;
-	SBZone *zonel;
+	SBZone *zone;
+	SBInstr *instr;
 	int pitch;
 	int vel;
 	int mono;
+	bsInt32 vibDelay;
+	bsInt32 modDelay;
 	FrqValue frq;
 public:
 
 	SFPlayer()
 	{
 		vol = 1.0;
-		zoner = 0;
-		zonel = 0;
+		zone = 0;
 		pitch = 57;
 		frq = 440;
 		mono = 0; // force mono mode
 		vel = 60;
+		osc = 0;
 	}
 
-	void Init(int pit, SBInstr *in, SBZone *z, int m = 1)
+	void Init(int pit, SBInstr *in, SBZone *z)
 	{
+		if (osc)
+			delete osc;
+		instr = in;
 		vol = 1.0;
 		pitch = pit;
 		frq = synthParams.GetFrequency(pit-12); 
-		mono = m;
 
-		if ((zoner = z) != 0)
+		osc = new GenWaveSF1;
+		if ((zone = z) != 0)
 		{
-			volEnv.SetDelay(zoner->volEg.delay);
-			volEnv.SetAttack(zoner->volEg.attack * in->velAtkRate[vel]);
-			volEnv.SetHold(zoner->volEg.hold * in->keyHoldRate[pit]);
-			volEnv.SetDecay(zoner->volEg.decay * in->keyDecRate[pit]);
-			volEnv.SetRelease(zoner->volEg.release);
-			volEnv.SetSustain(zoner->volEg.sustain);
-			oscr.InitSF(frq, zoner);
-			panr.Set(panSqr, zoner->pan);
-			vol = zoner->volAtten;
-
-			//vib.InitWT(zoner->vibRate, WT_SIN);
+			osc->InitSF(frq, zone, 0);
+			volEnv.InitEnv(&zone->volEg, pit, 100);
+			modEnv.InitEnv(&zone->modEg, pit, 100);
+			vibDelay = (bsInt32) (zone->vibLfo.delay * synthParams.sampleRate);
+			modDelay = (bsInt32) (zone->modLfo.delay * synthParams.sampleRate);
+			vib.InitWT(zone->vibLfo.rate, WT_SIN);
+			mod.InitWT(zone->modLfo.rate, WT_SIN);
+			panr.Set(panSqr, zone->pan);
+			panl.Set(panSqr, zone->pan);
+			vol = zone->volAtten;
 		}
-		volEnv.Start();
-		zonel = 0;
+		else
+		{
+			osc->InitSF(frq, 0, 0);
+			volEnv.InitEnv(0, pit, 100);
+			modEnv.InitEnv(0, pit, 100);
+			vib.InitWT(5.2, WT_SIN);
+			mod.InitWT(5.2, WT_SIN);
+			panr.Set(panSqr, 0);
+			panl.Set(panSqr, 0);
+			vol = 1.0;
+		}
+		volEnv.Reset(0);
+		modEnv.Reset(0);
 	}
 
-	void Init(int pit, SBInstr *in, int m = 1)
+	void Init(int pit, SBInstr *in)
 	{
-		Init(pit, in, in->GetZone(pit, 60, 0), m);
-		if (!m)
-		{
-			zonel = in->GetZone(pit, 60, 1);
-			if (zonel)
-			{
-				oscl.InitSF(frq, zonel);
-				panl.Set(panSqr, zonel->pan);
-			}
-			else
-				mono = 1;
-		}
+		if (osc)
+			delete osc;
+
+		mono = 0;
+		instr = in;
+		vol = 1.0;
+		pitch = pit;
+		frq = synthParams.GetFrequency(pit-12); 
+
+		SBZone *zone = in->GetZone(pit, 100, 0);
+		if (zone->sample->channels == 2 || zone->sample->linkSamp)
+			osc = new GenWaveSF2;
+		else if (zone->linkZone)
+			osc = new GenWaveSF3;
+		else
+			osc = new GenWaveSF1;
+		osc->InitSF(frq, zone, 0);
+		volEnv.InitEnv(&zone->volEg, pit, 100);
+		modEnv.InitEnv(&zone->modEg, pit, 100);
+		vibDelay = (bsInt32) (zone->vibLfo.delay * synthParams.sampleRate);
+		modDelay = (bsInt32) (zone->modLfo.delay * synthParams.sampleRate);
+		vib.InitWT(zone->vibLfo.rate, WT_SIN);
+		mod.InitWT(zone->modLfo.rate, WT_SIN);
+		panr.Set(panSqr, zone->pan);
+		if (zone->linkZone)
+			panl.Set(panSqr, zone->linkZone->pan);
+		else
+			panl.Set(panSqr, zone->pan);
+		vol = zone->volAtten;
 	}
 
 	void Stop()
 	{
 		volEnv.Release();
-		if (zoner)
-			oscr.Release();
-		if (zonel)
-			oscl.Release();
+		modEnv.Release();
+		osc->Release();
 	}
 
 	int IsFinished()
 	{
-		return volEnv.IsFinished() || (zoner && oscr.IsFinished());
+		return volEnv.IsFinished() || osc->IsFinished();
 	}
 
 	void Tick(WaveOutBuf *wf)
 	{
-		AmpValue oscValr = 0;
-		AmpValue oscVall = 0;
-		AmpValue out = 0;
-		AmpValue ampVal = volEnv.Gen() * vol;
-		if (zoner)
-		{
-			oscValr = ampVal * oscr.Gen();
-			out = oscValr;
-		}
-		if (zonel)
-		{
-			oscVall = ampVal * oscl.Gen();
-			out = (out + oscVall) * 0.5;
-		}
-		if (mono)
-			wf->Output2(out * panr.panlft, out * panr.panrgt);
+		FrqValue frqPC = modEnv.Gen() * zone->modEnvFrq;
+		AmpValue ampCB = vol;
+
+		if (vibDelay == 0)
+			frqPC += vib.Gen() * zone->vibLfoFrq;
 		else
+			vibDelay--;
+
+		if (modDelay == 0)
 		{
-			wf->Output2(
-				(oscVall * panl.panlft) + (oscValr * panr.panlft),
-				(oscVall * panl.panrgt) + (oscValr * panr.panrgt));
+			AmpValue m = mod.Gen();
+			frqPC += m * zone->modLfoFrq;
+			ampCB += m * zone->modLfoVol;
 		}
+		else
+			modDelay--;
+
+		ampCB += (1.0 - volEnv.Gen()) * 960.0;
+
+		FrqValue frqVal = frq * synthParams.GetCentsMult((int) frqPC);
+//		AmpValue ampVal = volEnv.Gen() * synthParams.AttenCB((int)ampCB);
+		AmpValue ampVal = synthParams.AttenCB((int)ampCB);
+
+		osc->UpdateFrequency(frqVal);
+
+		AmpValue oscValr;
+		AmpValue oscVall;
+		osc->Tick(oscVall, oscValr);
+		wf->Output2(
+			ampVal * ((oscVall * panl.panlft) + (oscValr * panr.panlft)),
+			ampVal * ((oscVall * panl.panrgt) + (oscValr * panr.panrgt)));
 	}
 };
 
@@ -835,11 +880,14 @@ void PlayPreset(SoundBank *bnk, int bnkNum, int preNum, int mono)
 	strcpy(waveFile, wavePrefix);
 	strcat(waveFile, instr->instrName);
 	strcat(waveFile, ".wav");
-	for (char *cp = waveFile; *cp; cp++)
+	char *sep = &waveFile[strlen(wavePrefix)];
+	while (*sep)
 	{
-		if (*cp == '/' || *cp == '\\')
-			*cp = '_';
+		if (*sep == '/' || *sep == '\\')
+			*sep = '_';
+		sep++;
 	}
+
 	if (wf.OpenWaveFile(waveFile, 2))
 	{
 		fprintf(stderr, "Cannot open file '%s'\n", (const char *)waveFile);
@@ -882,7 +930,7 @@ void PlayPreset(SoundBank *bnk, int bnkNum, int preNum, int mono)
 		dur = zone->sampleLen;
 		if (zone->mode) // looped
 			dur *= 4;
-		play.Init(pit, instr, zone, mono);
+		play.Init(pit, instr, zone);
 		for (t = 0; t < dur; t++)
 			play.Tick(&wf);
 		play.Stop();
@@ -902,7 +950,7 @@ void PlayPreset(SoundBank *bnk, int bnkNum, int preNum, int mono)
 		int pitches[] = { 36, 48, 60, 72, 84, -1 };
 		for (pit = 0; pitches[pit] != -1; pit++)
 		{
-			play.Init(pitches[pit], instr, mono);
+			play.Init(pitches[pit], instr);
 			for (t = 0; t < dur; t++)
 				play.Tick(&wf);
 			play.Stop();

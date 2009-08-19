@@ -248,7 +248,7 @@ void SMFFile::ChnlMessage(bsUint16 msg)
 		evt->val1 = *inpPos++;
 		evt->val2 = *inpPos++;
 		evt->val1 += evt->val2 << 7;
-		evt->val1 -= 8192;
+		//evt->val1 -= 8192;
 		break;
 	default:
 		delete evt;
@@ -354,7 +354,8 @@ void SMFFile::NoteOff(short chnl, short key, short vel, short track)
 	evt->duration = (bsInt32) dur;
 	evt->pitch = key - 12;
 	evt->frq = synthParams.GetFrequency(evt->pitch);
-	evt->vol = cs->volume;
+	// this gets applied at playback time from CC#7
+	evt->vol = 1.0;
 	evt->noteonvel = cs->velocity[key];
 	if (pm->bnkParam > 0)
 		evt->SetParam(pm->bnkParam, cs->bank);
@@ -387,29 +388,23 @@ void SMFFile::ControlChange(short chnl, short ctl, short val, short track)
 	{
 	case MIDI_CTRL_BANK_LSB:
 		if (gmbank)
-		{
-			if (chnl == 9) // channel 9 is 'magic' and is always the drum track
-				val = 128;
-			else
-				val = 0;
-			cs->bank = val;
-		}
-		else
-		{
-			cs->bank &= ~0x7f;
-			cs->bank |= val;
-		}
+			break; // for GM, bank is always 0 or 128, and the LSB is redundant
+		cs->bank &= ~0x7f;
+		cs->bank |= val;
 		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;
 	case MIDI_CTRL_BANK:
 		if (gmbank)
-			break; // for GM, bank is always 0 or 128, and the MSB is redundant
+		{
+			if (chnl == 9) // channel 9 is 'magic' and is always the drum track
+				val = 1;
+			else
+				val = 0;
+		}
 		cs->bank &= ~0x3F8;
 		cs->bank |= (val << 7);
 		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;
-	case MIDI_CTRL_VOL:
-		cs->volume = (float) val / 127.0;
 	default:
 		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;

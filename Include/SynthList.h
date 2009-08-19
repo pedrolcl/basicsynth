@@ -130,6 +130,12 @@ public:
 			tail.InsertBefore(itm);
 		return itm;
 	}
+
+	T *AddItem(T *itm)
+	{
+		tail.InsertBefore(itm);
+		return itm;
+	}
 };
 
 //@}
