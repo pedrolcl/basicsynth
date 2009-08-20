@@ -42,7 +42,6 @@ SFPlayerInstr::SFPlayerInstr()
 	chnl = 0;
 	pitch = 57;
 	monoSet = 1;
-	mono = 1;
 	vol = 1.0;
 	frq = 440.0;
 
@@ -50,25 +49,22 @@ SFPlayerInstr::SFPlayerInstr()
 	preset = 0;
 	bnkNum = -1;
 	preNum = -1;
-	sfEnv = 1;
 	xfade = 0;
 
 	// default 'boxcar' envelope
-	volEnv.SetAtkRt(0.001);
+	volEnv.SetAtkRt(0.0);
 	volEnv.SetAtkLvl(1.0);
 	volEnv.SetDecRt(0.0);
 	volEnv.SetSusLvl(1.0);
-	volEnv.SetRelRt(0.001);
-	volSet.Alloc(3, 0.0, 1);
+	volEnv.SetRelRt(0.01);
 
-	modPan = 0;
-	modFrq = 0;
-	modVol = 0;
-	modPanScale = 0.0;
-	modFrqScale = 0.0;
-	modVolScale = 0.0;
+	modEnv.SetAtkRt(0.0);
+	modEnv.SetAtkLvl(0.0);
+	modEnv.SetDecRt(0.0);
+	modEnv.SetSusLvl(0.0);
+	modEnv.SetRelRt(0.0);
 
-	fmCM = 0;
+	fmCM = 0.0;
 	fmIM = 0.0;
 
 	osc1 = 0;
@@ -87,7 +83,7 @@ SFPlayerInstr::SFPlayerInstr(SFPlayerInstr *tp)
 	zone2 = 0;
 	im = 0;
 	xfade = 0;
-	mono = 1;
+	monoSet = 1;
 
 	Copy(tp);
 }
@@ -121,29 +117,19 @@ void SFPlayerInstr::Copy(SFPlayerInstr *tp)
 	preNum = tp->preNum;
 	sndFile = tp->sndFile;
 	preName = tp->preName;
-	sfEnv = tp->sfEnv;
 
 	chnl = tp->chnl;
 	pitch = tp->pitch;
 	monoSet = tp->monoSet;
 	vol = tp->vol;
 	frq = tp->frq;
-	modPan = tp->modPan;
-	modFrq = tp->modFrq;
-	modVol = tp->modVol;
-	modPanScale = tp->modPanScale;
-	modFrqScale = tp->modFrqScale;
-	modVolScale = tp->modVolScale;
 
 	fmCM = tp->fmCM;
 	fmIM = tp->fmIM;
 
-	volSet.Copy(&tp->volSet);
-	modSet.Copy(&tp->modSet);
-	//volEnv.Copy(&tp->volEnv);
-	//modEnv.Copy(&tp->modEnv);
+	volEnv.Copy(&tp->volEnv);
+	modEnv.Copy(&tp->modEnv);
 	vibLFO.Copy(&tp->vibLFO);
-	modLFO.Copy(&tp->modLFO);
 }
 
 /// Start playing a note.
@@ -161,7 +147,6 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 
 	zone = 0;
 	xfade = 0;
-	mono = monoSet;
 
 	if (osc1)
 		delete osc1;
@@ -183,16 +168,7 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 				osc1 = new GenWaveSF3;
 			else
 				osc1 = new GenWaveSF1;
-
 			osc1->InitSF(oscFrq, zone, 0);
-			if (sfEnv)
-			{
-				volEnv.SetAtkRt(SoundBank::EnvRate(zone->volEg.attack));
-				volEnv.SetAtkLvl(1.0);
-				volEnv.SetDecRt(SoundBank::EnvRate(zone->volEg.decay));
-				volEnv.SetSusLvl(zone->volEg.sustain);
-				volEnv.SetRelRt(SoundBank::EnvRate(zone->volEg.release));
-			}
 		}
 	}
 	if (!osc1)
@@ -200,26 +176,14 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 		osc1 = new GenWaveSF1;
 		osc1->InitSF(oscFrq, 0, 0);
 	}
-	if (!preset || !zone || !sfEnv)
-		volEnv.SetEnvDef(&volSet);
 	volEnv.Reset(0);
-	if (modFrq & 4)
-	{
-		FrqValue fm = oscFrq * fmCM;
-		oscfm.InitWT(fm, WT_SIN);
-		fmDf = fmIM * fm;
-	}
-	if ((modFrq | modPan) & 2)
-	{
-		modEnv.SetEnvDef(&modSet);
-		modEnv.Reset(0);
-	}
-	modLFO.Reset(0);
-	if (modFrq & 1)
-	{
-		vibLFO.SetSigFrq(oscFrq);
-		vibLFO.Reset(0);
-	}
+	FrqValue fmFrq = oscFrq * fmCM;
+	oscfm.InitWT(fmFrq, WT_SIN);
+	fmAmp = fmFrq * fmIM;
+	fmOn = fmAmp > 0;
+	modEnv.Reset(0);
+	vibLFO.SetSigFrq(oscFrq);
+	vibLFO.Reset(0);
 }
 
 void SFPlayerInstr::Param(SeqEvent *evt)
@@ -249,22 +213,15 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 			xfade = synthParams.sampleRate / 10;
 			fadeEG.InitSegTick(xfade, 0.0, 1.0);
 		}
-		else
-			osc1->UpdateFrequency(params->frq);
 
 		frq = params->frq;
-		if (modFrq & 1)
-			vibLFO.SetSigFrq(frq);
-		if (modFrq & 4)
-		{
-			FrqValue fm = frq * fmCM;
-			oscfm.SetFrequency(fm);
-			oscfm.Reset(-1);
-			fmDf = fmIM * fm;
-		}
+		vibLFO.SetSigFrq(frq);
+		oscfm.SetFrequency(frq * fmCM);
+		oscfm.Reset(-1);
 	}
+	fmAmp = frq * fmCM * fmIM;
+	fmOn = fmAmp > 0;
 	vibLFO.Reset(-1);
-	modLFO.Reset(-1);
 }
 
 void SFPlayerInstr::Stop()
@@ -278,44 +235,16 @@ void SFPlayerInstr::Stop()
 void SFPlayerInstr::Tick()
 {
 	FrqValue newFrq = frq;
-	AmpValue panAdd = 0;
-
 	AmpValue ampVal = vol * volEnv.Gen();
 
-	AmpValue modOut = modLFO.Gen();
-	if (modPan & 1)
-		panAdd = modOut * modPanScale;
-	if (modVol & 1)
-		ampVal += modOut * modVolScale;
-
-	if ((modFrq | modPan) & 2)
-	{
-		// run the modulation envelope
-		AmpValue modVal = modEnv.Gen();
-		if (modFrq & 2)	// apply to pitch bend
-			newFrq = frq * synthParams.GetCentsMult((int) (modVal * modFrqScale));
-		if (modPan & 2) // apply to pan
-			panAdd += modVal * modPanScale;
-	}
-	if (modFrq & 1)
+	if (fmOn)
+		newFrq += oscfm.Gen() * modEnv.Gen() * fmAmp;
+	if (vibLFO.On())
 		newFrq += vibLFO.Gen();
-	if (modFrq & 4)
-	{
-		if (modFrq & 3)
-		{
-			FrqValue fm = newFrq * fmCM;
-			oscfm.SetFrequency(fm);
-			oscfm.Reset(-1);
-			fmDf = fmIM * fm;
-		}
-		newFrq += oscfm.Gen() * fmDf;
-	}
 
 	AmpValue oscValR = 0.0;
 	AmpValue oscValL = 0.0;
-	AmpValue out = 0.0;
-	if (modFrq)
-		osc1->UpdateFrequency(newFrq);
+	osc1->UpdateFrequency(newFrq);
 	osc1->Tick(oscValL, oscValR);
 	if (xfade > 0)
 	{
@@ -330,33 +259,20 @@ void SFPlayerInstr::Tick()
 		{
 			delete osc1;
 			osc1 = osc2;
-			delete osc2;
 			osc2 = 0;
 			zone = zone2;
 			zone2 = 0;
 		}
 	}
-	if (monoSet || mono)
-	{
+	if (monoSet)
 		im->Output(chnl, (oscValR + oscValL) * 0.5 * ampVal);
-	}
 	else
-	{
-		if (modPan)
-		{
-			panr.Set(panSqr, panAdd);
-			panl.Set(panSqr, panAdd);
-		}
-
-		im->Output2(chnl,
-			ampVal * ((oscValR * panr.panlft) + (oscValL * panl.panlft)),
-			ampVal * ((oscValR * panr.panrgt) + (oscValL * panl.panrgt)));
-	}
+		im->Output2(chnl, ampVal * oscValL, ampVal * oscValR);
 }
 
 int  SFPlayerInstr::IsFinished()
 {
-	return volEnv.IsFinished() || (osc1->IsFinished());
+	return volEnv.IsFinished() || osc1->IsFinished();
 }
 
 void SFPlayerInstr::Destroy()
@@ -401,62 +317,55 @@ int SFPlayerInstr::SetParam(bsInt16 idval, float val)
 	case 18:
 		monoSet = (int) val;
 		break;
-	case 19:
-		sfEnv = (int) val;
-		break;
 
 	case 20:
-		volSet.SetStart(AmpValue(val));
+		volEnv.SetStart(AmpValue(val));
 		break;
 	case 21:
-		volSet.SetRate(0, FrqValue(val));
+		volEnv.SetAtkRt(FrqValue(val));
 		break;
 	case 22:
-		volSet.SetLevel(0, AmpValue(val));
+		volEnv.SetAtkLvl(AmpValue(val));
 		break;
 	case 23:
-		volSet.SetRate(1, FrqValue(val));
+		volEnv.SetDecRt(FrqValue(val));
 		break;
 	case 24:
-		volSet.SetLevel(1, AmpValue(val));
+		volEnv.SetSusLvl(AmpValue(val));
 		break;
 	case 25:
-		volSet.SetRate(2, FrqValue(val));
+		volEnv.SetRelRt(FrqValue(val));
 		break;
 	case 26:
-		volSet.SetLevel(2, AmpValue(val));
+		volEnv.SetRelLvl(AmpValue(val));
 		break;
 	case 27:
-		volSet.SetType(0, (EGSegType) (int) val);
-		volSet.SetType(1, (EGSegType) (int) val);
-		volSet.SetType(2, (EGSegType) (int) val);
+		volEnv.SetType((EGSegType) (int) val);
 		break;
 
 	case 30:
-		modSet.SetStart(AmpValue(val));
+		modEnv.SetStart(AmpValue(val));
 		break;
 	case 31:
-		modSet.SetRate(0, FrqValue(val));
+		modEnv.SetAtkRt(FrqValue(val));
 		break;
 	case 32:
-		modSet.SetLevel(0, AmpValue(val));
+		modEnv.SetAtkLvl(AmpValue(val));
 		break;
 	case 33:
-		modSet.SetRate(1, FrqValue(val));
+		modEnv.SetDecRt(FrqValue(val));
 		break;
 	case 34:
-		modSet.SetLevel(1, AmpValue(val));
+		modEnv.SetSusLvl(AmpValue(val));
 		break;
 	case 35:
-		modSet.SetRate(2, FrqValue(val));
+		modEnv.SetRelRt(FrqValue(val));
 		break;
 	case 36:
-		modSet.SetLevel(2, AmpValue(val));
+		modEnv.SetRelLvl(AmpValue(val));
 		break;
 	case 37:
-		modSet.SetType(0, (EGSegType) (int) val);
-		modSet.SetType(1, (EGSegType) (int) val);
-		modSet.SetType(2, (EGSegType) (int) val);
+		modEnv.SetType((EGSegType) (int) val);
 		break;
 
 	case 40:
@@ -471,42 +380,10 @@ int SFPlayerInstr::SetParam(bsInt16 idval, float val)
 	case 43:
 		vibLFO.SetLevel(AmpValue(val));
 		break;
-
 	case 44:
-		modLFO.SetFrequency(FrqValue(val));
-		break;
-	case 45:
-		modLFO.SetWavetable((int) val);
-		break;
-	case 46:
-		modLFO.SetAttack(FrqValue(val));
-		break;
-	case 47:
-		modLFO.SetLevel(AmpValue(val));
-		break;
-	case 50:
-		modFrq = (bsInt16) val;
-		break;
-	case 51:
-		modFrqScale = val;
-		break;
-	case 52:
-		modPan = (bsInt16) val;
-		break;
-	case 53:
-		modPanScale = val;
-		break;
-	case 54:
-		modVol = (bsInt16) val;
-		break;
-	case 55:
-		modVolScale = val;
-		break;
-
-	case 60:
 		fmCM = val;
 		break;
-	case 61:
+	case 45:
 		fmIM = val;
 		break;
 
@@ -529,58 +406,55 @@ int SFPlayerInstr::GetParam(bsInt16 idval, float *val)
 	case 18:
 		*val = (float) monoSet;
 		break;
-	case 19:
-		*val = (float) sfEnv;
-		break;
 
 	case 20:
-		*val = volSet.GetStart();
+		*val = volEnv.GetStart();
 		break;
 	case 21:
-		*val = volSet.GetRate(0);
+		*val = volEnv.GetAtkRt();
 		break;
 	case 22:
-		*val = volSet.GetLevel(0);
+		*val = volEnv.GetAtkLvl();
 		break;
 	case 23:
-		*val = volSet.GetRate(1);
+		*val = volEnv.GetDecRt();
 		break;
 	case 24:
-		*val = volSet.GetLevel(1);
+		*val = volEnv.GetSusLvl();
 		break;
 	case 25:
-		*val = volSet.GetRate(2);
+		*val = volEnv.GetRelRt();
 		break;
 	case 26:
-		*val = volSet.GetLevel(2);
+		*val = volEnv.GetRelLvl();
 		break;
 	case 27:
-		*val = (float) (int) volSet.GetType(0);
+		*val = (float) (int) volEnv.GetType();
 		break;
 
 	case 30:
-		*val = modSet.GetStart();
+		*val = modEnv.GetStart();
 		break;
 	case 31:
-		*val = modSet.GetRate(0);
+		*val = modEnv.GetAtkRt();
 		break;
 	case 32:
-		*val = modSet.GetLevel(0);
+		*val = modEnv.GetAtkLvl();
 		break;
 	case 33:
-		*val = modSet.GetRate(1);
+		*val = modEnv.GetDecRt();
 		break;
 	case 34:
-		*val = modSet.GetLevel(1);
+		*val = modEnv.GetSusLvl();
 		break;
 	case 35:
-		*val = modSet.GetRate(2);
+		*val = modEnv.GetRelRt();
 		break;
 	case 36:
-		*val = modSet.GetLevel(2);
+		*val = modEnv.GetRelLvl();
 		break;
 	case 37:
-		*val = (float) (int) modSet.GetType(0);
+		*val = (float) (int) modEnv.GetType();
 		break;
 
 	case 40:
@@ -595,43 +469,10 @@ int SFPlayerInstr::GetParam(bsInt16 idval, float *val)
 	case 43:
 		*val = vibLFO.GetLevel();
 		break;
-
 	case 44:
-		*val = modLFO.GetFrequency();
-		break;
-	case 45:
-		*val = (float) modLFO.GetWavetable();
-		break;
-	case 46:
-		*val = modLFO.GetAttack();
-		break;
-	case 47:
-		*val = modLFO.GetLevel();
-		break;
-
-	case 50:
-		*val = (float) modFrq;
-		break;
-	case 51:
-		*val = modFrqScale;
-		break;
-	case 52:
-		*val = (float) modPan;
-		break;
-	case 53:
-		*val = modPanScale;
-		break;
-	case 54:
-		*val = (float) modVol;
-		break;
-	case 55:
-		*val = modVolScale;
-		break;
-
-	case 60:
 		*val = fmCM;
 		break;
-	case 61:
+	case 45:
 		*val = fmIM;
 		break;
 
@@ -649,45 +490,32 @@ int SFPlayerInstr::GetParams(VarParamEvent *params)
 	params->SetParam(16, (float) bnkNum);
 	params->SetParam(17, (float) preNum);
 	params->SetParam(18, (float) monoSet);
-	params->SetParam(19, (float) sfEnv);
 
-	params->SetParam(20, (float) volSet.GetStart());
-	params->SetParam(21, (float) volSet.GetRate(0));
-	params->SetParam(22, (float) volSet.GetLevel(0));
-	params->SetParam(23, (float) volSet.GetRate(1));
-	params->SetParam(24, (float) volSet.GetLevel(1));
-	params->SetParam(25, (float) volSet.GetRate(2));
-	params->SetParam(26, (float) volSet.GetLevel(2));
-	params->SetParam(27, (float) volSet.GetType(0));
+	params->SetParam(20, (float) volEnv.GetStart());
+	params->SetParam(21, (float) volEnv.GetAtkRt());
+	params->SetParam(22, (float) volEnv.GetAtkLvl());
+	params->SetParam(23, (float) volEnv.GetDecRt());
+	params->SetParam(24, (float) volEnv.GetSusLvl());
+	params->SetParam(25, (float) volEnv.GetRelRt());
+	params->SetParam(26, (float) volEnv.GetRelLvl());
+	params->SetParam(27, (float) volEnv.GetType());
 
-	params->SetParam(30, (float) modSet.GetStart());
-	params->SetParam(31, (float) modSet.GetRate(0));
-	params->SetParam(32, (float) modSet.GetLevel(0));
-	params->SetParam(33, (float) modSet.GetRate(1));
-	params->SetParam(34, (float) modSet.GetLevel(1));
-	params->SetParam(35, (float) modSet.GetRate(2));
-	params->SetParam(36, (float) modSet.GetLevel(2));
-	params->SetParam(37, (float) modSet.GetType(0));
+	params->SetParam(30, (float) modEnv.GetStart());
+	params->SetParam(31, (float) modEnv.GetAtkRt());
+	params->SetParam(32, (float) modEnv.GetAtkLvl());
+	params->SetParam(33, (float) modEnv.GetDecRt());
+	params->SetParam(34, (float) modEnv.GetSusLvl());
+	params->SetParam(35, (float) modEnv.GetRelRt());
+	params->SetParam(36, (float) modEnv.GetRelLvl());
+	params->SetParam(37, (float) modEnv.GetType());
 
 	params->SetParam(40, (float) vibLFO.GetFrequency());
 	params->SetParam(41, (float) vibLFO.GetWavetable());
 	params->SetParam(42, (float) vibLFO.GetAttack());
 	params->SetParam(43, (float) vibLFO.GetLevel());
 
-	params->SetParam(44, (float) modLFO.GetFrequency());
-	params->SetParam(45, (float) modLFO.GetWavetable());
-	params->SetParam(46, (float) modLFO.GetAttack());
-	params->SetParam(47, (float) modLFO.GetLevel());
-
-	params->SetParam(50, (float) modFrq);
-	params->SetParam(51, (float) modFrqScale);
-	params->SetParam(52, (float) modPan);
-	params->SetParam(53, (float) modPanScale);
-	params->SetParam(54, (float) modVol);
-	params->SetParam(55, (float) modVolScale);
-
-	params->SetParam(60, (float) fmCM);
-	params->SetParam(61, (float) fmIM);
+	params->SetParam(44, (float) fmCM);
+	params->SetParam(45, (float) fmIM);
 
 	return 0;
 }
@@ -698,32 +526,20 @@ static InstrParamMap sfPlayerParams[] =
 {
 	{"bank", 16 }, 
 
-	{"fmcm", 60 },
-	{"fmim", 61 },
+	{"fmcm", 44 },
+	{"fmim", 45 },
 
 	{"modAttack", 31},
 	{"modDecay", 33},
 	{"modEnd", 36},
-	{"modFrq", 50 }, 
-	{"modFrqScale", 51 },
-	{"modLfoAttack", 47},
-	{"modLfoFrq", 45},
-	{"modLfoLevel", 48},
-	{"modLfoWT", 46},
-	{"modPan", 52 },
-	{"modPanScale", 53 }, 
 	{"modPeak", 33}, 
 	{"modRelease", 35},
 	{"modStart", 30},
 	{"modSustain", 34},
 	{"modType", 37},
-	{"modVol", 54},
-	{"modVolScale", 55},
 
 	{"monoSet", 18},
 	{"preset", 17 }, 
-
-	{"sfenv", 19 },
 
 	{"vibLfoAttack", 40},
 	{"vibLfoFrq", 41},
@@ -751,10 +567,10 @@ const char *SFPlayerInstr::MapParamName(bsInt16 id, Opaque tmplt)
 }
 
 
-int SFPlayerInstr::LoadEnv(XmlSynthElem *elem, EnvDef& envSet)
+int SFPlayerInstr::LoadEnv(XmlSynthElem *elem, EnvGenADSR& env)
 {
 	double dvals[7];
-	long ival;
+	short ival;
 	elem->GetAttribute("st",  dvals[0]);
 	elem->GetAttribute("atk", dvals[1]);
 	elem->GetAttribute("pk",  dvals[2]);
@@ -763,10 +579,15 @@ int SFPlayerInstr::LoadEnv(XmlSynthElem *elem, EnvDef& envSet)
 	elem->GetAttribute("rel", dvals[5]);
 	elem->GetAttribute("end", dvals[6]);
 	elem->GetAttribute("ty", ival);
-	envSet.Alloc(3, dvals[0], 1);
-	envSet.Set(0, dvals[1], dvals[2], (EGSegType) ival, 1);
-	envSet.Set(1, dvals[3], dvals[4], (EGSegType) ival, 1);
-	envSet.Set(2, dvals[5], dvals[6], (EGSegType) ival, 1);
+	env.SetStart(dvals[0]);
+	env.SetAtkRt(dvals[1]);
+	env.SetAtkLvl(dvals[2]);
+	env.SetDecRt(dvals[3]);
+	env.SetSusLvl(dvals[4]);
+	env.SetRelRt(dvals[5]);
+	env.SetRelLvl(dvals[6]);
+	env.SetType((EGSegType)ival);
+
 	return 0;
 }
 
@@ -780,24 +601,16 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 	while (next != NULL)
 	{
 		if (elem.TagMatch("venv"))
-			LoadEnv(&elem, volSet);
+			LoadEnv(&elem, volEnv);
 		else if (elem.TagMatch("menv"))
-			LoadEnv(&elem, modSet);
+			LoadEnv(&elem, modEnv);
 		else if (elem.TagMatch("vlfo"))
 			vibLFO.Load(&elem);
-		else if (elem.TagMatch("mlfo"))
-			modLFO.Load(&elem);
 		else if (elem.TagMatch("sf"))
 		{
 			elem.GetAttribute("bank", bnkNum);
 			elem.GetAttribute("preset", preNum);
 			elem.GetAttribute("mono", monoSet);
-			elem.GetAttribute("modfrq", modFrq);
-			elem.GetAttribute("modpan", modPan);
-			elem.GetAttribute("modvol", modVol);
-			elem.GetAttribute("frqscl", modFrqScale);
-			elem.GetAttribute("panscl", modPanScale);
-			elem.GetAttribute("volscl", modVolScale);
 			elem.GetAttribute("fmcm", fmCM);
 			elem.GetAttribute("fmim", fmIM);
 
@@ -827,16 +640,16 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 	return 0;
 }
 
-int SFPlayerInstr::SaveEnv(XmlSynthElem *elem, EnvDef& env)
+int SFPlayerInstr::SaveEnv(XmlSynthElem *elem, EnvGenADSR& env)
 {
 	elem->SetAttribute("st", env.GetStart());
-	elem->SetAttribute("atk", env.GetRate(0));
-	elem->SetAttribute("pk",  env.GetLevel(0));
-	elem->SetAttribute("dec", env.GetRate(1));
-	elem->SetAttribute("sus", env.GetLevel(1));
-	elem->SetAttribute("rel", env.GetRate(2));
-	elem->SetAttribute("end", env.GetRate(2));
-	elem->SetAttribute("ty", (short)env.GetType(0));
+	elem->SetAttribute("atk", env.GetAtkRt());
+	elem->SetAttribute("pk",  env.GetAtkLvl());
+	elem->SetAttribute("dec", env.GetDecRt());
+	elem->SetAttribute("sus", env.GetSusLvl());
+	elem->SetAttribute("rel", env.GetRelRt());
+	elem->SetAttribute("end", env.GetRelLvl());
+	elem->SetAttribute("ty", (short)env.GetType());
 	return 0;
 }
 
@@ -851,12 +664,6 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 	elem.SetAttribute("bank", bnkNum);
 	elem.SetAttribute("preset", preNum);
 	elem.SetAttribute("mono", monoSet);
-	elem.SetAttribute("modfrq", modFrq);
-	elem.SetAttribute("modpan", modPan);
-	elem.SetAttribute("modvol", modVol);
-	elem.SetAttribute("frqscl", modFrqScale);
-	elem.SetAttribute("panscl", modPanScale);
-	elem.SetAttribute("volscl", modVolScale);
 	elem.SetAttribute("fmcm", fmCM);
 	elem.SetAttribute("fmim", fmIM);
 
@@ -870,19 +677,15 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 
 	if (!parent->AddChild("venv", &elem))
 		return -1;
-	SaveEnv(&elem, volSet);
+	SaveEnv(&elem, volEnv);
 
 	if (!parent->AddChild("menv", &elem))
 		return -1;
-	SaveEnv(&elem, modSet);
+	SaveEnv(&elem, modEnv);
 
 	if (!parent->AddChild("vlfo", &elem))
 		return -1;
 	vibLFO.Save(&elem);
-
-	if (!parent->AddChild("mlfo", &elem))
-		return -1;
-	modLFO.Save(&elem);
 
 	return 0;
 }
