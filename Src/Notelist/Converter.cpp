@@ -174,12 +174,13 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 		evt->SetParam(P_FREQ, pit);
 	else
 		evt->SetParam(P_PITCH, (long) pit);
+	amp *= curVoice->volMul;
 	if (amp > 0)
 	{
 		if (gen.GetVoldbMode())
-			amp = pow(10, (amp - 100) / 20.); 
+			amp = pow(10.0, (amp - 100) / 20.0); 
 		else
-			amp /= 100.0;
+			amp *= 0.01;
 	}
 	evt->SetParam(P_VOLUME, (float) amp);
 

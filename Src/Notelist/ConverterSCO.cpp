@@ -77,7 +77,7 @@ void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit,
 	// i inum time dur volume pitch p6 ... pn
 	long ipit = (long) pit;
 	fprintf(fpOutput, "i%ld %g %g %g %ld%c%02ld",
-		curVoice->instr, start, dur, vol, 4 + (ipit / 12), '.', (ipit % 12));
+		curVoice->instr, start, dur, vol * curVoice->volMul, 4 + (ipit / 12), '.', (ipit % 12));
 	int pn;
 	double val;
 	for (pn = 0; pn < pcount; pn++)
@@ -92,6 +92,25 @@ void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit,
 void nlConverterSCO::ContinueNote(double start, double vol, double pit, int pcount, double *params)
 {
 	// how do we do this in CSound?
+}
+
+void nlConverterSCO::MixerEvent(int fn, double *params)
+{
+	if (mixInstr < 0)
+		return;
+
+	// i inum time dur fn fx# from to frq wt
+	fprintf(fpOutput, "i%ld %g %g %d %g %g %g %g %g\n",
+		mixInstr, curVoice->curTime, params[3], fn,
+		params[0], params[1], params[2], params[4], params[5]);
+}
+
+void nlConverterSCO::MidiEvent(short mmsg, short val1, short val2)
+{
+}
+
+void nlConverterSCO::TrackOp(int op, int trk, int cnt)
+{
 }
 
 void nlConverterSCO::Write(char *txt)

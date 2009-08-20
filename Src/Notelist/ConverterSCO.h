@@ -35,5 +35,8 @@ public:
 	virtual void BeginNote(double start, double dur, double vol, double pit, int pcount, double *params);
 	virtual void ContinueNote(double start, double vol, double pit, int pcount, double *params);
 	virtual void Write(char *txt);
+	virtual void MixerEvent(int fn, double *params);
+	virtual void MidiEvent(short mmsg, short ccnum, short ccval);
+	virtual void TrackOp(int op, int trk, int cnt);
 };
 

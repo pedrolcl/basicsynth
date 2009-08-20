@@ -1901,9 +1901,9 @@ nlScriptNode *nlNoteNode::Exec()
 			}
 			double thisVol;
 			if (genPtr->GetVersion() < 1.0)
-				thisVol = (vox->lastVol / 327.67) * vox->volMul;
+				thisVol = (vox->lastVol / 327.67);// * vox->volMul;
 			else
-				thisVol = vox->lastVol * vox->volMul;
+				thisVol = vox->lastVol;// * vox->volMul;
 
 			if (!add || isFirst)
 			{
