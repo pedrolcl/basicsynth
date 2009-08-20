@@ -139,6 +139,13 @@ public:
 		return channel[chnl].cc[MIDI_CTRL_VOL];
 	}
 
+	inline void SetVolume(int chnl, AmpValue vol)
+	{
+		channel[chnl].ccn[MIDI_CTRL_VOL] = vol;
+		channel[chnl].cc[MIDI_CTRL_VOL] = (bsInt16) (vol * 127.0);
+		channel[chnl].cc[MIDI_CTRL_VOL_LSB] = 0;
+	}
+
 	inline float GetVolumeN(int chnl)
 	{
 		return channel[chnl].ccn[MIDI_CTRL_VOL];
@@ -217,6 +224,14 @@ public:
 	inline AmpValue GetPan(int chnl)
 	{
 		return channel[chnl].ccn[MIDI_CTRL_PAN];
+	}
+
+	inline void SetPan(int chnl, AmpValue val)
+	{
+		channel[chnl].ccn[MIDI_CTRL_PAN] = val;
+		bsInt16 ival = 8192 + (bsInt16) (val * 8192);
+		channel[chnl].cc[MIDI_CTRL_PAN] = (ival >> 7) & 0x7f;
+		channel[chnl].cc[MIDI_CTRL_PAN_LSB] = ival & 0x7f;
 	}
 
 	inline bsInt16 GetCC(int chnl, int ccn)
