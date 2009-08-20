@@ -84,9 +84,6 @@ void SoundBankEdit::ValueChanged(SynthWidget *wdg)
 	case 74: // Vib LFO wavetable
 		SelectWavetable(mainGroup->FindID(71));
 		break;
-	case 94: // Mod LFO wavetable
-		SelectWavetable(mainGroup->FindID(91));
-		break;
 	default:
 		SynthEdit::ValueChanged(wdg);
 		break;

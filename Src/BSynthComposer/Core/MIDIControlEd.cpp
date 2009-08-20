@@ -74,7 +74,10 @@ void MIDIControlEd::LoadValues()
 			if (wdg)
 			{
 				if (ccn < 128)
-					wdg->SetValue((float)ctl->GetCC(chnl-1, ccn));
+				{
+					bsInt16 v = ctl->GetCC(chnl-1, ccn);
+					wdg->SetValue((float)v);
+				}
 				else if (ccn == 128) // bank #
 					wdg->SetValue((float)ctl->GetBank(chnl-1));
 				else if (ccn == 129) // program change
@@ -119,13 +122,13 @@ void MIDIControlEd::ValueChanged(SynthWidget *wdg)
 		{
 			if (SelectSoundBankPreset(sbFile, &theProject->prjMidiCtrl, chnl-1))
 			{
-				wdg = mainGroup->FindID((chnl * 100) + 128);
+				wdg = mainGroup->FindID(chnl * 100);
 				if (wdg)
 				{
 					wdg->SetValue(theProject->prjMidiCtrl.GetBank(chnl-1));
 					Redraw(wdg);
 				}
-				wdg = mainGroup->FindID((chnl * 100) + 129);
+				wdg = mainGroup->FindID((chnl * 100) + 1);
 				if (wdg)
 				{
 					wdg->SetValue(theProject->prjMidiCtrl.GetPatch(chnl-1));
