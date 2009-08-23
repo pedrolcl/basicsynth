@@ -8,6 +8,8 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
+/// @addtogroup grpSoundbank
+//@{
 
 #ifndef SFFILE_H
 #define SFFILE_H
@@ -91,5 +93,5 @@ public:
 	static int IsSF2File(const char *fname);
 	SoundBank *LoadSoundBank(const char *fname, int pre = 1, float scl = 0.375);
 };
-
+//@}
 #endif

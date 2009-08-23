@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////
 // BasicSynth - SoundFont sound bank
 //
-/// @file SoundBank.h SoundFont(R) sound bank classes
+/// @file SoundBank.h Internal sound bank, loaded from SF2 or DLS files.
 //
 // These classes are for the in-memory sound bank.
 //
@@ -10,6 +10,8 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
+/// @addtogroup grpSoundbank
+//@{
 
 #ifndef SOUNDBANK_H
 #define SOUNDBANK_H
@@ -125,7 +127,7 @@ public:
 		linked = 0;
 		linkSamp = 0;
 		sampleLen = 0;
-		rate = synthParams.sampleRate;
+		rate = synthParams.isampleRate;
 		filepos = 0;
 		filepos2 = 0;
 		format = -1;
@@ -169,6 +171,7 @@ public:
 	}
 };
 
+/// @brief LFO oscillator information.
 class SBLfo
 {
 public:
@@ -254,6 +257,7 @@ public:
 	{
 	}
 
+	/// Initialize member variables.
 	void Init()
 	{
 		genFlags = 0;
@@ -294,6 +298,12 @@ public:
 		chorusSend = 0.0;
 	}
 
+	/// @brief Get modulator information
+	/// Locate any modulator info that connects 
+	/// the given source generator to the given
+	/// destination generator.
+	/// @param src Source generator
+	/// @param dst Destination generator
 	SBModInfo *GetModInfo(short src, short dst)
 	{
 		SBModInfo *mod = 0;
@@ -305,11 +315,14 @@ public:
 		return 0;
 	}
 
+	/// Add a modulator connection.
 	inline SBModInfo *AddModInfo()
 	{
 		return modList.AddItem();
 	}
 
+	/// List all modulator connections.
+	/// On the first call, set mi = 0.
 	inline SBModInfo *EnumModInfo(SBModInfo *mi)
 	{
 		return modList.EnumItem(mi);
@@ -322,16 +335,23 @@ public:
 			&& vel >= lowVel && vel <= highVel;
 	}
 
+	/// @brief Check this zone for a match to only the key.
 	inline int MatchKey(int key)
 	{
 		return key >= lowKey && key <= highKey;
 	}
 
-	inline int MatchVel(int key)
+	/// @brief Check this zone for a match to only the velocity.
+	inline int MatchVel(int vel)
 	{
-		return key >= lowVel && key <= highVel;
+		return vel >= lowVel && vel <= highVel;
 	}
 
+	/// @brief Set the generator flags.
+	/// Generator flags are an optimization for playback.
+	/// This function checks to see if the generator
+	/// will affect playback and sets bits in the genVals
+	/// member appropriately.
 	void SetGenFlags()
 	{
 		if (vibLfoFrq != 0)
@@ -355,6 +375,8 @@ public:
 	}
 };
 
+/// @brief Soundbank Instrument
+/// An instrument is a collection of zones and global modulators.
 class SBInstr : public SynthList<SBInstr>
 {
 public:
@@ -369,7 +391,7 @@ public:
 	bsInt16  highKey;
 	bsInt16  fixedKey;
 	bsInt16  fixedVel;
-	SBZone *zoneMap[2][128];
+	SBZone *zoneMap[128];
 
 	SBInstr()
 	{
@@ -381,8 +403,6 @@ public:
 		bank = 0;
 		prog = 0;
 		loaded = 0;
-		//zoneHead.Insert(&zoneTail);
-		//modHead.Insert(&modTail);
 		memset(zoneMap, 0, sizeof(zoneMap));
 	}
 
@@ -395,35 +415,37 @@ public:
 		return zoneList.AddItem();
 	}
 
+	/// @brief Set the zone map.
+	/// The zone map is an array indexed by key number.
+	/// After all zones have been added to the instrument
+	/// this function should be called to build the map.
 	int InitZoneMap()
 	{
 		int k;
-		for (k = 0; k < 128; k++)
-		{
-			zoneMap[0][k] = 0;
-			zoneMap[1][k] = 0;
-		}
+		memset(zoneMap, 0, sizeof(zoneMap));
 
 		SBZone *zone = 0;
 		while ((zone = zoneList.EnumItem(zone)) != 0)
 		{
-			int lr = zone->chan & 1;
 			for (k = zone->lowKey; k <= zone->highKey; k++)
 			{
-				if (zoneMap[lr][k] == 0)
-					zoneMap[lr][k] = zone;
+				if (zoneMap[k] == 0)
+					zoneMap[k] = zone;
 			}
 		}
 
 		return 0;
 	}
 
-	SBZone *GetZone(int key, int vel, int lr)
+	/// @brief Locate a zone
+	/// GenZone checks all zones to see if an entry
+	/// exists which matches the key and velocity.
+	SBZone *GetZone(int key, int vel)
 	{
 		// check the zone map first (mask to keep in range without conditionals)
-		SBZone *zone = zoneMap[lr & 1][key & 0x7f];
+		SBZone *zone = zoneMap[key & 0x7f];
 		if (!zone)
-			return 0; // no zone for this key/channel
+			return 0; // no zone for this key
 
 		if (zone->MatchVel(vel))
 			return zone;
@@ -432,7 +454,7 @@ public:
 		SBZone *zone2 = 0;
 		while ((zone2 = zoneList.EnumItem(zone2)) != 0)
 		{
-			if (zone2->chan == lr && zone2->Match(key, vel))
+			if (zone2->Match(key, vel))
 				return zone2;
 		}
 
@@ -440,11 +462,26 @@ public:
 		return zone;
 	}
 
+	/// Enumerate all zones.
+	/// On the first call, zone should be set equal to NULL.
+	/// @code
+	/// SBZone *zone = 0;
+	/// while ((zone = EnumZones(zone)) != 0)
+	///    use zone;
+	/// @endcode
+	/// @param zone previous zone or NULL for first zone.
+	/// @return next zone or NULL for no more zones.
 	SBZone *EnumZones(SBZone *zone)
 	{
 		return zoneList.EnumItem(zone);
 	}
 
+	/// @brief Get modulator information
+	/// Locate any modulator info that connects 
+	/// the given source generator to the given
+	/// destination generator.
+	/// @param src Source generator
+	/// @param dst Destination generator
 	SBModInfo *GetModInfo(short src, short dst)
 	{
 		SBModInfo *mod = 0;
@@ -456,11 +493,21 @@ public:
 		return 0;
 	}
 
+	/// Add a new modulator.
 	SBModInfo *AddModInfo()
 	{
 		return modList.AddItem();
 	}
 
+	/// Enumerate all modulators.
+	/// On the first call, mi should be set equal to NULL.
+	/// @code
+	/// SBModInfo *mi = 0;
+	/// while ((mi = EnumZones(mi)) != 0)
+	///    use mi;
+	/// @endcode
+	/// @param mi previous modulator or NULL for first.
+	/// @return next modulator or NULL for no more modulators.
 	SBModInfo *EnumModInfo(SBModInfo *mi)
 	{
 		return modList.EnumItem(mi);
@@ -486,8 +533,8 @@ public:
 /// bank 0 (melody instruments) and bank 128 (drum instruments).
 /// This SoundBank class supports 129 banks. The entire
 /// MIDI bank range could be handled with some type of
-/// bank mapping list, but for now, if the LSB is zero,
-/// use the MSB part as the bank number.
+/// bank mapping list, but, for now, if the LSB is zero,
+/// we use the MSB part as the bank number.
 ///
 /// Soundbank files typically encode pitch, time and
 /// volume with a fixed point value, scaled appropriately.
@@ -501,6 +548,8 @@ public:
 //////////////////////////////////////////////////////////////
 class SoundBank : public SynthList<SoundBank>
 {
+private:
+	int lockCount;
 public:
 	bsString file;                 ///< file name (empty if constructed in memory)
 	bsString name;                 ///< symbolic name
@@ -508,22 +557,43 @@ public:
 	SBInstr **instrBank[129];      ///< array of instruments[bank][patch]
 	SBSample *samples;             ///< list of sample blocks
 
-	static SoundBank SoundBankList;
-	static void DeleteBankList();
-	static SoundBank *FindBank(const char *name);
+	static SoundBank SoundBankList; ///< List of loaded soundbanks
+	static void DeleteBankList();  ///< Remove all soundbanks
+	static SoundBank *FindBank(const char *name); ///< Find soundbank by name
 
+	/// Convert relative cents to frequency multiplier.
+	/// Pitch in cents is defined as: pc = 1200 log2(df), 
+	/// where df is frequency deviation in Hz.
+	/// @param pc pitch deviation in cents
+	/// @return multiplier for the base frequency.
 	static FrqValue PitchCents(FrqValue pc);
+
+	/// Convert time cents to time
+	/// Time cents is defined as tc = 1200 * log2(sec),
+	/// where tc ranges from -12000 (1ms) to the maximum rate.
+	/// Max rate varies, but is usually no more than 8000 (100s)
+	/// @param tc time in time cents
+	/// @return time in seconds
 	static FrqValue EnvRate(FrqValue tc);
+
+	/// Convert attenuation in centibles to linear amplitude.
+	/// Centibels is defined as cb = 200 * log10(amp), where
+	/// cb ranges from 0 (no attenuation) to -960 (silence)
+	/// @param cb attenuation in centibels
+	/// @return linear amplitude (0-1)
 	static AmpValue Attenuation(AmpValue cb);
 
 	SoundBank()
 	{
+		lockCount = 0;
 		samples = 0;
 		memset(&instrBank[0], 0, sizeof(instrBank));
 	}
 
 	~SoundBank()
 	{
+		Remove(); // justin-case
+
 		for (int b = 0; b < 129; b++)
 		{
 			SBInstr **instrList = instrBank[b];
@@ -543,6 +613,25 @@ public:
 			delete samp;
 		}
 	}
+
+	/// @name Lock the SoundBank.
+	/// A SoundBank object is likely shared by multiple instruments
+	/// and editors. We do not want to delete until all instruments
+	/// have released their reference. The lock count is
+	/// used for this purpose.
+	/// @{
+	int Lock() { return ++lockCount; }
+	int Unlock()
+	{
+		int cnt = --lockCount;
+		if (lockCount <= 0)
+		{
+			Remove();
+			delete this;
+		}
+		return cnt;
+	}
+	/// @}
 
 	/// @brief Add an instrument to the soundbank.
 	/// @param bank bank number
@@ -630,9 +719,11 @@ public:
 		return 0;
 	}
 
-	/// @brief Load sample data from the original file.
+	/// @name Sample Loading
+	/// Load sample data from the original file.
 	/// If the sample cannot be loaded, a block of zeros is allocated.
 	/// @param samp pointer to sample block object.
+	/// @param f already open file
 	/// @return 0 on success, non-zero on failure.
 	/// @{
 	int LoadSample(SBSample *samp);
@@ -643,6 +734,6 @@ public:
 	int ReadSamples2(SBSample *samp, FileReadBuf& f);
 	/// @}
 };
-
+//@}
 
 #endif

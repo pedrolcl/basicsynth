@@ -8,7 +8,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////
-/// @addtogroup grpInstrument
+/// @addtogroup grpMIDI
 //@{
 #ifndef MIDICONTROL_H
 #define MIDICONTROL_H

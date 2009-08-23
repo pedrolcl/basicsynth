@@ -8,7 +8,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////
-/// @addtogroup grpSeq
+/// @addtogroup grpMIDI
 //@{
 #ifndef _MIDIDEFS_H_
 #define _MIDIDEFS_H_
@@ -37,7 +37,7 @@
 #define MIDI_START   0xFA
 #define MIDI_CONT    0xFB
 #define MIDI_STOP    0xFC
-#define MDID_ACTSNS  0xFE
+#define MIDI_ACTSNS  0xFE
 #define MIDI_META    0xFF
 
 #define MIDI_CTRL_BANK 0x00

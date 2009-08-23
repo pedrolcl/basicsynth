@@ -2,61 +2,20 @@
 // BasicSynth Library
 //
 /// @file MIDISequencer.h MIDI Sequencer Classes
+/// @deprecated The MIDISequencer and associated classes are no longer needed.
+/// Use Sequencer and MIDIControl along with the GMManager instrument and SMFFile.
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////
-/// @addtogroup grpSeq
+/// @addtogroup grpMIDI
 //@{
 #ifndef _MIDISEQUENCE_H_
 #define _MIDISEQUENCE_H_
 
-// Define manifest constants for MIDI messages
-// to make things easier to read.
-#define MAX_MIDI_CHNL 16
-#define MIDI_EVTMSK  0xF0
-#define MIDI_CHNMSK  0x0F
-#define MIDI_MSGBIT  0x80
-
-#define MIDI_NOTEOFF 0x80
-#define MIDI_NOTEON  0x90
-#define MIDI_KEYAT   0xA0
-#define MIDI_CTLCHG  0xB0
-#define MIDI_PRGCHG  0xC0
-#define MIDI_CHNAT   0xD0
-#define MIDI_PWCHG   0xE0
-#define MIDI_SYSEX   0xF0
-#define MIDI_TMCODE  0xF1
-#define MIDI_SNGPOS  0xF2
-#define MIDI_SNGSEL  0xF3
-#define MIDI_TUNREQ  0xF6
-#define MIDI_ENDEX   0xF7
-#define MIDI_TMCLK   0xF8
-#define MIDI_START   0xFA
-#define MIDI_CONT    0xFB
-#define MIDI_STOP    0xFC
-#define MDID_ACTSNS  0xFE
-#define MIDI_META    0xFF
-
-#define MIDI_CTRL_MOD  0x01
-#define MIDI_CTRL_VOL  0x07
-#define MIDI_CTRL_PAN  0x0A
-#define MIDI_CTRL_EXPR 0x0B
-
-#define MIDI_META_TEXT 0x01
-#define MIDI_META_CPYR 0x02
-#define MIDI_META_TRK  0x03
-#define MIDI_META_INST 0x04
-#define MIDI_META_LYRK 0x05
-#define MIDI_META_MRKR 0x06
-#define MIDI_META_CUE  0x07
-#define MIDI_META_CHNL 0x20
-#define MIDI_META_EOT  0x2F
-#define MIDI_META_TMPO 0x51
-#define MIDI_META_TMSG 0x58
-#define MIDI_META_KYSG 0x59
+#include <MIDIDefs.h>
 
 /// A MIDI event.
 /// The MIDI event holds information needed
@@ -366,6 +325,7 @@ struct MTHDchunk
 
 
 /// Load a standard MIDI file for sequencing.
+/// @deprecated The MIDIFileLoad class is superseded. Use SMFFIle instead.
 class MIDIFileLoad
 {
 protected:

@@ -10,6 +10,8 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
+/// @addtogroup grpSoundbank
+//@{
 
 #ifndef SFDEFS_H
 #define SFDEFS_H
@@ -230,5 +232,5 @@ struct sfSample
 
 #pragma pack(pop)
 /////////////////// END RIFF STRUCTURES //////////////////////////
-
+//@}
 #endif

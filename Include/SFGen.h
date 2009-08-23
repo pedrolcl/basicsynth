@@ -10,6 +10,8 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
+/// @addtogroup grpSoundbank
+//@{
 
 #ifndef SFGEN_H
 #define SFGEN_H
@@ -392,4 +394,5 @@ public:
 		return 0.0;
 	}
 };
+//@}
 #endif

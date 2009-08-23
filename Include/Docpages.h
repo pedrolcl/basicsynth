@@ -154,9 +154,8 @@ Because it is a component architecture, it is possible to replace any of the com
 system with custom versions. So long as the interface to the component is maintained, the
 remainder of the system will work without modification.
 
-The editors shown in the diagram are not included in the source distribution. Since all configuration files are
-in XML format, a simple text editor may be used. Typically, a complete system will include
-custom GUI editors for instruments, score, and project paramters.
+Since all configuration files are in XML format, a simple text editor may be used. 
+The BasicSynthComposer program implements GUI editors for each part of the system.
 
 <table border="1" cellspacing="0">
 <tr style="background-color:black;color:white;"><td>Module</td><td>Description</td></tr>
@@ -230,7 +229,11 @@ This design allows for nearly unlimited flexibility in the sequencer. We only ne
 
 \defgroup grpSeq Sequencing
 
+\defgroup grpMIDI MIDI specific classes
+
 \defgroup grpInstrument Synthesis Instrument Classes
+
+\defgroup grpSoundbank SoundFont(R) and DLS File Classes
 
 */
 

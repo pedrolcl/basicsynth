@@ -42,6 +42,7 @@ class WaveOutDirect : public WaveOutBuf
 protected:
 	IDirectSound *dirSndObj;
 	IDirectSoundBuffer *dirSndBuf;
+	GUID *lastDev;
 
 	DWORD numBlk;
 	DWORD nextWrite;
@@ -53,7 +54,7 @@ protected:
 	DWORD pauseTime;
 	int outState;
 
-	int CreateSoundBuffer(HWND w, float leadtm);
+	int CreateSoundBuffer(HWND w, float leadtm, GUID *dev);
 
 public:
 	WaveOutDirect();
@@ -62,7 +63,8 @@ public:
 	/// @param wnd window handle to pass to DirectSound for collaboration
 	/// @param leadtm block length in seconds
 	/// @param nb number of blocks (>=3)
-	int Setup(HWND wnd, float leadtm, int nb = 4);
+	/// @param dev GUID for device, NULL to use primary device
+	int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
 	/// Stop the sound output.
 	void Stop();
 	/// Restart sound output.
@@ -93,7 +95,7 @@ class WaveOutDirectI : public WaveOutDirect
 public:
 	WaveOutDirectI();
 	/// @copydoc WaveOutDirect::Setup
-	int Setup(HWND wnd, float leadtm, int nb = 4);
+	int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
 	/// @copydoc WaveOutDirect::Restart
 	void Restart();
 	/// @copydoc WaveOutDirect::FlushOutput

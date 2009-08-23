@@ -36,6 +36,7 @@
 // These two files are not included by
 // default since they are used only for live 
 // playback of sound
+// Version 2 - Player is deprecated, use Sequencer::Play()
 //////////////////////////////////////////
 //#include <Player.h>
 //#include <WaveOutDirect.h>
