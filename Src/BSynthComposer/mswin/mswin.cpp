@@ -24,6 +24,9 @@
 
 SynthAppModule _Module;
 
+const GUID DSDEVID_DefaultPlayback = {0xdef00000, 0x9c6d, 0x47ed, 0xaa, 0xf1, 0x4d, 0xda, 0x8f, 0x2b, 0x5c, 0x03};
+
+
 int Run(LPTSTR cmd = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
 	CMessageLoop theLoop;
@@ -87,6 +90,28 @@ int Run(LPTSTR cmd = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	return nRet;
 }
 
+static BOOL CALLBACK FindWaveDevice(LPGUID lpGUID, 
+             LPCTSTR lpszDesc,
+             LPCTSTR lpszDrvName, 
+             LPVOID lpContext)
+{
+	if (strcmp(lpszDesc, prjOptions.waveDevice) == 0)
+	{
+		if (_Module.waveID)
+			delete _Module.waveID;
+		if (lpGUID)
+		{
+			GUID *newGUID = new GUID;
+			memcpy(newGUID, lpGUID, sizeof(GUID));
+			_Module.waveID = newGUID;
+		}
+		else
+			_Module.waveID = NULL;
+		return FALSE;
+	}
+	return TRUE;
+}
+
 static int xtoi(const char *p)
 {
 	int h;
@@ -109,6 +134,8 @@ static int xtoi(const char *p)
 
 void ProjectOptions::Load()
 {
+	_Module.waveID = NULL;
+
 	bsString bsKey;
 	bsKey = "Software\\";
 	bsKey += _Module.ProductName;
@@ -182,6 +209,8 @@ void ProjectOptions::Load()
 		rk.QueryStringValue("MIDIDeviceName", prjOptions.midiDeviceName, &len);
 		if (rk.QueryDWORDValue("MIDIDevice", dwval) == ERROR_SUCCESS)
 			midiDevice = (int) dwval;
+		len = MAX_PATH;
+		rk.QueryStringValue("WaveDevice", prjOptions.waveDevice, &len);
 		rk.Close();
 	}
 	else
@@ -214,6 +243,8 @@ void ProjectOptions::Load()
 		strncpy(defLibDir, installDir, MAX_PATH-10);
 		strcat(defLibDir, "\\Instrlib");
 	}
+
+	DirectSoundEnumerate(FindWaveDevice, NULL);
 }
 
 void ProjectOptions::Save()
@@ -243,7 +274,9 @@ void ProjectOptions::Save()
 	rk.SetStringValue("Latency", buf);
 	rk.SetDWORDValue("MIDIDevice", (DWORD)midiDevice);
 	rk.SetStringValue("MIDIDeviceName", midiDeviceName);
+	rk.SetStringValue("WaveDevice", prjOptions.waveDevice);
 	rk.Close();
+	DirectSoundEnumerate(FindWaveDevice, NULL);
 }
 
 static void bad_parameter(

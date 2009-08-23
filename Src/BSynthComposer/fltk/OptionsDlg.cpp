@@ -82,13 +82,18 @@ ProjectOptionsDlg::ProjectOptionsDlg()
 //	libsBrowse->callback(BrowseCB, (void*)libsInp);
 	ypos += txtSpace;
 
+	midiDev = new Fl_Input(90, ypos, 175, txtHeight, "MIDI In");
+	midiDev->value(prjOptions.midiDeviceName);
+
+	waveDev = new Fl_Input(350, ypos, 175, txtHeight, "Wave Out");
+	waveDev->value(prjOptions.waveDevice);
+	ypos += txtSpace;
+
 	latency = new Fl_Input(120, ypos, 100, txtHeight, "Playback Latency");
 	char buf[80];
 	snprintf(buf, 80, "%f", prjOptions.playBuf);
 	latency->value(buf);
 
-	midiDev = new Fl_Input(300, ypos, 100, txtHeight, "MIDI In");
-	midiDev->value(prjOptions.midiDeviceName);
 
 	okBtn = new Fl_Button(420, ypos, 50, txtHeight, "OK");
 	okBtn->callback(OkCB, (void*)this);
@@ -117,6 +122,7 @@ void ProjectOptionsDlg::OnOK()
 	strncpy(prjOptions.defLibDir, libsInp->value(), MAX_PATH);
 	prjOptions.playBuf = atof(latency->value());
 	strncpy(prjOptions.midiDeviceName, midiDev->value(), MAX_PATH);
+	prjOptions.midiDevice = GetMIDIDevice(prjOptions.midiDeviceName);
 	doneInput = 1;
 	prjOptions.Save();
 }

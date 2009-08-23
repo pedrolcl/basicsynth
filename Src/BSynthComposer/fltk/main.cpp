@@ -4,6 +4,25 @@
 static char ProductName[80] = "BasicSynth";
 static char product[] = "basicsynth";
 
+int GetMIDIDevice(const char *name)
+{
+	if (*name == 0)
+		return -1;
+#ifdef _WIN32
+	UINT ndev = midiInGetNumDevs(); 
+	for (UINT n = 0; n < ndev; n++)
+	{
+		MIDIINCAPS caps;
+		memset(&caps, 0, sizeof(caps));
+		midiInGetDevCaps(n, &caps, sizeof(caps));
+		if (strcmp(caps.szPname, name) == 0)
+			return n;
+	}
+#endif
+	return 0;
+}
+
+
 static int xtoi(const char *p)
 {
 	int h;
@@ -34,6 +53,8 @@ void ProjectOptions::Load()
 
 	strcpy(prjOptions.installDir, hm);
 	strcat(prjOptions.installDir, product);
+
+	strcpy(prjOptions.waveDevice, "default");
 
 	bsString cfgFile;
 	cfgFile = hm;
@@ -81,9 +102,14 @@ void ProjectOptions::Load()
 				else if (strcmp(lnbuf, "Latency") == 0)
 					prjOptions.playBuf = atof(eq);
 				else if (strcmp(lnbuf, "MIDIDeviceName") == 0)
+				{
 					strcpy(prjOptions.midiDeviceName, eq);
+					midiDevice = GetMIDIDevice(prjOptions.midiDeviceName);
+				}
 				else if (strcmp(lnbuf, "MIDIDevice") == 0)
 					midiDevice = atoi(eq);
+				else if (strcmp(lnbuf, "WaveDevice") == 0)
+					strcpy(prjOptions.waveDevice, eq);
 			}
 		}
 		fclose(fp);
@@ -144,8 +170,9 @@ void ProjectOptions::Save()
 		fprintf(fp, "InclLibraries=%d\n", prjOptions.inclLibraries);
 		fprintf(fp, "InclInstruments=%x\n", prjOptions.inclInstr);
 		fprintf(fp, "Latency=%f\n", prjOptions.playBuf);
-		fprintf(fp, "MIDIDeviceName=%s\n", prjOptions.midiDeviceName);
 		fprintf(fp, "MIDIDevice=%d\n", prjOptions.midiDevice);
+		fprintf(fp, "MIDIDeviceName=%s\n", prjOptions.midiDeviceName);
+		fprintf(fp, "WaveDevice=%s\n", prjOptions.waveDevice);
 		fclose(fp);
 	}
 }

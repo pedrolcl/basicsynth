@@ -420,7 +420,7 @@ void MIDIFileLoad::SysCommon(bsUint16 msg)
 	case MIDI_START:
 	case MIDI_CONT:
 	case MIDI_STOP:
-	case MDID_ACTSNS:
+	case MIDI_ACTSNS:
 		break;
 	default:
 		//printf("SysCommon: %02x\n", msg);

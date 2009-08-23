@@ -15,6 +15,7 @@ KeyboardWidget.o \
 KnobWidget.o \
 LibItem.o \
 MatSynthEd.o \
+MIDIControlEd.o \
 ModSynthEd.o \
 MixerEdit.o \
 MixerItem.o \

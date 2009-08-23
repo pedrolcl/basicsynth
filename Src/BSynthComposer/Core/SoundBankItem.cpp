@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// BasicSynth - Project item that represents a SoundFont(R) file
+// BasicSynth - Project item that represents a SF2 or DLS file
 //
 // Copyright 2009, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -13,6 +13,16 @@
 #include "ProjectItem.h"
 
 extern int SelectSoundBankPreset(SFPlayerInstr *instr);
+
+SoundBankItem::~SoundBankItem()
+{
+	if (name.Length() > 0)
+	{
+		SoundBank *bnk = SoundBank::SoundBankList.FindBank(name);
+		if (bnk)
+			bnk->Unlock();
+	}
+}
 
 int SoundBankItem::LoadFile()
 {
@@ -30,9 +40,13 @@ int SoundBankItem::LoadFile()
 		DLSFile dls;
 		bnk = dls.LoadSoundBank(fullPath, preload, normalize);
 	}
+	// TODO: 
+	// Add type for loading individual wave files into a SoundBank object
 	if (bnk)
 	{
+		loaded = 1;
 		bnk->name = name;
+		bnk->Lock();
 		SoundBank::SoundBankList.Insert(bnk);
 	}
 
@@ -111,7 +125,7 @@ int SoundBankItem::Save(XmlSynthElem *node)
 int SoundBankItem::LoadProperties(PropertyBox *pb)
 {
 	FileItem::LoadProperties(pb);
-	// TODO: set mods
+	// TODO: set pre, normalize
 	return 1;
 }
 
@@ -119,7 +133,7 @@ int SoundBankItem::SaveProperties(PropertyBox *pb)
 {
 	FileItem::SaveProperties(pb);
 	// TODO: update name in sound bank
-	// TODO: set mods for next load
+	// TODO: set pre, normalize
 	return 1;
 }
 

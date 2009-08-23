@@ -4,8 +4,8 @@
 // use: BSynth project
 ///////////////////////////////////////////////////////////
 #include "BSynth.h"
-#include <SFPlayer.h>
 #include <SFFile.h>
+#include <DLSFile.h>
 
 class BSynthError : public nlErrOut
 {
@@ -40,20 +40,6 @@ public:
 	~ProjectFileList() { delete str; }
 };
 
-class SoundBankList :
-	public SynthList<SoundBankList>
-{
-public:
-	SFSoundBank *bnk;
-	bsString file;
-
-	SoundBankList()
-	{
-		bnk = 0;
-	}
-
-};
-
 class SynthProject
 {
 public:
@@ -85,6 +71,7 @@ public:
 	Sequencer seq;
 	Mixer mix;
 	InstrManager mgr;
+	MIDIControl midiCtl;
 	BSynthError err;
 	nlConverter cvt;
 
@@ -172,6 +159,12 @@ public:
 		im = mgr.AddType("SoundBank", SFPlayerInstr::SFPlayerInstrFactory, SFPlayerInstr::SFPlayerEventFactory);
 		im->paramToID = SFPlayerInstr::MapParamID;
 		im->dumpTmplt = DestroyTemplate;
+		im = mgr.AddType("GMPlayer", GMManager::InstrFactory, GMManager::EventFactory);
+		im->paramToID = GMManager::MapParamID;
+		im->paramToName = GMManager::MapParamName;
+		im->manufTmplt = GMManager::TmpltFactory;
+		im->dumpTmplt = GMManager::TmpltDump;
+		GMManager::midiCtrl = &midiCtl;
 	}
 
 	int LoadProject(char *prjFname)
@@ -245,27 +238,55 @@ public:
 					delete file;
 				}
 			}
-			else if (child->TagMatch("sf2"))
+			else if (child->TagMatch("sndbnk") || child->TagMatch("sf2") || child->TagMatch("dls"))
 			{
-				char *file = 0;
-				child->GetContent(&file);
-				if (file)
+				// sf2 and dls types are for backward compatibility; use sndbnk from now on...
+				short inc = 1;
+				child->GetAttribute("inc", inc);
+				if (inc)
 				{
-					bsInt16 mods = 0;
-					child->GetAttribute("mods", mods);
-					SFFile sndfile;
-					SFSoundBank *bnk = sndfile.LoadSoundBank(file, mods);
-					if (bnk)
+					char *file = 0;
+					child->GetContent(&file);
+					if (file)
 					{
-						char *name = 0;
-						child->GetAttribute("name", &name);
-						if (name)
-							bnk->name.Attach(name);
+						SoundBank *bnk = 0;
+						bsInt16 pre = 0;
+						float nrm = 1.0;
+						child->GetAttribute("pre", pre);
+						child->GetAttribute("nrm", nrm);
+						if (SFFile::IsSF2File(file))
+						{
+							SFFile sndfile;
+							bnk = sndfile.LoadSoundBank(file, pre, nrm);
+						}
+						else if (DLSFile::IsDLSFile(file))
+						{
+							DLSFile sndfile;
+							bnk = sndfile.LoadSoundBank(file, pre, nrm);
+						}
+						if (bnk)
+						{
+							bnk->Lock();
+							char *name = 0;
+							child->GetAttribute("name", &name);
+							if (name)
+								bnk->name.Attach(name);
+							else
+								bnk->name = file;
+							SoundBank::SoundBankList.Insert(bnk);
+							if (!silent)
+								fprintf(stdout, "SoundBank: %s\n%s\n%s\n\n", 
+									(const char *)bnk->name, 
+									(const char *)bnk->info.szComment,
+									(const char *)bnk->info.szCopyright);
+						}
 						else
-							bnk->name = file;
-						SFSoundBank::SoundBankList.Insert(bnk);
+						{
+							fprintf(stderr, "Cannot load SoundBank '%s'\n", file);
+							errcnt++;
+						}
+						delete file;
 					}
-					delete file;
 				}
 			}
 			else if (child->TagMatch("libpath"))
@@ -407,9 +428,9 @@ public:
 		if (!silent)
 		{
 			if (name)
-				fprintf(stdout, "%s\n", name);
+				fprintf(stdout, "Project %s\n", name);
 			if (title)
-				fprintf(stdout, "%s\n", name);
+				fprintf(stdout, "%s\n", title);
 			if (author)
 				fprintf(stdout, "%s\n", author);
 			if (cpyrgt)
@@ -603,6 +624,7 @@ public:
 			lastOOR = 0;
 			if (!silent)
 				seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
+			seq.SetController(&midiCtl.seqControl);
 			int n = seq.Sequence(mgr);
 			pad = (long) (synthParams.isampleRate * tail);
 			while (pad-- > 0)
@@ -658,7 +680,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "use: BSynth [-s] project.xml\n");
+		fprintf(stderr, "use: BSynth [-s] project\n");
 	}
 	else
 	{

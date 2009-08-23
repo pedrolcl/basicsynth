@@ -11,6 +11,8 @@ class OptionsDlg : public CDialogImpl<OptionsDlg>
 {
 private:
 	void Browse(int id, char *caption);
+	CComboBox waveDev;
+	CComboBox midiDev;
 
 public:
 	OptionsDlg();

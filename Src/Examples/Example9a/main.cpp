@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Failed to load soundbank %s\n", (const char *)sbFile);
 		exit(1);
 	}
+	sb->Lock();
 
 	if (verbose)
 	{
@@ -182,6 +183,8 @@ int main(int argc, char *argv[])
 			genTime / 60, genTime % 60, clkTimeDiff / 60, clkTimeDiff % 60,
 			(clkTimeDiff * 100) / genTime);
 	}
+
+	sb->Unlock();
 
 	return 0;
 }

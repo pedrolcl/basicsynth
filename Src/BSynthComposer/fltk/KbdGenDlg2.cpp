@@ -59,6 +59,9 @@ void GenerateDlg::EndThread()
 static pthread_mutex_t genDlgGuard;
 static pthread_t genThreadID;
 
+// use a mutex to sync threads. 
+// could possibly use pthread_barrier_* ?
+
 static void GenDlgLock()
 {
 	pthread_mutex_lock(&genDlgGuard);
@@ -642,6 +645,14 @@ void KeyboardWidget::Paint(DrawContext dc)
 	fl_rect(rcWhite[0].x, rcWhite[0].y, rw, rcWhite[0].h);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// MIDI Input
+// For now, MIDI input is connected to the virtual keyboard widget and
+// simulates hitting a "key" on the screen keyboard.
+// This may change later into a generic MIDI in that cooperates with
+// Sequencer and MIDIControl objects.
+/////////////////////////////////////////////////////////////////////////////
+
 #ifdef _WIN32
 static HMIDIIN midiIn;
 
@@ -714,18 +725,188 @@ void KeyboardWidget::MidiIn(int onoff)
 #endif
 
 #ifdef UNIX
+// This is Linux only as it uses ALSA.
+// Some code taken from seqdemo.c by Matthias Nagorni
+
+static int midiHalt = 0;
+
+// perform input through the ALSA sequencer.
+// this is really the wrong way to go for BasicSynth.
+// The driver has "decoded" the event but we must
+// paste the info back together for compatibility.
+// The MIDIController object will then "decode" things
+// again... *sigh*
+// So - suggest using the raw midi instead.
+static void *MidiInputSeq(void *param)
+{
+	snd_seq_t *midiHandle;
+	int midiPort;
+	int numPoll;
+	struct pollfd *midiPoll;
+
+	if (snd_seq_open(&midiHandle, prjOptions.midiDeviceName, SND_SEQ_OPEN_INPUT, 0) < 0)
+	{
+		fprintf(stderr, "Cannot open '%s' as MIDI input\n", prjOptions.midiDeviceName);
+		return 0;
+	}
+	snd_seq_set_client_name(midiHandle, "BasicSynth");
+	midiPort = snd_seq_create_simple_port(midiHandle, "BasicSynth",
+	           SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE,
+	           SND_SEQ_PORT_TYPE_APPLICATION);
+	if (midiPort < 0)
+		return 0;
+
+	numPoll = snd_seq_poll_descriptors_count(midiHandle, POLLIN);
+	midiPoll = new struct pollfd[numPoll];
+	snd_seq_poll_descriptors(midiHandle, midiPoll, numPoll, POLLIN);
+
+	KeyboardWidget *kbd = (KeyboardWidget *)param;
+	unsigned int timestamp = 0;
+
+	while (!midiHalt)
+	{
+		if (poll(midiPoll, numPoll, 2000) > 0)
+		{
+			snd_seq_event_t *ev;
+			do
+			{
+				snd_seq_event_input(midiHandle, &ev);
+				switch (ev->type) 
+				{
+				case SND_SEQ_EVENT_CONTROLLER:
+					kbd->MidiRcv(MIDI_CTLCHG|ev->data.control.channel, 
+						ev->data.control.param, ev->data.control.value, ev->time.tick);
+					break;
+				case SND_SEQ_EVENT_PITCHBEND:
+					kbd->MidiRcv(MIDI_CTLCHG|ev->data.control.channel, 
+						ev->data.control.param, ev->data.control.value, ev->time.tick);
+					break;
+				case SND_SEQ_EVENT_PGMCHANGE:
+					kbd->MidiRcv(MIDI_PRGCHG|ev->data.control.channel, 
+						ev->data.control.param, ev->data.control.value, ev->time.tick);
+					break;
+				case SND_SEQ_EVENT_CHANPRESS:
+					kbd->MidiRcv(MIDI_CHNAT|ev->data.control.channel, 
+						ev->data.control.param, ev->data.control.value, ev->time.tick);
+					break;
+				case SND_SEQ_EVENT_NOTEON:
+					kbd->MidiRcv(MIDI_NOTEON|ev->data.note.channel, 
+						ev->data.note.note, ev->data.note.velocity, ev->time.tick);
+					break;
+				case SND_SEQ_EVENT_NOTEOFF: 
+					kbd->MidiRcv(MIDI_NOTEOFF|ev->data.note.channel, 
+						ev->data.note.note, ev->data.note.off_velocity, ev->time.tick);
+					break;
+				}
+			    snd_seq_free_event(ev);
+			} while (snd_seq_event_input_pending(midiHandle, 0) > 0);
+		}
+	}
+	snd_seq_close(midiHandle);
+}
+
+static void *MidiInputRaw(void *param)
+{
+	snd_rawmidi_t *midiHandle;
+
+	if (snd_rawmidi_open(&midiHandle, NULL, prjOptions.midiDeviceName, 0) < 0)
+	{
+		midiHalt = 1;
+		return 0;
+	}
+
+	fprintf(stderr, "Opened MIDI %s\n", prjOptions.midiDeviceName);
+	
+	KeyboardWidget *kbd = (KeyboardWidget *)param;
+	
+	snd_rawmidi_drain(midiHandle); 
+
+	unsigned char inb;
+	unsigned char mmsg = 0;
+	unsigned char val[2];
+	int  valCount = 0;
+	unsigned long timestamp = 0; // todo
+
+	while (!midiHalt)
+	{
+		if (snd_rawmidi_read(midiHandle, &inb, 1) < 0)
+			midiHalt = 1;
+		else if (inb & 0x80)
+		{
+			// MIDI command byte
+			if ((inb & 0xf0) == 0xf0)
+			{
+				switch (inb)
+				{
+				case MIDI_SYSEX:  //  0xF0
+					while (snd_rawmidi_read(midiHandle, &inb, 1) < 0)
+					{
+						// todo: add data to sysex buffer
+						if (inb == MIDI_ENDEX)
+							break;
+					}
+					break;
+				case MIDI_SNGPOS: // 0xF2
+					snd_rawmidi_read(midiHandle, &inb, 1);
+				case MIDI_SNGSEL: // 0xF3
+					snd_rawmidi_read(midiHandle, &inb, 1);
+					break;
+				case MIDI_TMCODE: // 0xF1
+				case MIDI_TUNREQ: // 0xF6
+				case MIDI_ENDEX:  // 0xF7
+				case MIDI_TMCLK:  // 0xF8
+				case MIDI_START:  // 0xFA
+				case MIDI_CONT:   // 0xFB
+				case MIDI_STOP:   // 0xFC
+				case MIDI_ACTSNS: // 0xFE
+				case MIDI_META:   // 0xFF
+					break;
+				}
+			}
+			else
+			{
+				mmsg = inb;
+				valCount = 0;
+			}
+		}
+		else
+		{
+			val[valCount++] = inb;
+			if (valCount == 2)
+			{
+				// todo: update timestamp
+				if (mmsg != MIDI_KEYAT)
+					kbd->MidiRcv(mmsg, val[0], val[1], timestamp);
+				valCount = 0;
+			}
+		}
+	}
+	snd_rawmidi_drain(midiHandle);
+	snd_rawmidi_close(midiHandle);
+	fprintf(stderr, "Closed MIDI\n");
+
+	return 0;
+}
+
 void KeyboardWidget::MidiIn(int onoff)
 {
-	// TODO: connect/disconnect MIDI keyboard input.
-	// 1) Start a background thread
-	// 2) Open the ALSA SEQ device.
-	// 3) on an event call: kbd->MidiRcv(msg, val1, val2, timestamp);
-	//
-	// If I can ever decode the cryptic info on connecting 
-	// my Midi-sport UNO on Linux, I might add some code here...
-	// On Windoze I just plug the thing in and I'm good to go.
+	static pthread_t midiThreadID;
+	if (midiOn == onoff)
+		return;
 	if (onoff)
-		prjFrame->Alert("No MIDI yet.", "Sorry...");
+	{
+		midiHalt = 0;
+		fprintf(stderr, "Startl MIDI in\n");
+		pthread_create(&midiThreadID, NULL, MidiInputRaw, this);
+	}
+	else
+	{
+		midiHalt = 1;
+		fprintf(stderr, "Kill MIDI in\n");
+		pthread_cancel(midiThreadID);
+		pthread_join(midiThreadID, NULL); 
+	}
+	midiOn = onoff;
 }
 #endif
 

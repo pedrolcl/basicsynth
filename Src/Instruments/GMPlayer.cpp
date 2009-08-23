@@ -23,7 +23,7 @@ Instrument *GMManager::InstrFactory(InstrManager *m, Opaque tmplt)
 	if (gm)
 	{
 		ip = new GMPlayer(gm, m);
-		gm->instrTail.InsertBefore(ip);
+		gm->instrList.AddItem(ip);
 	}
 	return ip;
 }
@@ -55,14 +55,18 @@ GMManager::GMManager()
 {
 	sndbnk = 0;
 	im = 0;
-	instrHead.Insert(&instrTail);
 	localVals = 0;
+	volValue = 1.0;
+	bankValue = 0;
+	progValue = 0;
 }
 
 GMManager::~GMManager()
 {
-	GMPlayer *ip;
-	while ((ip = instrHead.next) != &instrTail)
+	if (sndbnk)
+		sndbnk->Unlock();
+	GMPlayer *ip = 0;
+	while ((ip = instrList.EnumItem(ip)) != 0)
 		ip->Destroy();
 }
 
@@ -74,23 +78,31 @@ VarParamEvent *GMManager::AllocParams()
 
 void GMManager::SetSoundFile(const char *b)
 {
-	sndFile = b;
 	SetSoundBank(SoundBank::FindBank(b));
 }
 
 void GMManager::SetSoundBank(SoundBank *b)
 {
+	if (sndbnk)
+		sndbnk->Unlock();
 	sndbnk = b;
-	GMPlayer *ip;
-	for (ip = instrHead.next; ip != &instrTail; ip = ip->next)
+	if (sndbnk)
+	{
+		sndbnk->Lock();
+		sndFile = sndbnk->name;
+	}
+	else
+		sndFile = "";
+	GMPlayer *ip = 0;
+	while ((ip = instrList.EnumItem(ip)) != 0)
 		ip->SetSoundBank(b);
 }
 
 void GMManager::SetMidiControl(MIDIControl *mc)
 {
 	midiCtrl = mc;
-	GMPlayer *ip;
-	for (ip = instrHead.next; ip != &instrTail; ip = ip->next)
+	GMPlayer *ip = 0;
+	while ((ip = instrList.EnumItem(ip)) != 0)
 		ip->SetMidiControl(mc);
 }
 
@@ -127,7 +139,11 @@ int GMManager::Load(XmlSynthElem *parent)
 		next = elem.NextSibling(&elem);
 	}
 	if (sndFile.Length() > 0)
+	{
 		sndbnk = SoundBank::FindBank(sndFile);
+		if (sndbnk)
+			sndbnk->Lock();
+	}
 
 	return 0;
 }
@@ -249,6 +265,8 @@ GMPlayer::GMPlayer(GMManager *g, InstrManager *m)
 	im = m;
 	gm = g;
 	sndbnk = gm->GetSoundBank();
+	if (sndbnk)
+		sndbnk->Lock();
 	midiCtrl = gm->GetMidiControl();
 	osc = 0;
 	Reset();
@@ -270,7 +288,19 @@ void GMPlayer::Reset()
 
 GMPlayer::~GMPlayer()
 {
+	Remove();
+	if (sndbnk)
+		sndbnk->Unlock();
 	delete osc;
+}
+
+void GMPlayer::SetSoundBank(SoundBank *s)
+{
+	if (sndbnk)
+		sndbnk->Unlock();
+	sndbnk = s;
+	if (sndbnk) 
+		sndbnk->Lock();
 }
 
 /// Start playing a note.
@@ -300,7 +330,7 @@ void GMPlayer::Start(SeqEvent *se)
 			mkey = preset->fixedKey;
 		if (preset->fixedVel != -1)
 			novel = preset->fixedVel;
-		zone = preset->GetZone(mkey, novel, 0);
+		zone = preset->GetZone(mkey, novel);
 		if (zone)
 		{
 			genFlags = zone->genFlags;

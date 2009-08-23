@@ -159,7 +159,7 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 	if (preset)
 	{
 		int sfpit = pitch+12; // shift from BasicSynth to MIDI range
-		zone = preset->GetZone(sfpit, 64, 0);
+		zone = preset->GetZone(sfpit, 64);
 		if (zone)
 		{
 			if (zone->sample->linkSamp || zone->sample->channels == 2)
@@ -197,7 +197,7 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 	{
 		pitch = params->pitch;
 		int sfpit = pitch+12;
-		zone2 = preset->GetZone(sfpit, 65, 0);
+		zone2 = preset->GetZone(sfpit, 65);
 		if (zone2 != zone)
 		{
 			if (zone2->sample->linkSamp || zone2->sample->channels == 2)

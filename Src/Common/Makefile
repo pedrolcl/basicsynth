@@ -38,14 +38,14 @@ clean:
 
 DLSFile.o: \
 	DLSFile.cpp \
-	DLSDefs.h \
-	DLSFile.h \
+	$(BSINC)/DLSDefs.h \
+	$(BSINC)/DLSFile.h \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SynthList.h \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/SoundBank.h
-	
+
 Player.o: \
 	Player.cpp \
 	$(BSINC)/SynthDefs.h \
@@ -125,7 +125,7 @@ SoundBank.o: \
 	$(BSINC)/SynthList.h \
 	$(BSINC)/SynthFile.h \
 	$(BSINC)/SoundBank.h
-	
+
 SMFFile.o: \
 	SMFFile.cpp \
 	$(BSINC)/SynthDefs.h \

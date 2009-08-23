@@ -66,7 +66,7 @@ void MIDIChannelStatus::Reset()
 	memset(cc, 0, sizeof(cc));
 	memset(ccn, 0, sizeof(ccn));
 	cc[MIDI_CTRL_VOL] = 127;
-	cc[MIDI_CTRL_VOL_LSB] = 127;
+	cc[MIDI_CTRL_VOL_LSB] = 0;
 	cc[MIDI_CTRL_PAN] = 64;
 	ccn[MIDI_CTRL_VOL] = 1.0;
 	ccn[MIDI_CTRL_PAN] = 0.0;
@@ -115,7 +115,7 @@ void MIDIChannelStatus::ControlMessage(bsInt16 mmsg, bsInt16 ctrl, bsInt16 cval)
 				ccn[msb] = (float) ((cc[msb] << 7) | cc[ctrl | 0x20]) / 16384.0;
 			}
 			else if (ctrl < 0x60)
-				ccn[ctrl] = (float) cval / 128.0; // or 127?
+				ccn[ctrl] = (float) cval / 127.0; // or 128?
 			break;
 		}
 		break;

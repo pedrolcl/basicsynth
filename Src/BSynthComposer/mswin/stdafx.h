@@ -24,6 +24,7 @@ class SynthAppModule : public CAppModule
 public:
 	HWND mainWnd;
 	char ProductName[80];
+	GUID *waveID;
 };
 
 extern SynthAppModule _Module;

@@ -326,6 +326,8 @@
 #define IDC_FILE_UP                     1219
 #define IDC_FILE_DN                     1220
 #define IDC_MIDI_IN                     1222
+#define IDC_SOUND_OUT                   1223
+#define IDC_WAVE_OUT                    1223
 #define IDC_SB_FILE                     1224
 #define IDC_SB_BANK                     1225
 #define IDC_SB_PRESET                   1226

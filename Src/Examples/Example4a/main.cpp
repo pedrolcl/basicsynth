@@ -218,10 +218,10 @@ void Dump(SBInstr *ip)
 
 void Dump(SoundBank *sb)
 {
-	printf("Name '%s'\n", sb->info.szName);
-	printf("Copy '%s'\n", sb->info.szCopyright);
-	printf("Cmnt '%s'\n", sb->info.szComment);
-	printf("Date '%s'\n", sb->info.szDate);
+	printf("Name '%s'\n", (const char *)sb->info.szName);
+	printf("Copy '%s'\n", (const char *)sb->info.szCopyright);
+	printf("Cmnt '%s'\n", (const char *)sb->info.szComment);
+	printf("Date '%s'\n", (const char *)sb->info.szDate);
 	printf("Vers %d.%d %d.%d\n", 
 		sb->info.wMajorFile, sb->info.wMinorFile,
 		sb->info.wMajorVer, sb->info.wMinorVer);
@@ -792,7 +792,7 @@ public:
 		pitch = pit;
 		frq = synthParams.GetFrequency(pit-12); 
 
-		SBZone *zone = in->GetZone(pit, 100, 0);
+		SBZone *zone = in->GetZone(pit, 100);
 		if (zone->sample->channels == 2 || zone->sample->linkSamp)
 			osc = new GenWaveSF2;
 		else if (zone->linkZone)
@@ -1076,6 +1076,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
+	bnk->Lock();
 	if (bnkNum == -1)
 	{
 		for (bnkNum = 0; bnkNum <= 128; bnkNum++)
@@ -1101,6 +1102,7 @@ int main(int argc, char *argv[])
 		else
 			PlayPreset(bnk, bnkNum, preNum, mono);
 	}
+	bnk->Unlock();
 
 	return 0;
 }

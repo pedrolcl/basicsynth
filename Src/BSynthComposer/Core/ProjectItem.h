@@ -518,17 +518,18 @@ class SoundBankItem : public FileItem
 {
 private:
 	bsInt16 preload; // load samples on file open
-	bsInt16 normalize; // rescale samples
+	float  normalize; // rescale samples
 
 public:
 	SoundBankItem() : FileItem(PRJNODE_SOUNDBANK)
 	{
 		preload = 0;
-		normalize = 0;
+		normalize = 1.0;
 		actions = ITM_ENABLE_ADD    // add an instrument
 			    | ITM_ENABLE_REM   // remove from project
 				| ITM_ENABLE_PROPS; // edit properties
 	}
+	virtual ~SoundBankItem();
 	virtual int ItemActions() { return actions; }
 	virtual int EditItem();
 	virtual int AddItem();
@@ -548,7 +549,7 @@ protected:
 public:
 	SoundBankList() : FileList(PRJNODE_SBLIST)
 	{
-		xmlChild = "sf2";
+		xmlChild = "sndbnk";
 		name = "SoundBank";
 		leaf = 0;
 		actions = ITM_ENABLE_ADD; // add existing library
@@ -1074,7 +1075,7 @@ class MidiItem : public ProjectItem
 public:
 	MidiItem() : ProjectItem(PRJNODE_MIDICTRL)
 	{
-		actions = ITM_ENABLE_EDIT;
+		actions = ITM_ENABLE_EDIT | ITM_ENABLE_CLOSE;
 		name = "MIDI Control";
 	}
 

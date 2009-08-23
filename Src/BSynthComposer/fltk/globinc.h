@@ -41,8 +41,11 @@
 # endif
 # if UNIX
 #  include <WaveOutALSA.h>
+#  include <alsa/asoundlib.h>
 # endif
 #endif
 #include <Instruments.h>
 #include <NLConvert.h>
 #include <ComposerCore.h>
+
+extern int GetMIDIDevice(const char *name);

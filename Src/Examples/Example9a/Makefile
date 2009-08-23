@@ -15,5 +15,6 @@ main.cpp: $(BSINC)/SynthDefs.h $(BSINC)/WaveFile.h \
 	$(BSINC)/WaveTable.h $(BSINC)/GenWaveWT.h \
 	$(BSINC)/DelayLine.h $(BSINC)/Mixer.h \
 	$(BSINC)/Sequencer.h $(BSINC)/SMFFile.h \
-	$(BSINC)/SFFile.h $(BSINC)/SFSoundBank.h \
+	$(BSINC)/SFFile.h $(BSINC)/SoundBank.h \
+	$(BSINC)/DLSFile.h $(BSINC)/DLSDefs.h \
 	$(BSINC)/SFGen.h $(BSINC)/SFDefs.h

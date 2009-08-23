@@ -654,8 +654,6 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 	return sbnk;
 }
 
-#define TC0 -786432000L  // (-12000*65536) 
-
 void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 {
 	SBModInfo *mi;
@@ -805,8 +803,6 @@ void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 			break;
 		default:
 			//if (source & 0x80) 
-			//	add to Init list
-			//else
 			//	add to CTRL list
 			//else 
 			//	unknown control source - ignore

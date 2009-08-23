@@ -37,6 +37,7 @@ public:
 	int inclInstr;
 	int midiDevice;
 	char midiDeviceName[MAX_PATH];
+	char waveDevice[MAX_PATH];
 	float playBuf;
 
 	ProjectOptions();

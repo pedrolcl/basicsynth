@@ -19,6 +19,19 @@
 
 class GMManager;
 
+/// @brief GM sound player.
+/// @detail The GM player implements playback of a SoundBank sample.
+/// GMPlayer objects are created and managed by the GMManager object,
+/// and should not be created directly.
+///
+/// Each player object recieves a MIDI bank and program number along
+/// with a Soundbank object. The associated program (a/k/a patch) holds
+/// a list of zones (regions) each covering a range of pitches. The
+/// player locates the appropriate zone using the pitch and then 
+/// initializes an oscillator, envelope and suitable modulators
+/// based on the information in the zone. Control of volume, panning,
+/// pitch bend and modulation level is done indirectly via the MIDIControl
+/// object associated with the GMManager.
 class GMPlayer : 
 	public Instrument, 
 	public SynthList<GMPlayer>
@@ -53,7 +66,7 @@ public:
 	virtual ~GMPlayer();
 	void Reset();
 
-	void SetSoundBank(SoundBank *s) { sndbnk = s; }
+	void SetSoundBank(SoundBank *s);
 	void SetMidiControl(MIDIControl *mc) { midiCtrl = mc; }
 
 	virtual void Start(SeqEvent *evt);
@@ -71,36 +84,41 @@ public:
 /// BasicSynth Instrument to play GM SoundFont files.
 ///
 /// This class emulates a MIDI keyboard instrument. It manages a 
-/// set of instruments, each containing an oscillator/envelope combination,
-/// that share the same global patch and modulation oscillators for
-/// vibrato and tremolo. The aggregate instrument maintains a reference
+/// set of instruments, each containing an oscillator, envelope, modulator
+/// combination. The aggregate instrument maintains a reference
 /// to a MIDIControl object and a SoundBank object that is passed to
-/// the instruments when they are instantiated. One instance of this
+/// the instrument objects when they are instantiated. One instance of this
 /// class is created as the template object for the instrument type.
-/// The one instance manages all 16 MIDI channels and instantiates
+/// The one instance manages all 16 MIDI channels and allocates
 /// GMPlayer objects as needed. This instrument does not generate
 /// sound directly.
+///
+/// Various convenience functions are provided that access the channel
+/// status information.
 class GMManager : public InstrumentVP
 {
 protected:
-	SoundBank *sndbnk;
-	InstrManager *im;
-	GMPlayer instrHead;
-	GMPlayer instrTail;
-	bsInt32 localVals;
-	AmpValue volValue;
-	bsInt16 bankValue;
-	bsInt16 progValue;
-	bsString sndFile;
+	SoundBank *sndbnk;   ///< reference to the sample collection
+	InstrManager *im;    ///< instrument manager (used for output)
+	SynthEnumList<GMPlayer> instrList; ///< List of allocated GMPlayer objects
+	bsInt32 localVals;   ///< Local vals, when set, overrides volume and patch number
+	AmpValue volValue;   ///< Local volume level
+	bsInt16 bankValue;   ///< Local bank override
+	bsInt16 progValue;   ///< Local program override
+	bsString sndFile;    ///< sound file name
 
 public:
+	/// @copydoc InstrFactory
 	static Instrument *InstrFactory(InstrManager *m, Opaque tmplt);
+	/// @copydoc EventFactory
 	static SeqEvent *EventFactory(Opaque tmplt);
 	static Opaque TmpltFactory(XmlSynthElem *tmplt);
 	static void TmpltDump(Opaque tmplt);
+	/// @copydoc ParamID
 	static bsInt16 MapParamID(const char *name, Opaque tmplt);
+	/// @copydoc ParamName
 	static const char *MapParamName(bsInt16 id, Opaque tmplt);
-	static MIDIControl *midiCtrl;
+	static MIDIControl *midiCtrl; ///< global MIDI channel information
 
 	GMManager();
 	virtual ~GMManager();
@@ -130,18 +148,22 @@ public:
 	void SetSoundFile(const char *b);
 	void SetLocalPan(bsInt16 lp);
 	
-	// Convenience functions
-
+	/// @name Convenience functions
+	/// These functions reference normalized MIDI channel status values.
+	/// @{
+	/// Return pitch wheel value for this channel
 	inline FrqValue GetPitchbend(int chnl)
 	{
 		return midiCtrl->GetPitchbend(chnl);
 	}
 
+	/// Return modulation wheel value for this channel
 	inline FrqValue GetModwheel(int chnl)
 	{
 		return midiCtrl->GetModwheel(chnl);
 	}
 
+	/// Return volume level channel
 	inline AmpValue GetVolume(int chnl)
 	{
 		if (localVals & GMM_LOCAL_VOL)
@@ -149,16 +171,19 @@ public:
 		return midiCtrl->GetVolume(chnl);
 	}
 
+	/// Return channel after touch
 	inline AmpValue GetAftertouch(int chnl)
 	{
 		return midiCtrl->GetAftertouch(chnl);
 	}
 
+	/// Get channel pan value
 	inline AmpValue GetPan(int chnl)
 	{
 		return midiCtrl->GetPan(chnl);
 	}
 
+	/// Get patch (program) number for the channel
 	inline bsInt16 GetPatch(int chnl)
 	{
 		if (localVals & GMM_LOCAL_PATCH)
@@ -166,6 +191,7 @@ public:
 		return midiCtrl->GetPatch(chnl);
 	}
 
+	/// Get patch bank number for the channel
 	inline bsInt16 GetBank(int chnl)
 	{
 		if (localVals & GMM_LOCAL_PATCH)
@@ -173,17 +199,20 @@ public:
 		return midiCtrl->GetBank(chnl);
 	}
 
+	/// Get the raw controller value
 	inline bsInt16 GetCC(int chnl, int ccn)
 	{
 		return midiCtrl->GetCC(chnl, ccn);
 	}
 
+	/// Set the raw controller value
 	inline void SetCC(int chnl, bsInt16 ccn, bsInt16 val)
 	{
 		midiCtrl->SetCC(chnl, ccn, val);
 	}
+	//@}
 
-	// InstrumentVP functions
+	/// Allocate a player object
 	GMPlayer *AllocPlayer(InstrManager *m);
 
 	virtual VarParamEvent *AllocParams();

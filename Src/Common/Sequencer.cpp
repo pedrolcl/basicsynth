@@ -681,7 +681,7 @@ inline void Sequencer::LeaveCritical()
 	pthread_mutex_unlock((pthread_mutex_t*)critMutex);
 }
 
-inline void Sequencer::Sleep()
+void Sequencer::Sleep()
 {
 	pthread_event *e = (pthread_event*)pauseSignal;
 	pthread_mutex_lock(&e->m);
@@ -689,7 +689,7 @@ inline void Sequencer::Sleep()
 	pthread_mutex_unlock(&e->m);
 }
 
-inline void Sequencer::Wakeup()
+void Sequencer::Wakeup()
 {
 	pthread_event *e = (pthread_event*)pauseSignal;
 	pthread_mutex_lock(&e->m);

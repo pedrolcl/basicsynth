@@ -346,7 +346,7 @@ int SynthProject::Load(XmlSynthElem *node)
 			if (prjOptions.inclScripts)
 				prjTree->AddNode(fi);
 		}
-		else if (child->TagMatch("sf2"))
+		else if (child->TagMatch("sndbnk") || child->TagMatch("sf2") || child->TagMatch("dls"))
 		{
 			SoundBankItem *sbi = new SoundBankItem;
 			sbi->SetParent(sblInfo);
@@ -729,6 +729,7 @@ ProjectOptions::ProjectOptions()
 	inclInstr = 0xfff;
 	midiDevice = -1;
 	memset(midiDeviceName, 0, MAX_PATH);
+	memset(waveDevice, 0, MAX_PATH);
 	playBuf = 0.02;
 }
 

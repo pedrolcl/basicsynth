@@ -273,6 +273,7 @@ int ProjectFrame::CloseProject(int query)
 
 		if (CloseAllEditors() == 0)
 			return 0;
+		StopPlayer();
 		ClearPlayer();
 		prjTree->RemoveAll();
 		theProject = 0;

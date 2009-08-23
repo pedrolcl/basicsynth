@@ -20,6 +20,7 @@ WaveOutDirect::WaveOutDirect()
 {
 	dirSndObj = 0;
 	dirSndBuf = 0;
+	lastDev = 0;
 
 	nextWrite = 0;
 	numBlk = 4;
@@ -39,6 +40,8 @@ WaveOutDirect::~WaveOutDirect()
 		dirSndBuf->Release();
 	if (dirSndObj)
 		dirSndObj->Release();
+	if (lastDev)
+		delete lastDev;
 }
 
 void WaveOutDirect::Stop()
@@ -62,17 +65,48 @@ void WaveOutDirect::Restart()
 		endSamp = nxtSamp + sampleMax;
 		nextWrite = 0;
 		outState = 1;
+#ifdef _DEBUG
 		if (nxtSamp == 0)
 			OutputDebugString("nxtSamp == NULL\r\n");
+#endif
 	}
 }
 
-int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
+int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
 {
+	int newDev = 1;
+	if (dirSndObj)
+	{
+		if (lastDev && dev)
+		{
+			if (memcmp(lastDev, dev, sizeof(GUID)) == 0)
+				newDev = 0;
+		}
+		else if (!lastDev && !dev)
+			newDev = 0;
+		if (newDev)
+		{
+			dirSndObj->Release();
+			dirSndObj = 0;
+		}
+	}
 	if (dirSndObj == NULL)
 	{
+		if (dev)
+		{
+			if (!lastDev)
+				lastDev = new GUID;
+			memcpy(lastDev, dev, sizeof(GUID));
+		}
+		else
+		{
+			if (lastDev)
+				delete lastDev;
+			lastDev = 0;
+		}
+
 		HRESULT hr;
-		hr = DirectSoundCreate(NULL, &dirSndObj, NULL);
+		hr = DirectSoundCreate(dev, &dirSndObj, NULL);
 		if (hr == S_OK)
 		{
 			hr = dirSndObj->SetCooperativeLevel(w, DSSCL_NORMAL);
@@ -128,12 +162,12 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm)
 	return 0;
 }
 
-int WaveOutDirect::Setup(HWND w, float leadtm, int nb)
+int WaveOutDirect::Setup(HWND w, float leadtm, int nb, GUID *dev)
 {
 	if (nb < 3)
 		nb = 3;
 	numBlk = nb;
-	if (CreateSoundBuffer(w, leadtm))
+	if (CreateSoundBuffer(w, leadtm, dev))
 		return -1;
 
 	// Lock the first block
@@ -228,19 +262,21 @@ int WaveOutDirect::FlushOutput()
 	}
 	nxtSamp = (SampleValue*)startLock;
 	endSamp = nxtSamp + sampleMax;
+#ifdef _DEBUG
 	if (nxtSamp == 0)
 		OutputDebugString("nxtSamp == NULL\r\n");
+#endif
 	return 0;
 }
 
 /////////////////////////////////////////////////////////
 
-int WaveOutDirectI::Setup(HWND w, float leadtm, int nb)
+int WaveOutDirectI::Setup(HWND w, float leadtm, int nb, GUID *dev)
 {
 	if (nb < 3)
 		nb = 3;
 	numBlk = nb;
-	if (CreateSoundBuffer(w, leadtm))
+	if (CreateSoundBuffer(w, leadtm, dev))
 		return -1;
 	AllocBuf(sampleMax, 2);
 	return 0;

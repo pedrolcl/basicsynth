@@ -22,6 +22,7 @@ private:
 	Fl_Button *libsBrowse;
 	Fl_Input *latency;
 	Fl_Input *midiDev;
+	Fl_Input *waveDev;
 	Fl_Button *okBtn;
 	Fl_Button *canBtn;
 

@@ -37,7 +37,7 @@ int SynthProject::Generate(int todisk, long from, long to)
 	// because Windows locks 20ms of the buffer, we should use least 40ms total.
 	if (prjOptions.playBuf < 0.01)
 		prjOptions.playBuf = 0.01;
-	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, nbuf))
+	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, nbuf, _Module.waveID))
 		return -1;
 
 	if (prjGenerate)
@@ -80,7 +80,7 @@ int SynthProject::Play()
 	mgr.Init(&mix, &wvd);
 	if (prjOptions.playBuf < 0.01)
 		prjOptions.playBuf = 0.01;
-	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, 3))
+	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, 3, _Module.waveID))
 		return 0;
 	//ATLTRACE("Starting live playback...\n");
 	wop = &wvd;

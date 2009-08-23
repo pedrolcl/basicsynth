@@ -8,16 +8,18 @@
 
 SoundBank SoundBank::SoundBankList;
 
+// N.B. - this unconditionally clears the list without checking for locks
 void SoundBank::DeleteBankList()
 {
 	SoundBank *bnk;
 	while ((bnk = SoundBankList.next) != 0)
 	{
 		bnk->Remove();
-		delete bnk;
+		bnk->Unlock();
 	}
 }
 
+/// Locate a bank by name.
 SoundBank *SoundBank::FindBank(const char *name)
 {
 	SoundBank *bnk;
