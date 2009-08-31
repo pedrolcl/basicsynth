@@ -492,8 +492,14 @@ void KbdGenDlg::Load()
 	instrList->resize(x()+a.x+5, y()+a.y+5, a.w, a.h);
 	instrList->redraw();
 	int sel = instrList->value();
-	if (sel > 0 && form)
-		form->GetKeyboard()->SetInstrument((InstrConfig*)instrList->data(sel));
+	if (sel > 0)
+	{
+		InstrConfig *inc = (InstrConfig*)instrList->data(sel);
+		if (form)
+			form->GetKeyboard()->SetInstrument(inc);
+		if (inc)
+			theProject->prjMidiIn.SetInstrument(inc->inum);
+	}
 
 	int cx = 200;
 	int cy = 100;
@@ -508,8 +514,14 @@ void KbdGenDlg::OnInstrChange()
 	if (form)
 	{
 		int sel = instrList->value();
-		if (sel > 0 && form)
-			form->GetKeyboard()->SetInstrument((InstrConfig*)instrList->data(sel));
+		if (sel > 0)
+		{
+			InstrConfig *inc = (InstrConfig*)instrList->data(sel);
+			if (form)
+				form->GetKeyboard()->SetInstrument(inc);
+			if (inc)
+				theProject->prjMidiIn.SetInstrument(inc->inum);
+		}
 	}
 }
 
@@ -531,7 +543,10 @@ void KbdGenDlg::Clear()
 {
 	instrList->clear();
 	if (form)
+	{
 		form->GetKeyboard()->SetInstrument(0);
+		theProject->prjMidiIn.SetInstrument(0);
+	}
 }
 
 void KbdGenDlg::InitInstrList()
@@ -546,8 +561,11 @@ void KbdGenDlg::InitInstrList()
 	if (instrList->size() > 0)
 	{
 		instrList->select(1);
+		InstrConfig *inc = (InstrConfig*)instrList->data(1);
 		if (form)
-			form->GetKeyboard()->SetInstrument((InstrConfig*)instrList->data(1));
+			form->GetKeyboard()->SetInstrument(inc);
+		if (inc)
+			theProject->prjMidiIn.SetInstrument(inc->inum);
 	}
 }
 
@@ -645,6 +663,7 @@ void KeyboardWidget::Paint(DrawContext dc)
 	fl_rect(rcWhite[0].x, rcWhite[0].y, rw, rcWhite[0].h);
 }
 
+#ifdef _OLD_MIDI_STUFF
 /////////////////////////////////////////////////////////////////////////////
 // MIDI Input
 // For now, MIDI input is connected to the virtual keyboard widget and
@@ -910,3 +929,4 @@ void KeyboardWidget::MidiIn(int onoff)
 }
 #endif
 
+#endif
