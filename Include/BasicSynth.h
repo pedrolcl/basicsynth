@@ -31,6 +31,7 @@
 
 #include <MIDIDefs.h>
 #include <MIDIControl.h>
+#include <MIDIInput.h>
 
 //////////////////////////////////////////
 // These two files are not included by

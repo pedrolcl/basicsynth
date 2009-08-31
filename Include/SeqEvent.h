@@ -17,32 +17,37 @@
 #ifndef _SEQEVENT_H
 #define _SEQEVENT_H
 
-/// Start a sound
-#define SEQEVT_START 0
-/// Stop a sound
-#define SEQEVT_STOP  1
-/// Change instrument parameters without restart
-#define SEQEVT_PARAM 2
-/// Restart the sound with new parameters
-#define SEQEVT_RESTART 3
-/// Start a sequencer track
-#define SEQEVT_STARTTRACK 4
-/// Stop a sequencer track
-#define SEQEVT_STOPTRACK 5
-/// MIDI (or other) Control change
-#define SEQEVT_CONTROL 6
+// Sequencer event ID values.
+// The negative IDS are events internally generated
+// by the sequencer. Obviously, these cannot be sent
+// to the sequencer in an event since they control
+// when events are processed. It is also possible
+// to poll the sequencer's state to determine 
+// if it is running, stopped, or paused.
+#define SEQEVT_SEQSTART -1  ///< Sequencer started
+#define SEQEVT_SEQSTOP  -2  ///< Sequencer stopped
+#define SEQEVT_SEQPAUSE -4  ///< Sequencer paused
+#define SEQEVT_SEQRESUME  -5  ///< Sequencer resumed
+
+#define SEQEVT_START 0      ///< Start a sound
+#define SEQEVT_STOP  1      ///< Stop a sound
+#define SEQEVT_PARAM 2      ///< Change instrument parameters without restart
+#define SEQEVT_RESTART 3    ///< Restart the sound with new parameters
+#define SEQEVT_STARTTRACK 4 ///< Start a sequencer track
+#define SEQEVT_STOPTRACK 5  ///< Stop a sequencer track
+#define SEQEVT_CONTROL 6    ///< MIDI (or other) Control change
+
+/// User defined events can be placed in the sequence with values
+/// SEQEVT_USER or greater. The sequencer will ignore these;
+/// they must be handled by setting an event callback.
+#define SEQEVT_USER   1024  
 
 // Paramater index
-/// Instrument number
-#define P_INUM  0
-/// Mixer channel number
-#define P_CHNL  1
-/// Start time in samples
-#define P_START 2
-/// Duration in samples
-#define P_DUR   3
-/// First id for user params
-#define P_XTRA 4
+#define P_INUM  0           ///< Instrument number
+#define P_CHNL  1           ///< Mixer channel number
+#define P_START 2           ///< Start time in samples
+#define P_DUR   3           ///< Duration in samples
+#define P_XTRA  4           /// First id for user params
 
 class InstrConfig;
 
@@ -69,14 +74,14 @@ class InstrConfig;
 class SeqEvent : public SynthList<SeqEvent>
 {
 public:
-	bsInt16 type;     // event type, 0 -> start output, 1 -> alter parameters
-	bsInt16 inum;     // instrument number
-	bsInt16 chnl;     // channel number (usually mixer input)
-	bsInt16 track;    // track number (formerly known as extra)
-	bsInt32 evid;     // event ID or reference to earlier event
-	bsInt32 start;    // start time in samples
-	bsInt32 duration; // duration in samples
-	InstrConfig *im;  //
+	bsInt16 type;     ///< event type, 0 -> start output, 1 -> alter parameters
+	bsInt16 inum;     ///< instrument number
+	bsInt16 chnl;     ///< channel number (usually mixer input)
+	bsInt16 track;    ///< track number (formerly known as extra)
+	bsInt32 evid;     ///< event ID or reference to earlier event
+	bsInt32 start;    ///< start time in samples
+	bsInt32 duration; ///< duration in samples
+	InstrConfig *im;  ///< instrument object
 
 	SeqEvent()
 	{
@@ -106,6 +111,7 @@ public:
 	virtual bsInt16 MaxParam() { return P_DUR; }
 
 	virtual void SetInum(bsInt16 i) { inum = i; }
+	virtual void SetInCfg(InstrConfig *i) { im = i; }
 	virtual void SetType(bsInt16 t) { type = t; }
 	virtual void SetID(bsInt16 id) { evid = id; }
 	virtual void SetChannel(bsInt16 c) { chnl = c; }
@@ -113,7 +119,7 @@ public:
 	virtual void SetStart(bsInt32 s) { start = s; }
 	virtual void SetDuration(bsInt32 d) { duration = d; }
 
-	/// Set a parameter
+	/// Set a parameter.
 	/// @param id unique id number for this value
 	/// @param v the parameter value
 	virtual void SetParam(bsInt16 id, float v)
@@ -144,6 +150,9 @@ public:
 		SetParam(id, (float) atof(s));
 	}
 
+	/// Get a parameter.
+	/// @param id unique id number for this value
+	/// @return the parameter value
 	virtual float GetParam(bsInt16 id)
 	{
 		switch (id)
@@ -160,6 +169,7 @@ public:
 		return 0;
 	}
 
+	/// Reset values to defaults.
 	virtual void Reset()
 	{
 		inum = 0;
@@ -168,20 +178,23 @@ public:
 		duration = 0;
 		track = 0;
 	}
+
+	virtual void CopyEvent(SeqEvent *evt)
+	{
+		inum = evt->inum;
+		chnl = evt->chnl;
+		start = evt->start;
+		duration = evt->duration;
+		track = evt->track;
+	}
 };
 
-/// The pitch value (0-127)
-#define P_PITCH  4
-/// The frequency value (0-SR/2)
-#define P_FREQ   5
-/// The volume (0-1)
-#define P_VOLUME 6
-/// Track number
-#define P_TRACK  7
-/// Note-on velocity (MIDI)
-#define P_NOTEONVEL 8
-/// First instrument specific parameter is P_USER = 16
-#define P_USER 16
+#define P_PITCH  4       ///< The pitch value (0-127)
+#define P_FREQ   5       ///< The frequency value (0-SR/2)
+#define P_VOLUME 6       ///< The volume (0-1)
+#define P_TRACK  7       ///< Track number
+#define P_NOTEONVEL 8    ///< Note-on velocity (if MIDI)
+#define P_USER 16        ///< First instrument specific parameter
 
 ///////////////////////////////////////////////////////////
 /// A note event.
@@ -233,9 +246,6 @@ public:
 		case P_VOLUME:
 			SetVolume(AmpValue(v));
 			break;
-		case P_TRACK:
-			SetTrack((bsInt16) v);
-			break;
 		case P_NOTEONVEL:
 			SetVelocity((bsInt16)v);
 			break;
@@ -245,6 +255,7 @@ public:
 		}
 	}
 
+	/// @copydoc SeqEvent::GetParam
 	virtual float GetParam(bsInt16 id)
 	{
 		switch (id)
@@ -261,6 +272,18 @@ public:
 			return (float) noteonvel;
 		}
 		return SeqEvent::GetParam(id);
+	}
+
+	virtual void CopyEvent(SeqEvent *evt)
+	{
+		SeqEvent::CopyEvent(evt);
+
+		NoteEvent *ne = (NoteEvent *) evt;
+		pitch = ne->pitch;
+		frq = ne->frq;
+		vol = ne->vol;
+		track = ne->track;
+		noteonvel = ne->noteonvel;
 	}
 };
 
@@ -353,11 +376,13 @@ public:
 		}
 	}
 
+	/// Reset the index count.
 	void Reset()
 	{
 		numParam = 0;
 	}
 
+	/// @copydoc SeqEvent::GetParam
 	float GetParam(bsInt16 id)
 	{
 		bsInt16 *pp = idParam;
@@ -370,6 +395,8 @@ public:
 	}
 
 	/// Replace or Set the value of a parameter
+	/// @param id parameter id
+	/// @param val parameter value
 	void UpdateParam(bsInt16 id, float val)
 	{
 		if (id < P_USER)
@@ -389,11 +416,23 @@ public:
 		}
 		SetParam(id, val);
 	}
+
+	virtual void CopyEvent(SeqEvent *evt)
+	{
+		NoteEvent::CopyEvent(evt);
+
+		VarParamEvent *ve = (VarParamEvent *)evt;
+		bsInt16 n = ve->allParam;
+		AllocParam(n);
+		memcpy(valParam, ve->valParam, n*sizeof(float));
+		memcpy(idParam, ve->idParam, n*sizeof(bsInt16));
+		numParam = ve->numParam;
+	}
 };
 
-#define P_MMSG  4
-#define P_CTRL  5
-#define P_CVAL  6
+#define P_MMSG  4         ///< The MIDI message
+#define P_CTRL  5         ///< The controller
+#define P_CVAL  6         ///< Controller value
 
 /// A ControlEvent is used for global synthsizer control.
 /// For the most part, this is used to implement MIDI
@@ -420,9 +459,7 @@ public:
 	virtual void SetControl(bsInt16 c) { ctrl = c; }
 	virtual void SetValue(bsInt16 v)   { cval = v; }
 
-	/// Set a parameter
-	/// @param id unique id number for this value
-	/// @param v the parameter value
+	/// @copydoc SeqEvent::SetParam
 	virtual void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
@@ -444,6 +481,8 @@ public:
 			break;
 		}
 	}
+
+	/// @copydoc SeqEvent::GetParam
 	virtual float GetParam(bsInt16 id)
 	{
 		switch (id)
@@ -459,11 +498,25 @@ public:
 		}
 		return SeqEvent::GetParam(id);
 	}
+
+	virtual void CopyEvent(SeqEvent *evt)
+	{
+		SeqEvent::CopyEvent(evt);
+		ControlEvent *ce = (ControlEvent*)evt;
+		mmsg = ce->mmsg;
+		ctrl = ce->ctrl;
+		cval = ce->cval;
+	}
+
 };
 
-#define P_TRKNO 5
-#define P_LOOP  6
+#define P_TRKNO 5      ///< ID for track number
+#define P_LOOP  6      ///< ID for track loop count
 
+/// A track event starts or stops a track.
+/// The loopCount member indicates how many times
+/// the track is played. A value of -1 will play the
+/// track until it receives a STOPTRACK event.
 class TrackEvent : public SeqEvent
 {
 public:
@@ -482,9 +535,7 @@ public:
 	/// Get the maximum number of parameters.
 	virtual bsInt16 MaxParam() { return P_LOOP; }
 
-	/// Set a parameter
-	/// @param id unique id number for this value
-	/// @param v the parameter value
+	/// @copydoc SeqEvent::SetParam
 	virtual void SetParam(bsInt16 id, float v)
 	{
 		switch (id)
@@ -495,15 +546,13 @@ public:
 		case P_LOOP:
 			SetLoop((bsInt16) v);
 			break;
-		case P_TRACK:
-			SetTrack((bsInt16) v);
-			break;
 		default:
 			SeqEvent::SetParam(id, v);
 			break;
 		}
 	}
 
+	/// @copydoc SeqEvent::GetParam
 	virtual float GetParam(bsInt16 id)
 	{
 		switch (id)
@@ -512,10 +561,16 @@ public:
 			return (float) trkNo;
 		case P_LOOP:
 			return (float) loopCount;
-		case P_TRACK:
-			return (float) track;
 		}
 		return SeqEvent::GetParam(id);
+	}
+
+	virtual void CopyEvent(SeqEvent *evt)
+	{
+		SeqEvent::CopyEvent(evt);
+		TrackEvent *te = (TrackEvent *)evt;
+		trkNo = te->trkNo;
+		loopCount = te->loopCount;
 	}
 };
 

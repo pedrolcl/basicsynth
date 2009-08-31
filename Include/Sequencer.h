@@ -13,6 +13,21 @@
 #ifndef _SEQUENCER_H_
 #define _SEQUENCER_H_
 
+/// Sequencer tick callback function.
+/// If set, the callback will be called every 
+/// "wrap" ticks. This allows the program to display
+/// the current sequencer time value, or do other
+/// things to inform the user what is going on.
+/// The callback should be short and not attempt
+/// to manipulate either the instrument manager
+/// or sequencer other than possibly telling the
+/// sequencer to halt playback. The count value
+/// indicates how many times the count has wrapped.
+/// @sa Sequencer::SetCB
+/// @param count count of how many "wraps" have occurred.
+/// @param usr user supplied argument.
+typedef void (*SeqTickCB)(bsInt32 count, Opaque usr);
+
 ///////////////////////////////////////////////////////////
 /// Active note sequencer event
 //
@@ -48,11 +63,11 @@
 struct ActiveEvent : public SynthList<ActiveEvent>
 {
 	Instrument *ip;
-	bsInt32 count;  // number of samples left to play (duration)
-	bsInt32 evid;   // id of the event that activated this event
-	bsInt16 ison;   // SEQ_AE_REL after stop is sent to the instrument
-	bsInt16 flags;  // event options
-	bsInt16 chnl;
+	bsInt32 count;  ///< number of samples left to play (duration)
+	bsInt32 evid;   ///< id of the event that activated this event
+	bsInt16 ison;   ///< SEQ_AE_REL after stop is sent to the instrument
+	bsInt16 flags;  ///< event options
+	bsInt16 chnl;   ///< output channel
 };
 
 ///////////////////////////////////////////////////////////
@@ -87,9 +102,9 @@ typedef int SeqState;
 #define seqPlay     0x02
 #define seqOnce     0x04
 #define seqPaused   0x08
-#define seqPlaySeq  (seqSequence|SeqPlay)
+#define seqPlaySeq  (seqSequence|seqPlay)
 #define seqSeqOnce  (seqSequence|seqOnce)
-#define seqPlaySeqOnce (seqSequence|seqPlay|SeqOnce)
+#define seqPlaySeqOnce (seqSequence|seqPlay|seqOnce)
 
 class SeqTrack : public SynthList<SeqTrack>
 {
@@ -140,6 +155,8 @@ public:
 	inline bsInt16 Enable(bsInt16 e) { return enable = e; }
 	inline bsInt32 LoopCount(bsInt32 c) { return loopCount = c; }
 
+	/// Start the track.
+	/// @param st start time relative to start of track (usually 0)
 	void Start(bsInt32 st)
 	{
 		enable = 1;
@@ -149,15 +166,20 @@ public:
 			evtPlay = evtPlay->next;
 	}
 
+	/// Stop the track.
 	inline void Stop() { enable = 0; }
+
+	/// Continue the track.
 	inline void Continue() { enable = 1; }
 
+	/// Determine if the track is playing or not.
 	int Tick()
 	{
 		if (enable)
 		{
 			if (++startTime >= seqLength)
 			{
+				// At the end - see if we should loop or quit
 				if (--loopCount == 0)
 					enable = 0;
 				else
@@ -170,6 +192,7 @@ public:
 		return enable;
 	}
 
+	/// Get the next ready event.
 	inline SeqEvent *NextEvent()
 	{
 		if (enable && evtPlay->start <= startTime)
@@ -201,15 +224,16 @@ public:
 /// The second list contains all active notes and exists only
 /// while the sequencer is playing.
 ///////////////////////////////////////////////////////////
-
 class Sequencer
 {
-private:
+protected:
+	bsInt32 globEventID;
 	SeqTrack *track;
 	bool playing;
 	bool pausing;
 	bsInt32 seqLength;
-	void (*tickCB)(bsInt32 count, Opaque arg);
+	bsUint32 seqTick;
+	SeqTickCB tickCB;
 	bsInt32 tickCount;
 	bsInt32 tickWrap;
 	Opaque  tickArg;
@@ -236,13 +260,19 @@ private:
 	void Sleep();
 	void Wakeup();
 
-	void ProcessEvent(SeqEvent *evt, bsInt16 flags);
-	int Tick();
+	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags);
+	virtual int Tick();
+	virtual void Wait();
+
 	void ClearActive();
 
 public:
 	Sequencer();
 	virtual ~Sequencer();
+
+	/// Get the next event ID.
+	/// Values with the MSB set are immediate events.
+	bsInt32 NextEventID() { return ++globEventID & 0x7FFFFFFF; }
 
 	/// Reset the sequencer.
 	/// Reset should be called to clean up any memory before filling in a new sequence. 
@@ -270,21 +300,13 @@ public:
 		return count;
 	}
 
-	/// Set the callback function. This is optional.
-	/// If set, the callback will be called every 
-	/// "wrap" ticks. This allows the program to display
-	/// the current sequencer time value, or do other
-	/// things to inform the user what is going on.
-	/// The callback should be short and not attempt
-	/// to manipulate either the instrument manager
-	/// or sequencer other than possibly telling the
-	/// sequencer to halt playback.
-	/// @param f callback function
+	/// Set the tick callback function. 
+	/// @param cb callback function
 	/// @param wrap number of ticks between callbacks
 	/// @param arg caller supplied data
-	virtual void SetCB(void (*f)(bsInt32, Opaque), bsInt32 wrap, Opaque arg)
+	virtual void SetCB(SeqTickCB cb, bsInt32 wrap, Opaque arg)
 	{
-		tickCB = f;
+		tickCB = cb;
 		tickWrap = wrap;
 		tickArg = arg;
 	}
@@ -319,7 +341,8 @@ public:
 	/// Pause sequencing without exit.
 	/// Halt or Resume will end the pause state. The sequencer may not
 	/// enter the paused state immediately. After calling Pause, 
-	/// poll the sequencer state until it returns seqPause.
+	/// poll the sequencer state until it returns seqPause, or set
+	/// an event callback and wait for SEQEVT_SEQPAUSE.
 	virtual void Pause()
 	{
 		pausing = true;
@@ -340,12 +363,13 @@ public:
 	/// value, sorted by start time.
 	/// The caller is responsible for setting
 	/// valid values for inum, start, duration, type, track and eventid.
+	/// Timed events should only be added when the sequencer is stopped.
 	/// @param evt the event to schedule
 	virtual void AddEvent(SeqEvent *evt);
 
 	/// Add the event for immediate playback.
 	/// The caller is responsible for setting
-	/// valid values for inum, type and eventid where appropriate.
+	/// valid values for inum, type and event id where appropriate.
 	/// @param evt the event to schedule
 	virtual void AddImmediate(SeqEvent *evt);
 
@@ -364,13 +388,15 @@ public:
 	/// @param startTime if non-zero, start at the indicated time
 	/// @param endTime if non-zero, stop at the indicated time
 	/// @param st sequencer mode of operation
-	virtual bsInt32 SequenceMulti(InstrManager& im, bsInt32 startTime = 0, bsInt32 endTime = 0, SeqState st = seqSeqOnce);
+	/// @return number of samples output
+	virtual bsUint32 SequenceMulti(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0, SeqState st = seqSeqOnce);
 
-	/// Sequence Optimally
+	/// Sequence Optimally.
 	/// Similar to SequenceMulti() but does not check for live events or play multiple tracks.
 	/// This is optimal for auditioning sequences and creating wave file output when
 	/// only one master track exists.
-	virtual bsInt32 Sequence(InstrManager& im, bsInt32 startTime = 0, bsInt32 endTime = 0);
+	/// @return number of samples output
+	virtual bsUint32 Sequence(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0);
 
 	/// Play live optimally.
 	/// When invoked, this method enters into a loop waiting on immediate
@@ -385,7 +411,58 @@ public:
 	/// Start and Stop track events have no effect. This function only
 	/// returns when Halt() is invoked.
 	/// @param instMgr reference to an instrument manager object
-	virtual void Play(InstrManager& im);
+	/// @return number of samples output
+	virtual bsUint32 Play(InstrManager& im);
 };
+
+/// Sequencer event callback function.
+/// If set, the callback will be called when certain
+/// events are processed, and when the sequencer state
+/// changes. The callback should be short and not attempt
+/// to manipulate either the instrument manager
+/// or sequencer other than possibly telling the
+/// sequencer to halt playback.
+/// @param evtID the event type
+/// @param evt the sequencer event or null for internal events
+/// @param usr user supplied argument
+typedef void (*SeqEventCB)(bsUint32 tick, bsInt16 evtID, const SeqEvent *evt, Opaque usr);
+
+/// SequencerCB adds event callbacks to the Sequencer class.
+class SequencerCB : public Sequencer
+{
+protected:
+	SeqEventCB evtCB;
+	Opaque     evtArg;
+
+	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags);
+	virtual void Wait();
+
+public:
+	SequencerCB()
+	{
+		evtCB = 0;
+		evtArg = 0;
+	}
+
+	/// Set the event callback function. 
+	/// @param cb callback function
+	/// @param arg caller supplied data
+	virtual void SetEventCB(SeqEventCB cb, Opaque arg)
+	{
+		evtCB = cb;
+		evtArg = arg;
+	}
+
+	virtual void Notify(bsInt16 id, SeqEvent *evt)
+	{
+		if (evtCB)
+			evtCB(seqTick, id, evt, evtArg);
+	}
+
+	virtual bsUint32 SequenceMulti(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0, SeqState st = seqSeqOnce);
+	virtual bsUint32 Sequence(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0);
+	virtual bsUint32 Play(InstrManager& im);
+};
+
 //@}
 #endif

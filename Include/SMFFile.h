@@ -33,6 +33,16 @@ public:
 		bsUint32 lval;
 		void *pval;
 	} val3;
+
+	MIDIEvent()
+	{
+		deltat = 0;
+		mevent = 0;
+		chan = 0;
+		val1 = 0;
+		val2 = 0;
+		val3.lval = 0;
+	}
 };
 
 class SMFFile; // forward reference
@@ -53,7 +63,19 @@ public:
 
 	bsUint32 deltaTime;
 
+	SMFTrack()
+	{
+		trkNum = -1;
+		Init();
+	}
+
 	SMFTrack(int t)
+	{
+		trkNum = t;
+		Init();
+	}
+
+	void Init()
 	{
 		smf = 0;
 		evtHead.Insert(&evtTail);
@@ -64,7 +86,6 @@ public:
 		evtTail.mevent = MIDI_META;
 		evtTail.chan  = MIDI_META_EOT;
 		eot = 0;
-		trkNum = t;
 		deltaTime = 0;
 	}
 
@@ -118,6 +139,16 @@ public:
 	/// function simply passes the event back to the SMFFile object
 	/// for processing.
 	int Generate();
+
+	MIDIEvent *Enum(MIDIEvent *evt)
+	{
+		if (evt == 0)
+			evt = &evtHead;
+		evt = evt->next;
+		if (evt == &evtTail)
+			return 0;
+		return evt;
+	}
 };
 
 /// MIDI header chunk
@@ -135,7 +166,7 @@ struct MTHDchunk
 /// There is an array of these, one for each channel. The SMFFile
 /// class uses this map to determine the BasicSynth instrument
 /// that should handle noteon/noteoff for each channel. TO play
-/// using a SoundFont (or similar setup), the "inc" member can
+/// using a SoundBank (or similar setup), the "inc" member can
 /// be the same for all channels. The bnkParam and preparam members
 /// can be used to pass the current bank and preset numbers to the
 /// instrument on a START event. However, it is also possible
@@ -199,8 +230,8 @@ public:
 /// in the sequencer object and an instrument map. Generate converts
 /// the MIDI events into absolute time events and merges Note ON/OFF
 /// into a single START event with duration.
-/// The gmbank flag indicates we are doing General MIDI. This affects
-/// the processing of the bank/preset number. GM always uses bank 0 or 128.
+/// The gmbank flag indicates we are doing General MIDI 1 or 2. This affects
+/// the processing of the bank/preset number. GM 1 always uses bank 0 or 128.
 class SMFFile
 {
 protected:
@@ -220,14 +251,13 @@ protected:
 	double ppqn;
 	FrqValue theTick;
 	SMFTrack *trackObj;
-	SMFTrack trackHead;
-	SMFTrack trackTail;
+	SynthEnumList<SMFTrack> trackList;
 	SMFChnlStatus chnlStatus[16];
 	SMFInstrMap *instrMap;
-	bsInt32 eventID;
 	Sequencer *seq;
 	SoundBank *sbnk;
 	int gmbank;
+	int explNoteOff;
 
 	/// Process META messages.
 	void MetaEvent();
@@ -290,12 +320,27 @@ protected:
 	}
 
 public:
-	SMFFile() : trackHead(-1), trackTail(-1)
+	bsInt16 timeSigNum;
+	bsInt16 timeSigDiv;
+	bsInt16 timeSigBeat;
+	bsInt16 keySigKey;
+	bsInt16 keySigMaj;
+
+	SMFFile()
 	{
+		Reset();
+	}
+
+	~SMFFile()
+	{
+	}
+
+	void Reset()
+	{
+		trackList.Clear();
 		hdr.format = 1;
 		hdr.numTrk = 0;
 		hdr.tmDiv = 24;
-		trackHead.Insert(&trackTail);
 		lastMsg = 0;
 		inpBuf = 0;
 		inpPos = 0;
@@ -304,30 +349,43 @@ public:
 		srTicks = (0.5 * synthParams.sampleRate) / 24.0;
 		trackObj = 0;
 		instrMap = 0;
-		eventID = 1;
 		seq = 0;
 		gmbank = 1;
 		sbnk = 0;
 		chnlStatus[9].bank = 128;
+		metaText = "";
+		metaCpyr = "";
+		metaSeqName = "";
+		timeSig = "";
+		keySig = "";
+		keySigKey = 0;
+		keySigMaj = 0;
+		timeSigNum = 4;
+		timeSigDiv = 4;
+		timeSigBeat = 60;
+		explNoteOff = 0;
 	}
 
-	~SMFFile()
-	{
-		while((trackObj = trackHead.next) != &trackTail)
-		{
-			trackObj->Remove();
-			delete trackObj;
-		}
-	}
-
-	/// Turn GM bank off.
-	/// By default, we consider the SMF file to be played
-	/// on bank 0 for all channels except 10, which is
-	/// bank 128. Setting this flag off will allow exact
+	/// Set GM level.
+	/// By default, we use GM=1, and all instruments
+	/// are on bank 0 for all channels except 10, which is
+	/// bank 128. Setting this flag 0 will allow exact
 	/// specification of bank number from the SMF file.
-	inline void GMBank(int onoff)
+	/// Setting it to 2 works for GM2 where the bank
+	/// select MSB is required to be 121 or 120.
+	inline void GMBank(int val)
 	{
-		gmbank = onoff;
+		gmbank = val;
+	}
+
+	/// Emit note off events.
+	/// By default, we generate one event per note.
+	/// To emulate MIDI NoteOn/NoteOff, we can emit 
+	/// two separate events for note start and note stop.
+	/// @param onoff if zero, emit two events for each note.
+	inline void ExplicitNoteOff(int onoff)
+	{
+		explNoteOff = onoff;
 	}
 
 	/// Return the meta text records.
@@ -386,6 +444,12 @@ public:
 	/// This is only valid after calling GenerateSeq.
 	/// @returns number of channels found with notes.
 	int GetChannelMap(bsInt32 *ch);
+
+	SMFTrack *Enum(SMFTrack *trk)
+	{
+		return trackList.EnumItem(trk);
+	}
+
 };
 
 

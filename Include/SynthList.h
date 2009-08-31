@@ -93,6 +93,11 @@ public:
 
 	~SynthEnumList()
 	{
+		Clear();
+	}
+
+	void Clear()
+	{
 		T *itm;
 		while ((itm = head.next) != &tail)
 		{

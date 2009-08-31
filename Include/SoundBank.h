@@ -48,13 +48,17 @@ struct SBInfo
 
 // Flags indicating active generators
 #define SBGEN_VIBLFOF 0x0001
-#define SBGEN_MODLFOF 0x0002
-#define SBGEN_MODENVF 0x0004
-#define SBGEN_MODWHLF 0x0008
+#define SBGEN_MODENVF 0x0002
+#define SBGEN_PITWHLF 0x0004
+#define SBGEN_MODLFOF 0x0010
+#define SBGEN_MODWHLF 0x0020
+#define SBGEN_BRTHFRQ 0x0040
+#define SBGEN_EXPRFRQ 0x0080
 #define SBGEN_MODLFOA 0x0100
-#define SBGEN_BRTHAMP 0x0200
-#define SBGEN_EXPRAMP 0x0400
-#define SBGEN_MODWHLA 0x0800
+#define SBGEN_MODWHLA 0x0200
+#define SBGEN_BRTHAMP 0x0400
+#define SBGEN_EXPRAMP 0x0800
+#define SBGEN_MODLIST 0x1000
 #define SBGEN_MODLFOX (SBGEN_MODLFOF|SBGEN_MODLFOA)
 #define SBGEN_MODWHLX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODLFOA)
 #define SBGEN_MODFRQX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODENVF)
@@ -88,7 +92,6 @@ struct SBInfo
 #define SBGEN_VELATK  0x0019
 #define SBGEN_VELCTY  0x001A
 #define SBGEN_KEYNUM  0x001B
-#define SBGEN_MODLIST 0x001C
 
 class SBModInfo : public SynthList<SBModInfo>
 {
@@ -221,8 +224,9 @@ public:
 	bsInt16   highKey;   ///< highest pitch for this sample
 	bsInt16   lowVel;    ///< lowest MIDI note-on velocity
 	bsInt16   highVel;   ///< highest MIDI note-on velocity
+	bsUint32  exclNote;  ///< Exclusive note id
 
-	bsInt32   genFlags;  ///< flags indicating active modulators
+	bsUint32  genFlags;  ///< flags indicating active modulators
 	AmpValue  volAtten;  ///< Peak volume in dB of attenuation
 	AmpValue  velScale;  ///< Attenuation scaling from note-on velocity
 	SBEnv     volEg;     ///< Volume envelope
@@ -278,6 +282,7 @@ public:
 		highKey = 127;
 		lowVel = 0;
 		highVel = 127;
+		exclNote = 0;
 		pan = 0.0;
 		volAtten = 0.0;
 		velScale = 1.0;
@@ -362,16 +367,6 @@ public:
 			genFlags |= SBGEN_MODLFOA;
 		if (modEnvFrq != 0)
 			genFlags |= SBGEN_MODENVF;
-		if (mwfScale != 0)
-			genFlags |= SBGEN_MODWHLF;
-		if (mwaScale != 0)
-			genFlags |= SBGEN_MODWHLA;
-		if (bthaScale != 0)
-			genFlags |= SBGEN_BRTHAMP;
-		if (expaScale != 0)
-			genFlags |= SBGEN_EXPRAMP;
-		if (modList.EnumItem(0) != 0)
-			genFlags |= SBGEN_MODLIST;
 	}
 };
 
@@ -391,7 +386,6 @@ public:
 	bsInt16  highKey;
 	bsInt16  fixedKey;
 	bsInt16  fixedVel;
-	SBZone *zoneMap[128];
 
 	SBInstr()
 	{
@@ -403,7 +397,6 @@ public:
 		bank = 0;
 		prog = 0;
 		loaded = 0;
-		memset(zoneMap, 0, sizeof(zoneMap));
 	}
 
 	~SBInstr()
@@ -415,50 +408,21 @@ public:
 		return zoneList.AddItem();
 	}
 
-	/// @brief Set the zone map.
-	/// The zone map is an array indexed by key number.
-	/// After all zones have been added to the instrument
-	/// this function should be called to build the map.
-	int InitZoneMap()
-	{
-		int k;
-		memset(zoneMap, 0, sizeof(zoneMap));
-
-		SBZone *zone = 0;
-		while ((zone = zoneList.EnumItem(zone)) != 0)
-		{
-			for (k = zone->lowKey; k <= zone->highKey; k++)
-			{
-				if (zoneMap[k] == 0)
-					zoneMap[k] = zone;
-			}
-		}
-
-		return 0;
-	}
-
 	/// @brief Locate a zone
 	/// GenZone checks all zones to see if an entry
 	/// exists which matches the key and velocity.
+	/// @note
+	/// There may be multiple zones that match.
+	/// Use EnumZones to find all matches.
+	/// @endnote
 	SBZone *GetZone(int key, int vel)
 	{
-		// check the zone map first (mask to keep in range without conditionals)
-		SBZone *zone = zoneMap[key & 0x7f];
-		if (!zone)
-			return 0; // no zone for this key
-
-		if (zone->MatchVel(vel))
-			return zone;
-
-		// do a complete search of all zones to try and match key+velocity
-		SBZone *zone2 = 0;
-		while ((zone2 = zoneList.EnumItem(zone2)) != 0)
+		SBZone *zone = 0;
+		while ((zone = zoneList.EnumItem(zone)) != 0)
 		{
-			if (zone2->Match(key, vel))
-				return zone2;
+			if (zone->Match(key, vel))
+				break;
 		}
-
-		// No match? ignore velocity..
 		return zone;
 	}
 
@@ -561,6 +525,8 @@ public:
 	static void DeleteBankList();  ///< Remove all soundbanks
 	static SoundBank *FindBank(const char *name); ///< Find soundbank by name
 
+	static FrqValue *envRateTable;
+
 	/// Convert relative cents to frequency multiplier.
 	/// Pitch in cents is defined as: pc = 1200 log2(df), 
 	/// where df is frequency deviation in Hz.
@@ -588,6 +554,16 @@ public:
 		lockCount = 0;
 		samples = 0;
 		memset(&instrBank[0], 0, sizeof(instrBank));
+		if (envRateTable == 0)
+		{
+			envRateTable = new FrqValue[20000];
+			double x = -12000.0;
+			for (int index = 0; index < 20000; index++)
+			{
+				envRateTable[index] = pow(2.0, x / 1200.0);
+				x += 1.0;
+			}
+		}
 	}
 
 	~SoundBank()
@@ -614,13 +590,16 @@ public:
 		}
 	}
 
-	/// @name Lock the SoundBank.
+	/// @name SoundBank locking.
 	/// A SoundBank object is likely shared by multiple instruments
 	/// and editors. We do not want to delete until all instruments
 	/// have released their reference. The lock count is
 	/// used for this purpose.
 	/// @{
+	/// Lock the sound bank.
 	int Lock() { return ++lockCount; }
+	/// Unlock the sound bank.
+	/// If this is the last reference, the object is deleted.
 	int Unlock()
 	{
 		int cnt = --lockCount;

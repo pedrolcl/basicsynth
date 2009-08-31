@@ -59,9 +59,14 @@ public:
 		osc.UpdateFrequency(f);
 	}
 
+	AmpValue Gen()
+	{
+		return osc.Gen();
+	}
+
 	void Tick(AmpValue& lft, AmpValue& rgt)
 	{
-		lft = osc.Gen() * 0.5;
+		lft = osc.Gen();
 		rgt = lft;
 	}
 

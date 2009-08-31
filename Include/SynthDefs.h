@@ -148,6 +148,7 @@ public:
 			sq += sqInc;
 		}
 
+		// lookup table for centibels attenuation to amplitude
 		double lvl = 0;
 		for (i = 0; i < 960; i++)
 		{
@@ -205,6 +206,7 @@ public:
 	}
 
 	/// Convert cB (centibel) of attenuation into amplitude level.
+	/// cb = 200 log10(amp)
 	AmpValue AttenCB(int cb)
 	{
 		if (cb <= 0)
