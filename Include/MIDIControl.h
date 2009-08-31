@@ -221,17 +221,22 @@ public:
 		channel[chnl].bank = bank;
 	}
 
-	inline AmpValue GetPan(int chnl)
+	inline bsInt16 GetPan(int chnl)
+	{
+		return channel[chnl].cc[MIDI_CTRL_PAN];
+	}
+
+	inline AmpValue GetPanN(int chnl)
 	{
 		return channel[chnl].ccn[MIDI_CTRL_PAN];
 	}
 
 	inline void SetPan(int chnl, AmpValue val)
 	{
-		channel[chnl].ccn[MIDI_CTRL_PAN] = val;
 		bsInt16 ival = 8192 + (bsInt16) (val * 8192);
 		channel[chnl].cc[MIDI_CTRL_PAN] = (ival >> 7) & 0x7f;
 		channel[chnl].cc[MIDI_CTRL_PAN_LSB] = ival & 0x7f;
+		channel[chnl].ccn[MIDI_CTRL_PAN] = val;
 	}
 
 	inline bsInt16 GetCC(int chnl, int ccn)
