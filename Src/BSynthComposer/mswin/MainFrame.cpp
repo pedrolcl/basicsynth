@@ -1213,9 +1213,15 @@ PropertyBox *MainFrame::CreatePropertyBox(ProjectItem *pi, int type)
 	case PRJNODE_SEQFILE:
 	case PRJNODE_TEXTFILE:
 	case PRJNODE_SCRIPT:
-	case PRJNODE_SOUNDBANK:
 		{
 			FilePropertiesDlg *f = new FilePropertiesDlg;
+			f->SetItem(pi);
+			pb = static_cast<PropertyBox*>(f);
+		}
+		break;
+	case PRJNODE_SOUNDBANK:
+		{
+			SoundBankPropertiesDlg *f = new SoundBankPropertiesDlg;
 			f->SetItem(pi);
 			pb = static_cast<PropertyBox*>(f);
 		}

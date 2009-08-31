@@ -40,6 +40,9 @@ int SynthProject::Generate(int todisk, long from, long to)
 	if (wvd.Setup(_Module.mainWnd, prjOptions.playBuf, nbuf, _Module.waveID))
 		return -1;
 
+	if (theProject->prjMidiIn.IsOn())
+		oldState |= seqPlay;
+
 	if (prjGenerate)
 		prjGenerate->AddMessage("Start sequencer...");
 

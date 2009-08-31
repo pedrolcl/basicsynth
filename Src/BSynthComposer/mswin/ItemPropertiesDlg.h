@@ -110,6 +110,16 @@ public:
 
 };
 
+class SoundBankPropertiesDlg : public ItemPropertiesBase
+{
+public:
+	SoundBankPropertiesDlg()
+	{
+		IDD = IDD_SOUNDBANK_PROPERTIES;
+		needFile = 1;
+	}
+};
+
 class InstrSelectDlg : public ItemPropertiesBase
 {
 private:

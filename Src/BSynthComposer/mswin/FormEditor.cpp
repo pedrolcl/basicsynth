@@ -373,7 +373,7 @@ LRESULT ScrollForm::OnVScroll(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
     SCROLLINFO si = { sizeof(SCROLLINFO), SIF_PAGE|SIF_POS|SIF_RANGE|SIF_TRACKPOS, 0, 0, 0, 0, 0};
     GetScrollInfo(SB_VERT, &si);
 	RECT rcForm;
-	//ATLTRACE("OnVScroll: pos = %d (%d), code = %d\n", pos, si.nPos, code);
+	ATLTRACE("OnVScroll: pos = %d (%d), code = %d\n", pos, si.nPos, code);
 
 	switch (code)
 	{
@@ -470,19 +470,22 @@ LRESULT ScrollForm::OnWheel(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 		int delta = (((int) wParam) >> 16) / WHEEL_DELTA;
 		SCROLLINFO si = { sizeof(SCROLLINFO), SIF_PAGE|SIF_POS|SIF_RANGE|SIF_TRACKPOS, 0, 0, 0, 0, 0};
 		GetScrollInfo(SB_VERT, &si);
+		if ((int)si.nPage >= si.nMax)
+			return 0;
 		int pos = si.nPos + (delta * si.nPage);
 		ATLTRACE("Wheel delta %d pos %d\n", delta, pos);
 		if (pos < 0)
 			pos = 0;
-		else if (pos > si.nMax)
-			pos = si.nMax;
+		else if ((pos + (int)si.nPage) >= si.nMax)
+			pos = si.nMax - si.nPage;
 		si.fMask = SIF_POS;
 		si.nPos = pos;
+		ATLTRACE("Wheel set pos %d pg=%d max=%d\n", pos, si.nPage, si.nMax);
 		SetScrollInfo(SB_VERT, &si, TRUE);
 		RECT rcForm;
 		formWnd->GetClientRect(&rcForm);
 		formWnd->MapWindowPoints(m_hWnd, &rcForm);
-		formWnd->SetWindowPos(0, rcForm.left, pos, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+		formWnd->SetWindowPos(0, rcForm.left, -pos, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
 	}
 	return 0;
 }

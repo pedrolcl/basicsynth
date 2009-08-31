@@ -158,6 +158,7 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 		GetDlgItemText(IDC_MIDI_IN, prjOptions.midiDeviceName, MAX_PATH);
 
 	waveDev.GetWindowText(prjOptions.waveDevice, MAX_PATH);
+	theProject->prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
 
 	prjOptions.Save();
 

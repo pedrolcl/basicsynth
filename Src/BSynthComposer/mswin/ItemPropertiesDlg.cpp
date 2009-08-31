@@ -19,7 +19,9 @@ static int itmPropIds[] = {
 	IDC_INST_TYPE,          // PROP_ITYP
 	IDC_INST_LIST,          // PROP_ILST
 	IDC_WVF_ID,             // PROP_WVID
-	IDC_RENUMBER            // PROP_REN
+	IDC_RENUMBER,           // PROP_REN
+	IDC_SB_PRELOAD,         // PROP_PRELOAD
+	IDC_SB_SCALE            // PROP_SCALE
 };
 
 int ItemPropertiesBase::GetFieldID(int id, int& idval)

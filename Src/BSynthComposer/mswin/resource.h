@@ -102,6 +102,7 @@
 #define IDD_FILE_ORDER                  353
 #define IDI_PAUSE                       354
 #define IDD_SOUNDBANK_SEL               355
+#define IDD_SOUNDBANK_PROPERTIES        356
 #define IDC_FIND_TEXT                   1000
 #define IDC_REPL_TEXT                   1001
 #define IDC_MATCH_CASE                  1002
@@ -326,11 +327,13 @@
 #define IDC_FILE_UP                     1219
 #define IDC_FILE_DN                     1220
 #define IDC_MIDI_IN                     1222
-#define IDC_SOUND_OUT                   1223
 #define IDC_WAVE_OUT                    1223
 #define IDC_SB_FILE                     1224
 #define IDC_SB_BANK                     1225
 #define IDC_SB_PRESET                   1226
+#define IDC_PRELOAD                     1229
+#define IDC_SB_PRELOAD                  1229
+#define IDC_SB_SCALE                    1230
 #define ID_WINDOW_CLOSE                 32772
 #define ID_WINDOW_CLOSE_ALL             32773
 #define ID_VIEW_PROJECT                 32775
@@ -407,9 +410,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        356
+#define _APS_NEXT_RESOURCE_VALUE        357
 #define _APS_NEXT_COMMAND_VALUE         32992
-#define _APS_NEXT_CONTROL_VALUE         1229
+#define _APS_NEXT_CONTROL_VALUE         1231
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
