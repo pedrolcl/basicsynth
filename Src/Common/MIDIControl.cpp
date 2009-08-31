@@ -79,16 +79,20 @@ void MIDIChannelStatus::Reset()
 void MIDIChannelStatus::ControlMessage(bsInt16 mmsg, bsInt16 ctrl, bsInt16 cval)
 {
 	tickchng = tickcnt;
-
 	switch (mmsg)
 	{
 	case MIDI_CTLCHG:
-		cc[ctrl] = cval;
+		cc[ctrl] = cval & 0x7f;
 		switch (ctrl)
 		{
 		case MIDI_CTRL_BANK:
 		case MIDI_CTRL_BANK_LSB:
-			bank = (cc[MIDI_CTRL_BANK] << 7) + cc[MIDI_CTRL_BANK_LSB];
+			if (cc[MIDI_CTRL_BANK] == 120) // GM2 percussion bank
+				bank = 128;
+			else if (cc[MIDI_CTRL_BANK] == 121) // GM2 melodic bank
+				bank = cc[MIDI_CTRL_BANK_LSB];
+			else
+				bank = (cc[MIDI_CTRL_BANK] << 7) + cc[MIDI_CTRL_BANK_LSB];
 			break;
 		case MIDI_CTRL_PAN:
 		case MIDI_CTRL_PAN_LSB:

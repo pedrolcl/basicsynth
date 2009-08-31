@@ -303,7 +303,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InstrManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MIDIControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MIDIInput.cpp"
 				>
 			</File>
 			<File
@@ -454,6 +462,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Include\MIDIDefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\MIDIInput.h"
 				>
 			</File>
 			<File

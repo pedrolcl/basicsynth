@@ -90,7 +90,7 @@ int SMFFile::LoadFile(const char *file)
 		inpEnd = inpBuf + trkSize;
 		lastMsg = 0;
 		trackObj = new SMFTrack(trkNum);
-		trackTail.InsertBefore(trackObj);
+		trackList.AddItem(trackObj);
 
 		while (inpPos < inpEnd)
 		{
@@ -155,6 +155,9 @@ void SMFFile::MetaEvent()
 		val2 = *inpPos++;
 		val3 = *inpPos++;
 		val4 = *inpPos++;
+		timeSigNum = val;
+		timeSigDiv = val2;
+		timeSigBeat = val3;
 		IntToStr(timeSig, val);
 		timeSig += '/';
 		IntToStr(timeSig, val2);
@@ -165,7 +168,9 @@ void SMFFile::MetaEvent()
 	case MIDI_META_KYSG:
 		val  = *inpPos++;
 		val2 = *inpPos++;
-		keySig += (val & 0x80) ? flats[-val] : sharps[val];
+		keySigKey = val;
+		keySigMaj = val2;
+		keySig += (val & 0x80) ? flats[val&0x7f] : sharps[val];
 		keySig += ' ';
 		keySig += val2 ? "min." : "maj.";
 		break;
@@ -178,6 +183,8 @@ void SMFFile::MetaEvent()
 		evt->deltat = (bsUint32) deltaT;
 		evt->mevent = MIDI_META;
 		evt->chan = MIDI_META_TMPO;
+		evt->val1 = 0;
+		evt->val2 = 0;
 		evt->val3.lval = *inpPos++;
 		evt->val3.lval = (evt->val3.lval << 8) + *inpPos++;
 		evt->val3.lval = (evt->val3.lval << 8) + *inpPos++;
@@ -197,11 +204,24 @@ void SMFFile::MetaEvent()
 void SMFFile::SysCommon(bsUint16 msg)
 {
 	bsUint32 dataLen;
+	MIDIEvent *evt;
 
 	switch (msg)
 	{
 	case MIDI_SYSEX:
 		dataLen = GetVarLen();
+		if (*inpPos == 0x7E || *inpPos == 0x7F)
+		{
+			// universal system exclusive.
+			evt = new MIDIEvent;
+			evt->deltat = deltaT;
+			evt->mevent = msg;
+			evt->val1 = inpPos[0];
+			evt->val2 = (inpPos[2] << 8) | inpPos[3];
+			trackObj->AddEvent(evt);
+			if (inpPos[0] == 0x7E && inpPos[2] == 9) // GM level
+				gmbank = inpPos[3];
+		}
 		inpPos += dataLen;
 		break;
 	case MIDI_SNGPOS:
@@ -237,18 +257,14 @@ void SMFFile::ChnlMessage(bsUint16 msg)
 	case MIDI_NOTEON:
 	case MIDI_KEYAT:
 	case MIDI_CTLCHG:
+	case MIDI_PWCHG:
 		evt->val1 = *inpPos++;
 		evt->val2 = *inpPos++;
 		break;
 	case MIDI_PRGCHG:
 	case MIDI_CHNAT:
 		evt->val1 = *inpPos++;
-		break;
-	case MIDI_PWCHG:
-		evt->val1 = *inpPos++;
-		evt->val2 = *inpPos++;
-		evt->val1 += evt->val2 << 7;
-		//evt->val1 -= 8192;
+		evt->val2 = 0;
 		break;
 	default:
 		delete evt;
@@ -264,21 +280,21 @@ int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb)
 	seq = s;
 	instrMap = map;
 	int trkNum = 0;
-	SMFTrack *tp;
+	SMFTrack *tp = 0;
 
 	for (int ch = 0; ch < 16; ch++)
 		chnlStatus[ch].Clear();
 	chnlStatus[9].bank = 128; // FUNKY MIDI SMF STUFF
 
-	for (tp = trackHead.next; tp != &trackTail; tp = tp->next)
+	while ((tp = trackList.EnumItem(tp)) != 0)
 		tp->Start(this);
 
-	eventID = 1;
 	theTick = 0;
 	do
 	{
 		trkNum = 0;
-		for (tp = trackHead.next; tp != &trackTail; tp = tp->next)
+		tp = 0;
+		while ((tp = trackList.EnumItem(tp)) != 0)
 		{
 			if (tp->Generate())
 				trkNum++;
@@ -342,27 +358,45 @@ void SMFFile::NoteOff(short chnl, short key, short vel, short track)
 	InstrConfig *inc = pm->inc;
 
 	NoteEvent *evt = (NoteEvent *) inc->instrType->manufEvent(inc->instrTmplt);
-	evt->type = SEQEVT_START;
-	evt->evid = eventID++;
-	evt->im = pm->inc;
+	evt->SetType(SEQEVT_START);
+	evt->SetID(seq->NextEventID());
+	evt->SetInum(pm->inc->inum);
 	if (hdr.format == 2)
-		evt->track = track;
+		evt->SetTrack(track);
 	else
-		evt->track = 0;
-	evt->chnl = chnl;
-	evt->start = (bsInt32) start;
-	evt->duration = (bsInt32) dur;
-	evt->pitch = key - 12;
-	evt->frq = synthParams.GetFrequency(evt->pitch);
-	// this gets applied at playback time from CC#7
-	evt->vol = 1.0;
-	evt->noteonvel = cs->velocity[key];
+		evt->SetTrack(0);
+	evt->SetChannel(chnl);
+	evt->SetStart((bsInt32) start);
+	if (explNoteOff)
+		evt->SetDuration(0);
+	else
+		evt->SetDuration((bsInt32) dur);
+	evt->SetPitch(key - 12);
+	//evt->frq = synthParams.GetFrequency(evt->pitch);
+	// volume gets applied at playback time from CC#7
+	evt->SetVolume(1.0);
+	evt->SetVelocity(cs->velocity[key]);
 	if (pm->bnkParam > 0)
 		evt->SetParam(pm->bnkParam, cs->bank);
 	if (pm->preParam > 0)
 		evt->SetParam(pm->preParam, cs->patch);
 	seq->AddEvent(evt);
 	cs->count++;
+
+	if (explNoteOff)
+	{
+		NoteEvent *evt2 = (NoteEvent *) inc->instrType->manufEvent(inc->instrTmplt);
+		evt2->SetType(SEQEVT_STOP);
+		evt2->SetID(evt->evid);
+		evt2->SetStart((bsUint32) (start + dur));
+		evt2->SetDuration(0);
+		evt2->SetInum(pm->inc->inum);
+		evt2->SetPitch(evt->pitch);
+		evt2->SetVolume(0);
+		evt2->SetVelocity(0);
+		seq->AddEvent(evt2);
+		cs->count++;
+	}
 	//printf("Add Note @%f for %f key %d on channel %d\n", start / synthParams.sampleRate, dur / synthParams.sampleRate, key, chnl);
 }
 
@@ -373,6 +407,11 @@ void SMFFile::SetTempo(long val)
 
 void SMFFile::ProgChange(short chnl, short val, short track)
 {
+	if (gmbank == 1)
+	{
+		if (chnl == 9) // always "STANDARD DRUM SET"
+			val = 0;
+	}
 	chnlStatus[chnl].patch = val;
 	if (sbnk)
 		sbnk->GetInstr(chnlStatus[chnl].bank, chnlStatus[chnl].patch, 1);
@@ -387,20 +426,15 @@ void SMFFile::ControlChange(short chnl, short ctl, short val, short track)
 	switch (ctl)
 	{
 	case MIDI_CTRL_BANK_LSB:
-		if (gmbank)
-			break; // for GM, bank is always 0 or 128, and the LSB is redundant
+		if (gmbank == 1)
+			break; // for GM1, bank is always 0 or 128, determined by the channel
 		cs->bank &= ~0x7f;
 		cs->bank |= val;
 		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
 		break;
 	case MIDI_CTRL_BANK:
-		if (gmbank)
-		{
-			if (chnl == 9) // channel 9 is 'magic' and is always the drum track
-				val = 1;
-			else
-				val = 0;
-		}
+		if (gmbank == 1)
+			break;
 		cs->bank &= ~0x3F8;
 		cs->bank |= (val << 7);
 		AddControlEvent(MIDI_CTLCHG, chnl, ctl, val, track);
@@ -417,18 +451,18 @@ void SMFFile::AddControlEvent(short mmsg, short chnl, short ctl, short val, shor
 		chnlStatus[chnl].count++;
 
 	ControlEvent *evt = new ControlEvent;
-	evt->type = SEQEVT_CONTROL;
-	evt->chnl = chnl;
+	evt->SetType(SEQEVT_CONTROL);
+	evt->SetChannel(chnl);
 	if (hdr.format == 2)
-		evt->track = track;
+		evt->SetTrack(track);
 	else
-		evt->track = 0;
-	evt->start = (bsInt32) theTick;
-	evt->duration = 0;
-	evt->evid = eventID++;
-	evt->mmsg = mmsg;
-	evt->ctrl = ctl;
-	evt->cval = val;
+		evt->SetTrack(0);
+	evt->SetStart((bsInt32) theTick);
+	evt->SetDuration(0);
+	evt->SetID(seq->NextEventID());
+	evt->SetMessage(mmsg);
+	evt->SetControl(ctl);
+	evt->SetValue(val);
 	seq->AddEvent(evt);
 	//printf("AddEvent @%f chnl=%d mmsg=%d ctrl=%d cval=%d\n", (FrqValue) evt->start / synthParams.sampleRate,
 	//	evt->mmsg, evt->ctrl, evt->cval);
@@ -480,7 +514,7 @@ int SMFTrack::Generate()
 			smf->ChannelAfterTouch(chan, val1, trkNum);
 			break;
 		case MIDI_PWCHG:
-			smf->PitchBend(chan, val1, trkNum);
+			smf->PitchBend(chan, val1 + (val2 << 7), trkNum);
 			break;
 		case MIDI_META:
 			if (chan == MIDI_META_TMPO)

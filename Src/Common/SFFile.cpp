@@ -419,13 +419,22 @@ void SFFile::ApplyModulator(SBZone *zone, sfModList *mp)
 		{
 		case 1:   // Mod-wheel
 			if (mp->sfModDestOper == sfgModLfoToVolume)
+			{
+				zone->genFlags |= SBGEN_MODWHLA;
 				zone->mwaScale = (float) mp->modAmount;
+			}
 			if (mp->sfModDestOper == sfgVibLfoToPitch)
+			{
+				zone->genFlags |= SBGEN_MODWHLF;
 				zone->mwfScale = (float) mp->modAmount;
+			}
 			break;
 		case 2:   // Breath controller
 			if (mp->sfModDestOper == sfgInitialAttenuation)
+			{
+				zone->genFlags |= SBGEN_BRTHAMP;
 				zone->bthaScale = (float) mp->modAmount;
+			}
 			//if (mp->sfModDestOper == ??)
 			//	zone->bthfScale = mp->modAmount;
 			break;
@@ -435,7 +444,10 @@ void SFFile::ApplyModulator(SBZone *zone, sfModList *mp)
 			break;
 		case 11:  // expression
 			if (mp->sfModDestOper == sfgInitialAttenuation)
+			{
+				zone->genFlags |= SBGEN_EXPRAMP;
 				zone->expaScale = (float) mp->modAmount;
+			}
 			//if (mp->sfModDestOper == ??)
 			//	zone->expfScale = mp->modAmount;
 			break;
@@ -514,6 +526,9 @@ void SFFile::BuildInstrument(SBInstr *in, int n, int pbagNdx)
 			zone->highKey = (genVals[sfgKeyRange] >> 8) & 0xff;
 			zone->lowVel = genVals[sfgVelRange] & 0xff;
 			zone->highVel = (genVals[sfgVelRange] >> 8) & 0xff;
+			zone->exclNote = (bsUint32) genVals[sfgExclusiveClass];
+			if (zone->exclNote)
+				zone->exclNote += pbagNdx << 8;
 			sh = &shdr[genVals[sfgSampleID]];
 			zone->name = CopyName(nameTemp, sh->achSampleName);
 			zone->cents = (bsInt16) sh->chCorrection
@@ -543,36 +558,6 @@ void SFFile::BuildInstrument(SBInstr *in, int n, int pbagNdx)
 			}
 			else
 				zone->chan = 0; // mono sample
-			// HACK around non-standard stuff...
-			SBZone *z2 = 0;
-			while ((z2 = in->EnumZones(z2)) != 0)
-			{
-				if (z2 != zone
-					&& z2->chan == zone->chan
-					&& z2->lowKey == zone->lowKey
-					&& z2->highKey == zone->highKey
-					&& z2->lowVel == zone->lowVel
-					&& z2->highVel == zone->highVel
-					&& z2->pan != zone->pan)
-				{
-					// OK - we have two zones that have the same key and velocity,
-					// are marked as "mono" samples, but are panned to different 
-					// locations. This is a pseudo-stero pair...
-					if (z2->pan < 0)
-					{
-						z2->chan = 1; // left channel
-						zone->chan = 0;
-					}
-					else
-					{
-						z2->chan = 0;
-						zone->chan = 1;
-					}
-					zone->linkZone = z2;
-					z2->linkZone = zone;
-					break;
-				}
-			}
 			zone->mode = genVals[sfgSampleModes];
 			zone->tableStart = genVals[sfgStartAddrsOffset] 
 			                 + (genVals[sfgStartAddrsCoarseOffset]*32768);
@@ -598,20 +583,20 @@ void SFFile::BuildInstrument(SBInstr *in, int n, int pbagNdx)
 				zone->pan = -1.0;
 			else if (zone->pan > 1.0)
 				zone->pan = 1.0;
-			zone->volEg.delay = SFEnvRate(genVals[sfgDelayVolEnv]);
-			zone->volEg.attack = SFEnvRate(genVals[sfgAttackVolEnv]);
-			zone->volEg.hold = SFEnvRate(genVals[sfgHoldVolEnv]);
-			zone->volEg.decay = SFEnvRate(genVals[sfgDecayVolEnv]);
-			zone->volEg.release = SFEnvRate(genVals[sfgReleaseVolEnv]);
+			zone->volEg.delay = (FrqValue) genVals[sfgDelayVolEnv];
+			zone->volEg.attack = (FrqValue) genVals[sfgAttackVolEnv];
+			zone->volEg.hold = (FrqValue) genVals[sfgHoldVolEnv];
+			zone->volEg.decay = (FrqValue) genVals[sfgDecayVolEnv];
+			zone->volEg.release = (FrqValue) genVals[sfgReleaseVolEnv];
 			zone->volEg.sustain = SFEnvLevel(genVals[sfgSustainVolEnv]);
 			zone->volEg.keyDecay = (FrqValue) genVals[sfgKeynumToVolEnvDecay];
 			zone->volEg.keyHold = (FrqValue) genVals[sfgKeynumToVolEnvHold];
 
-			zone->modEg.delay = SFEnvRate(genVals[sfgDelayModEnv]);
-			zone->modEg.attack = SFEnvRate(genVals[sfgAttackModEnv]);
-			zone->modEg.hold = SFEnvRate(genVals[sfgHoldModEnv]);
-			zone->modEg.decay = SFEnvRate(genVals[sfgDecayModEnv]);
-			zone->modEg.release = SFEnvRate(genVals[sfgReleaseModEnv]);
+			zone->modEg.delay = (FrqValue) genVals[sfgDelayModEnv];
+			zone->modEg.attack = (FrqValue) genVals[sfgAttackModEnv];
+			zone->modEg.hold = (FrqValue) genVals[sfgHoldModEnv];
+			zone->modEg.decay = (FrqValue) genVals[sfgDecayModEnv];
+			zone->modEg.release = (FrqValue) genVals[sfgReleaseModEnv];
 			zone->modEg.sustain = SFPercent(genVals[sfgSustainModEnv]);
 			zone->modEg.keyDecay = (FrqValue) genVals[sfgKeynumToModEnvDecay];
 			zone->modEg.keyHold = (FrqValue) genVals[sfgKeynumToModEnvHold];
@@ -619,11 +604,11 @@ void SFFile::BuildInstrument(SBInstr *in, int n, int pbagNdx)
 
 			zone->vibLfoFrq = (FrqValue) genVals[sfgVibLfoToPitch];
 			zone->vibLfo.rate = SFFrequency(genVals[sfgFreqVibLFO]);
-			zone->vibLfo.delay = SFEnvRate(genVals[sfgDelayVibLFO]);
+			zone->vibLfo.delay = (FrqValue) (genVals[sfgDelayVibLFO]);
 			zone->modLfoVol = (AmpValue) genVals[sfgModLfoToVolume];
 			zone->modLfoFrq = (AmpValue) genVals[sfgModLfoToPitch];
 			zone->modLfo.rate = SFFrequency(genVals[sfgFreqModLFO]);
-			zone->modLfo.delay = SFEnvRate(genVals[sfgDelayModLFO]);
+			zone->modLfo.delay = (FrqValue) genVals[sfgDelayModLFO];
 
 			// Apply preset modulators
 			genNdx1 = pbag[pbagNdx].wModNdx;
@@ -706,7 +691,6 @@ void SFFile::BuildPreset(int n)
 		bagNdx1++;
 	}
 	instr->loaded = preload;
-	instr->InitZoneMap();
 }
 
 void SFFile::BuildSoundBank()
@@ -716,14 +700,6 @@ void SFFile::BuildSoundBank()
 	m = npresets-1;
 	for (n = 0; n < m; n++)
 		BuildPreset(n);
-}
-
-FrqValue SFFile::SFEnvRate(short rt)
-{
-	return (FrqValue) rt;
-//	if (rt <= -12000)
-//		return 0.0;
-//	return (FrqValue) pow(2.0, (double) rt / 1200.0);
 }
 
 AmpValue SFFile::SFEnvLevel(short amt)
@@ -740,22 +716,6 @@ AmpValue SFFile::SFAttenuation(short amt)
 	return (AmpValue) (amt * atnScl);
 	//	return (AmpValue) pow(10.0, ((float) amt * atnScl) / -200.0);
 }
-
-/*
-FrqValue SFFile::SFTimeCents(short val)
-{
-	if (val <= -1200)
-		return 0.5;
-	if (val >= 1200)
-		return 1.0;
-	return (FrqValue) pow(2.0, (double) val / 1200.0);
-}
-
-FrqValue SFFile::SFKeyScaleTime(short key, short amt)
-{
-	return SFTimeCents((60 - key) * amt);
-}
-*/
 
 FrqValue SFFile::SFFrequency(short amt)
 {

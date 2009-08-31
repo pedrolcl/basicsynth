@@ -85,6 +85,10 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\DLSFile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Global.cpp
 
 !IF  "$(CFG)" == "Common - Win32 Release"
@@ -99,6 +103,10 @@ SOURCE=.\Global.cpp
 # Begin Source File
 
 SOURCE=.\MIDIControl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MIDIInput.cpp
 # End Source File
 # Begin Source File
 
@@ -159,6 +167,10 @@ SOURCE=.\SFFile.cpp
 # Begin Source File
 
 SOURCE=.\SMFFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SoundBank.cpp
 # End Source File
 # Begin Source File
 
@@ -374,6 +386,10 @@ SOURCE=..\..\Include\MIDIControl.h
 # Begin Source File
 
 SOURCE=..\..\Include\MIDIDefs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\MIDIInput.h
 # End Source File
 # Begin Source File
 

@@ -8,6 +8,8 @@
 
 SoundBank SoundBank::SoundBankList;
 
+FrqValue *SoundBank::envRateTable;
+
 // N.B. - this unconditionally clears the list without checking for locks
 void SoundBank::DeleteBankList()
 {
@@ -33,11 +35,15 @@ SoundBank *SoundBank::FindBank(const char *name)
 
 // duration as tc = 1200 * log2(sec)
 // tc ranges from -12000 (1ms) to the maximum rate.
-// max rate varies, but is usually no more than 8000 (100s)
+// max rate varies, but is usually no more than 8000 (~100s)
 FrqValue SoundBank::EnvRate(FrqValue tc)
 {
 	if (tc <= -12000.0)
 		return 0.0;
+	if (tc >= 7972.0)
+		return 100.0;
+	if (envRateTable)
+		return envRateTable[(int)tc + 12000];
 	return pow(2.0, tc / 1200.0);
 }
 
@@ -45,18 +51,17 @@ FrqValue SoundBank::EnvRate(FrqValue tc)
 // cb ranges from 0 (no attenuation) to -960 (silence)
 AmpValue SoundBank::Attenuation(AmpValue cb)
 {
-	if (cb >= 960)
-		return 0.0;
-	return pow(10.0, cb / 200.0);
+	return synthParams.AttenCB(-(int)cb);
 }
 
 // Pitch in cents: pc = 1200 log2(df)
-// df is frequency deviation.
-// the return value is a multiplier for the
+// df is frequency deviation in +/- Hz
+// The return value is a multiplier for the
 // base frequency.
 FrqValue SoundBank::PitchCents(FrqValue pc)
 {
-	return pow(2.0, pc / 1200.0);
+	return synthParams.GetCentsMult((int)pc);
+//	return pow(2.0, pc / 1200.0);
 }
 
 /// Load samples. These will always create a valid

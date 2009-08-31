@@ -24,6 +24,7 @@
 #include <Instrument.h>
 #include <Sequencer.h>
 
+
 //////////////////////////// TRACK ////////////////////////////
 
 void SeqTrack::Reset()
@@ -77,6 +78,7 @@ Sequencer::Sequencer()
 	playing = false;
 	pausing = false;
 	seqLength = 0;
+	seqTick = 0;
 	tickCB = 0;
 	tickCount = 0;
 	tickWrap = 0;
@@ -84,6 +86,7 @@ Sequencer::Sequencer()
 	wrapCount = 0;
 	cntrlMgr = 0;
 	instMgr = 0;
+	globEventID = 0;
 
 	track = new SeqTrack(0);
 
@@ -119,6 +122,7 @@ Sequencer::~Sequencer()
 	delete actTail;
 	delete track;
 	DestroyMutex();
+	globEventID = 0;
 }
 
 // Add the event to the sequence sorted by start time.
@@ -161,7 +165,7 @@ void Sequencer::AddImmediate(SeqEvent *evt)
 }
 
 // Multi-mode sequencer can play live, sequence, loop tracks or any combination.
-bsInt32 Sequencer::SequenceMulti(InstrManager& im, bsInt32 startTime, bsInt32 endTime, SeqState st)
+bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32 endTime, SeqState st)
 {
 	if (state != seqOff)
 		return 0;
@@ -175,8 +179,9 @@ bsInt32 Sequencer::SequenceMulti(InstrManager& im, bsInt32 startTime, bsInt32 en
 	int trkActive = 0;
 	int evtActive = 0;
 
+	seqTick = startTime;
 	track->LoopCount(1);
-	track->Start(startTime);
+	track->Start(seqTick);
 
 	instMgr = &im;
 	instMgr->Start();
@@ -226,16 +231,6 @@ bsInt32 Sequencer::SequenceMulti(InstrManager& im, bsInt32 startTime, bsInt32 en
 		// invoke all active instruments for one sample
 		evtActive = Tick();
 
-		startTime++;
-		if (tickCB)
-		{
-			if (++tickCount >= tickWrap)
-			{
-				tickCB(++wrapCount, tickArg);
-				tickCount = 0;
-			}
-		}
-
 		// When we have reached the end of the sequence
 		// AND all events have finished, 
 		// OR, we have hit the last time caller wanted,
@@ -243,7 +238,7 @@ bsInt32 Sequencer::SequenceMulti(InstrManager& im, bsInt32 startTime, bsInt32 en
 		if (once)
 		{
 			if ((!trkActive && !evtActive)
-			  || (endTime > 0 && startTime >= endTime))
+			  || (endTime > 0 && seqTick >= endTime))
 				playing = false;
 		}
 	}
@@ -258,11 +253,11 @@ bsInt32 Sequencer::SequenceMulti(InstrManager& im, bsInt32 startTime, bsInt32 en
 	if (tickCB)
 		tickCB(wrapCount, tickArg);
 
-	return startTime; // in case the caller wants to know how long we played...
+	return seqTick; // in case the caller wants to know how long we played...
 }
 
 /// Optimal sequencing - no live events are checked and loop tracks are not played.
-bsInt32 Sequencer::Sequence(InstrManager& im, bsInt32 startTime, bsInt32 endTime)
+bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endTime)
 {
 	if (state != seqOff)
 		return 0;
@@ -274,8 +269,9 @@ bsInt32 Sequencer::Sequence(InstrManager& im, bsInt32 startTime, bsInt32 endTime
 	int trkActive = 0;
 	int evtActive = 0;
 
+	seqTick = startTime;
 	track->LoopCount(1);
-	track->Start(startTime);
+	track->Start(seqTick);
 
 	instMgr = &im;
 	instMgr->Start();
@@ -298,22 +294,12 @@ bsInt32 Sequencer::Sequence(InstrManager& im, bsInt32 startTime, bsInt32 endTime
 		// invoke all active instruments for one sample
 		evtActive = Tick();
 
-		startTime++;
-		if (tickCB)
-		{
-			if (++tickCount >= tickWrap)
-			{
-				tickCB(++wrapCount, tickArg);
-				tickCount = 0;
-			}
-		}
-
 		// When we have reached the end of the sequence
 		// AND all events have finished, 
 		// OR, we have hit the last time caller wanted,
 		// we can quit. N.B. this can leave active events!
 		if ((!trkActive && !evtActive)
-		  || (endTime > 0 && startTime >= endTime))
+		  || (endTime != 0 && seqTick >= endTime))
 			playing = false;
 	}
 	instMgr->Stop();
@@ -327,14 +313,14 @@ bsInt32 Sequencer::Sequence(InstrManager& im, bsInt32 startTime, bsInt32 endTime
 
 	state = seqOff;
 
-	return startTime; // in case the caller wants to know how long we played...
+	return seqTick; // in case the caller wants to know how long we played...
 }
 
 /// Optimal live playback - no tracks are checked, only immediate input.
-void Sequencer::Play(InstrManager& im)
+bsUint32 Sequencer::Play(InstrManager& im)
 {
 	if (state != seqOff)
-		return;
+		return 0;
 
 	instMgr = &im;
 
@@ -351,6 +337,7 @@ void Sequencer::Play(InstrManager& im)
 	LeaveCritical();
 
 	state = seqPlay;
+	seqTick = 0;
 
 	instMgr->Start();
 	playing = true;
@@ -377,6 +364,8 @@ void Sequencer::Play(InstrManager& im)
 	ClearActive();
 
 	state = seqOff;
+
+	return seqTick;
 }
 
 /// Reset the sequencer.
@@ -402,11 +391,11 @@ void Sequencer::Reset()
 		delete tp;
 	}
 	seqLength = 0;
+	seqTick = 0;
+	globEventID = 0;
 }
 
-// Since it is possible to halt the sequence while events are still
-// active, we do clean-up here. We don't bother with Stop or IsFinished
-// since we are no longer generating samples.
+// Discard any active events. No "Stop" or "IsFinished"
 void Sequencer::ClearActive()
 {
 	ActiveEvent *act;
@@ -425,10 +414,7 @@ int Sequencer::Tick()
 {
 	if (pausing)
 	{
-		SeqState was = state;
-		state = seqPaused;
-		Sleep();
-		state = was;
+		Wait();
 		if (!playing)
 			return 0;
 	}
@@ -470,6 +456,14 @@ int Sequencer::Tick()
 		}
 	}
 	instMgr->Tick();
+
+	seqTick++;
+	if (tickCB && ++tickCount >= tickWrap)
+	{
+		tickCB(++wrapCount, tickArg);
+		tickCount = 0;
+	}
+
 	return actCount;
 }
 
@@ -507,7 +501,7 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 			}
 		}
 		if (typ != SEQEVT_RESTART)
-			return;
+			break;
 		/// FALTHROUGH on RESTART event no longer playing
 	case SEQEVT_START:
 		// Start an instrument. The instrument manager must
@@ -520,11 +514,18 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 			return;
 		}
 		actTail->InsertBefore(act);
-		act->count = evt->duration;
 		act->evid = evt->evid;
 		act->ison = SEQ_AE_ON;
-		act->flags = flags;
-		act->chnl = evt->chnl;
+		if (evt->duration == 0)
+		{
+			act->count = 0;
+			act->flags = flags & ~SEQ_AE_TM;
+		}
+		else
+		{
+			act->count = evt->duration;
+			act->flags = flags;
+		}
 
 		// assume: allocate should not fail, even if inum is invalid...
 		if (evt->im)
@@ -566,6 +567,14 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 	}
 }
 
+void Sequencer::Wait()
+{
+	SeqState was = state;
+	state = seqPaused;
+	Sleep();
+	state = was;
+}
+
 void Sequencer::Halt()
 {
 	playing = false;
@@ -576,6 +585,47 @@ void Sequencer::Halt()
 	}
 }
 
+/////////// Sequencer with event callbacks //////////////////////
+
+void SequencerCB::ProcessEvent(SeqEvent *evt, bsInt16 flags)
+{
+	Sequencer::ProcessEvent(evt, flags);
+	if (flags)
+		Notify(evt->type, evt);
+}
+
+void SequencerCB::Wait()
+{
+	Notify(SEQEVT_SEQPAUSE, 0);
+	Sequencer::Wait();
+	Notify(SEQEVT_SEQRESUME, 0);
+}
+
+bsUint32 SequencerCB::SequenceMulti(InstrManager &im, bsUint32 startTime, bsUint32 endTime, SeqState st)
+{
+	Notify(SEQEVT_SEQSTART, 0);
+	Sequencer::SequenceMulti(im, startTime, endTime, st);
+	Notify(SEQEVT_SEQSTOP, 0);
+	return seqTick;
+}
+
+bsUint32 SequencerCB::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endTime)
+{
+	Notify(SEQEVT_SEQSTART, 0);
+	Sequencer::Sequence(im, startTime, endTime);
+	Notify(SEQEVT_SEQSTOP, 0);
+	return seqTick;
+}
+
+bsUint32 SequencerCB::Play(InstrManager& im)
+{
+	Notify(SEQEVT_SEQSTART, 0);
+	Play(im);
+	Notify(SEQEVT_SEQSTOP, 0);
+	return seqTick;
+}
+
+/////////// Sequencer platform-dependent code //////////////////////
 
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -698,180 +748,3 @@ void Sequencer::Wakeup()
 }
 #endif
 
-// Load and instrument library from the file "fname"
-// The file must be an XML file with a document node of "instrlib"
-int InstrManager::LoadInstrLib(const char *fname)
-{
-	int err;
-	XmlSynthDoc doc;
-	XmlSynthElem *root = doc.Open((char*)fname);
-	if (root != NULL)
-		err = LoadInstrLib(root);
-	else
-		err = -1;
-	doc.Close();
-	return err;
-}
-
-// Load and instrument library from the XML document
-// node "root". root must point to a node of type "instrlib"
-int InstrManager::LoadInstrLib(XmlSynthElem *root)
-{
-	int err = 0;
-	XmlSynthElem *instr = root->FirstChild();
-	XmlSynthElem *next;
-	while (instr != NULL)
-	{
-		if (instr->TagMatch("instr"))
-		{
-			if (LoadInstr(instr) == 0)
-				err++;
-		}
-		else if (instr->TagMatch("wvtable"))
-		{
-			if (LoadWavetable(instr))
-				err++;
-		}
-		next = instr->NextSibling();
-		delete instr;
-		instr = next;
-	}
-	return err;
-}
-
-// Load an instrument defintion from the XML node
-// "instr" which must be of type <instr>.
-InstrConfig *InstrManager::LoadInstr(XmlSynthElem *instr)
-{
-	if (instr == 0)
-		return 0;
-
-	InstrConfig *instEnt = 0;
-	InstrMapEntry *instTyp = 0;
-
-	instEnt = 0;
-	long inum = 0;
-
-	char *type = NULL;
-	char *name = NULL;
-	char *desc = NULL;
-	if (instr->GetAttribute("type", &type) == 0)
-	{
-		Opaque tp;
-		instTyp = FindType(type);
-		if (instTyp)
-		{
-			if (instTyp->manufTmplt)
-				tp = instTyp->manufTmplt(instr);
-			else if (instTyp->manufInstr)
-			{
-				Instrument *ip = instTyp->manufInstr(this, 0);
-				if (ip)
-					ip->Load(instr);
-				tp = (Opaque) ip;
-			}
-			else
-				tp = 0;
-			instr->GetAttribute("id", inum);
-			instEnt = AddInstrument(inum, instTyp, tp);
-			if (instEnt)
-			{
-				instr->GetAttribute("desc", &desc);
-				instr->GetAttribute("name", &name);
-				instEnt->SetName(name);
-				instEnt->SetDesc(desc);
-				delete name;
-				delete desc;
-			}
-		}
-		delete type;
-	}
-	return instEnt;
-}
-
-int InstrManager::LoadWavetable(XmlSynthElem *wvnode)
-{
-	short sumParts = 1;
-	long wvID = -1;
-	long wvNdx = -1;
-	long wvParts = 0;
-	long gibbs = 0;
-	bsInt32 *mult;
-	double *amps;
-	double *phs;
-
-	if (wvnode->GetAttribute("type", sumParts))
-		sumParts = 1;
-	if (wvnode->GetAttribute("parts", wvParts))
-		return -1;
-	if (wvParts <= 0)
-		return -1;
-
-	if (wvnode->GetAttribute("id", wvID) == 0)
-	{
-		wvNdx = wtSet.FindWavetable(wvID);
-		if (wvNdx == -1)
-		{
-			wvNdx = wtSet.GetFreeWavetable(wvID);
-			if (wvNdx == -1)
-				wvNdx = wtSet.wavTblMax;
-		}
-	}
-	else
-	{
-		if (wvnode->GetAttribute("ndx", wvNdx))
-			return -1;
-		wvID = wvNdx;
-	}
-
-	if (wvNdx >= wtSet.wavTblMax)
-		wtSet.SetMax(wvNdx+4);
-	wtSet.wavSet[wvNdx].wavID = wvID;
-
-	wvnode->GetAttribute("gibbs", gibbs);
-	mult = new bsInt32[wvParts];
-	if (mult == 0)
-		return -1;
-	amps = new double[wvParts];
-	if (amps == 0)
-	{
-		delete[] mult;
-		return -1;
-	}
-	phs = new double[wvParts];
-	if (phs == 0)
-	{
-		delete[] amps;
-		delete[] mult;
-		return -1;
-	}
-	long ptndx = 0;
-	XmlSynthElem *ptnode = wvnode->FirstChild();
-	XmlSynthElem *sib;
-	while (ptnode && ptndx < wvParts)
-	{
-		if (ptnode->TagMatch("part"))
-		{
-			long m;
-			ptnode->GetAttribute("mul", m);
-			mult[ptndx] = (bsInt32) m;
-			ptnode->GetAttribute("amp", amps[ptndx]);
-			ptnode->GetAttribute("phs", phs[ptndx]);
-			ptndx++;
-		}
-		sib = ptnode->NextSibling();
-		delete ptnode;
-		ptnode = sib;
-	}
-
-	if (sumParts == 1)
-		wtSet.SetWaveTable(wvNdx, ptndx, mult, amps, phs, gibbs);
-	else if (sumParts == 2)
-		wtSet.SegWaveTable(wvNdx, ptndx, phs, amps);
-
-	delete[] mult;
-	delete[] amps;
-	delete[] phs;
-
-	return 0;
-}

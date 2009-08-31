@@ -290,7 +290,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\DLSFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MIDIControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MIDIInput.cpp"
 				>
 			</File>
 			<File
@@ -307,6 +319,18 @@
 			</File>
 			<File
 				RelativePath=".\Sequencer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SFFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SMFFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBank.cpp"
 				>
 			</File>
 			<File
@@ -372,6 +396,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Include\DLSDefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\DLSFile.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Include\DynFilter.h"
 				>
 			</File>
@@ -416,6 +448,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Include\MIDIControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\MIDIDefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\MIDIInput.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Include\MIDISequencer.h"
 				>
 			</File>
@@ -441,6 +485,26 @@
 			</File>
 			<File
 				RelativePath="..\..\Include\Sequencer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFDefs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SFGen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SMFFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SoundBank.h"
 				>
 			</File>
 			<File

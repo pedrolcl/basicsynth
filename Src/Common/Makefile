@@ -7,7 +7,9 @@ TINYXML=tinyxml
 OBJS=\
 	DLSFile.o \
 	Global.o \
+	InstrManager.o \
 	MIDIControl.o \
+	MIDIInput.o \
 	MIDISequencer.o \
 	Player.o \
 	Sequencer.o \
@@ -83,6 +85,16 @@ MIDIControl.o: \
 	$(BSINC)/MIDIDefs.h \
 	$(BSINC)/MIDIControl.h
 
+MIDIInput.o: \
+	MIDIInput.cpp \
+	$(BSINC)/SynthDefs.h \
+	$(BSINC)/SynthString.h \
+	$(BSINC)/SeqEvent.h \
+	$(BSINC)/Instrument.h \
+	$(BSINC)/Sequencer.h \
+	$(BSINC)/MIDIDefs.h \
+	$(BSINC)/MIDIInput.h
+
 Sequencer.o: \
 	Sequencer.cpp \
 	$(BSINC)/SynthDefs.h \
@@ -143,6 +155,8 @@ WaveFile.o:\
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthFile.h \
 	$(BSINC)/WaveFile.h
+
+InstrManager.o: InstrManager.cpp $(BSINC)/Instrument.h $(BSINC)/Sequencer.h
 
 SynthFileU.o: SynthFileU.cpp $(BSINC)/SynthFile.h
 
