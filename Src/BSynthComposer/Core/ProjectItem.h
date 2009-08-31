@@ -1174,6 +1174,7 @@ public:
 	PathList      *libPath;
 	MidiItem      *midiInfo;
 	MIDIControl   prjMidiCtrl;
+	MIDIInput     prjMidiIn;
 
 	Mixer mix;
 	InstrManager mgr;

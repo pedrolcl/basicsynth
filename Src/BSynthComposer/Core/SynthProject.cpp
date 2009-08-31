@@ -39,6 +39,8 @@ void SynthProject::Init()
 	change = 0;
 
 	seq.SetController(&prjMidiCtrl.seqControl);
+	prjMidiIn.SetSequenceInfo(&seq, &mgr);
+	prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
 
 	InstrMapEntry *ime;
 	if (prjOptions.inclInstr & 0x001)

@@ -34,13 +34,10 @@ KeyboardWidget::KeyboardWidget()
 	recHead = new RecNote(0,0,0);
 	recTail = new RecNote(0,0,0);
 	recHead->Insert(recTail);
-	midiOn = 0;
-	memset(eventIDS, 0, sizeof(eventIDS));
 }
 
 KeyboardWidget::~KeyboardWidget()
 {
-	MidiIn(0);
 	delete[] rcWhite;
 	delete[] rcBlack;
 	ClearNotes();
@@ -249,92 +246,6 @@ void KeyboardWidget::InvalidateLast()
 {
 	if (rcLastKey)
 		upd.Combine(*rcLastKey);
-}
-
-void KeyboardWidget::MidiRcv(int mmsg, int val1, int val2, unsigned int ts)
-{
-	if (selectInstr == NULL || theProject == NULL)
-		return;
-
-	//char dbgmsg[200];
-	//_snprintf(dbgmsg, 200, "MIDI: %02x, %02d, %02d, %ul\r\n", mmsg, val1, val2, ts);
-	//OutputDebugString(dbgmsg);
-
-	// TODO: record event 
-
-	if (!theProject->IsPlaying())
-		return;
-
-	NoteEvent *nevt;
-	ControlEvent *cevt;
-	bsInt16 type;
-	bsInt32 id;
-	int cmd = mmsg & 0xf0;
-	int chnl = mmsg & 0x0f;
-	switch (cmd)
-	{
-	case MIDI_NOTEON:
-		if (val2 != 0)
-		{
-			// NOTE ON
-			type = SEQEVT_START;
-			id = (bsInt32) ts;
-			if (eventIDS[val1] != 0)
-				return;
-			eventIDS[val1] = ts;
-		}
-		else
-		{
-	case MIDI_NOTEOFF:
-			type = SEQEVT_STOP;
-			id = eventIDS[val1];
-			eventIDS[val1] = 0;
-			if (id == 0)
-				return;
-		}
-		nevt = (NoteEvent*) theProject->mgr.ManufEvent(selectInstr);
-		nevt->SetType(type);
-		nevt->SetID(id);
-		nevt->SetChannel(curChnl);
-		nevt->SetStart(0);
-		nevt->SetDuration((bsInt32) (synthParams.sampleRate * curDur));
-		nevt->SetVolume(curVol);
-		nevt->SetPitch(val1-12);
-		nevt->SetVelocity(val2);
-		nevt->im = selectInstr;
-		nevt->SetInum(selectInstr->inum);
-		theProject->PlayEvent(nevt);
-		break;
-	case MIDI_CTLCHG:
-	case MIDI_PRGCHG:
-	case MIDI_CHNAT:
-	case MIDI_PWCHG:
-		cevt = new ControlEvent;
-		cevt->SetType(SEQEVT_CONTROL);
-		cevt->SetStart(0);
-		cevt->SetDuration(0);
-		cevt->SetID(0);
-		cevt->SetChannel(chnl);
-		cevt->SetMessage(cmd);
-		if (cmd == MIDI_PWCHG)
-		{
-			cevt->SetControl(-1);
-			cevt->SetValue((val1 + (val2 << 7)) - 8192);
-		}
-		else if (cmd == MIDI_CHNAT)
-		{
-			cevt->SetControl(-1);
-			cevt->SetValue(val1);
-		}
-		else
-		{
-			cevt->SetControl(val1);
-			cevt->SetValue(val2);
-		}
-		theProject->PlayEvent(cevt);
-		break;
-	}
-	// NB: player will delete event. Don't touch it after calling PlayEvent!
 }
 
 void KeyboardWidget::PlayNote(int key, int e)

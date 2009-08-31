@@ -125,15 +125,19 @@ int SoundBankItem::Save(XmlSynthElem *node)
 int SoundBankItem::LoadProperties(PropertyBox *pb)
 {
 	FileItem::LoadProperties(pb);
-	// TODO: set pre, normalize
+	pb->SetState(PROP_PRELOAD, preload);
+	pb->SetValue(PROP_SCALE, normalize, 0);
+	pb->EnableValue(PROP_NAME, !loaded);
+
 	return 1;
 }
 
 int SoundBankItem::SaveProperties(PropertyBox *pb)
 {
 	FileItem::SaveProperties(pb);
-	// TODO: update name in sound bank
-	// TODO: set pre, normalize
+
+	pb->GetState(PROP_PRELOAD, preload);
+	pb->GetValue(PROP_SCALE, normalize);
 	return 1;
 }
 

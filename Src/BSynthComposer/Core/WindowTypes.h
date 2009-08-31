@@ -134,6 +134,8 @@ public:
 #define PROP_ILST  7
 #define PROP_WVID  8
 #define PROP_REN   9
+#define PROP_PRELOAD 10
+#define PROP_SCALE 11
 
 // Mixer property page IDs
 #define PROP_MIX_CHNL 1

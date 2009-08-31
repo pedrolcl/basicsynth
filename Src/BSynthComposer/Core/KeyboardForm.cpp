@@ -96,6 +96,10 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 		if (kbd)
 			kbd->SetVolume(wdg->GetValue());
 		break;
+	case 25:
+		if (kbd)
+			kbd->SetChannel((int)wdg->GetValue());
+		break;
 	case 26:
 		wdg = mainGroup->FindID(25);
 		n = (int) wdg->GetValue();
@@ -148,8 +152,12 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 		break;
 	case 46:
 		// MIDI On/Off
-		if (kbd)
-			kbd->MidiIn(wdg->GetState());
+		//if (kbd)
+		//	kbd->MidiIn(wdg->GetState());
+		if (wdg->GetState())
+			theProject->prjMidiIn.Start();
+		else
+			theProject->prjMidiIn.Stop();
 		break;
 	}
 }

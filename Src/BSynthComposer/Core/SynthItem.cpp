@@ -240,7 +240,7 @@ int MidiItem::Save(XmlSynthElem *node)
 		chnlNode->SetAttribute("bnk", theProject->prjMidiCtrl.GetBank(chnl));
 		chnlNode->SetAttribute("prg", theProject->prjMidiCtrl.GetPatch(chnl));
 		chnlNode->SetAttribute("vol", theProject->prjMidiCtrl.GetVolumeN(chnl));
-		chnlNode->SetAttribute("pan", theProject->prjMidiCtrl.GetPan(chnl));
+		chnlNode->SetAttribute("pan", theProject->prjMidiCtrl.GetPanN(chnl));
 		delete chnlNode;
 	}
 
