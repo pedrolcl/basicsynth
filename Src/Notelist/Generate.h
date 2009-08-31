@@ -305,6 +305,7 @@ public:
 	double *paramVal;
 	long   maxParam;
 	long   cntParam;
+	long   numParam;
 
 	long   instr;
 	long   chnl;

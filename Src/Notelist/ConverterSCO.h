@@ -32,8 +32,11 @@ public:
 	virtual void EndNotelist();
 	virtual void BeginVoice(nlVoice *vp);
 	virtual void EndVoice(nlVoice *vp);
-	virtual void BeginNote(double start, double dur, double vol, double pit, int pcount, double *params);
-	virtual void ContinueNote(double start, double vol, double pit, int pcount, double *params);
+//	virtual void BeginNote(double start, double dur, double vol, double pit, int pcount, double *params);
+//	virtual void ContinueNote(double start, double vol, double pit, int pcount, double *params);
+	virtual void BeginNote(double start, double dur);
+	virtual void RestartNote(double start, double dur);
+	virtual void ContinueNote(double start);
 	virtual void Write(char *txt);
 	virtual void MixerEvent(int fn, double *params);
 	virtual void MidiEvent(short mmsg, short ccnum, short ccval);

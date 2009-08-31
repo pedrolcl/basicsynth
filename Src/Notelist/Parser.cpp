@@ -3,7 +3,8 @@
 //
 // Implementation of the nlParser class. This is a recursive descent
 // parser. It receives input tokes from an nlLex object and adds the
-// appropriate nodes to the generator object.
+// appropriate nodes to the generator object. The current look-ahead
+// token is stored in theToken.
 //
 // Error recovery is primitive, usually we just scan to the next EOS.
 // Error messages are formatted by the error object.
@@ -11,7 +12,7 @@
 // TODO: Error messages are hard-coded strings. These should be extracted
 // and read from a table so that they can be localized.
 //
-// Copyright 2008, Daniel R. Mitchell
+// Copyright 2008,2009 Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
@@ -91,6 +92,10 @@ int nlParser::Error(char *s, int *skiplist)
 	return -1;
 }
 
+//////////////////////////////////////////////////////////////////////
+/// Skip over tokens.
+/// This is used as part of the syntax error recovery.
+//////////////////////////////////////////////////////////////////////
 int nlParser::SkipTo(int *skiplist)
 {
 	int thisLine = lexPtr->Lineno();
@@ -118,6 +123,11 @@ int nlParser::SkipTo(int *skiplist)
 	return -1;
 }
 
+//////////////////////////////////////////////////////////////////////
+/// Skip over blocks.
+/// Similar to SkipTo, but looks explicitly for begin/end pairs.
+//////////////////////////////////////////////////////////////////////
+
 int nlParser::SkipBlock()
 {
 	int deep = 0;
@@ -139,6 +149,10 @@ int nlParser::SkipBlock()
 	return 0;
 }
 
+//////////////////////////////////////////////////////////////////////
+/// Check for end of statment.
+/// Common routine to check for statment terminator (;).
+//////////////////////////////////////////////////////////////////////
 int nlParser::CheckEnd(int err)
 {
 	if (theToken == T_ENDSTMT)
@@ -148,6 +162,10 @@ int nlParser::CheckEnd(int err)
 	return err;
 }
 
+//////////////////////////////////////////////////////////////////////
+/// Parser entry point.
+/// The lexer, generator and convertor should be set already.
+//////////////////////////////////////////////////////////////////////
 int nlParser::Parse()
 {
 	if (lexPtr == NULL 
@@ -849,6 +867,7 @@ int nlParser::Transpose()
 	return Param1("Transpose");
 }
 
+// midicc = 'midicc' expr ',' expr ';'
 int nlParser::MidiCC()
 {
 	cvtPtr->DebugNotify(2, "Parse: MIDICC");
@@ -862,10 +881,11 @@ int nlParser::MidiCC()
 	genPtr->AddNode(T_COMMA, 0L);
 	theToken = lexPtr->Next();
 	if (Expr() != 0)
-		return Error("Missing cc value MIDICC", skiptoend);
+		return Error("Missing cc value for MIDICC", skiptoend);
 	return CheckEnd(0);
 }
 
+// midipw = 'midipw' expr ';'
 int nlParser::MidiPW()
 {
 	cvtPtr->DebugNotify(2, "Parse: MIDIPW");
@@ -873,6 +893,7 @@ int nlParser::MidiPW()
 	return Param1("MIDIPW");
 }
 
+// midiprg = 'midiprg' expr ';'
 int nlParser::MidiPRG()
 {
 	cvtPtr->DebugNotify(2, "Parse: MIDIPRG");
@@ -880,6 +901,7 @@ int nlParser::MidiPRG()
 	return Param1("MIDIPRG");
 }
 
+// midiat = 'midiat' expr ';'
 int nlParser::MidiAT()
 {
 	cvtPtr->DebugNotify(2, "Parse: MIDIAT");
@@ -1570,8 +1592,8 @@ int nlParser::Value()
 		theToken = lexPtr->Next();
 		if (theToken != T_OBRACK) // subscript
 			return 0;
-		theToken = lexPtr->Next();
 		genPtr->AddNode(T_OBRACK, 0L);
+		theToken = lexPtr->Next();
 		if (Expr())
 			return Error("Invalid subscript", 0);
 		genPtr->AddNode(T_CBRACK, 0L);

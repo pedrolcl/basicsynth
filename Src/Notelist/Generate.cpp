@@ -925,7 +925,7 @@ nlScriptNode *nlTransposeNode::Exec()
 ///////////////////////////////////////////////////////////
 // DOUBLE OFF | transpose [, volume]
 // Doubling a note creates two events for each note.
-// This is handled in the NoteNode; here we just store
+// This is handled in the Converter; here we just store
 // the parameters in the current voice object.
 ///////////////////////////////////////////////////////////
 
@@ -1726,6 +1726,12 @@ nlScriptNode *nlMixerNode::Exec()
 	return np;
 }
 
+///////////////////////////////////////////////////////////
+/// MIDI function.
+/// This supports program change, pitch wheel, after-touch,
+/// and controller change.
+///////////////////////////////////////////////////////////
+
 nlScriptNode *nlMidiNode::Exec()
 {
 	if (next == NULL)
@@ -1735,22 +1741,37 @@ nlScriptNode *nlMidiNode::Exec()
 	long val1 = 0;
 	long val2 = 0;
 	next->GetValue(&val1);
-	if (np->GetToken() == T_COMMA)
+	switch (mmsg )
 	{
-		nlScriptNode *vp;
-		if ((vp = np->GetNext()) != 0)
+	case MIDI_CHNAT:
+	case MIDI_PRGCHG:
+	case MIDI_PWCHG:
+		val2 = val1;
+		val1 = 0;
+		break;
+	case MIDI_CTLCHG:
+		if (np->GetToken() == T_COMMA)
 		{
-			np = vp->Exec();
-			vp->GetValue(&val2);
+			nlScriptNode *vp;
+			if ((vp = np->GetNext()) != 0)
+			{
+				np = vp->Exec();
+				vp->GetValue(&val2);
+			}
+			else
+				np = NULL;
 		}
-		else
-			np = NULL;
+		break;
 	}
 	nlConverter *cvt = genPtr->GetConverter();
 	if (cvt)
 		cvt->MidiEvent(mmsg, (short)val1, (short)val2);
 	return np;
 }
+
+///////////////////////////////////////////////////////////
+/// TRACK statement - start/stop a loop track
+///////////////////////////////////////////////////////////
 
 nlScriptNode *nlTrackNode::Exec()
 {
@@ -1766,7 +1787,6 @@ nlScriptNode *nlTrackNode::Exec()
 		nlVoice *vox = genPtr->GetCurVoice();
 		vox->track = trkNo;
 		vox->curTime = 0;
-		//genPtr->GetCurVoice()->track = trkNo;
 		return np;
 	}
 
@@ -1789,25 +1809,16 @@ nlScriptNode *nlTrackNode::Exec()
 
 ///////////////////////////////////////////////////////////
 // [note] pitch, rhythm, volume, params.
-// This is the node that does the work of actually generating
-// a sequencer event. It combines currently set options with
-// the values from the note statement.
 //
-// Note to self : this could be refactored.
-// Various values are stored in the curVoice object and then
-// used by the Converter object, while others are passed in
-// as arguments to BeginNote. At one time, the "last" vals
-// were stored as static members of the note node, but are
-// now stored in the current voice object, resulting in an inconsistent
-// coupling between the generator, cur voice and converter.
-// Part of the problem is that the last specified values may be 
-// different from the values we want to use in event generation
-// due to tempo, articulation, transposition, "tie" and "sus".
-// It might be better to set curVoice with "last" values and then
-// have MakeEvent calculate any variation in values directly instead
-// of calculating them here and passing the values as arguments. Moving
-// the calculations to the convertor would make scripting more 
-// consistent and also simplify export to other formats (e.g. MIDI).
+// This is the node that does the work of generating a 
+// sequencer note event. It first evaluates the pitch, rhythm,
+// volume and parameter values, then loops through the number
+// of values for the note. Start time and duration are calculated
+// here since the note has the sus/tie information. Frequency,
+// volume and parameters are placed into the current voice
+// object. The converter does the actual work of generating
+// the sequencer event so that different output formats can
+// be available.
 nlScriptNode *nlNoteNode::Exec()
 {
 	nlVoice *vox = genPtr->GetCurVoice();
@@ -1815,9 +1826,8 @@ nlScriptNode *nlNoteNode::Exec()
 	if (next == NULL || vox == NULL || cvt == NULL)
 		return NULL;
 
-	long numParms = 0;
 	double totalDur = 0.0;
-	double dRemainDur;
+	double remainDur;
 	double offsetDur = vox->curTime;
 
 	nlScriptNode *list = vox->pitch.Exec(next);
@@ -1841,6 +1851,7 @@ nlScriptNode *nlNoteNode::Exec()
 	}
 
 	// parameters
+	long numParms = 0;
 	while (list && list->GetToken() == T_COMMA)
 	{
 		// We have to exec the node even if we can't use the value(s)...
@@ -1848,6 +1859,8 @@ nlScriptNode *nlNoteNode::Exec()
 		if (numParms < vox->maxParam)
 			numParms++;
 	}
+	if (numParms > vox->cntParam)
+		vox->cntParam = numParms;
 
 	int isFirst = 1;
 	int isMore;
@@ -1860,19 +1873,28 @@ nlScriptNode *nlNoteNode::Exec()
 			isMore |= vox->artic.GetNextValue(&vox->lastArtic);
 		if (!isMore)
 			break;
+
+		for (long np = 0; np < numParms; np++)
+		{
+			vox->params[np].GetNextValue(&vox->lastParam[np]);
+			vox->paramVal[np] = vox->lastParam[np];
+		}
 		
 		if (sus)
 		{
+			// For a sustain, the first rhythm indicates total length.
+			// Each subsequent rhythm is an offset from the previous.
 			if (isFirst)
 			{
 				totalDur = vox->lastDur;
-				dRemainDur = vox->lastDur;
+				remainDur = vox->lastDur;
 			}
 			else
 			{
 				offsetDur += vox->lastDur;
-				dRemainDur -= vox->lastDur;
-				vox->lastDur = dRemainDur;
+				remainDur -= vox->lastDur;
+				if (remainDur > 0)
+					vox->lastDur = remainDur;
 			}
 		}
 		else if (add)
@@ -1883,28 +1905,9 @@ nlScriptNode *nlNoteNode::Exec()
 				offsetDur += vox->lastDur;
 		}
 
-		for (int np = 0; np < numParms; np++)
+		// pitch < 0 is a rest.
+		if (vox->lastPit >= 0)
 		{
-			isMore |= vox->params[np].GetNextValue(&vox->lastParam[np]);
-			vox->paramVal[np] = vox->lastParam[np];
-		}
-
-		double thisPit = vox->lastPit;
-		if (thisPit >= 0)
-		{
-			if (vox->transpose)
-			{
-				if (genPtr->GetFrequencyMode())
-					thisPit *= vox->transpose; // pow(2, vox->transpose/12.0);
-				else
-					thisPit += vox->transpose;
-			}
-			double thisVol;
-			if (genPtr->GetVersion() < 1.0)
-				thisVol = (vox->lastVol / 327.67);// * vox->volMul;
-			else
-				thisVol = vox->lastVol;// * vox->volMul;
-
 			if (!add || isFirst)
 			{
 				double thisDur = vox->lastDur;
@@ -1922,12 +1925,10 @@ nlScriptNode *nlNoteNode::Exec()
 				//case T_OFF: <-- implied
 				//	break;
 				}
-				cvt->BeginNote(offsetDur, thisDur, thisVol, thisPit, numParms, vox->paramVal);
-				if (vox->doublex)
-					cvt->BeginNote(offsetDur, thisDur, thisVol*vox->doublev, thisPit+vox->doublex, numParms, vox->paramVal);
+				cvt->BeginNote(offsetDur, thisDur);
 			}
 			else
-				cvt->ContinueNote(offsetDur, thisVol, thisPit, numParms, vox->paramVal);
+				cvt->ContinueNote(offsetDur);
 		}
 		if (vox->pitch.simul)
 		{
@@ -1942,6 +1943,8 @@ nlScriptNode *nlNoteNode::Exec()
 
 		isFirst = 0;
 	}
+	if (sus)
+		vox->lastDur = totalDur;
 
 	vox->curTime += totalDur;
 
@@ -1949,7 +1952,7 @@ nlScriptNode *nlNoteNode::Exec()
 }
 
 ///////////////////////////////////////////////////////////
-// Note data holds current information for pitch, rhythm
+// Note data holds current information for pitch, rhythm,
 // volume or parameters. If a group was specified, an
 // array of values is stored. Otherwise, a single value
 // is stored.
@@ -2010,6 +2013,11 @@ nlScriptNode *nlNoteData::Exec(nlScriptNode *list)
 	return listNext;
 }
 
+///////////////////////////////////////////////////////////
+/// Get next value for a note value group.
+/// At the end of the group, we leave the current value.
+///////////////////////////////////////////////////////////
+
 int nlNoteData::GetNextValue(double *d)
 {
 	if (index < count && values)
@@ -2029,6 +2037,7 @@ int nlNoteData::GetNextValue(long *n)
 	}
 	return 0;
 }
+
 double nlFunctionData::Iterate(double dur)
 {
 	if (fnType == T_RAND)

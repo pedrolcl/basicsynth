@@ -68,6 +68,7 @@ void nlConverterSCO::EndVoice(nlVoice *vp)
 	nlConverter::EndVoice(vp);
 }
 
+#ifdef _OLD_WAY
 void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit, int pcount, double *params)
 {
 	if (curVoice == NULL)
@@ -90,6 +91,36 @@ void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit,
 }
 
 void nlConverterSCO::ContinueNote(double start, double vol, double pit, int pcount, double *params)
+{
+	// how do we do this in CSound?
+}
+#endif
+
+void nlConverterSCO::BeginNote(double start, double dur)
+{
+	if (curVoice == NULL)
+		return;
+
+	// Notelist has middle C at octave 4, CSound is octave 8
+	// i inum time dur volume pitch p6 ... pn
+	long ipit = (long) curVoice->lastPit;
+	fprintf(fpOutput, "i%ld %g %g %g %ld%c%02ld",
+		curVoice->instr, start, dur, curVoice->lastVol * curVoice->volMul, 4 + (ipit / 12), '.', (ipit % 12));
+
+	int pn;
+	int pc = curVoice->numParam;
+	for (pn = 0; pn < pc; pn++)
+		fprintf(fpOutput, " %g", curVoice->lastParam[pn]);
+
+	fputc('\n', fpOutput);
+}
+
+void nlConverterSCO::RestartNote(double start, double dur)
+{
+	BeginNote(start, dur);
+}
+
+void nlConverterSCO::ContinueNote(double start)
 {
 	// how do we do this in CSound?
 }

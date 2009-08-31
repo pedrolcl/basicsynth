@@ -31,7 +31,8 @@ nlConverter::nlConverter()
 	mgr = NULL;
 	seq = NULL;
 	eng = NULL;
-	evtCount = 0;
+	evtID1 = 0;
+	evtID2 = 0;
 	sampleRate = 44100.0;
 	mapList = 0;
 	curMap = 0;
@@ -137,22 +138,22 @@ void nlConverter::BeginInstr()
 	}
 }
 
-void nlConverter::BeginNote(double start, double dur, double amp, double pit, int pcount, double *params)
+void nlConverter::BeginNote(double start, double dur)
 {
-	MakeEvent(SEQEVT_START, start, dur, amp, pit, pcount, params);
+	MakeEvent(SEQEVT_START, start, dur);
 }
 
-void nlConverter::RestartNote(double start, double dur, double amp, double pit, int pcount, double *params)
+void nlConverter::RestartNote(double start, double dur)
 {
-	MakeEvent(SEQEVT_RESTART, start, dur, amp, pit, pcount, params);
+	MakeEvent(SEQEVT_RESTART, start, dur);
 }
 
-void nlConverter::ContinueNote(double start, double amp, double pit, int pcount, double *params)
+void nlConverter::ContinueNote(double start)
 {
-	MakeEvent(SEQEVT_PARAM, start, 0, amp, pit, pcount, params);
+	MakeEvent(SEQEVT_PARAM, start, 0);
 }
 
-void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, double pit, int pcount, double *params)
+void nlConverter::MakeEvent(int evtType, double start, double dur)
 {
 	if (curVoice == NULL)
 		return;
@@ -162,57 +163,75 @@ void nlConverter::MakeEvent(int evtType, double start, double dur, double amp, d
 	if (evt == NULL)
 		return;
 	if (evtType == SEQEVT_START)
-		evtCount++;
-	evt->SetID(evtCount);
+		evtID1 = seq->NextEventID();
+	evt->SetID(evtID1);
 	evt->SetType(evtType);
 	evt->SetParam(P_TRACK, (float) curVoice->track);
 	evt->SetParam(P_INUM, (float) curVoice->instr);
 	evt->SetParam(P_CHNL, (float) curVoice->chnl);
 	evt->SetParam(P_START, (float) start);
 	evt->SetParam(P_DUR, (float) dur);
-	if (gen.GetFrequencyMode())
-		evt->SetParam(P_FREQ, pit);
-	else
-		evt->SetParam(P_PITCH, (long) pit);
+
+	double amp = curVoice->lastVol;
+	if (gen.GetVersion() < 1.0)
+		amp /= 327.67;
+
+	double vel = amp;
+	evt->SetParam(P_NOTEONVEL, (float) vel);
+
 	amp *= curVoice->volMul;
 	if (amp > 0)
 	{
 		if (gen.GetVoldbMode())
-			amp = pow(10.0, (amp - 100) / 20.0); 
+			amp = pow(10.0, (amp - 100.0) / 20.0); 
 		else
 			amp *= 0.01;
 	}
 	evt->SetParam(P_VOLUME, (float) amp);
 
-	double val;
-	int pn;
-	int px = P_VOLUME + 1;
-	for (pn = 0; pn < pcount; pn++, px++)
+	double pit;
+	if (gen.GetFrequencyMode())
 	{
-		val = params[pn];
-		if (curMap)
-			curMap->MapParam(evt, pn, val);
-		else
-			evt->SetParam(px, (float) val);
+		pit = curVoice->lastPit * pow(2.0, (double)curVoice->transpose/12.0);
+		evt->SetParam(P_FREQ, pit);
+	}
+	else // P_PITCH automatically calculates P_FREQ.
+	{
+		pit = curVoice->lastPit + curVoice->transpose;
+		evt->SetParam(P_PITCH, (long) pit);
 	}
 
-	for ( ; pn < curVoice->cntParam; pn++, px++)
+	double val;
+	long pn;
+	long pc = curVoice->cntParam;
+	for (pn = 0; pn < pc; pn++)
 	{
 		val = curVoice->lastParam[pn];
 		if (curMap)
 			curMap->MapParam(evt, pn, val);
 		else
-			evt->SetParam(px, (float) val);
+			evt->SetParam(P_USER+pn, (float) val);
 	}
 
 	seq->AddEvent(evt);
 
-	if (pcount > curVoice->cntParam)
+	if (curVoice->doublex != 0)
 	{
-		if (pcount < curVoice->maxParam)
-			curVoice->cntParam = pcount;
-		else
-			curVoice->cntParam = curVoice->maxParam;
+		SeqEvent *evt2 = mgr->ManufEvent(curVoice->instr);
+		if (evt != NULL)
+		{
+			evt2->CopyEvent(evt);
+			if (evtType == SEQEVT_START)
+				evtID2 = seq->NextEventID();
+			evt2->SetID(evtID2);
+			evt2->SetParam(P_NOTEONVEL, vel * curVoice->doublev);
+			evt2->SetParam(P_VOLUME, amp * curVoice->doublev);
+			if (gen.GetFrequencyMode())
+				evt2->SetParam(P_FREQ, pit * pow(2.0, (double)curVoice->doublex/12.0));
+			else
+				evt->SetParam(P_PITCH, (long) pit + curVoice->doublex);
+			seq->AddEvent(evt2);
+		}
 	}
 }
 
@@ -222,7 +241,7 @@ void nlConverter::MixerEvent(int fn, double *params)
 		return;
 
 	SeqEvent *evt = mgr->ManufEvent(mixInstr);
-	evt->SetID(++evtCount);
+	evt->SetID(seq->NextEventID());
 	evt->SetType(SEQEVT_START);
 	evt->SetParam(P_TRACK, curVoice->track);
 	evt->SetParam(P_INUM, (long) mixInstr);
@@ -251,7 +270,7 @@ void nlConverter::MidiEvent(short mmsg, short val1, short val2)
 	if (!curVoice)
 		return;
 	ControlEvent *evt = new ControlEvent;
-	evt->SetID(++evtCount);
+	evt->SetID(seq->NextEventID());
 	evt->SetType(SEQEVT_CONTROL);
 	evt->SetParam(P_START, curVoice->curTime);
 	evt->SetParam(P_CHNL, curVoice->chnl);
@@ -267,7 +286,7 @@ void nlConverter::TrackOp(int op, int trk, int cnt)
 	if (!curVoice)
 		return;
 	TrackEvent *evt = new TrackEvent;
-	evt->SetID(++evtCount);
+	evt->SetID(seq->NextEventID());
 	evt->SetType(op ? SEQEVT_STARTTRACK : SEQEVT_STOPTRACK);
 	evt->SetParam(P_START, curVoice->curTime);
 	evt->SetParam(P_CHNL, curVoice->chnl);
