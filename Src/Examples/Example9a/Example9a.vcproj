@@ -184,6 +184,10 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\MIDINames.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

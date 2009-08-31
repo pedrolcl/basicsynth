@@ -1,7 +1,7 @@
 include ../../BasicSynth.cfg
 
-$(BSBIN)/example9a: main.cpp $(INSTLIB) $(CMNLIB)
-	$(CPP) -lm $(CPPFLAGS) -o $@ main.cpp $(INSTLIB) $(CMNLIB)
+$(BSBIN)/example9a: main.cpp MIDINames.cpp $(INSTLIB) $(CMNLIB)
+	$(CPP) -lm $(CPPFLAGS) -o $@ main.cpp MIDINames.cpp $(INSTLIB) $(CMNLIB)
 	
 example9a: $(BSBIN)/example9a
 

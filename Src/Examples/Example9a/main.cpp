@@ -6,9 +6,11 @@
 // This program loads a GM soundbank (SF2 or DLS) and a MIDI file (.mid)
 // and produces a wave file.
 //
-// use: Example09 [-vn] [-s] soundfont.sf2 infile.mid outfile.wav
+// use: Example09 [-gn] [-vn] [-s] [-d] soundfont.sf2 infile.mid outfile.wav
+// -g = GM level 1 or 2, or 0 for not GM.
 // -v = master volume level
 // -s = silent output
+// -d = dump MIDI events to console
 //
 // Copyright 2009, Daniel R. Mitchell
 /////////////////////////////////////////////////////////////////////
@@ -25,11 +27,17 @@
 #include <MIDIControl.h>
 #include <GMPlayer.h>
 
+extern char *midiCCName[128];
+extern char *midiMsgName[8];
+extern char *midiSysName[16];
+
 void useage()
 {
-	fprintf(stderr, "use: example9a [-vn] [-s] soundbank midifile wavefile\n");
+	fprintf(stderr, "use: example9a [-gn] [-vn] [-s] [-d] soundbank midifile wavefile\n");
+	fprintf(stderr, "    -gn = GM level n=1 or n=2 (default 1), n=0 use bank select as is\n");
 	fprintf(stderr, "    -vn = master volume level, default 1.0\n");
 	fprintf(stderr, "    -s  = don't print info or time\n");
+	fprintf(stderr, "    -d  = dump MIDI event list to console\n");
 	exit(1);
 }
 
@@ -40,13 +48,15 @@ void GenCallback(bsInt32 count, Opaque arg)
 {
 	if (verbose)
 		fprintf(stderr, "Time %02d:%02d\r", (genTime / 60), (genTime %60));
-	genTime++;
+	genTime = count;
 }
 
 int main(int argc, char *argv[])
 {
 	InitSynthesizer();
 
+	int dump = 0;
+	int gmbank = 1;
 	bsString midFile;
 	bsString sbFile;
 	bsString wavFile;
@@ -73,6 +83,10 @@ int main(int argc, char *argv[])
 			vol = atof(&ap[2]);
 		else if (ap[1] == 's')
 			verbose = 0;
+		else if (ap[1] == 'd')
+			dump = 1;
+		else if (ap[1] == 'g')
+			gmbank = atoi(&ap[2]);
 		else
 			useage();
 		argn++;
@@ -108,6 +122,8 @@ int main(int argc, char *argv[])
 			(const char*)sb->info.szCopyright);
 	}
 
+	smf.GMBank(gmbank);
+
 	if (smf.LoadFile(midFile))
 	{
 		fprintf(stderr, "Errror loading .mid file %s\n", (const char *)midFile);
@@ -116,6 +132,48 @@ int main(int argc, char *argv[])
 
 	if (verbose)
 		printf("Song:\n%s%s%s\n%s\n", smf.SeqName(), smf.Copyright(), smf.TimeSignature(), smf.KeySignature());
+
+	if (dump)
+	{
+		SMFTrack *trk = 0;
+		while ((trk = smf.Enum(trk)) != 0)
+		{
+			char fmtbuf[80];
+			printf("======== Track %d ========\n", trk->trkNum+1);
+			printf("delta-t  mm ch v1  v2\n");
+			MIDIEvent *evt = 0;
+			while ((evt = trk->Enum(evt)) != 0)
+			{
+				char *evtName;
+				if ((evt->mevent & 0xf0) == 0xf0)
+				{
+					evtName = midiSysName[evt->mevent & 0x0f];
+					if (evt->mevent == MIDI_SYSEX)
+					{
+						sprintf(fmtbuf, "%s %04x", evtName, evt->val2);
+						evtName = fmtbuf;
+					}
+				}
+				else if (evt->mevent == MIDI_CTLCHG)
+					evtName = midiCCName[evt->val1];
+				else if (evt->mevent == MIDI_NOTEON && evt->val2 == 0)
+					evtName = "NOTE ON-OFF";
+				else
+				{
+					evtName = midiMsgName[(evt->mevent >> 4)&7];
+					if (evt->mevent == MIDI_PWCHG)
+					{
+						sprintf(fmtbuf, "%s %d", evtName, (int) (evt->val1 | evt->val2 << 7) - 8192);
+						evtName = fmtbuf;
+					}
+				}
+				printf("%08d %02x %02d %-3d %-3d = %s\n", 
+					evt->deltat, evt->mevent, evt->chan, 
+					evt->val1, evt->val2, evtName);
+			}
+		}
+		exit(0);
+	}
 
 	// This shows using one player config for all channels.
 	// When	using the GMManager, instruments get the patch
