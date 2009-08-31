@@ -440,6 +440,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GMPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LFO.cpp"
 				>
 			</File>
@@ -461,6 +465,10 @@
 			</File>
 			<File
 				RelativePath=".\PitchBend.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SFPlayer.cpp"
 				>
 			</File>
 			<File
@@ -494,6 +502,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GMPlayer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Includes.h"
 				>
 			</File>
@@ -523,6 +535,10 @@
 			</File>
 			<File
 				RelativePath=".\PitchBend.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SFPlayer.h"
 				>
 			</File>
 			<File

@@ -45,14 +45,14 @@ void PitchBend::CalcMul()
 	count = (long) (rate[state] * synthParams.sampleRate);
 	beg = frq;
 	end = frq;
-	FrqValue a1 = amnt[state];
-	FrqValue a2 = amnt[state+1];
+	FrqValue a1 = amnt[state] * 100.0;   // convert semitones to cents
+	FrqValue a2 = amnt[state+1] * 100.0;
 	if (count > 0 && (a1 != a2))
 	{
 		if (a1 != 0)
-			beg *= pow(2.0, a1 / 12.0);
+			beg *= synthParams.GetCentsMult((int)a1); // pow(2.0, a1 / 1200.0);
 		if (a2 != 0)
-			end *= pow(2.0, a2 / 12.0);
+			end *= synthParams.GetCentsMult((int)a2); // pow(2.0, a2 / 1200.0);
 		mul = pow((double)end / (double)beg, 1.0 / (double)count);
 	}
 	else
@@ -177,7 +177,6 @@ void PitchBendWT::Reset(float initPhs)
 	if (wave && count > 0)
 	{
 		indexIncr = synthParams.ftableLength / count;
-		lastVal = wave[0];
 		if (initPhs >= 0)
 			index = synthParams.radTI * initPhs;
 	}
@@ -189,7 +188,8 @@ void PitchBendWT::Reset(float initPhs)
 	}
 	if (sigFrq)
 	{
-		FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
+		//FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
+		FrqValue f1 = sigFrq * synthParams.GetCentsMult((int)(depth * 100.0));
 		ampLvl = AmpValue(fabs(f1 - sigFrq));
 	}
 	else
@@ -200,7 +200,7 @@ AmpValue PitchBendWT::Gen()
 {
 	if (index >= synthParams.ftableLength)
 		return lastVal;
-	lastVal = ampLvl * wave[(int)index];
+	lastVal = ampLvl * wave[(int)(index+0.5)];
 	index += indexIncr;
 	return lastVal;
 }

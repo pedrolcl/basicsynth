@@ -17,6 +17,13 @@
 #include <SoundBank.h>
 #include <SFGen.h>
 
+class SFGen : public SynthList<SFGen>
+{
+public:
+	GenWaveWTLoop osc;
+	Panner pan;
+};
+
 /// BasicSynth Instrument to play SoundBank sounds.
 ///
 /// This instrument provides playback of a SoundFont or DLS instrument,
@@ -29,18 +36,20 @@
 /// to be set through SetParam or the SeqEvent object.
 ///
 /// This instrument will respond to real-time frequency changes through the Param()
-/// function, changing zones as needed. It does not support portamento, however.
-///
+/// function, changing zones as needed. In order to avoid discontinuities, it
+/// performs a cross-fade between samples. It does not support portamento, however.
 class SFPlayerInstr : public InstrumentVP
 {
 protected:
 	int chnl;           // output mixer channel
 	int pitch;          // played pitch
+	bsInt16 keyLo;
+	bsInt16 keyHi;
 	AmpValue vol;       // volume level
 	FrqValue frq;       // playback frequency
-	GenWaveSF *osc1;    // wavetable oscillator
-	GenWaveSF *osc2;    // cross-fade oscillator
-	EnvSegLin fadeEG;
+	SFGen *genList;     // primary generator
+	SFGen *xfdList;     // cross-fade generator
+	EnvSegLin fadeEG;   // cross-fade interpolator
 	bsInt32 xfade;      // flag indicating we are cross-fading
 	EnvGenADSR volEnv;  // volume envelope
 	LFO vibLFO;         // vibrato LFO
@@ -55,22 +64,21 @@ protected:
 	int fmOn;
 
 	bsString sndFile;   // sound bank name (alias or file)
-	bsString preName;   // preset name (for reference)
+	bsString insName;   // instr name (for reference)
 
-	SoundBank *sndbnk; // run-time sound bank object
-	SBInstr *preset;    // run-time preset object
+	SoundBank *sndbnk;  // sound bank object
+	SBInstr *instr;     // instrument object
 	bsInt16 bnkNum;     // bank number, 0-128, 128=drum kit
-	bsInt16 preNum;     // preset number 0-127
-
-	SBZone *zone;      // left channel zone
-	SBZone *zone2;     // cross-fade zone
+	bsInt16 insNum;     // instrument number 0-127
 
 	InstrManager *im;
 
 	int LoadEnv(XmlSynthElem *elem, EnvGenADSR& env);
 	int SaveEnv(XmlSynthElem *elem, EnvGenADSR& env);
 
-	void FindPreset();
+	void FindInstr();
+	SFGen *BuildZoneList(int pit, int vel);
+	void ClearZoneList(SFGen *list);
 
 public:
 	static Instrument *SFPlayerInstrFactory(InstrManager *m, Opaque tmplt);
@@ -93,10 +101,10 @@ public:
 	SoundBank *GetSoundBank()       { return sndbnk; }
 
 	const char *GetSoundFile()        { return sndFile; }
-	const char *GetInstrName()       { return preName; }
+	const char *GetInstrName()       { return insName; }
 
 	void SetSoundFile(const char *str) { sndFile = str; }
-	void SetInstrName(const char *str) { preName = str; }
+	void SetInstrName(const char *str) { insName = str; }
 
 	virtual int Load(XmlSynthElem *parent);
 	virtual int Save(XmlSynthElem *parent);

@@ -46,9 +46,9 @@ SFPlayerInstr::SFPlayerInstr()
 	frq = 440.0;
 
 	sndbnk = 0;
-	preset = 0;
+	instr = 0;
 	bnkNum = -1;
-	preNum = -1;
+	insNum = -1;
 	xfade = 0;
 
 	// default 'boxcar' envelope
@@ -67,56 +67,64 @@ SFPlayerInstr::SFPlayerInstr()
 	fmCM = 0.0;
 	fmIM = 0.0;
 
-	osc1 = 0;
-	osc2 = 0;
-	zone = 0;
-	zone2 = 0;
+	genList = 0;
+	xfdList = 0;
 	im = 0;
 }
 
 /// Constructor - with template
 SFPlayerInstr::SFPlayerInstr(SFPlayerInstr *tp)
 {
-	osc1 = 0;
-	osc2 = 0;
-	zone = 0;
-	zone2 = 0;
+	genList = 0;
+	xfdList = 0;
 	im = 0;
 	xfade = 0;
 	monoSet = 1;
+	sndbnk = 0;
+	instr = 0;
+	bnkNum = -1;
+	insNum = -1;
 
 	Copy(tp);
 }
 
 SFPlayerInstr::~SFPlayerInstr()
 {
+	if (sndbnk)
+		sndbnk->Unlock();
+	ClearZoneList(genList);
+	ClearZoneList(xfdList);
 }
 
 /// Set the sound bank object directly.
 /// This can also be done by setting the sound bank alias
 void SFPlayerInstr::SetSoundBank(SoundBank *b)
 {
+	if (sndbnk)
+		sndbnk->Unlock();
 	sndbnk = b;
-	preset = 0;
+	if (sndbnk)
+		sndbnk->Lock();
+	instr = 0;
 }
 
-void SFPlayerInstr::FindPreset()
+void SFPlayerInstr::FindInstr()
 {
 	if (sndbnk == 0)
-		sndbnk = SoundBank::FindBank(sndFile);
+		SetSoundBank(SoundBank::FindBank(sndFile));
 	if (sndbnk != 0)
-		preset = sndbnk->GetInstr(bnkNum, preNum);
+		instr = sndbnk->GetInstr(bnkNum, insNum);
 }
 
 void SFPlayerInstr::Copy(SFPlayerInstr *tp)
 {
+	SetSoundBank(tp->sndbnk);
 	frq = tp->frq;
-	sndbnk = tp->sndbnk;
-	preset = tp->preset;
+	instr = tp->instr;
 	bnkNum = tp->bnkNum;
-	preNum = tp->preNum;
+	insNum = tp->insNum;
 	sndFile = tp->sndFile;
-	preName = tp->preName;
+	insName = tp->insName;
 
 	chnl = tp->chnl;
 	pitch = tp->pitch;
@@ -132,8 +140,42 @@ void SFPlayerInstr::Copy(SFPlayerInstr *tp)
 	vibLFO.Copy(&tp->vibLFO);
 }
 
+void SFPlayerInstr::ClearZoneList(SFGen *gen)
+{
+	SFGen *g2;
+	while ((g2 = gen) != 0)
+	{
+		gen = g2->next;
+		delete g2;
+	}
+}
+
+SFGen *SFPlayerInstr::BuildZoneList(int pit, int vel)
+{
+	SFGen *list = 0;
+	SBZone *zone = 0;
+	while ((zone = instr->EnumZones(zone)) != 0)
+	{
+		if (zone->Match(pit, vel))
+		{
+			SFGen *gen = new SFGen;
+			gen->osc.InitWTLoop(frq, zone->recFreq, zone->rate, zone->tableEnd, 
+				zone->loopStart, zone->loopEnd, zone->mode, zone->sample->sample);
+			gen->pan.Set(panSqr, zone->pan);
+			if (list)
+				list->Insert(gen);
+			list = gen;
+			if (zone->lowKey < keyLo)
+				keyLo = zone->lowKey;
+			if (zone->highKey > keyHi)
+				keyHi = zone->highKey;
+		}
+	}
+	return list;
+}
+
 /// Start playing a note.
-/// Locate the preset if needed, then the zone(s).
+/// Locate the instrument if needed, then the zone(s).
 /// Initialize oscillators and envelopes.
 void SFPlayerInstr::Start(SeqEvent *evt)
 {
@@ -145,44 +187,26 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 
 	SetParams(params);
 
-	zone = 0;
 	xfade = 0;
+	keyLo = 128;
+	keyHi = 0;
 
-	if (osc1)
-		delete osc1;
-	if (osc2)
-		delete osc2;
+	ClearZoneList(genList);
+	ClearZoneList(xfdList);
+	genList = 0;
+	xfdList = 0;
 
-	FrqValue oscFrq = frq;
-	if (preset == 0)
-		FindPreset();
-	if (preset)
-	{
-		int sfpit = pitch+12; // shift from BasicSynth to MIDI range
-		zone = preset->GetZone(sfpit, 64);
-		if (zone)
-		{
-			if (zone->sample->linkSamp || zone->sample->channels == 2)
-				osc1 = new GenWaveSF2;
-			else if (zone->linkZone)
-				osc1 = new GenWaveSF3;
-			else
-				osc1 = new GenWaveSF1;
-			osc1->InitSF(oscFrq, zone, 0);
-		}
-	}
-	if (!osc1)
-	{
-		osc1 = new GenWaveSF1;
-		osc1->InitSF(oscFrq, 0, 0);
-	}
+	if (instr == 0)
+		FindInstr();
+	if (instr)
+		genList = BuildZoneList(pitch+12, (int) (127.0 * vol));
 	volEnv.Reset(0);
-	FrqValue fmFrq = oscFrq * fmCM;
+	FrqValue fmFrq = frq * fmCM;
 	oscfm.InitWT(fmFrq, WT_SIN);
 	fmAmp = fmFrq * fmIM;
 	fmOn = fmAmp > 0;
 	modEnv.Reset(0);
-	vibLFO.SetSigFrq(oscFrq);
+	vibLFO.SetSigFrq(frq);
 	vibLFO.Reset(0);
 }
 
@@ -191,26 +215,28 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 	VarParamEvent *params = (VarParamEvent *)evt;
 	SetParams((VarParamEvent*)evt);
 
-	vol  = params->vol;
+	vol = params->vol;
 
 	if (params->pitch != pitch) // pitch change
 	{
 		pitch = params->pitch;
 		int sfpit = pitch+12;
-		zone2 = preset->GetZone(sfpit, 65);
-		if (zone2 != zone)
+		if (sfpit < keyLo || sfpit > keyHi)
 		{
-			if (zone2->sample->linkSamp || zone2->sample->channels == 2)
-				osc2 = new GenWaveSF2;
-			else if (zone2->linkZone)
-				osc2 = new GenWaveSF3;
-			else
-				osc2 = new GenWaveSF1;
+			// Zone change
+			if (xfdList)
+			{
+				ClearZoneList(genList);
+				genList = xfdList;
+			}
 
-			osc2->InitSF(params->frq, zone, 1);
+			// build generator list for new pitch
+			keyLo = 128;
+			keyHi = 0;
+			xfdList = BuildZoneList(sfpit, (int) (vol * 127.0));
 			
 			// begin 50ms cross-fade to new sample.
-			xfade = synthParams.sampleRate / 10;
+			xfade = (bsInt32) synthParams.sampleRate / 10;
 			fadeEG.InitSegTick(xfade, 0.0, 1.0);
 		}
 
@@ -226,7 +252,12 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 
 void SFPlayerInstr::Stop()
 {
-	osc1->Release();
+	SFGen *gen = genList;
+	while (gen)
+	{
+		gen->osc.Release();
+		gen = gen->next;
+	}
 	volEnv.Release();
 	modEnv.Release();
 }
@@ -242,26 +273,40 @@ void SFPlayerInstr::Tick()
 	if (vibLFO.On())
 		newFrq += vibLFO.Gen();
 
+	AmpValue genOut;
 	AmpValue oscValR = 0.0;
 	AmpValue oscValL = 0.0;
-	osc1->UpdateFrequency(newFrq);
-	osc1->Tick(oscValL, oscValR);
+	SFGen *gen = genList;
+	while (gen)
+	{
+		gen->osc.UpdateFrequency(newFrq);
+		genOut = gen->osc.Gen();
+		oscValR += gen->pan.panrgt * genOut;
+		oscValL += gen->pan.panlft * genOut;
+		gen = gen->next;
+	}
 	if (xfade > 0)
 	{
 		AmpValue amp1 = fadeEG.Gen();
 		AmpValue amp0 = 1.0 - amp1;
-		AmpValue oscValR2;
-		AmpValue oscValL2;
-		osc2->Tick(oscValL2, oscValR2);
+		AmpValue oscValR2 = 0;
+		AmpValue oscValL2 = 0;
+		SFGen *gen = xfdList;
+		while (gen)
+		{
+			gen->osc.UpdateFrequency(newFrq);
+			genOut = gen->osc.Gen();
+			oscValR2 += gen->pan.panrgt * genOut;
+			oscValL2 += gen->pan.panlft * genOut;
+			gen = gen->next;
+		}
 		oscValR = (amp0 * oscValR) + (amp1 * oscValR2);
 		oscValL = (amp0 * oscValL) + (amp1 * oscValL2);
 		if (--xfade == 0)
 		{
-			delete osc1;
-			osc1 = osc2;
-			osc2 = 0;
-			zone = zone2;
-			zone2 = 0;
+			ClearZoneList(genList);
+			genList = xfdList;
+			xfdList = 0;
 		}
 	}
 	if (monoSet)
@@ -272,7 +317,7 @@ void SFPlayerInstr::Tick()
 
 int  SFPlayerInstr::IsFinished()
 {
-	return volEnv.IsFinished() || osc1->IsFinished();
+	return volEnv.IsFinished();
 }
 
 void SFPlayerInstr::Destroy()
@@ -302,16 +347,16 @@ int SFPlayerInstr::SetParam(bsInt16 idval, float val)
 		if (cmp != bnkNum)
 		{
 			bnkNum = cmp;
-			preset = 0;
+			instr = 0;
 		}
 		break;
 	case 17:
 		cmp = (bsInt16) val;
-		if (cmp != preNum)
+		if (cmp != insNum)
 		{
-			preNum = cmp;
-			preset = 0;
-			FindPreset();
+			insNum = cmp;
+			instr = 0;
+			FindInstr();
 		}
 		break;
 	case 18:
@@ -401,7 +446,7 @@ int SFPlayerInstr::GetParam(bsInt16 idval, float *val)
 		*val = (float) bnkNum;
 		break;
 	case 17:
-		*val = (float) preNum;
+		*val = (float) insNum;
 		break;
 	case 18:
 		*val = (float) monoSet;
@@ -488,7 +533,7 @@ int SFPlayerInstr::GetParams(VarParamEvent *params)
 	params->SetParam(P_FREQ, (float)frq);
 	params->SetParam(P_VOLUME, (float)vol);
 	params->SetParam(16, (float) bnkNum);
-	params->SetParam(17, (float) preNum);
+	params->SetParam(17, (float) insNum);
 	params->SetParam(18, (float) monoSet);
 
 	params->SetParam(20, (float) volEnv.GetStart());
@@ -539,7 +584,7 @@ static InstrParamMap sfPlayerParams[] =
 	{"modType", 37},
 
 	{"monoSet", 18},
-	{"preset", 17 }, 
+	{"prog", 17 }, 
 
 	{"vibLfoAttack", 40},
 	{"vibLfoFrq", 41},
@@ -609,7 +654,7 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 		else if (elem.TagMatch("sf"))
 		{
 			elem.GetAttribute("bank", bnkNum);
-			elem.GetAttribute("preset", preNum);
+			elem.GetAttribute("prog", insNum);
 			elem.GetAttribute("mono", monoSet);
 			elem.GetAttribute("fmcm", fmCM);
 			elem.GetAttribute("fmim", fmIM);
@@ -623,11 +668,11 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 					if (cval)
 						sndFile.Attach(cval);
 				}
-				else if (celem.TagMatch("preset"))
+				else if (celem.TagMatch("instr"))
 				{
 					celem.GetContent(&cval);
 					if (cval)
-						preName.Attach(cval);
+						insName.Attach(cval);
 				}
 				child = celem.NextSibling(&celem);
 			}
@@ -635,7 +680,7 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 		next = elem.NextSibling(&elem);
 	}
 	if (sndFile.Length() > 0)
-		sndbnk = SoundBank::FindBank(sndFile);
+		SetSoundBank(SoundBank::FindBank(sndFile));
 
 	return 0;
 }
@@ -662,7 +707,7 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 		return -1;
 
 	elem.SetAttribute("bank", bnkNum);
-	elem.SetAttribute("preset", preNum);
+	elem.SetAttribute("instr", insNum);
 	elem.SetAttribute("mono", monoSet);
 	elem.SetAttribute("fmcm", fmCM);
 	elem.SetAttribute("fmim", fmIM);
@@ -671,9 +716,9 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 		return -1;
 	celem.SetContent(sndFile);
 
-	if (!elem.AddChild("preset", &celem))
+	if (!elem.AddChild("prog", &celem))
 		return -1;
-	celem.SetContent(preName);
+	celem.SetContent(insName);
 
 	if (!parent->AddChild("venv", &elem))
 		return -1;

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-/// @file PitchBend.h BasicSynth pitch bend unit
+/// @file PitchBend.h BasicSynth pitch bend units
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -14,6 +14,12 @@
 #define PB_RATES 2
 #define PB_AMNTS 3
 
+/// PitchBend generator #1.
+/// PitchBend is a three segment generator that produces
+/// exponential curves over a range of cents. There are
+/// three levels and two rates. Rate 1 is the time to
+/// transition from level 1 to level 2. Rate 2 is the time
+/// to transition from level 2 to level 3.
 class PitchBend : public GenUnit
 {
 private:
@@ -82,6 +88,13 @@ public:
 	int Save(XmlSynthElem *elem);
 };
 
+/// Pitch bend generator #2.
+/// PitchBendWT scans a wavetable containing the pitch bend curve.
+/// The table is assumed to be normalized [-1,+1] and is multiplied
+/// by an amount value. If the signal frequency is set to non-zero,
+/// the amount value is taken to indicated pitch cents. This is converted
+/// into a frequency range. If the signal frequency is set to zero,
+/// the depth value is 
 class PitchBendWT : public GenUnit
 {
 private:
@@ -105,7 +118,7 @@ public:
 	void SetDuration(FrqValue d)    { durSec = d; count = (bsInt32) (d * synthParams.sampleRate); }
 	void SetDurationS(bsInt32 d)    { count = d; } // only used at runtime.
 	void SetWavetable(int wt)       { wtID = wt; }
-	void SetLevel(AmpValue val)     { depth = val; pbOn = depth > 0; } //atk.SetLevel(val);
+	void SetLevel(AmpValue val)     { depth = val; pbOn = depth > 0; }
 	void SetSigFrq(FrqValue val)    { sigFrq = val; }
 	FrqValue GetDuration() { return durSec; }
 	int GetWavetable() { return wtID; }

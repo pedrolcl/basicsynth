@@ -19,7 +19,9 @@
 
 class GMManager;
 
-/// @brief GM sound player.
+#define GMGEN_DEF (SBGEN_PITWHLF|SBGEN_MODWHLF|SBGEN_MODWHLA)
+
+/// @brief GM sound player
 /// @detail The GM player implements playback of a SoundBank sample.
 /// GMPlayer objects are created and managed by the GMManager object,
 /// and should not be created directly.
@@ -27,39 +29,60 @@ class GMManager;
 /// Each player object recieves a MIDI bank and program number along
 /// with a Soundbank object. The associated program (a/k/a patch) holds
 /// a list of zones (regions) each covering a range of pitches. The
-/// player locates the appropriate zone using the pitch and then 
+/// player locates the appropriate zone(s) using the pitch and then 
 /// initializes an oscillator, envelope and suitable modulators
 /// based on the information in the zone. Control of volume, panning,
 /// pitch bend and modulation level is done indirectly via the MIDIControl
 /// object associated with the GMManager.
+///
+/// To optimize playback, a set of flags controls which unit generators
+/// are executed. The flags are set when the SBZone object is loaded.
+///
+/// SoundFont (SF2) files will sometimes have multiple zones per note.
+/// This is typically done to implement a stereo sample. GMPlayer uses
+/// a list of zones to handle this situation.
 class GMPlayer : 
 	public Instrument, 
 	public SynthList<GMPlayer>
 {
 private:
+	class GMPlayerZone : public SynthList<GMPlayerZone>
+	{
+	public:
+		SBZone *zone;       ///< zone for this key
+		GenWaveWTLoop osc;  ///< wavetable oscillator
+		EnvGenSF  volEnv;   ///< volume envelope (EG1)
+		EnvGenSF  modEnv;   ///< modulation envelope (EG2)
+		GenWaveWT viblfo;   ///< LF pitch variation
+		GenWaveWT modlfo;   ///< LF amplitude variation
+		Panner pan;
+		bsInt32 genFlags;   ///< map of generators that are operational
+		bsInt32 vibDelay;   ///< delay before vibrato begins to affect output
+		bsInt32 modDelay;   ///< delay before modulator begins to affect output
+		AmpValue vol;
+
+		GMPlayerZone(SBZone *z)
+		{
+			zone = z;
+		}
+	};
+
+	GMPlayerZone *zoneList;
+
 	bsInt16 chnl;       ///< MIDI channel
 	bsInt16 mkey;       ///< MIDI key number
 	bsInt16 novel;      ///< note-on velocity
+	bsInt16 exclNote;   ///< exclusive note
 	bsInt16 sostenuto;  ///< true when sostenuto was on before note start
 	bsInt16 sustainOn;  ///< true when sustain was on at release
-	bsInt32 vibDelay;   ///< delay before vibrato begins to affect output
-	bsInt32 modDelay;   ///< delay before modulator begins to affect output
 	FrqValue frq;       ///< playback frequency
-	AmpValue vol;       ///< playback volume level (centibels)
-	GenWaveSF *osc;      ///< wavetable oscillator
-	EnvGenSF  volEnv;   ///< volume envelope (EG1)
-	EnvGenSF  modEnv;   ///< modulation envelope (EG2)
-	GenWaveWT viblfo;   ///< LF pitch variation
-	GenWaveWT modlfo;   ///< LF amplitude variation
-	SBInstr *preset;    ///< instrument patch
-	SBZone *zone;       ///< zone for current pitch
-	Panner panr;
-	Panner panl;
+	bsInt32 allFlags;   ///< combined map of generators that are operational
+	SBInstr *instr;     ///< instrument patch
 	InstrManager *im;
 	GMManager *gm;
 	SoundBank *sndbnk;
 	MIDIControl *midiCtrl;
-	bsInt32 genFlags;
+	void ClearZones();
 public:
 	GMPlayer();
 	GMPlayer(GMManager *g, InstrManager *m);
@@ -75,6 +98,8 @@ public:
 	virtual void Tick();
 	virtual int  IsFinished();
 	virtual void Destroy();
+	virtual void Cancel();
+	virtual int CheckExculsive(GMPlayer *other);
 };
 
 #define GMM_LOCAL_VOL   0x01
@@ -103,9 +128,11 @@ protected:
 	SynthEnumList<GMPlayer> instrList; ///< List of allocated GMPlayer objects
 	bsInt32 localVals;   ///< Local vals, when set, overrides volume and patch number
 	AmpValue volValue;   ///< Local volume level
+	AmpValue panValue;   ///< Local pan level
 	bsInt16 bankValue;   ///< Local bank override
 	bsInt16 progValue;   ///< Local program override
 	bsString sndFile;    ///< sound file name
+	bsUint32 genFlags;   ///< global generator enable flags
 
 public:
 	/// @copydoc InstrFactory
@@ -138,6 +165,11 @@ public:
 		return sndFile; 
 	}
 
+	inline bsUint32 GetGenFlags()
+	{
+		return genFlags;
+	}
+
 	inline bsInt16 GetLocalPan()
 	{ 
 		return (localVals & GMM_LOCAL_PAN) ? 1 : 0; 
@@ -168,7 +200,7 @@ public:
 	{
 		if (localVals & GMM_LOCAL_VOL)
 			return volValue;
-		return midiCtrl->GetVolume(chnl);
+		return midiCtrl->GetVolumeN(chnl);
 	}
 
 	/// Return channel after touch
@@ -180,7 +212,9 @@ public:
 	/// Get channel pan value
 	inline AmpValue GetPan(int chnl)
 	{
-		return midiCtrl->GetPan(chnl);
+		if (localVals & GMM_LOCAL_PAN)
+			return panValue;
+		return midiCtrl->GetPanN(chnl);
 	}
 
 	/// Get patch (program) number for the channel
@@ -211,6 +245,8 @@ public:
 		midiCtrl->SetCC(chnl, ccn, val);
 	}
 	//@}
+
+	void ExclNoteOn(GMPlayer *player);
 
 	/// Allocate a player object
 	GMPlayer *AllocPlayer(InstrManager *m);
