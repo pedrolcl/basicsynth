@@ -13,10 +13,11 @@
 #define _SFPLAYER_H_
 
 #include "LFO.h"
+#include "PitchBend.h"
 #include <SFDefs.h>
 #include <SoundBank.h>
-#include <SFGen.h>
 
+/// One generator for SFPlayer.
 class SFGen : public SynthList<SFGen>
 {
 public:
@@ -41,35 +42,36 @@ public:
 class SFPlayerInstr : public InstrumentVP
 {
 protected:
-	int chnl;           // output mixer channel
-	int pitch;          // played pitch
-	bsInt16 keyLo;
-	bsInt16 keyHi;
-	AmpValue vol;       // volume level
-	FrqValue frq;       // playback frequency
-	SFGen *genList;     // primary generator
-	SFGen *xfdList;     // cross-fade generator
-	EnvSegLin fadeEG;   // cross-fade interpolator
-	bsInt32 xfade;      // flag indicating we are cross-fading
-	EnvGenADSR volEnv;  // volume envelope
-	LFO vibLFO;         // vibrato LFO
+	int chnl;           ///< output mixer channel
+	int pitch;          ///< played pitch
+	bsInt16 keyLo;      ///< lowest key for current zone
+	bsInt16 keyHi;      ///< highest key for current zone
+	AmpValue vol;       ///< volume level
+	FrqValue frq;       ///< playback frequency
+	SFGen *genList;     ///< primary generator
+	SFGen *xfdList;     ///< cross-fade generator
+	EnvSegLin fadeEG;   ///< cross-fade interpolator
+	bsInt32 xfade;      ///< flag indicating we are cross-fading
+	EnvGenADSR volEnv;  ///< volume envelope
+	LFO vibLFO;         ///< vibrato LFO
+	PitchBendWT pbWT;   ///< pitch bend (wavetable)
 
-	bsInt16 monoSet;    // force monophonic even if sample is stereo, turn internal pan off
+	bsInt16 monoSet;    ///< force monophonic even if sample is stereo, turn internal pan off
 
-	GenWaveWT oscfm;    // FM 'boost' oscillator
-	EnvGenADSR modEnv;  // envelope for FM
-	FrqValue fmCM;      // c:m ratio for 'fm'
-	AmpValue fmIM;      // index of mod for 'fm'
-	AmpValue fmAmp;     // fm amplitude
-	int fmOn;
+	GenWaveWT oscfm;    ///< FM 'boost' oscillator
+	EnvGenADSR modEnv;  ///< envelope for FM
+	FrqValue fmCM;      ///< c:m ratio for 'fm'
+	AmpValue fmIM;      ///< index of mod for 'fm'
+	AmpValue fmAmp;     ///< fm amplitude
+	int fmOn;           ///< quick flag to see if FM is on
 
-	bsString sndFile;   // sound bank name (alias or file)
-	bsString insName;   // instr name (for reference)
+	bsString sndFile;   ///< sound bank name (alias or file)
+	bsString insName;   ///< instr name (for reference)
 
-	SoundBank *sndbnk;  // sound bank object
-	SBInstr *instr;     // instrument object
-	bsInt16 bnkNum;     // bank number, 0-128, 128=drum kit
-	bsInt16 insNum;     // instrument number 0-127
+	SoundBank *sndbnk;  ///< sound bank object
+	SBInstr *instr;     ///< instrument object
+	bsInt16 bnkNum;     ///< bank number, 0-128, 128=drum kit
+	bsInt16 insNum;     ///< instrument number 0-127
 
 	InstrManager *im;
 

@@ -26,7 +26,7 @@ Instrument *SFPlayerInstr::SFPlayerInstrFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *SFPlayerInstr::SFPlayerEventFactory(Opaque tmplt)
 {
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = 61;
+	ep->maxParam = 48;
 	return (SeqEvent*)ep;
 }
 
@@ -138,6 +138,7 @@ void SFPlayerInstr::Copy(SFPlayerInstr *tp)
 	volEnv.Copy(&tp->volEnv);
 	modEnv.Copy(&tp->modEnv);
 	vibLFO.Copy(&tp->vibLFO);
+	pbWT.Copy(&tp->pbWT);
 }
 
 void SFPlayerInstr::ClearZoneList(SFGen *gen)
@@ -208,6 +209,9 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 	modEnv.Reset(0);
 	vibLFO.SetSigFrq(frq);
 	vibLFO.Reset(0);
+	pbWT.SetSigFrq(frq);
+	pbWT.SetDurationS(params->duration);
+	pbWT.Reset(0);
 }
 
 void SFPlayerInstr::Param(SeqEvent *evt)
@@ -248,6 +252,7 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 	fmAmp = frq * fmCM * fmIM;
 	fmOn = fmAmp > 0;
 	vibLFO.Reset(-1);
+	pbWT.Reset(-1);
 }
 
 void SFPlayerInstr::Stop()
@@ -272,6 +277,8 @@ void SFPlayerInstr::Tick()
 		newFrq += oscfm.Gen() * modEnv.Gen() * fmAmp;
 	if (vibLFO.On())
 		newFrq += vibLFO.Gen();
+	if (pbWT.On())
+		newFrq += pbWT.Gen();
 
 	AmpValue genOut;
 	AmpValue oscValR = 0.0;
@@ -432,6 +439,16 @@ int SFPlayerInstr::SetParam(bsInt16 idval, float val)
 		fmIM = val;
 		break;
 
+	case 46:
+		pbWT.SetLevel(AmpValue(val));
+		break;
+	case 47: 
+		pbWT.SetWavetable((int)val);
+		break;
+	case 48: 
+		pbWT.SetDuration(FrqValue(val));
+		break;
+
 	default:
 		return 1;
 	}
@@ -520,6 +537,15 @@ int SFPlayerInstr::GetParam(bsInt16 idval, float *val)
 	case 45:
 		*val = fmIM;
 		break;
+	case 46:
+		*val = (float) pbWT.GetLevel(); 
+		break;
+	case 47: 
+		*val = (float) pbWT.GetWavetable(); 
+		break;
+	case 48: 
+		*val = (float) pbWT.GetDuration(); 
+		break;
 
 	default:
 		return 1;
@@ -562,6 +588,10 @@ int SFPlayerInstr::GetParams(VarParamEvent *params)
 	params->SetParam(44, (float) fmCM);
 	params->SetParam(45, (float) fmIM);
 
+	params->SetParam(46, (float) pbWT.GetLevel());
+	params->SetParam(47, (float) pbWT.GetWavetable());
+	params->SetParam(48, (float) pbWT.GetDuration());
+
 	return 0;
 }
 
@@ -584,6 +614,9 @@ static InstrParamMap sfPlayerParams[] =
 	{"modType", 37},
 
 	{"monoSet", 18},
+	{"pbamp", 46},
+	{"pbfrq", 47},
+	{"pbwt", 48},
 	{"prog", 17 }, 
 
 	{"vibLfoAttack", 40},
@@ -639,6 +672,8 @@ int SFPlayerInstr::LoadEnv(XmlSynthElem *elem, EnvGenADSR& env)
 int SFPlayerInstr::Load(XmlSynthElem *parent)
 {
 	char *cval;
+	double dval;
+	short ival;
 
 	XmlSynthElem elem;
 	XmlSynthElem celem;
@@ -677,10 +712,22 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 				child = celem.NextSibling(&celem);
 			}
 		}
+		else if (elem.TagMatch("pb"))
+		{
+			if (elem.GetAttribute("pbamp", dval) == 0)
+				pbWT.SetLevel(dval);
+			if (elem.GetAttribute("pbwt", ival) == 0)
+				pbWT.SetWavetable((int)ival);
+		}
 		next = elem.NextSibling(&elem);
 	}
 	if (sndFile.Length() > 0)
-		SetSoundBank(SoundBank::FindBank(sndFile));
+	{
+		//SetSoundBank(SoundBank::FindBank(sndFile));
+		FindInstr();
+		if (instr != 0 && insName.Length() == 0)
+			insName = instr->instrName;
+	}
 
 	return 0;
 }
@@ -707,7 +754,7 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 		return -1;
 
 	elem.SetAttribute("bank", bnkNum);
-	elem.SetAttribute("instr", insNum);
+	elem.SetAttribute("prog", insNum);
 	elem.SetAttribute("mono", monoSet);
 	elem.SetAttribute("fmcm", fmCM);
 	elem.SetAttribute("fmim", fmIM);
@@ -716,9 +763,12 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 		return -1;
 	celem.SetContent(sndFile);
 
-	if (!elem.AddChild("prog", &celem))
+	if (!elem.AddChild("instr", &celem))
 		return -1;
-	celem.SetContent(insName);
+	if (insName.Length() > 0)
+		celem.SetContent(insName);
+	else if (instr)
+		celem.SetContent(instr->instrName);
 
 	if (!parent->AddChild("venv", &elem))
 		return -1;
@@ -731,6 +781,11 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 	if (!parent->AddChild("vlfo", &elem))
 		return -1;
 	vibLFO.Save(&elem);
+
+	if (!parent->AddChild("pb", &elem))
+		return -1;
+	elem.SetAttribute("pbamp", (float) pbWT.GetLevel());
+	elem.SetAttribute("pbwt",  (short) pbWT.GetWavetable());
 
 	return 0;
 }

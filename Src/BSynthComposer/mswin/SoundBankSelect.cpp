@@ -1,4 +1,6 @@
 //////////////////////////////////////////////////////////////////////
+/// @file SoundBankSelect.cpp Dialog to select an instrument in a sound bank.
+//
 // Copyright 2009, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
@@ -179,7 +181,7 @@ void SoundBankSelect::SwitchBank()
 			SBInstr *ins;
 			for (int n = 0; n < 128; n++)
 			{
-				if ((ins = sb->GetInstr(bank, n)) != 0)
+				if ((ins = sb->GetInstr(bank, n, 0)) != 0)
 				{
 					int index = instrList.AddString(ins->instrName);
 					instrList.SetItemDataPtr(index, ins);

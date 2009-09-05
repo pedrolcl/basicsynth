@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 	// run the sequencer
 	wvf.OpenWaveFile(wavFile, 2);
 	inmgr.Init(&mix, &wvf);
-	seq.SetController(&mc.seqControl);
+	seq.SetController(&mc);
 	seq.SetCB(GenCallback, synthParams.isampleRate, 0);
 	genTime = 0;
 	time(&clkTime);

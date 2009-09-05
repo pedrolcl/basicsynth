@@ -26,6 +26,7 @@ KnobWidget::KnobWidget() : SynthWidget(wdgValue)
 	warp[2] = 0.001f;
 	warp[3] = 0.1f;
 	prec = 3;
+	logScale = 0;
 	range = maxval - minval;
 	moving = 0;
 	faceAmt[0] = 0.0f;
@@ -60,14 +61,28 @@ void KnobWidget::SetArea(wdgRect& r)
 
 void KnobWidget::SetValue(float v)
 {
-	value = Round(v / scale);
-	if (buddy2)
-		buddy2->SetValue(value);
+	if (logScale)
+	{
+		if (v > 0)
+			value = scale * log10(v);
+		else
+			value = 0;
+		if (buddy2)
+			buddy2->SetValue(v);
+	}
+	else
+	{
+		value = Round(v / scale);
+		if (buddy2)
+			buddy2->SetValue(value);
+	}
 	CalcIndicator();
 }
 
 float KnobWidget::GetValue()
 {
+	if (logScale)
+		return pow(10.0f, value / scale);
 	return scale * Round(value);
 }
 
@@ -124,7 +139,16 @@ void KnobWidget::SetRange(float lo, float hi, int s)
 	maxval = hi;
 	prec = s; // digits to the right of the decimal point
 	range = maxval - minval;
-	if (prec == 0)
+	// set "warp" 
+	// [0] = normal, [1] = shift, [2] = ctrl, [3] = shift+ctrl
+	if (logScale)
+	{
+		warp[0] = 1.0;
+		warp[1] = 2.0;
+		warp[2] = 0.5;
+		warp[3] = 0.25;
+	}
+	else if (prec == 0)
 	{
 		float div = (float) (area.w+area.h);
 		if (div < 1)
@@ -132,7 +156,7 @@ void KnobWidget::SetRange(float lo, float hi, int s)
 		warp[0] = range / div;
 		warp[2] = warp[0] / 2.0;
 		warp[1] = warp[0] * 2.0;
-		warp[3] = warp[1] * 4.0;
+		warp[3] = warp[0] * 4.0;
 	}
 	else
 	{
@@ -321,7 +345,8 @@ int KnobWidget::ChangeValue(int x, int y, int ctrl, int shift)
 	int r = CalcIndicator();
 	if (buddy2)
 	{
-		buddy2->SetValue(Round(value));
+		buddy2->SetValue(GetValue());
+//		buddy2->SetValue(Round(value));
 		form->Redraw(buddy2);
 	}
 	if (r)
@@ -362,6 +387,7 @@ int KnobWidget::Load(XmlSynthElem *elem)
 		prec = 3;
 	if (elem->GetAttribute("scl", scl) == 0)
 		SetScale(scl);
+	elem->GetAttribute("log", logScale);
 	SetRange(lo, hi, prec);
 
 	float v;

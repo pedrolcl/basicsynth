@@ -41,7 +41,7 @@ void SoundBankEdit::GetParams()
 	float preset = 0;
 	sb->GetParam(16, &bank);
 	sb->GetParam(17, &preset);
-	ListPitches(bank, preset);
+	//ListPitches(bank, preset);
 }
 
 void SoundBankEdit::ValueChanged(SynthWidget *wdg)
@@ -78,11 +78,14 @@ void SoundBankEdit::ValueChanged(SynthWidget *wdg)
 			wdg = mainGroup->FindID(1);
 			Redraw(wdg);
 			theProject->SetChange(1);
-			ListPitches(bank, preset);
+			//ListPitches(bank, preset);
 		}
 		break;
 	case 74: // Vib LFO wavetable
 		SelectWavetable(mainGroup->FindID(71));
+		break;
+	case 80: // Pitch bend wavetable
+		SelectWavetable(wdg);
 		break;
 	default:
 		SynthEdit::ValueChanged(wdg);

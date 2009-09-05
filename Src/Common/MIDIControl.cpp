@@ -27,14 +27,16 @@
 AmpValue MIDIControl::volCB[128];
 AmpValue MIDIControl::volAmp[128];
 
-void MIDISeqControl::ProcessEvent(SeqEvent *evt, bsInt16 flags)
+//void MIDISeqControl::ProcessEvent(SeqEvent *evt, bsInt16 flags)
+void MIDIControl::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 {
 	MIDIChannelStatus *ctl = &channel[evt->chnl];
 	ControlEvent *cevt = (ControlEvent *)evt;
 	ctl->ControlMessage(cevt->mmsg, cevt->ctrl, cevt->cval);
 }
 
-void MIDISeqControl::Tick()
+//void MIDISeqControl::Tick()
+void MIDIControl::Tick()
 {
 	MIDIChannelStatus *chp = &channel[0];
 	MIDIChannelStatus *end = &channel[16];

@@ -32,6 +32,7 @@ ToneBase::ToneBase()
 	vol = 1.0;
 	im = NULL;
 	pbOn = 0;
+	phsOn = 0;
 }
 
 ToneBase::~ToneBase()
@@ -49,6 +50,7 @@ void ToneBase::Copy(ToneBase *tp)
 	pbOn = tp->pbOn;
 	pbGen.Copy(&tp->pbGen);
 	pbWT.Copy(&tp->pbWT);
+	phsOn = tp->phsOn;
 }
 
 void ToneBase::Start(SeqEvent *evt)
@@ -56,12 +58,22 @@ void ToneBase::Start(SeqEvent *evt)
 	SetParams((VarParamEvent*)evt);
 	osc->Reset(0);
 	env.Reset(0);
+	phsOn = 0;
 	if (lfoGen.On())
+	{
+		phsOn = 1;
 		lfoGen.Reset(0);
+	}
 	if (pbOn)
+	{
+		phsOn = 1;
 		pbGen.Reset(0);
+	}
 	if (pbWT.On())
+	{
+		phsOn = 1;
 		pbWT.Reset(0);
+	}
 }
 
 void ToneBase::Param(SeqEvent *evt)
@@ -85,12 +97,18 @@ void ToneBase::Stop()
 
 void ToneBase::Tick()
 {
+	FrqValue phs = 0;
 	if (lfoGen.On())
-		osc->PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
+		//osc->PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
+		phs = lfoGen.Gen();
 	if (pbOn)
-		osc->PhaseModWT(pbGen.Gen() * synthParams.frqTI);
+		//osc->PhaseModWT(pbGen.Gen() * synthParams.frqTI);
+		phs += pbGen.Gen();
 	if (pbWT.On())
-		osc->PhaseModWT(pbWT.Gen() * synthParams.frqTI);
+		//osc->PhaseModWT(pbWT.Gen() * synthParams.frqTI);
+		phs += pbWT.Gen();
+	if (phsOn)
+		osc->PhaseModWT(phs * synthParams.frqTI);
 	im->Output(chnl, vol * env.Gen() * osc->Gen());
 }
 

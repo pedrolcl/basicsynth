@@ -38,7 +38,8 @@ void SynthProject::Init()
 	libPath = 0;
 	change = 0;
 
-	seq.SetController(&prjMidiCtrl.seqControl);
+//	seq.SetController(&prjMidiCtrl.seqControl);
+	seq.SetController(&prjMidiCtrl);
 	prjMidiIn.SetSequenceInfo(&seq, &mgr);
 	prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
 

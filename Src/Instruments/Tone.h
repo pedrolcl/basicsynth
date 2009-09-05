@@ -20,6 +20,7 @@ class ToneBase : public InstrumentVP
 protected:
 	int chnl;
 	int pbOn;
+	int phsOn;
 	AmpValue vol;
 	GenWaveWT *osc;
 	EnvGenADSR env;

@@ -108,6 +108,7 @@ protected:
 	float range;
 	float scale;
 	float warp[4];
+	short logScale;
 	int prec;
 	int moving;
 	wdgPoint centerPt;
