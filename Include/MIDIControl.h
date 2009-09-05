@@ -50,29 +50,10 @@ public:
 	}
 };
 
-
-/// Channel controller class for MIDI events.
-/// This handles controller events from the sequencer.
-class MIDISeqControl : public SeqControl
-{
-private:
-	MIDIChannelStatus *channel;
-
-public:
-	MIDISeqControl(MIDIChannelStatus *c)
-	{
-		channel = c;
-	}
-
-	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags);
-	virtual void Tick();
-};
-
 /// MIDI channel control information.
 /// This class aggregates some of the bits and pieces needed to
 /// emulate a MIDI keyboard synth. Sequencer control events
-/// are routed through the seqControl object and stored
-/// in the channel[] objects. The channel objects can be
+/// are stored in the channel[] objects. The channel objects can be
 /// accessed directly for programatic control, i.e. when
 /// live MIDI data is being received.
 ///
@@ -89,15 +70,14 @@ public:
 /// 960 is silence. The volCB[] and volAmp[] tables can also
 /// be used to perform transforms on raw values into either
 /// centibels of attenuation or linear volume using a convex curve.
-class MIDIControl
+class MIDIControl : public SeqControl
 {
 public:
 	MIDIChannelStatus channel[16];  ///< Channel status information
-	MIDISeqControl seqControl;      ///< Sequencer event handler
 	static AmpValue volCB[128];     ///< volume (or velocity) to centibels (960 - 0)
 	static AmpValue volAmp[128];    ///< volume (or velocity) to amplitude (0 - 1)
 
-	MIDIControl() : seqControl(channel)
+	MIDIControl()
 	{
 		for (int ch = 0; ch < 16; ch++)
 			channel[ch].channel = ch;
@@ -110,7 +90,10 @@ public:
 			volAmp[vol] = synthParams.AttenCB((int)(cb+0.5));
 		}
 	}
-	
+
+	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags);
+	virtual void Tick();
+
 	void Reset()
 	{
 		for (int ch = 0; ch < 16; ch++)
