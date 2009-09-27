@@ -2,6 +2,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Platform-specific project functions
 /////////////////////////////////////////////////////////////////////////////
+#ifdef OLD_STUFF
 #include "globinc.h"
 #include "MainFrm.h"
 #include <MIDIDefs.h>
@@ -199,20 +200,4 @@ int SynthProject::Resume()
 	}
 	return 0;
 }
-
-int SynthProject::PlayEvent(SeqEvent *evt)
-{
-	if (seq.GetState() & seqPlay)
-	{
-		seq.AddImmediate(evt);
-		return 1;
-	}
-
-	delete evt;
-	return 0;
-}
-
-int SynthProject::IsPlaying()
-{
-	return seq.GetState() & seqPlay;
-}
+#endif
