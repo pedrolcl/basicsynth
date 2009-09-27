@@ -10,7 +10,9 @@ SoundBank SoundBank::SoundBankList;
 
 FrqValue *SoundBank::envRateTable;
 
-// N.B. - this unconditionally clears the list without checking for locks
+// N.B. - this unconditionally clears the list without checking for locks.
+// The sound bank is still valid until the last lock is removed, but it
+// will no longer be found with FindBank().
 void SoundBank::DeleteBankList()
 {
 	SoundBank *bnk;
@@ -31,6 +33,12 @@ SoundBank *SoundBank::FindBank(const char *name)
 			break;
 	}
 	return bnk;
+}
+
+SoundBank *SoundBank::DefaultBank()
+{
+	// TODO: maybe have a static member for default bank?
+	return SoundBankList.next;
 }
 
 // duration as tc = 1200 * log2(sec)
