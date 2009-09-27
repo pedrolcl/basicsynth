@@ -610,6 +610,9 @@ void SFFile::BuildInstrument(SBInstr *in, int n, int pbagNdx)
 			zone->modLfo.rate = SFFrequency(genVals[sfgFreqModLFO]);
 			zone->modLfo.delay = (FrqValue) genVals[sfgDelayModLFO];
 
+			zone->filtFreq = (FrqValue) SFFrequency(genVals[sfgInitialFilterFc]);
+			zone->filtQ = (AmpValue) genVals[sfgInitialFilterQ];
+
 			// Apply preset modulators
 			genNdx1 = pbag[pbagNdx].wModNdx;
 			genNdx2 = pbag[pbagNdx+1].wModNdx;
@@ -750,10 +753,11 @@ void SFFile::InitGenVals(short *genVals)
 	memset(genVals, 0, sizeof(short)*sfgEndOper);
 	genVals[sfgVelRange] = 127 << 8;
 	genVals[sfgKeyRange] = 127 << 8;
-	genVals[sfgInitialFilterQ] = 13500;
 	genVals[sfgScaleTuning] = 100;
 	genVals[sfgKeynum] = (127 << 8);
 	genVals[sfgVelocity] = (127 << 8);
+	genVals[sfgInitialFilterFc] = 13500;
+	genVals[sfgInitialFilterQ] = 0;
 
 	genVals[sfgOverridingRootKey] = -1;
 	genVals[sfgDelayVolEnv] = -12000;
