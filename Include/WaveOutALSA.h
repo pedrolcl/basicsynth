@@ -67,47 +67,51 @@ public:
 			return -1;
 		
 		int err = snd_pcm_open(&handle, device, SND_PCM_STREAM_PLAYBACK, 0);
-		if (err < 0)
-			return err;
-		
-		err = snd_pcm_set_params(handle, 
+		if (err == 0)
+		{
+			err = snd_pcm_set_params(handle, 
 					SND_PCM_FORMAT_S16, 
 					SND_PCM_ACCESS_RW_INTERLEAVED,
 					2, // channels
 					synthParams.isampleRate,
 					1, // allow resample
 					(unsigned int) (leadtm * 1000000.0) * nb);
-		if (err < 0)
-		{
-			snd_pcm_close(handle);
-			return err;
+			if (err == 0)
+				err = snd_pcm_prepare(handle);
+			if (err < 0)
+			{
+				snd_pcm_close(handle);
+				handle = 0;
+			}
 		}
-		
-		if ((err = snd_pcm_prepare(handle)) < 0)
-		{
-			snd_pcm_close(handle);
-			return err;
-		}
-		
-		return 0;
+		return err;
 	}
 	
 	/// Stop the sound output.
 	void Stop()
 	{
-		snd_pcm_drop(handle);
+		if (handle && snd_pcm_state(handle) == SND_PCM_STATE_RUNNING)
+			snd_pcm_drop(handle);
 	}
 	
 	/// Restart sound output.
 	void Restart()
 	{
-		snd_pcm_resume(handle);
+		if (!handle)
+			return;
+		snd_pcm_state_t st = snd_pcm_state(handle);
+		if (st == SND_PCM_STATE_SETUP)
+			snd_pcm_prepare(handle);
+		if (st == SND_PCM_STATE_PREPARED)
+			snd_pcm_start(handle);
 		nxtSamp = samples;
 	}
 
 	/// Wait for output to finish.
 	void Drain()
 	{
+		if (!handle)
+			return;
 		if (nxtSamp > samples)
 			FlushOutput();
 		snd_pcm_drain(handle);
