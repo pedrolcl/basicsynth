@@ -146,26 +146,31 @@ public:
 		maxEnt = 0;
 	}
 
+	int Grow()
+	{
+		nlParamMapEntry **newmap = new nlParamMapEntry*[mapSiz+growBy];
+		if (newmap == NULL)
+			return 0;
+		if (mapSiz)
+		{
+			memcpy(newmap, mapPtr, mapSiz*sizeof(nlParamMapEntry*));
+			delete mapPtr;
+		}
+		memset(&newmap[mapSiz], 0, growBy*sizeof(nlParamMapEntry*));
+		mapPtr = newmap;
+		mapSiz += growBy;
+		return 1;
+	}
+
 	/// Add an entry to the parameter map.
 	/// @param pn parameter number
 	/// @param mn parameter ID
 	/// @param scl scaling factor
 	void AddEntry(int pn, int mn, float scl)
 	{
-		if (pn >= mapSiz)
-		{
-			nlParamMapEntry **newmap = new nlParamMapEntry*[mapSiz+growBy];
-			if (newmap == NULL)
-				return;
-			if (mapSiz)
-			{
-				memcpy(newmap, mapPtr, mapSiz*sizeof(nlParamMapEntry*));
-				delete mapPtr;
-			}
-			memset(&newmap[mapSiz], 0, growBy*sizeof(nlParamMapEntry*));
-			mapPtr = newmap;
-			mapSiz += growBy;
-		}
+		if (pn >= mapSiz && !Grow())
+			return;
+
 		nlParamMapEntry *pe = new nlParamMapEntry(mn, scl);
 		if (mapPtr[pn])
 			mapPtr[pn]->Insert(pe);
