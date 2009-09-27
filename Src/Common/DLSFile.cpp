@@ -670,6 +670,9 @@ void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 				zone->volAtten = DLSScale(ci->scale);
 				break;
 
+			case CONN_DST_EG1_DELAYTIME:
+				zone->volEg.delay = DLSScale(ci->scale);
+				break;
 			case CONN_DST_EG1_ATTACKTIME:
 				zone->volEg.attack = DLSScale(ci->scale);
 				break;
@@ -686,6 +689,9 @@ void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 				zone->volEg.sustain = DLSPercent(ci->scale);
 				break;
 
+			case CONN_DST_EG2_DELAYTIME:
+				zone->modEg.delay = DLSScale(ci->scale);
+				break;
 			case CONN_DST_EG2_ATTACKTIME:
 				zone->modEg.attack = DLSScale(ci->scale);
 				break;
@@ -701,6 +707,7 @@ void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 			case CONN_DST_EG2_SUSTAINLEVEL:
 				zone->modEg.sustain = DLSPercent(ci->scale);
 				break;
+
 			case CONN_DST_LFO_FREQUENCY:
 				zone->vibLfo.rate = DLSFrequency(ci->scale);
 				zone->modLfo.rate = zone->vibLfo.rate;
@@ -711,6 +718,12 @@ void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 				break;
 			case CONN_DST_PAN:
 				zone->pan = DLSPercent(ci->scale);
+				break;
+			case CONN_DST_FLT_CUTOFF:
+				zone->filtFreq = DLSScale(ci->scale);
+				break;
+			case CONN_DST_FLT_Q:
+				zone->filtQ = DLSScale(ci->scale);
 				break;
 			// default:
 			// SRC_NONE only can apply to known parameters
