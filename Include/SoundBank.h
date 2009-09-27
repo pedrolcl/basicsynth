@@ -59,8 +59,9 @@ struct SBInfo
 #define SBGEN_BRTHAMP 0x0400
 #define SBGEN_EXPRAMP 0x0800
 #define SBGEN_MODLIST 0x1000
+#define SBGEN_FILTER  0x2000
 #define SBGEN_MODLFOX (SBGEN_MODLFOF|SBGEN_MODLFOA)
-#define SBGEN_MODWHLX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODLFOA)
+#define SBGEN_MODWHLX (SBGEN_MODLFOF|SBGEN_MODLFOA)
 #define SBGEN_MODFRQX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODENVF)
 #define SBGEN_MODAMPX (SBGEN_MODLFOA|SBGEN_BRTHAMP|SBGEN_EXPRAMP)
 
@@ -92,6 +93,8 @@ struct SBInfo
 #define SBGEN_VELATK  0x0019
 #define SBGEN_VELCTY  0x001A
 #define SBGEN_KEYNUM  0x001B
+#define SBGEN_FLTFRQ  0x001C
+#define SBGEN_FLTQ    0x001D
 
 class SBModInfo : public SynthList<SBModInfo>
 {
@@ -240,6 +243,9 @@ public:
 	FrqValue  modEnvFrq; ///< Mod ENV amount applied to frequency (cents)
 	AmpValue  volEnvAmp; ///< Vol ENV amount applied to amplitude
 
+	FrqValue  filtFreq;
+	AmpValue  filtQ;
+
 	FrqValue  pbfScale;  ///< Pitchwheel amount
 	AmpValue  mwaScale;  ///< Modwheel CC volume amount
 	FrqValue  mwfScale;  ///< Modwheel CC pitch amount
@@ -292,6 +298,8 @@ public:
 		modLfoFrq = 0;
 		modEnvFrq = 0;
 		volEnvAmp = 960.0;
+		filtFreq = 20000.0;
+		filtQ = 1.0;
 
 		mwaScale = 0.0;
 		mwfScale = 0.0;
@@ -367,6 +375,8 @@ public:
 			genFlags |= SBGEN_MODLFOA;
 		if (modEnvFrq != 0)
 			genFlags |= SBGEN_MODENVF;
+		if (filtFreq > 0 && filtFreq < (synthParams.sampleRate / 2) && filtQ > 0)
+			genFlags |= SBGEN_FILTER;
 	}
 };
 
@@ -524,6 +534,7 @@ public:
 	static SoundBank SoundBankList; ///< List of loaded soundbanks
 	static void DeleteBankList();  ///< Remove all soundbanks
 	static SoundBank *FindBank(const char *name); ///< Find soundbank by name
+	static SoundBank *DefaultBank();
 
 	static FrqValue *envRateTable;
 
