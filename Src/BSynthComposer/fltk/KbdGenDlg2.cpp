@@ -1,5 +1,5 @@
 #include "globinc.h"
-#if POSIX
+#ifdef UNIX
 #include <pthread.h>
 #endif
 #include "MainFrm.h"
@@ -55,7 +55,7 @@ void GenerateDlg::EndThread()
 
 #endif
 
-#if POSIX
+#ifdef UNIX
 static pthread_mutex_t genDlgGuard;
 static pthread_t genThreadID;
 
@@ -223,8 +223,6 @@ GenerateDlg::GenerateDlg(int live) : Fl_Window(100, 100, 600, 320, "Generate")
 GenerateDlg::~GenerateDlg()
 {
 	prjGenerate = 0;
-	//if (mainWnd)
-	//	mainWnd->make_current();
 }
 
 void GenerateDlg::AddMessage(const char *s)
@@ -329,6 +327,8 @@ void GenerateDlg::OnStart(int autoStart)
 	pauseBtn->deactivate();
 	startBtn->activate();
 	closeBtn->activate();
+	if (autoStart)
+		Fl::delete_widget(this);
 }
 
 void GenerateDlg::OnStop()
@@ -476,37 +476,54 @@ void KbdGenDlg::Load()
 	if (form)
 		return;
 
+	bsString fileName;
+	if (!theProject->FindForm(fileName, "KeyboardEd.xml"))
+	{
+		prjFrame->Alert("Could not locate keyboard form KeyboardEd.xml!", "Huh?");
+		return;
+	}
+
 	form = new KeyboardForm();
 	form->SetFormEditor(this);
 	wdgColor clr;
 	if (SynthWidget::colorMap.Find("bg", clr))
 		bgColor = clr;
-	bsString fileName;
-	theProject->FindForm(fileName, "KeyboardEd.xml");
-	form->Load(fileName, 0, 0);
-	SynthWidget *wdg = form->GetInstrList();
-	wdgRect a = wdg->GetArea();
-	wdg->Remove();
-	delete wdg;
-
-	instrList->resize(x()+a.x+5, y()+a.y+5, a.w, a.h);
-	instrList->redraw();
-	int sel = instrList->value();
-	if (sel > 0)
+	if (form->Load(fileName, 0, 0) == 0 && form->GetKeyboard())
 	{
-		InstrConfig *inc = (InstrConfig*)instrList->data(sel);
-		if (form)
-			form->GetKeyboard()->SetInstrument(inc);
-		if (inc)
-			theProject->prjMidiIn.SetInstrument(inc->inum);
-	}
+		// remove the place-holder and insert the list box
+		SynthWidget *wdg = form->GetInstrList();
+		wdgRect a = wdg->GetArea();
+		wdg->Remove();
+		delete wdg;
 
-	int cx = 200;
-	int cy = 100;
-	form->GetSize(cx, cy);
-	cx += 15;
-	cy += 15;
-	size(cx, cy);
+		instrList->resize(x()+a.x+5, y()+a.y+5, a.w, a.h);
+		instrList->redraw();
+		int sel = instrList->value();
+		if (sel > 0)
+		{
+			InstrConfig *inc = (InstrConfig*)instrList->data(sel);
+			if (form)
+				form->GetKeyboard()->SetInstrument(inc);
+			if (inc)
+				theProject->prjMidiIn.SetInstrument(inc->inum);
+		}
+
+		int cx = 200;
+		int cy = 100;
+		form->GetSize(cx, cy);
+		cx += 15;
+		cy += 15;
+		size(cx, cy);
+	}
+	else
+	{
+		bsString msg;
+		msg = "Could not load keyboard form: ";
+		msg += fileName;
+		prjFrame->Alert(msg, "Huh?");
+		delete form;
+		form = 0;
+	}
 }
 
 void KbdGenDlg::OnInstrChange()
@@ -662,271 +679,3 @@ void KeyboardWidget::Paint(DrawContext dc)
 	int rw = (rcWhite[whtKeys-1].x + rcWhite[0].w) - rcWhite[0].x;
 	fl_rect(rcWhite[0].x, rcWhite[0].y, rw, rcWhite[0].h);
 }
-
-#ifdef _OLD_MIDI_STUFF
-/////////////////////////////////////////////////////////////////////////////
-// MIDI Input
-// For now, MIDI input is connected to the virtual keyboard widget and
-// simulates hitting a "key" on the screen keyboard.
-// This may change later into a generic MIDI in that cooperates with
-// Sequencer and MIDIControl objects.
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef _WIN32
-static HMIDIIN midiIn;
-
-struct MEvent
-{
-	short mmsg;
-	short val1;
-	short val2;
-	DWORD ts;
-};
-
-static MEvent eventBuf[500];
-static int ebWrite = 0;
-static int ebRead = 0;
-
-void CALLBACK MidiCB(HMIDIIN hMidiIn, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
-{
-	KeyboardWidget *kbd = (KeyboardWidget *) dwInstance;
-	if (wMsg == MIM_DATA)
-	{
-		while (ebRead != ebWrite)
-		{
-			MEvent *p = &eventBuf[ebRead++];
-			if (ebRead >= 500)
-				ebRead = 0;
-			kbd->MidiRcv(p->mmsg, p->val1, p->val2, p->ts);
-		}
-
-		short mmsg = dwParam1 & 0xFF;
-		if (mmsg != 0xfe)
-			kbd->MidiRcv(mmsg, (dwParam1 >> 8) & 0xff, (dwParam1 >> 16) & 0xFF, dwParam2);
-	}
-	else if (wMsg == MIM_MOREDATA)
-	{
-		// buffer this event and return immediately.
-		// on the next MIM_DATA, process the buffered events
-		MEvent *p = &eventBuf[ebWrite++];
-		if (ebWrite >= 500)
-			ebWrite = 0;
-		p->mmsg = dwParam1 & 0xFF;
-		p->val1 = (dwParam1 >> 8) & 0xFF;
-		p->val2 = (dwParam1 >> 16) & 0xFF;
-		p->ts = dwParam2;
-	}
-}
-
-void KeyboardWidget::MidiIn(int onoff)
-{
-	if (midiOn == onoff)
-		return;
-	midiOn = onoff;
-	if (onoff)
-	{
-		if (midiIn == 0)
-		{
-			MMRESULT err = midiInOpen(&midiIn, prjOptions.midiDevice, (DWORD_PTR) MidiCB, 
-				(DWORD_PTR) this, CALLBACK_FUNCTION|MIDI_IO_STATUS);
-			if (err != MMSYSERR_NOERROR)
-				return;
-		}
-		midiInStart(midiIn);
-	}
-	else if (midiIn)
-	{
-		midiInStop(midiIn);
-		midiInClose(midiIn);
-		midiIn = 0;
-	}
-}
-#endif
-
-#ifdef UNIX
-// This is Linux only as it uses ALSA.
-// Some code taken from seqdemo.c by Matthias Nagorni
-
-static int midiHalt = 0;
-
-// perform input through the ALSA sequencer.
-// this is really the wrong way to go for BasicSynth.
-// The driver has "decoded" the event but we must
-// paste the info back together for compatibility.
-// The MIDIController object will then "decode" things
-// again... *sigh*
-// So - suggest using the raw midi instead.
-static void *MidiInputSeq(void *param)
-{
-	snd_seq_t *midiHandle;
-	int midiPort;
-	int numPoll;
-	struct pollfd *midiPoll;
-
-	if (snd_seq_open(&midiHandle, prjOptions.midiDeviceName, SND_SEQ_OPEN_INPUT, 0) < 0)
-	{
-		fprintf(stderr, "Cannot open '%s' as MIDI input\n", prjOptions.midiDeviceName);
-		return 0;
-	}
-	snd_seq_set_client_name(midiHandle, "BasicSynth");
-	midiPort = snd_seq_create_simple_port(midiHandle, "BasicSynth",
-	           SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE,
-	           SND_SEQ_PORT_TYPE_APPLICATION);
-	if (midiPort < 0)
-		return 0;
-
-	numPoll = snd_seq_poll_descriptors_count(midiHandle, POLLIN);
-	midiPoll = new struct pollfd[numPoll];
-	snd_seq_poll_descriptors(midiHandle, midiPoll, numPoll, POLLIN);
-
-	KeyboardWidget *kbd = (KeyboardWidget *)param;
-	unsigned int timestamp = 0;
-
-	while (!midiHalt)
-	{
-		if (poll(midiPoll, numPoll, 2000) > 0)
-		{
-			snd_seq_event_t *ev;
-			do
-			{
-				snd_seq_event_input(midiHandle, &ev);
-				switch (ev->type) 
-				{
-				case SND_SEQ_EVENT_CONTROLLER:
-					kbd->MidiRcv(MIDI_CTLCHG|ev->data.control.channel, 
-						ev->data.control.param, ev->data.control.value, ev->time.tick);
-					break;
-				case SND_SEQ_EVENT_PITCHBEND:
-					kbd->MidiRcv(MIDI_CTLCHG|ev->data.control.channel, 
-						ev->data.control.param, ev->data.control.value, ev->time.tick);
-					break;
-				case SND_SEQ_EVENT_PGMCHANGE:
-					kbd->MidiRcv(MIDI_PRGCHG|ev->data.control.channel, 
-						ev->data.control.param, ev->data.control.value, ev->time.tick);
-					break;
-				case SND_SEQ_EVENT_CHANPRESS:
-					kbd->MidiRcv(MIDI_CHNAT|ev->data.control.channel, 
-						ev->data.control.param, ev->data.control.value, ev->time.tick);
-					break;
-				case SND_SEQ_EVENT_NOTEON:
-					kbd->MidiRcv(MIDI_NOTEON|ev->data.note.channel, 
-						ev->data.note.note, ev->data.note.velocity, ev->time.tick);
-					break;
-				case SND_SEQ_EVENT_NOTEOFF: 
-					kbd->MidiRcv(MIDI_NOTEOFF|ev->data.note.channel, 
-						ev->data.note.note, ev->data.note.off_velocity, ev->time.tick);
-					break;
-				}
-			    snd_seq_free_event(ev);
-			} while (snd_seq_event_input_pending(midiHandle, 0) > 0);
-		}
-	}
-	snd_seq_close(midiHandle);
-}
-
-static void *MidiInputRaw(void *param)
-{
-	snd_rawmidi_t *midiHandle;
-
-	if (snd_rawmidi_open(&midiHandle, NULL, prjOptions.midiDeviceName, 0) < 0)
-	{
-		midiHalt = 1;
-		return 0;
-	}
-
-	fprintf(stderr, "Opened MIDI %s\n", prjOptions.midiDeviceName);
-	
-	KeyboardWidget *kbd = (KeyboardWidget *)param;
-	
-	snd_rawmidi_drain(midiHandle); 
-
-	unsigned char inb;
-	unsigned char mmsg = 0;
-	unsigned char val[2];
-	int  valCount = 0;
-	unsigned long timestamp = 0; // todo
-
-	while (!midiHalt)
-	{
-		if (snd_rawmidi_read(midiHandle, &inb, 1) < 0)
-			midiHalt = 1;
-		else if (inb & 0x80)
-		{
-			// MIDI command byte
-			if ((inb & 0xf0) == 0xf0)
-			{
-				switch (inb)
-				{
-				case MIDI_SYSEX:  //  0xF0
-					while (snd_rawmidi_read(midiHandle, &inb, 1) < 0)
-					{
-						// todo: add data to sysex buffer
-						if (inb == MIDI_ENDEX)
-							break;
-					}
-					break;
-				case MIDI_SNGPOS: // 0xF2
-					snd_rawmidi_read(midiHandle, &inb, 1);
-				case MIDI_SNGSEL: // 0xF3
-					snd_rawmidi_read(midiHandle, &inb, 1);
-					break;
-				case MIDI_TMCODE: // 0xF1
-				case MIDI_TUNREQ: // 0xF6
-				case MIDI_ENDEX:  // 0xF7
-				case MIDI_TMCLK:  // 0xF8
-				case MIDI_START:  // 0xFA
-				case MIDI_CONT:   // 0xFB
-				case MIDI_STOP:   // 0xFC
-				case MIDI_ACTSNS: // 0xFE
-				case MIDI_META:   // 0xFF
-					break;
-				}
-			}
-			else
-			{
-				mmsg = inb;
-				valCount = 0;
-			}
-		}
-		else
-		{
-			val[valCount++] = inb;
-			if (valCount == 2)
-			{
-				// todo: update timestamp
-				if (mmsg != MIDI_KEYAT)
-					kbd->MidiRcv(mmsg, val[0], val[1], timestamp);
-				valCount = 0;
-			}
-		}
-	}
-	snd_rawmidi_drain(midiHandle);
-	snd_rawmidi_close(midiHandle);
-	fprintf(stderr, "Closed MIDI\n");
-
-	return 0;
-}
-
-void KeyboardWidget::MidiIn(int onoff)
-{
-	static pthread_t midiThreadID;
-	if (midiOn == onoff)
-		return;
-	if (onoff)
-	{
-		midiHalt = 0;
-		fprintf(stderr, "Startl MIDI in\n");
-		pthread_create(&midiThreadID, NULL, MidiInputRaw, this);
-	}
-	else
-	{
-		midiHalt = 1;
-		fprintf(stderr, "Kill MIDI in\n");
-		pthread_cancel(midiThreadID);
-		pthread_join(midiThreadID, NULL); 
-	}
-	midiOn = onoff;
-}
-#endif
-
-#endif
