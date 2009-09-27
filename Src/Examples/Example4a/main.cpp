@@ -375,6 +375,160 @@ double DLSPercent(bsInt32 val)
 	 return (double)val / (1000.0*65536.0);
 }
 
+void DLSSource(int source)
+{
+	switch (source)
+	{
+	case CONN_SRC_NONE:
+		printf("SRC_NONE ");
+		break;
+	case CONN_SRC_LFO:
+		printf("SRC_LFO ");
+		break;
+	case CONN_SRC_KEYONVELOCITY:
+		printf("SRC_KEYONVELOCITY ");
+		break;
+	case CONN_SRC_KEYNUMBER:
+		printf("SRC_KEYNUMBER ");
+		break;
+	case CONN_SRC_EG1:
+		printf("SRC_EG1 ");
+		break;
+	case CONN_SRC_EG2:
+		printf("SRC_EG2 ");
+		break;
+	case CONN_SRC_PITCHWHEEL:
+		printf("SRC_PITCHWHEEL ");
+		break;
+	case CONN_SRC_POLYPRESSURE:
+		printf("CONN_SRC_POLYPRESSURE ");
+		break;
+	case CONN_SRC_CHANNELPRESSURE:
+		printf("CONN_SRC_CHANNELPRESSURE ");
+		break;
+	case CONN_SRC_VIBRATO:
+		printf("CONN_SRC_VIBRATO ");
+		break;
+	case CONN_SRC_MONOPRESSURE:
+		printf("CONN_SRC_MONOPRESSURE ");
+		break;
+	// Midi Controllers 0-127
+	case CONN_SRC_CC1:
+		printf("SRC_CC1 ");
+		break;
+	case CONN_SRC_CC7:
+		printf("SRC_CC7 ");
+		break;
+	case CONN_SRC_CC10:
+		printf("SRC_CC10 ");
+		break;
+	case CONN_SRC_CC11:
+		printf("SRC_CC11 ");
+		break;
+	default:
+		if (source & 0x80)
+			printf("SRC_CC%d ", source & 0x7f);
+		else
+			printf("CONN_SRC UNKNOWN (%04x) ", source);
+		break;
+	}
+}
+
+void DLSDestination(dlsConnection *blk)
+{
+	switch (blk->destination)
+	{
+	// Generic Destinations
+	case CONN_DST_NONE:
+		printf("DST_NONE");
+		break;
+	case CONN_DST_ATTENUATION:
+		printf("DST_ATTENUATION %f (%f)", DLSScale(blk->scale), DLSRelGain(blk->scale));
+		break;
+	case CONN_DST_RESERVED:
+		printf("DST_RESERVED %d", DLSScale(blk->scale));
+		break;
+	case CONN_DST_PITCH:
+		printf("DST_PITCH %d", DLSScale(blk->scale));
+		break;
+	case CONN_DST_PAN:
+		printf("DST_PAN %f", ((double)blk->scale / (10.0 * 65536.0)) / 100.0);
+		break;
+	// LFO Destinations
+	case CONN_DST_LFO_FREQUENCY:
+		printf("DST_LFO_FREQUENCY %f", DLSPitchCents(blk->scale));
+		break;
+	case CONN_DST_LFO_STARTDELAY:
+		printf("DST_LFO_STARTDELAY %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_VIB_FREQUENCY:
+		printf("DST_VIB_FREQUENCY %f", DLSPitchCents(blk->scale));
+		break;
+	case CONN_DST_VIB_STARTDELAY:
+		printf("DST_VIB_STARTDELAY %f", DLSTimeCents(blk->scale));
+		break;
+	// EG1 Destinations
+	case CONN_DST_EG1_DELAYTIME:
+		printf("CONN_DST_EG1_DELAYTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG1_ATTACKTIME:
+		printf("DST_EG1_ATTACKTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG1_HOLDTIME:
+		printf("CONN_DST_EG1_HOLDTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG1_DECAYTIME:
+		printf("DST_EG1_DECAYTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG1_RESERVED:
+		printf("DST_EG1_RESERVED %f ", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG1_RELEASETIME:
+		printf("DST_EG1_RELEASETIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG1_SUSTAINLEVEL:
+		printf("DST_EG1_SUSTAINLEVEL %f", DLSPercent(blk->scale));
+		break;
+	case CONN_DST_EG1_SHUTDOWNTIME:
+		printf("CONN_DST_EG1_SHUTDOWNTIME %f", DLSPercent(blk->scale));
+		break;
+	// EG2 Destinations
+	case CONN_DST_EG2_DELAYTIME:
+		printf("CONN_DST_EG2_DELAYTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG2_ATTACKTIME:
+		printf("DST_EG2_ATTACKTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG2_HOLDTIME:
+		printf("CONN_DST_EG2_HOLDTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG2_DECAYTIME:
+		printf("DST_EG2_DECAYTIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG2_RESERVED:
+		printf("DST_EG2_RESERVED %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG2_RELEASETIME:
+		printf("DST_EG2_RELEASETIME %f", DLSTimeCents(blk->scale));
+		break;
+	case CONN_DST_EG2_SUSTAINLEVEL:
+		printf("DST_EG2_SUSTAINLEVEL %f", DLSPercent(blk->scale));
+		break;
+	case CONN_DST_FLT_CUTOFF:
+		printf("CONN_DST_FLT_CUTOFF %f", DLSScale(blk->scale));
+		break;
+	case CONN_DST_FLT_Q:
+		printf("CONN_DST_FLT_Q %f", DLSScale(blk->scale));
+		break;
+	default:
+		if (blk->destination & 0x80)
+			printf("DST_CC%d %f", blk->destination & 0x7f, DLSScale(blk->scale));
+		else
+			printf("CONN_DST UNKNOWN (%04x) %f", blk->destination, DLSScale(blk->scale));
+		break;
+	}
+}
+
 void Dump(DLSArtInfo *art)
 {
 	printf("    Artic %c:\n", art->art2 ? '2' : '1');
@@ -384,113 +538,13 @@ void Dump(DLSArtInfo *art)
 		printf("      blk(%d) ctl=%d src=%x dst=%x xf=%x scl=%d\n              ", n,
 			blk->control, blk->source, 
 			blk->destination, blk->transform, blk->scale);
-		switch (blk->source)
+		DLSSource(blk->source);
+		if (blk->control != 0)
 		{
-		case CONN_SRC_NONE:
-			printf("SRC_NONE ");
-			break;
-		case CONN_SRC_LFO:
-			printf("SRC_LFO ");
-			break;
-		case CONN_SRC_KEYONVELOCITY:
-			printf("SRC_KEYONVELOCITY ");
-			break;
-		case CONN_SRC_KEYNUMBER:
-			printf("SRC_KEYNUMBER ");
-			break;
-		case CONN_SRC_EG1:
-			printf("SRC_EG1 ");
-			break;
-		case CONN_SRC_EG2:
-			printf("SRC_EG2 ");
-			break;
-		case CONN_SRC_PITCHWHEEL:
-			printf("SRC_PITCHWHEEL ");
-			break;
-		// Midi Controllers 0-127
-		case CONN_SRC_CC1:
-			printf("SRC_CC1 ");
-			break;
-		case CONN_SRC_CC7:
-			printf("SRC_CC7 ");
-			break;
-		case CONN_SRC_CC10:
-			printf("SRC_CC10 ");
-			break;
-		case CONN_SRC_CC11:
-			printf("SRC_CC11 ");
-			break;
-		default:
-			if (blk->source & 0x80)
-				printf("SRC_CC%d ", blk->source % 0x7f);
-			else
-				printf("CONN_SRC UNKNOWN (%d) ", blk->source);
-			break;
+			printf(" CONTROL ");
+			DLSSource(blk->control);
 		}
-		switch (blk->destination)
-		{
-		// Generic Destinations
-		case CONN_DST_NONE:
-			printf("DST_NONE");
-			break;
-		case CONN_DST_ATTENUATION:
-			printf("DST_ATTENUATION %f (%f)", DLSScale(blk->scale), DLSRelGain(blk->scale));
-			break;
-		case CONN_DST_RESERVED:
-			printf("DST_RESERVED %d", DLSScale(blk->scale));
-			break;
-		case CONN_DST_PITCH:
-			printf("DST_PITCH %d", DLSScale(blk->scale));
-			break;
-		case CONN_DST_PAN:
-			printf("DST_PAN %f", ((double)blk->scale / (10.0 * 65536.0)) / 100.0);
-			break;
-		// LFO Destinations
-		case CONN_DST_LFO_FREQUENCY:
-			printf("DST_LFO_FREQUENCY %f", DLSPitchCents(blk->scale));
-			break;
-		case CONN_DST_LFO_STARTDELAY:
-			printf("DST_LFO_STARTDELAY %f", DLSTimeCents(blk->scale));
-			break;
-		// EG1 Destinations
-		case CONN_DST_EG1_ATTACKTIME:
-			printf("DST_EG1_ATTACKTIME %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG1_DECAYTIME:
-			printf("DST_EG1_DECAYTIME %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG1_RESERVED:
-			printf("DST_EG1_RESERVED %f ", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG1_RELEASETIME:
-			printf("DST_EG1_RELEASETIME %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG1_SUSTAINLEVEL:
-			printf("DST_EG1_SUSTAINLEVEL %f", DLSPercent(blk->scale));
-			break;
-		// EG2 Destinations
-		case CONN_DST_EG2_ATTACKTIME:
-			printf("DST_EG2_ATTACKTIME %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG2_DECAYTIME:
-			printf("DST_EG2_DECAYTIME %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG2_RESERVED:
-			printf("DST_EG2_RESERVED %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG2_RELEASETIME:
-			printf("DST_EG2_RELEASETIME %f", DLSTimeCents(blk->scale));
-			break;
-		case CONN_DST_EG2_SUSTAINLEVEL:
-			printf("DST_EG2_SUSTAINLEVEL %f", DLSPercent(blk->scale));
-			break;
-		default:
-			if (blk->destination & 0x80)
-				printf("DST_CC%d %f", blk->destination & 0x7f, DLSScale(blk->scale));
-			else
-				printf("CONN_DST UNKNOWN (%d) %f", blk->destination, DLSScale(blk->scale));
-			break;
-		}
+		DLSDestination(blk);
 		printf("\n");
 	}
 }
