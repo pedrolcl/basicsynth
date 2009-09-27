@@ -2,6 +2,24 @@
 #include "OptionsDlg.h"
 #include "MainFrm.h"
 
+static int GetMIDIDevice(const char *name)
+{
+	if (*name == 0)
+		return -1;
+#ifdef _WIN32
+	UINT ndev = midiInGetNumDevs(); 
+	for (UINT n = 0; n < ndev; n++)
+	{
+		MIDIINCAPS caps;
+		memset(&caps, 0, sizeof(caps));
+		midiInGetDevCaps(n, &caps, sizeof(caps));
+		if (strcmp(caps.szPname, name) == 0)
+			return n;
+	}
+#endif
+	return 0;
+}
+
 static void OkCB(Fl_Widget *wdg, void *arg)
 {
 	((ProjectOptionsDlg*)arg)->OnOK();

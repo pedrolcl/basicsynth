@@ -48,4 +48,3 @@
 #include <NLConvert.h>
 #include <ComposerCore.h>
 
-extern int GetMIDIDevice(const char *name);

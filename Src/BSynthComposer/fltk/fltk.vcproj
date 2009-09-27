@@ -450,10 +450,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SynthProjectFltk.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\SynthWidgetFltk.cpp"
 				>
 				<FileConfiguration
