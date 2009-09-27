@@ -12,7 +12,7 @@
 
 void MixerItem::InitMixer()
 {
-	int kbdon = prjFrame->StopPlayer();
+	int kbdon = theProject->Stop();
 	if (mixChnl < 1)
 		SetMixerInputs(1, 0);
 
@@ -27,18 +27,18 @@ void MixerItem::InitMixer()
 	for (fxn = 0; fxn < fxUnits; fxn++)
 		effects[fxn]->InitMixer();
 	if (kbdon)
-		prjFrame->StartPlayer();
+		theProject->Start();
 }
 
 void MixerItem::ResetMixer()
 {
-	int kbdon = prjFrame->StopPlayer();
+	int kbdon = theProject->Stop();
 	theProject->mix.Reset();
 	int fxn;
 	for (fxn = 0; fxn < fxUnits; fxn++)
 		effects[fxn]->Reset();
 	if (kbdon)
-		prjFrame->StartPlayer();
+		theProject->Start();
 }
 
 void MixerItem::SetMasterVol(AmpValue lft, AmpValue rgt, int imm)
@@ -372,7 +372,7 @@ int MixerItem::LoadProperties(PropertyBox *pb)
 
 int MixerItem::SaveProperties(PropertyBox *pb)
 {
-	int play = prjFrame->StopPlayer();
+	int play = theProject->Stop();
 
 	long chnls = 0;
 	short panl = 0;
@@ -450,7 +450,7 @@ int MixerItem::SaveProperties(PropertyBox *pb)
 
 	theProject->SetChange(1);
 	if (play)
-		prjFrame->StartPlayer();
+		theProject->Start();
 
 	return 1;
 }
@@ -610,13 +610,13 @@ int FxItem::ItemProperties()
 	PropertyBox *pb = prjFrame->CreatePropertyBox(this, 0);
 	if (pb)
 	{
-		int play = prjFrame->StopPlayer();
+		int play = theProject->Stop();
 		ok = pb->Activate(1);
 		delete pb;
 		if (ok)
 			InitMixer();
 		if (play)
-			prjFrame->StartPlayer();
+			theProject->Start();
 	}
 	return ok;
 }
