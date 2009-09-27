@@ -71,16 +71,6 @@ int WavetableItem::ItemProperties()
 	return ok;
 }
 
-int WavetableItem::RemoveItem()
-{
-	int ok = ProjectItem::RemoveItem();
-	if (ok)
-	{
-		// TODO: set synthitem wt count
-	}
-	return ok;
-}
-
 int WavetableItem::LoadProperties(PropertyBox *pb)
 {
 	pb->SetValue(PROP_NAME, name, 0);

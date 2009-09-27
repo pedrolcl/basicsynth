@@ -102,21 +102,15 @@ int LibfileItem::CopyItem()
 
 int LibfileItem::RemoveItem()
 {
-	if (prjFrame->Verify("Remove library from project?", "Wait...") == 1)
+	ProjectItem *instr = 0;
+	while ((instr = prjTree->FirstChild(this)) != 0)
 	{
-		ProjectItem *instr = prjTree->FirstChild(this);
-		while (instr)
-		{
-			prjTree->RemoveNode(instr);
-			if (instr->GetType() == PRJNODE_INSTR)
-				((InstrItem*)instr)->RemoveInstr();
-			delete instr;
-			instr = prjTree->FirstChild(this);
-		}
-		theProject->SetChange(1);
-		return 1;
+		prjTree->RemoveNode(instr);
+		if (instr->GetType() == PRJNODE_INSTR)
+			((InstrItem*)instr)->RemoveInstr();
+		delete instr;
 	}
-	return 0;
+	return 1;
 }
 
 int LibfileItem::SaveItem()

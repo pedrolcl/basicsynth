@@ -11,7 +11,7 @@
 
 int ProjectItem::RemoveItem()
 {
-	bsString prompt;
+/*	bsString prompt;
 	prompt = "Remove item '";
 	prompt += name;
 	prompt += "'?";
@@ -20,7 +20,8 @@ int ProjectItem::RemoveItem()
 		theProject->SetChange(1);
 		return 1;
 	}
-	return 0;
+	return 0;*/
+	return 1;
 }
 
 int ProjectItem::CloseItem()

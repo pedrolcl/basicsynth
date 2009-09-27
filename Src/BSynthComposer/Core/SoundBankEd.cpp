@@ -93,6 +93,7 @@ void SoundBankEdit::ValueChanged(SynthWidget *wdg)
 	}
 }
 
+// Not currently used...
 void SoundBankEdit::ListPitches(float bnum, float pnum)
 {
 	static char *pitltr[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
@@ -189,17 +190,17 @@ void GMPlayerEdit::ValueChanged(SynthWidget *wdg)
 				wdg->SetText(gm->GetSoundFile());
 				Redraw(wdg);
 			}
-			wdg = mainGroup->FindIP(18);
-			if (wdg)
-			{
-				gm->GetParam(18, &val);
-				wdg->SetValue(val);
-				Redraw(wdg);
-			}
 			wdg = mainGroup->FindIP(19);
 			if (wdg)
 			{
 				gm->GetParam(19, &val);
+				wdg->SetValue(val);
+				Redraw(wdg);
+			}
+			wdg = mainGroup->FindIP(20);
+			if (wdg)
+			{
+				gm->GetParam(20, &val);
 				wdg->SetValue(val);
 				Redraw(wdg);
 			}

@@ -158,17 +158,8 @@ int InstrItem::CopyItem()
 
 int InstrItem::RemoveItem()
 {
-	bsString msg;
-	msg = "Remove instrument ";
-	msg += name;
-	msg += '?';
-	if (prjFrame->Verify(msg, "Wait...") == 1)
-	{
-		RemoveInstr();
-		theProject->SetChange(1);
-		return 1;
-	}
-	return 0;
+	RemoveInstr();
+	return 1;
 }
 
 void InstrItem::RemoveInstr()

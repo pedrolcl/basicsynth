@@ -49,6 +49,13 @@ int SoundBankItem::LoadFile()
 		bnk->Lock();
 		SoundBank::SoundBankList.Insert(bnk);
 	}
+	else
+	{
+		bsString msg;
+		msg = "Failed to load sound bank ";
+		msg += name;
+		prjFrame->Alert(msg, "Ooops...");
+	}
 
 	return 0;
 }
@@ -84,21 +91,6 @@ int SoundBankItem::AddItem()
 		return 1;
 	}
 	delete inst;
-	return 0;
-}
-
-int SoundBankItem::EditItem()
-{
-	return 0;
-}
-
-int SoundBankItem::RemoveItem()
-{
-	if (prjFrame->Verify("Remove sound bank from project?", "Wait...") == 1)
-	{
-		theProject->SetChange(1);
-		return 1;
-	}
 	return 0;
 }
 

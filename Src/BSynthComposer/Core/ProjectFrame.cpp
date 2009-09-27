@@ -65,11 +65,22 @@ void ProjectFrame::CopyItem()
 void ProjectFrame::RemoveItem()
 {
 	ProjectItem *itm = prjTree->GetSelectedNode();
-	if (itm && itm->RemoveItem())
+	if(itm)
 	{
-		CloseEditor(itm);
-		prjTree->RemoveNode(itm);
-		delete itm;
+		bsString prompt;
+		prompt = "Remove item '";
+		prompt += itm->GetName();
+		prompt += "'?";
+		if (prjFrame->Verify(prompt, "Verify..."))
+		{
+			if (itm->RemoveItem())
+			{
+				CloseEditor(itm);
+				prjTree->RemoveNode(itm);
+				delete itm;
+				theProject->SetChange(1);
+			}
+		}
 	}
 }
 

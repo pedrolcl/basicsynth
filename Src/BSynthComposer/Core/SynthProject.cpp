@@ -38,7 +38,6 @@ void SynthProject::Init()
 	libPath = 0;
 	change = 0;
 
-//	seq.SetController(&prjMidiCtrl.seqControl);
 	seq.SetController(&prjMidiCtrl);
 	prjMidiIn.SetSequenceInfo(&seq, &mgr);
 	prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
@@ -388,9 +387,9 @@ int SynthProject::Load(XmlSynthElem *node)
 		child = sib;
 	}
 
-	bsString colorFile;
-	if (FindForm(colorFile, prjOptions.colorsFile))
-		SynthWidget::colorMap.Load(colorFile);
+//	bsString colorFile;
+//	if (FindForm(colorFile, prjOptions.colorsFile))
+//		SynthWidget::colorMap.Load(colorFile);
 	return 0;
 }
 
@@ -421,6 +420,8 @@ int SynthProject::Save(XmlSynthElem *node)
 	child->SetContent(wvInPath);
 	delete child;
 
+	libPath->Save(node);
+
 	synthInfo->Save(node);
 	midiInfo->Save(node);
 	wvoutInfo->Save(node);
@@ -444,9 +445,6 @@ int SynthProject::NewProject(const char *fname)
 	SetProjectPath(fname);
 	SetAuthor(prjOptions.defAuthor);
 	SetCopyright(prjOptions.defCopyright);
-	bsString colorFile;
-	if (FindForm(colorFile, prjOptions.colorsFile))
-		SynthWidget::colorMap.Load(colorFile);
 	int ok = ItemProperties();
 	synthInfo->NewProject();
 	mixInfo->SetMixerInputs(1, 0);
@@ -592,16 +590,15 @@ void SynthProject::SeqCallback(bsInt32 count, Opaque arg)
 
 void SynthProject::UpdateGenerator(bsInt32 count)
 {
-	AmpValue lftPeak;
-	AmpValue rgtPeak;
-	mix.Peak(lftPeak, rgtPeak);
-	prjGenerate->UpdatePeak(lftPeak, rgtPeak);
-	prjGenerate->UpdateTime(count);
-	if (prjGenerate->WasCanceled())
+	if (prjGenerate)
 	{
-//		if (prjGenerate)
-//			prjGenerate->AddMessage("Halting sequencer...");
-		seq.Halt();
+		AmpValue lftPeak;
+		AmpValue rgtPeak;
+		mix.Peak(lftPeak, rgtPeak);
+		prjGenerate->UpdatePeak(lftPeak, rgtPeak);
+		prjGenerate->UpdateTime(count);
+		if (prjGenerate->WasCanceled())
+			seq.Halt();
 	}
 }
 
@@ -612,7 +609,6 @@ int SynthProject::GenerateSequence(nlConverter& cvt)
 
 	mix.Reset();
 	seq.Reset();
-	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
 
 	int err = 0;
 	if (nlInfo)
@@ -652,7 +648,9 @@ int SynthProject::GenerateToFile(long from, long to)
 	}
 	if (prjGenerate)
 		prjGenerate->AddMessage("Start sequencer...");
+	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
 	seq.Sequence(mgr, from*synthParams.isampleRate, to*synthParams.isampleRate);
+	seq.SetCB(0, 0, 0);
 	wvoutInfo->CloseOutput(wvOut, &mix);
 
 	// reset in case of dynamic mixer control changes
@@ -660,80 +658,19 @@ int SynthProject::GenerateToFile(long from, long to)
 	return 0;
 }
 
-//////////////////////////////////////////////////////////
-// These are the platform-independent versions. They do
-// not include direct playback of the sequence or keyboard.
-// On a platform that supports direct playback to the 
-// sound card, set NO_LIVE_PLAY to 0, copy this code to
-// the platform specific library, and add the implementation
-// of playback. See SynthProjectWin for an example.
-// For command line programs that only generate wave files,
-// define NO_LiVE_PLAY to 1.
-//////////////////////////////////////////////////////////
-
-#if NO_LIVE_PLAY
-int SynthProject::Generate(int todisk, long from, long to)
+int SynthProject::PlayEvent(SeqEvent *evt)
 {
-	if (!todisk || !wvoutInfo)
-		return -1;
-	return GenerateToFile(from, to);
-}
+	if (seq.GetState() & seqPlay)
+	{
+		seq.AddImmediate(evt);
+		return 1;
+	}
 
-int SynthProject::Play()
-{
-	return 0;
-}
-
-int SynthProject::Stop()
-{
-	return 0;
-}
-
-int SynthProject::Pause()
-{
-	return 0;
-}
-
-int SynthProject::Resume()
-{
+	delete evt;
 	return 0;
 }
 
 int SynthProject::IsPlaying()
 {
-	return 0;
+	return seq.GetState() & seqPlay;
 }
-
-int SynthProject::PlayEvent(SeqEvent *evt)
-{
-	delete evt;
-	return 0;
-}
-
-#endif
-
-ProjectOptions::ProjectOptions()
-{
-	memset(installDir, 0, MAX_PATH);
-	memset(formsDir, 0, MAX_PATH);
-	strcpy(colorsFile, "Colors.xml");
-	memset(defAuthor, 0, MAX_PATH);
-	memset(defCopyright, 0, MAX_PATH);
-	memset(defPrjDir, 0, MAX_PATH);
-	memset(defLibDir, 0, MAX_PATH);
-	memset(defWaveIn, 0, MAX_PATH);
-	memset(defWaveOut, 0, MAX_PATH);
-	inclNotelist = 1;
-	inclSequence = 0;
-	inclScripts = 0;
-	inclTextFiles = 0;
-	inclLibraries = 0;
-	inclSoundFonts = 1;
-	inclInstr = 0xfff;
-	midiDevice = -1;
-	memset(midiDeviceName, 0, MAX_PATH);
-	memset(waveDevice, 0, MAX_PATH);
-	playBuf = 0.02;
-}
-
-// ProjectOptions Load and Save are platform specific

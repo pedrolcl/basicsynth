@@ -531,10 +531,8 @@ public:
 	}
 	virtual ~SoundBankItem();
 	virtual int ItemActions() { return actions; }
-	virtual int EditItem();
 	virtual int AddItem();
 	virtual int LoadFile();
-	virtual int RemoveItem();
 	virtual int LoadProperties(PropertyBox *pb);
 	virtual int SaveProperties(PropertyBox *pb);
 	virtual int Load(XmlSynthElem *node);
@@ -642,7 +640,6 @@ public:
 	virtual int CopyItem();
 	virtual int EditItem();
 	virtual int SaveItem();
-	virtual int RemoveItem();
 	virtual int ItemProperties();
 	virtual int LoadProperties(PropertyBox *pb);
 	virtual int SaveProperties(PropertyBox *pb);
@@ -669,8 +666,6 @@ public:
 
 	inline void SetID(short id) { wvid = id; }
 	inline short GetID() { return wvid; }
-
-	virtual int EditItem();
 
 	WaveFileIn *FindFile(bsInt16 id);
 	int LoadFile();
@@ -1125,9 +1120,9 @@ public:
 	}
 
 	static int FullPath(const char *fname);
-	void AddItem(const char *name);
-	void AddItem(PathListItem *itm);
-	void RemoveItem(const char *name);
+	virtual void AddItem(const char *name);
+	virtual void AddItem(PathListItem *itm);
+	virtual void RemoveItem(const char *name);
 	PathListItem* EnumList(PathListItem *itm);
 	int ResolvePath(FileItem *fi);
 	int FindOnPath(bsString& fullPath, const char *fname);

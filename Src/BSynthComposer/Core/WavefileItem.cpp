@@ -10,11 +10,6 @@
 #include "WindowTypes.h"
 #include "ProjectItem.h"
 
-int WavefileItem::EditItem()
-{
-	return 0;
-}
-
 int WavefileItem::LoadProperties(PropertyBox *pb)
 {
 	pb->SetValue(PROP_NAME, name, 0);

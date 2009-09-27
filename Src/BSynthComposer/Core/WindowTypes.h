@@ -49,7 +49,7 @@ public:
 class EditorView
 {
 private:
-	void *psdata;
+	void *psdata;  ///< Platform-specific data
 public:
 	EditorView() { psdata = 0; }
 	virtual ~EditorView() { }
