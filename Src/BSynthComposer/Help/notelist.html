@@ -903,6 +903,36 @@ following statement would cause C6 to refer to middle C.</p>
 integer, not an expression. Changing the octave of middle C only affects parsing and does not
 change the integer value for middle C passed to the synthesizer.</p>
 
+<h3><a name="midicc">MIDICC</a></h3>
+
+<p>Syntax: midicc <i>control, value</i>;</p>
+
+<p>The MIDICC statement emits a MIDI controller change message. 
+The <i>control</i> argument specifies the MIDI controller number. 
+The <i>value</i> argument is the value for the controller.
+Both control and value must be in the ragne 0-127.</p>
+
+<h3><a name="midipw">MIDIPW</a></h3>
+
+<p>Syntax: midipw <i>value</i>;</p>
+
+<p>The MIDIPW statement emits a MIDI pitch wheel change message. 
+The <i>value</i> argument is the raw pitch bend value and should be in the range +/-8192.</p>
+
+<h3><a name="midiprg">MIDIPRG</a></h3>
+
+<p>Syntax: midiprg <i>value</i>;</p>
+
+<p>The MIDIPRG statement emits a MIDI program change message. 
+The <i>value</i> argument is the program number in the range 0-127.</p>
+
+<h3><a name="midiat">MIDIAT</a></h3>
+
+<p>Syntax: midiat <i>value</i>;</p>
+
+<p>The MIDIAT statement emits a MIDI channel pressure (after touch) message. 
+The <i>value</i> argument is the range 0-127.</p>
+
 <h3><a name="mixer">MIXER</a></h3>
 
 <p>Syntax: mixer <i>mixfn,  mixop, [fxunit], start, [end, time, [freq, wt]]</i>;</p>
@@ -939,6 +969,8 @@ statement that does not begin with a keyword is considered a NOTE statement.
 The NOTE keyword can also be used to indicate a note.</p>
 
 <p>See the examples above for information on NOTE statements.</p>
+
+<p>For MIDI instruments, the volume value is passed to the instrument as the note-on velocity.</p>
 
 <h3><a name="play">PLAY</a></h3>
 

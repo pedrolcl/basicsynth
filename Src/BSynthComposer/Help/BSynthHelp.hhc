@@ -120,6 +120,10 @@
 			<param name="Local" value="modsynthinstr.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="General MIDI Instrument">
+			<param name="Local" value="gminstr.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Instrument Libraries">
 			<param name="Local" value="libraries.html">
 			</OBJECT>
@@ -151,7 +155,7 @@
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Expressions">
-			<param name="Local" value="Notelist.html#nlexpr">
+			<param name="Local" value="Notelist.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Examples">
@@ -230,6 +234,22 @@
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="MIDDLEC">
 			<param name="Local" value="Notelist.html#middlec">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MIDIAT">
+			<param name="Local" value="Notelist.html#midiat">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MIDICC">
+			<param name="Local" value="Notelist.html#midicc">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MIDIPRG">
+			<param name="Local" value="Notelist.html#midiprg">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MIDIPW">
+			<param name="Local" value="Notelist.html#midipw">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="MIXER">
