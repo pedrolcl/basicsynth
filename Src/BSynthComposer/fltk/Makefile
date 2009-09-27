@@ -12,15 +12,16 @@ OptionsDlg.o \
 ProjectTreeFltk.o \
 PropertiesDlgFltk.o \
 SoundBankSelectFltk.o \
-SynthProjectFltk.o \
 SynthWidgetFltk.o \
 TabsView.o \
 TextEditorFltk.o \
 WvtableSelectDlg.o
 
-fltk: $(OBJS) $(CMNLIB) $(NLLIB) $(INSTLIB)
+CORELIB=../Lib/core.a
+
+fltk: $(OBJS) $(CMNLIB) $(NLLIB) $(INSTLIB) $(CORELIB)
 	$(CPP) $(XMLLIB) $(CPPFLAGS) -o $@ $(OBJS) \
-		../Lib/core.a -lfltk -lfltk_images \
+		$(CORELIB) -lfltk -lfltk_images \
 		$(NLLIB) $(INSTLIB) $(CMNLIB) -lasound -lm
 		
 clean:
@@ -52,7 +53,8 @@ MainMenu.o: \
 
 OptionsDlg.o: \
 	OptionsDlg.cpp \
-	OptionsDlg.h
+	OptionsDlg.h \
+	../Core/ProjectOptions.h
 
 ProjectTreeFltk.o: \
 	ProjectTreeFltk.cpp \
@@ -65,9 +67,6 @@ PropertiesDlgFltk.o: \
 SoundBankSelectFltk.o: \
 	SoundBankSelectFltk.cpp \
 	SoundBankSelectFltk.h
-
-SynthProjectFltk.o: \
-	SynthProjectFltk.cpp
 
 SynthWidgetFltk.o: \
 	SynthWidgetFltk.cpp
