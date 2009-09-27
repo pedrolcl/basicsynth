@@ -1740,16 +1740,11 @@ nlScriptNode *nlMidiNode::Exec()
 	nlScriptNode *np = next->Exec();
 	long val1 = 0;
 	long val2 = 0;
-	next->GetValue(&val1);
-	switch (mmsg )
+	next->GetValue(&val2);
+	if (mmsg == MIDI_CTLCHG)
 	{
-	case MIDI_CHNAT:
-	case MIDI_PRGCHG:
-	case MIDI_PWCHG:
-		val2 = val1;
-		val1 = 0;
-		break;
-	case MIDI_CTLCHG:
+		val1 = val2;
+		val2 = 0;
 		if (np->GetToken() == T_COMMA)
 		{
 			nlScriptNode *vp;
@@ -1761,7 +1756,6 @@ nlScriptNode *nlMidiNode::Exec()
 			else
 				np = NULL;
 		}
-		break;
 	}
 	nlConverter *cvt = genPtr->GetConverter();
 	if (cvt)
