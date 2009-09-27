@@ -16,37 +16,7 @@
 # endif
 #endif
 
-class ProjectOptions
-{
-public:
-	char installDir[MAX_PATH];
-	char formsDir[MAX_PATH];
-	char colorsFile[MAX_PATH];
-	char defAuthor[MAX_PATH];
-	char defCopyright[MAX_PATH];
-	char defPrjDir[MAX_PATH];
-	char defLibDir[MAX_PATH];
-	char defWaveIn[MAX_PATH];
-	char defWaveOut[MAX_PATH];
-	int inclNotelist;
-	int inclSequence;
-	int inclScripts;
-	int inclTextFiles;
-	int inclLibraries;
-	int inclSoundFonts;
-	int inclInstr;
-	int midiDevice;
-	char midiDeviceName[MAX_PATH];
-	char waveDevice[MAX_PATH];
-	float playBuf;
-
-	ProjectOptions();
-	void Load();
-	void Save();
-};
-
-extern ProjectOptions prjOptions;
-
+#include "ProjectOptions.h"
 #include "WindowTypes.h"
 #include "ProjectItem.h"
 #include "SynthWidget.h"
