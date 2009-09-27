@@ -19,7 +19,7 @@
 
 class GMManager;
 
-#define GMGEN_DEF (SBGEN_PITWHLF|SBGEN_MODWHLF|SBGEN_MODWHLA)
+#define GMGEN_DEF (SBGEN_PITWHLF|SBGEN_VIBLFOF|SBGEN_MODWHLF|SBGEN_MODWHLA)
 
 /// @brief GM sound player
 /// @detail The GM player implements playback of a SoundBank sample.
@@ -55,6 +55,7 @@ private:
 		EnvGenSF  modEnv;   ///< modulation envelope (EG2)
 		GenWaveWT viblfo;   ///< LF pitch variation
 		GenWaveWT modlfo;   ///< LF amplitude variation
+		FilterIIR2p filt;
 		Panner pan;
 		bsInt32 genFlags;   ///< map of generators that are operational
 		bsInt32 vibDelay;   ///< delay before vibrato begins to affect output

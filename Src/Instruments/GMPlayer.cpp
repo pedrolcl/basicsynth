@@ -2,7 +2,16 @@
 /// @file GMPlayer.cpp Implementation of the General MIDI player
 //
 // This instrument provides an emulation of a MIDI keyboard using
-/// SoundFont GM file.
+// SoundFont GM file.
+//
+// The implementation is partial:
+//  - only some CC values are used
+//  - filters are not dynamic
+//  - modulators (other than defaults) are not implemented
+//  - effects send is not implemented
+//  - pan is set at note-on and not dynamic
+// Well-known modulators (MOD wheel, expression, and breath controllers)
+// are "unrolled" and implemented by flags and member variables.
 //
 // Copyright 2009, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
@@ -28,14 +37,18 @@ Instrument *GMManager::InstrFactory(InstrManager *m, Opaque tmplt)
 	return ip;
 }
 
+// load a template from the project file
 Opaque GMManager::TmpltFactory(XmlSynthElem *tmplt)
 {
 	GMManager *gm = new GMManager;
 	if (tmplt)
 		gm->Load(tmplt);
+	else
+		gm->SetSoundBank(SoundBank::DefaultBank());
 	return gm;
 }
 
+// destroy the template
 void GMManager::TmpltDump(Opaque tmplt)
 {
 	GMManager *gm = (GMManager *)tmplt;
@@ -60,7 +73,7 @@ GMManager::GMManager()
 	panValue = 0.0;
 	bankValue = 0;
 	progValue = 0;
-	genFlags = 0xffffffff;
+	genFlags = GMGEN_DEF;
 }
 
 GMManager::~GMManager()
@@ -345,6 +358,7 @@ void GMPlayer::SetSoundBank(SoundBank *s)
 	sndbnk = s;
 	if (sndbnk) 
 		sndbnk->Lock();
+	instr = 0;
 }
 
 /// Start playing a note.
@@ -364,7 +378,8 @@ void GMPlayer::Start(SeqEvent *se)
 	sostenuto = midiCtrl->GetCC(chnl, 67) > 64;
 	AmpValue panCC = gm->GetPan(chnl);
 
-	instr = sndbnk->GetInstr(gm->GetBank(chnl), gm->GetPatch(chnl));
+	if (sndbnk)
+		instr = sndbnk->GetInstr(gm->GetBank(chnl), gm->GetPatch(chnl));
 	if (instr)
 	{
 		if (instr->fixedKey != -1)
@@ -382,7 +397,6 @@ void GMPlayer::Start(SeqEvent *se)
 				zoneList = pz;
 
 				pz->genFlags = (zone->genFlags | GMGEN_DEF) & gm->GetGenFlags();
-				// pz->genFlags = zone->genFlags & gm->GetGenFlags();
 
 				pz->osc.InitWTLoop(frq, zone->recFreq, zone->rate, zone->tableEnd, 
 					   zone->loopStart, zone->loopEnd, zone->mode, zone->sample->sample);
@@ -395,6 +409,16 @@ void GMPlayer::Start(SeqEvent *se)
 				if (pz->genFlags & SBGEN_MODENVF)
 					pz->modEnv.InitEnv(&zone->modEg, mkey, novel);
 				pz->pan.Set(panSqr, zone->pan + panCC);
+				// TODO: convert SF2/DLS filter 'q' to resonance and gain
+				// we can then calculate a0, b0, and b1 right here...
+				// pz->filt.InitFilter(a0, b0, b1);
+				if (pz->genFlags & SBGEN_FILTER)
+				{
+					if (zone->filtFreq == 0 || zone->filtFreq >= 20000)
+						pz->genFlags &= ~SBGEN_FILTER;
+					else
+						pz->filt.CalcCoef(zone->filtFreq, 1.0);
+				}
 				allFlags |= pz->genFlags;
 				exclNote = zone->exclNote;
 			}
@@ -483,6 +507,7 @@ void GMPlayer::Tick()
 	AmpValue vol = gm->GetVolume(chnl);
 	AmpValue mwCC = midiCtrl->GetCCN(chnl, MIDI_CTRL_MOD);
 
+	// process each zone
 	do
 	{
 		SBZone *zone = pz->zone;
@@ -497,7 +522,7 @@ void GMPlayer::Tick()
 				frqPC += pbCC;
 			if (genFlags & SBGEN_MODENVF)
 				frqPC += pz->modEnv.Gen() * zone->modEnvFrq;
-			if (genFlags & SBGEN_MODWHLX)
+			if (genFlags & SBGEN_MODWHLX && mwCC != 0)
 			{
 				mwFrq = mwCC * zone->mwfScale;
 				mwAmp = mwCC * zone->mwaScale;
@@ -527,13 +552,22 @@ void GMPlayer::Tick()
 				ampCB += (zone->bthaScale * midiCtrl->GetCCN(chnl, MIDI_CTRL_BRTH));
 			if (genFlags & SBGEN_EXPRAMP)
 				ampCB += (zone->expaScale * midiCtrl->GetCCN(chnl, MIDI_CTRL_EXPR));
+
+			pz->osc.UpdateFrequency(frq * synthParams.GetCentsMult((int)frqPC));
 		}
 
-		pz->osc.UpdateFrequency(frq * synthParams.GetCentsMult((int)frqPC));
-		AmpValue out = pz->osc.Gen() * vol * synthParams.AttenCB((int)ampCB);
+		// run the oscillator
+		AmpValue out = pz->osc.Gen();
+
+		if (genFlags & SBGEN_FILTER)
+			out = pz->filt.Sample(out);
+
+		// apply attenuation and panning
+		out *= vol * synthParams.AttenCB((int)ampCB);
 		outLeft  += out * pz->pan.panlft;
 		outRight += out * pz->pan.panrgt;
 	} while ((pz = pz->next) != 0);
+	// TODO: apply reverb/chorus
 	im->Output2(chnl, outLeft, outRight);
 }
 
@@ -541,5 +575,8 @@ void GMPlayer::Destroy()
 {
 	Remove();
 	delete this;
+	// optional: keep a list of players and recycle them
+	// Reset();
+	// Add to free list.
 }
 
