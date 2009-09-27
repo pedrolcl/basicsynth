@@ -46,7 +46,7 @@ WaveOutDirect::~WaveOutDirect()
 
 void WaveOutDirect::Stop()
 {
-	if (dirSndBuf)
+	if (dirSndBuf && outState != 0)
 	{
 		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
 		dirSndBuf->Stop();
@@ -153,7 +153,6 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
 	if (dirSndObj->CreateSoundBuffer(&dsbd, &dirSndBuf, NULL) != S_OK)
 		return -1;
 
-	outState = 1;
 	nextWrite = 0;
 	// when we must wait, we wait 1/4 of a block length
 	// ms = leadtm * 0.25 * 1000
@@ -173,6 +172,7 @@ int WaveOutDirect::Setup(HWND w, float leadtm, int nb, GUID *dev)
 	// Lock the first block
 	if (dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0) != S_OK)
 		return -1;
+	outState = 1;
 	channels = 2;
 	samples = (SampleValue *) startLock;
 	nxtSamp = samples;
@@ -186,8 +186,11 @@ void WaveOutDirect::Shutdown()
 {
 	if (dirSndBuf)
 	{
-		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-		dirSndBuf->Stop();
+		if (outState != 0)
+		{
+			dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
+			dirSndBuf->Stop();
+		}
 		dirSndBuf->Release();
 		dirSndBuf = 0;
 	}
@@ -196,6 +199,7 @@ void WaveOutDirect::Shutdown()
 		dirSndObj->Release();
 		dirSndObj = 0;
 	}
+	outState = 0;
 }
 
 // NB: we always leave this function with a portion of the
