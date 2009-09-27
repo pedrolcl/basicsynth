@@ -44,6 +44,10 @@ MainFrame::~MainFrame()
 
 void MainFrame::resize(int X, int Y, int W, int H)
 {
+	prjOptions.frmLeft = X;
+	prjOptions.frmTop = Y;
+	prjOptions.frmWidth = W;
+	prjOptions.frmHeight = H;
 	Fl_Double_Window::resize(X, Y, W, H);
 	if (mnu)
 	{
@@ -274,6 +278,10 @@ int MainFrame::BrowseFile(int open, bsString& file, const char *spec, const char
 
 void MainFrame::AfterOpenProject()
 {
+	bsString colorsFile;
+	if (theProject->FindForm(colorsFile, prjOptions.colorsFile))
+		SynthWidget::colorMap.Load(colorsFile);
+
 	mnu->EnableProject(1);
 	mnu->CheckProject(1);
 	mnu->CheckKeyboard(1);
