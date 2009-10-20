@@ -63,6 +63,9 @@ int SynthProject::Generate(int todisk, long from, long to)
 		prjGenerate->AddMessage("Start sequencer...");
 	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
 
+	// For now, if MIDI is currently active, allow playing along
+	// with the sequence. This might need to be changed to a separate
+	// option.
 	if (theProject->prjMidiIn.IsOn())
 		oldState |= seqPlay;
 
@@ -72,18 +75,30 @@ int SynthProject::Generate(int todisk, long from, long to)
 	bsInt32 toSamp = to*synthParams.isampleRate;
 	if (seq.GetTrackCount() > 1 || oldState & seqPlay)
 		seq.SequenceMulti(mgr, fromSamp, toSamp, seqSeqOnce | (oldState & seqPlay));
-	else
+	else // optimal single track playback
 		seq.Sequence(mgr, fromSamp, toSamp);
 	seq.SetCB(0, 0, 0);
 	wop = 0;
 
 	AmpValue lv, rv;
-	long pad = (long) (synthParams.sampleRate * prjOptions.playBuf) * nbuf;
-	while (pad-- > 0)
+	long pad;
+	if (wvoutInfo)
 	{
-		mix.Out(&lv, &rv);
-		wvd.Output2(lv, rv);
+		pad = (long) (wvoutInfo->GetTailOut() * synthParams.sampleRate);
+		while (pad-- > 0)
+		{
+			mix.Out(&lv, &rv);
+			wvd.Output2(lv, rv);
+		}
 	}
+
+	// Drain all output by filling the output buffer with zeros.
+	lv = 0;
+	rv = 0;
+	pad = (long) (synthParams.sampleRate * prjOptions.playBuf) * nbuf;
+	while (pad-- > 0)
+		wvd.Output2(lv, rv);
+
 	wvd.Shutdown();
 
 	// re-initialize in case of dynamic mixer control changes
@@ -92,6 +107,8 @@ int SynthProject::Generate(int todisk, long from, long to)
 	return 0;
 }
 
+// Start live playback from keyboard (virtual and/or MIDI).
+// This runs as a background thread. (See Start/Stop below)
 int SynthProject::Play()
 {
 #ifdef _WIN32
@@ -107,6 +124,7 @@ int SynthProject::Play()
 	mix.Reset();
 	mgr.Init(&mix, &wvd);
 	wop = &wvd;
+	// TODO: set a callback to capture the peak output levels.
 	seq.SetCB(0, 0, 0);
 	seq.Play(mgr);
 	wop = 0;
@@ -179,6 +197,12 @@ int SynthProject::Stop()
 }
 #endif
 
+// Pause sequencer playback. First signal the sequencer
+// and then halt the live output buffer. It's important
+// to wait for the sequencer to enter the pause
+// state before stopping output. Otherwise you can get
+// into a deadlock where the sequencer is waiting on the
+// output buffer.
 int SynthProject::Pause()
 {
 	if (seq.GetState() != seqPaused)
@@ -193,6 +217,8 @@ int SynthProject::Pause()
 	return 0;
 }
 
+// Resume sequencer playback. First restart the output
+// buffer then signal the sequencer to continue.
 int SynthProject::Resume()
 {
 	if (seq.GetState() == seqPaused)
