@@ -38,6 +38,7 @@ nlConverter::nlConverter()
 	curMap = 0;
 	symbList = NULL;
 	mixInstr = -1;
+	canceled = 0;
 }
 
 nlConverter::~nlConverter()

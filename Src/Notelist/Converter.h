@@ -233,6 +233,7 @@ protected:
 	double sampleRate;
 	long evtID1;
 	long evtID2;
+	int canceled;
 
 	void MakeEvent(int evtType, double start, double dur);
 
@@ -323,6 +324,16 @@ public:
 	nlScriptEngine *GetScriptEngine()
 	{ 
 		return eng;
+	}
+
+	void Cancel()
+	{
+		canceled = 1;
+	}
+
+	int WasCanceled()
+	{
+		return canceled;
 	}
 
 //protected:
