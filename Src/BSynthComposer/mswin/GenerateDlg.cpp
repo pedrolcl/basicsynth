@@ -55,11 +55,10 @@ LRESULT GenerateDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	return TRUE;
 }
 
-LRESULT GenerateDlg::OnStart(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT GenerateDlg::OnStart(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	prjFrame->GenerateStarted();
 	EnableOK(0, 0);
-	//ed.AppendText("Generating...\r\n");
 	ed.AppendText("---------- Start ----------\r\n");
 	canceled = 0;
 
@@ -96,11 +95,9 @@ LRESULT GenerateDlg::OnStart(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, B
 		if (!SetThreadPriority(genThreadH, THREAD_PRIORITY_HIGHEST))
 			OutputDebugString("Can't up priority\r\n");
 		ResumeThread(genThreadH);
+		CheckDlgButton(IDC_PAUSE, BST_UNCHECKED);
+		EnableOK(0, 1);
 	}
-	//genAuto = 0;
-	CheckDlgButton(IDC_PAUSE, BST_UNCHECKED);
-	EnableOK(0, 1);
-
 	return 0;
 }
 
@@ -111,11 +108,19 @@ LRESULT GenerateDlg::OnStop(WORD cd, WORD wID, HWND hwnd, BOOL& bHandled)
 	ed.AppendText(lastMsg);
 	lastMsg = "";
 	canceled = 1;
+	try
+	{
+		if (theProject->cvtActive)
+			theProject->cvtActive->Cancel();
+	}
+	catch(...)
+	{
+	}
 	LeaveCriticalSection(&guard);
 	return 0;
 }
 
-LRESULT GenerateDlg::OnPause(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT GenerateDlg::OnPause(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	if (IsDlgButtonChecked(IDC_PAUSE))
 	{

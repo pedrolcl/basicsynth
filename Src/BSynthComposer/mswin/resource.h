@@ -295,6 +295,8 @@
 #define IDC_BROWSE_COLORS               1180
 #define IDC_ALLTEXT                     1181
 #define IDC_INCL_SOUNDFONTS             1181
+#define IDC_INCL_SOUNDFONTS2            1182
+#define IDC_INCL_MIDI                   1182
 #define IDC_ITEM_NAME                   1184
 #define IDC_ITEM_DESCR                  1185
 #define IDC_GENERATE                    1187
@@ -331,7 +333,6 @@
 #define IDC_SB_FILE                     1224
 #define IDC_SB_BANK                     1225
 #define IDC_SB_PRESET                   1226
-#define IDC_PRELOAD                     1229
 #define IDC_SB_PRELOAD                  1229
 #define IDC_SB_SCALE                    1230
 #define ID_WINDOW_CLOSE                 32772

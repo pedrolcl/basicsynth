@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 
+#ifdef _OLD_STUFF_
 // This object is set when the keyboard player is active.
 // it is accessible from multiple threads.
 static HANDLE genThreadH = INVALID_HANDLE_VALUE;
@@ -45,6 +46,7 @@ int SynthProject::Generate(int todisk, long from, long to)
 
 	if (prjGenerate)
 		prjGenerate->AddMessage("Start sequencer...");
+	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
 
 	// Generate the output...
 	wop = &wvd;
@@ -54,6 +56,7 @@ int SynthProject::Generate(int todisk, long from, long to)
 		seq.SequenceMulti(mgr, fromSamp, toSamp, seqSeqOnce | (oldState & seqPlay));
 	else
 		seq.Sequence(mgr, fromSamp, toSamp);
+	seq.SetCB(0, 0, 0);
 	wop = 0;
 
 	AmpValue lv, rv;
@@ -87,6 +90,7 @@ int SynthProject::Play()
 		return 0;
 	//ATLTRACE("Starting live playback...\n");
 	wop = &wvd;
+	seq.SetCB(0,0,0);
 	seq.Play(mgr);
 	wop = 0;
 	//ATLTRACE("Stopping live playback...");
@@ -130,11 +134,16 @@ int SynthProject::Stop()
 
 int SynthProject::Pause()
 {
-	if (seq.GetState() != seqPaused)
+	SeqState state = seq.GetState();
+	if (state & (seqSequence|seqPlay))
 	{
 		seq.Pause();
-		while (seq.GetState() != seqPaused)
+		while ((state = seq.GetState()) != seqPaused)
+		{
+			if (state == seqOff)
+				break;
 			Sleep(0);
+		}
 		if (wop)
 			wop->Stop();
 		return 1;
@@ -153,21 +162,4 @@ int SynthProject::Resume()
 	}
 	return 0;
 }
-
-int SynthProject::PlayEvent(SeqEvent *evt)
-{
-	if (seq.GetState() & seqPlay)
-	{
-		seq.AddImmediate(evt);
-		return 1;
-	}
-
-	delete evt;
-	return 0;
-}
-
-int SynthProject::IsPlaying()
-{
-	return seq.GetState() & seqPlay;
-}
-
+#endif

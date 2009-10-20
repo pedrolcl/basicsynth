@@ -517,10 +517,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SynthProjectWin.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\SynthWidgetWin.cpp"
 				>
 			</File>

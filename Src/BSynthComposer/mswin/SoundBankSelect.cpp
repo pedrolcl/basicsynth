@@ -39,16 +39,16 @@ int SelectSoundBankPreset(GMManager *gm)
 
 	float val;
 	dlg.fileID = gm->GetSoundFile();
-	gm->GetParam(18, &val);
-	dlg.bnkNum = (bsInt16) val;
 	gm->GetParam(19, &val);
+	dlg.bnkNum = (bsInt16) val;
+	gm->GetParam(20, &val);
 	dlg.insNum = (bsInt16) val;
 
 	if (dlg.DoModal() == IDOK)
 	{
 		gm->SetSoundFile(dlg.fileID);
-		gm->SetParam(18, (float) dlg.bnkNum);
-		gm->SetParam(19, (float) dlg.insNum);
+		gm->SetParam(19, (float) dlg.bnkNum);
+		gm->SetParam(20, (float) dlg.insNum);
 		return 1;
 	}
 	return 0;

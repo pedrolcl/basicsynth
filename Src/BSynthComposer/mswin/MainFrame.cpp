@@ -86,9 +86,6 @@ BOOL MainFrame::OnIdle()
 LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	_Module.mainWnd = m_hWnd;
-	LoadString(_Module.GetResourceInstance(), IDS_PRODUCT, _Module.ProductName, 80);
-	prjOptions.Load();
-
 
 	RECT rcMain;
 	GetClientRect(&rcMain);
@@ -333,6 +330,10 @@ void MainFrame::AfterOpenProject()
 		return; // huh?
 	}
 
+	bsString colorFile;
+	if (theProject->FindForm(colorFile, prjOptions.colorsFile))
+		SynthWidget::colorMap.Load(colorFile);
+
 	kbdWnd.Load();
 
 	bsString path;
@@ -490,15 +491,21 @@ LRESULT MainFrame::OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 LRESULT MainFrame::OnSuspend(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	StopPlayer();
-	SaveTemp(1);
+	if (wParam == PBT_APMSUSPEND)
+	{
+		StopPlayer();
+		SaveTemp(1);
+	}
 	return 0;
 }
 
 LRESULT MainFrame::OnTerminate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	StopPlayer();
-	SaveTemp(1);
+	if (wParam)
+	{
+		StopPlayer();
+		SaveTemp(1);
+	}
 	return 0;
 }
 
@@ -538,7 +545,13 @@ LRESULT MainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandl
 	{
 		SaveTemp(0);
 		mruList.WriteToRegistry(mruRegKey);
-		prjOptions.Save();
+		WINDOWPLACEMENT plc;
+		GetWindowPlacement(&plc);
+		prjOptions.frmLeft = plc.rcNormalPosition.left;
+		prjOptions.frmTop = plc.rcNormalPosition.top;
+		prjOptions.frmWidth = plc.rcNormalPosition.right - plc.rcNormalPosition.left;
+		prjOptions.frmHeight = plc.rcNormalPosition.bottom - plc.rcNormalPosition.top;
+		prjOptions.frmMax = plc.showCmd == SW_SHOWMAXIMIZED;
 		DestroyWindow();
 	}
 	return 0;
@@ -676,11 +689,7 @@ LRESULT MainFrame::OnItemErrors(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 /// Show the generate dialog to produce sound output.
 LRESULT MainFrame::OnProjectGenerate(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	int wasPlaying = StopPlayer();
-	GenerateDlg dlg;
-	dlg.DoModal();
-	if (wasPlaying)
-		StartPlayer();
+	Generate(0, -1);
 	return 0;
 }
 
@@ -1536,6 +1545,9 @@ void MainFrame::GenerateFinished()
 
 void MainFrame::Generate(int autoStart, int todisk)
 {
+	if (!theProject)
+		return;
+
 	int wasPlaying = StopPlayer();
 	GenerateDlg dlg(autoStart, todisk);
 	dlg.DoModal(m_hWnd);

@@ -114,8 +114,9 @@ KeyboardDlg2::~KeyboardDlg2()
 
 void KeyboardDlg2::Load()
 {
-	form = new KeyboardForm();
-	form->SetFormEditor(this);
+	if (!theProject) // "cannot happen?"
+		return;
+
 	wdgColor clr;
 	if (SynthWidget::colorMap.Find("bg", clr))
 		bgColor.SetValue((ARGB)clr);
@@ -126,8 +127,10 @@ void KeyboardDlg2::Load()
 	}
 	else
 	{
+		form = new KeyboardForm();
+		form->SetFormEditor(this);
 		wdgRect a;
-		if (form->Load(fileName, 0, 0) == 0)
+		if (form->Load(fileName, 0, 0) == 0 && form->GetKeyboard())
 		{
 			SynthWidget *wdg = form->GetInstrList();
 			if (wdg)
@@ -159,6 +162,8 @@ void KeyboardDlg2::Load()
 			msg = "Could not load keyboard form: ";
 			msg += fileName;
 			prjFrame->Alert(msg, "Huh?");
+			delete form;
+			form = 0;
 		}
 	}
 }
@@ -254,7 +259,7 @@ LRESULT KeyboardDlg2::OnInstrChange(WORD wNotifyCode, WORD wID, HWND hWndCtl, BO
 		ic = (InstrConfig*)instrList.GetItemDataPtr(sel);
 	if (form)
 		form->GetKeyboard()->SetInstrument(ic);
-	if (ic)
+	if (ic && theProject)
 		theProject->prjMidiIn.SetInstrument(ic->inum);
 	return 0;
 }
@@ -287,7 +292,8 @@ void KeyboardDlg2::Clear()
 		form->Stop();
 		form->GetKeyboard()->SetInstrument(0);
 	}
-	theProject->prjMidiIn.SetInstrument(0);
+	if (theProject)
+		theProject->prjMidiIn.SetInstrument(0);
 	instrList.ResetContent();
 }
 
@@ -342,7 +348,7 @@ void KeyboardDlg2::SelectInstrument(InstrConfig *ic)
 			instrList.SetCurSel(ndx);
 			if (form)
 				form->GetKeyboard()->SetInstrument(ic);
-			if (ic)
+			if (ic && theProject)
 				theProject->prjMidiIn.SetInstrument(ic->inum);
 			break;
 		}

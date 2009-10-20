@@ -33,6 +33,7 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	CheckDlgButton(IDC_INCL_TEXTFILES, prjOptions.inclTextFiles);
 	CheckDlgButton(IDC_INCL_LIBRARIES, prjOptions.inclLibraries);
 	CheckDlgButton(IDC_INCL_SOUNDFONTS, prjOptions.inclSoundFonts);
+	CheckDlgButton(IDC_INCL_MIDI, prjOptions.inclMIDI);
 	SetDlgItemText(IDC_DEF_PROJECTS, prjOptions.defPrjDir);
 	SetDlgItemText(IDC_DEF_WAVEIN, prjOptions.defWaveIn);
 	SetDlgItemText(IDC_DEF_FORMS, prjOptions.formsDir);
@@ -137,6 +138,7 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 	prjOptions.inclTextFiles = IsDlgButtonChecked(IDC_INCL_TEXTFILES);
 	prjOptions.inclLibraries = IsDlgButtonChecked(IDC_INCL_LIBRARIES);
 	prjOptions.inclSoundFonts = IsDlgButtonChecked(IDC_INCL_SOUNDFONTS);
+	prjOptions.inclMIDI = IsDlgButtonChecked(IDC_INCL_MIDI);
 	GetDlgItemText(IDC_DEF_PROJECTS, prjOptions.defPrjDir, MAX_PATH);
 	GetDlgItemText(IDC_DEF_WAVEIN, prjOptions.defWaveIn, MAX_PATH);
 	GetDlgItemText(IDC_DEF_FORMS, prjOptions.formsDir, MAX_PATH);
@@ -158,7 +160,8 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 		GetDlgItemText(IDC_MIDI_IN, prjOptions.midiDeviceName, MAX_PATH);
 
 	waveDev.GetWindowText(prjOptions.waveDevice, MAX_PATH);
-	theProject->prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
+	if (theProject)
+		theProject->prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
 
 	prjOptions.Save();
 
