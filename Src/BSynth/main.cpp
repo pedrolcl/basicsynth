@@ -624,7 +624,7 @@ public:
 			lastOOR = 0;
 			if (!silent)
 				seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
-			seq.SetController(&midiCtl.seqControl);
+			seq.SetController(&midiCtl);
 			int n = seq.Sequence(mgr);
 			pad = (long) (synthParams.isampleRate * tail);
 			while (pad-- > 0)

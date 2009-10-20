@@ -136,12 +136,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example9a", "Examples\Examp
 		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GMSynth", "GMSynth\GMSynth.vcproj", "{18853A74-F3A8-4429-A3BE-669B48F144EE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E3932F06-DA1D-42A8-95AB-B3469B90F26F} = {E3932F06-DA1D-42A8-95AB-B3469B90F26F}
-		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -443,15 +437,6 @@ Global
 		{C79EF41F-B1B8-4D94-90C0-C84A2CB27C4C}.ReleaseI|Win32.ActiveCfg = Release|Win32
 		{C79EF41F-B1B8-4D94-90C0-C84A2CB27C4C}.ReleaseI|Win32.Build.0 = Release|Win32
 		{C79EF41F-B1B8-4D94-90C0-C84A2CB27C4C}.ReleaseI|x64.ActiveCfg = Release|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.Debug|Win32.Build.0 = Debug|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.Debug|x64.ActiveCfg = Debug|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.Release|Win32.ActiveCfg = Release|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.Release|Win32.Build.0 = Release|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.Release|x64.ActiveCfg = Release|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.ReleaseI|Win32.ActiveCfg = Release|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.ReleaseI|Win32.Build.0 = Release|Win32
-		{18853A74-F3A8-4429-A3BE-669B48F144EE}.ReleaseI|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
