@@ -186,7 +186,11 @@ int nlParser::Score()
 {
 	theToken = lexPtr->Next();
 	while (theToken != T_ENDOF && !errFatal)
+	{
 		Statement();
+		if (cvtPtr->WasCanceled())
+			return -1;
+	}
 	return errCount;
 }
 
@@ -1206,20 +1210,24 @@ int nlParser::Play()
 	return Param1("Play");
 }
 
-// track = 'start' trackexpr | 'stop' trackexpr  ';'
-// trackexpr =  expr (',' expr)?
+// track = 'track' expr | 'start' expr (, expr)? | 'stop' expr ';'
 int nlParser::Track()
 {
+	int type = theToken;
 	genPtr->AddNode(new nlTrackNode(theToken));
 	theToken = lexPtr->Next();
 	if (Expr() != 0)
 		return Error("Missing or invalid track number.", skiptoend);
 	if (theToken == T_COMMA)
 	{
-		genPtr->AddNode(T_COMMA, 0L);
-		theToken = lexPtr->Next();
-		if (Expr() != 0)
-			return Error("Missing or invalid track loop value.", skiptoend);
+		if (type == T_STARTTRK)
+		{
+			genPtr->AddNode(T_COMMA, 0L);
+			theToken = lexPtr->Next();
+			if (Expr() != 0)
+				return Error("Missing or invalid track loop value.", skiptoend);
+		}
+		return Error("Extra values on track statement.", skiptoend);
 	}
 	return CheckEnd(0);
 }
