@@ -9,6 +9,8 @@
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
 
+// TODO: Need better error checking and reporting for load/save.
+
 // Global variables
 SynthProject *theProject;
 ProjectTree  *prjTree;
@@ -16,12 +18,23 @@ GenerateWindow *prjGenerate;
 ProjectFrame *prjFrame;
 ProjectOptions prjOptions;
 
+// Default instrument template cleanup.
+// This is used when the instrument template
+// is a copy of the instrument object.
+// When an instrument has a custom template,
+// the instrument template destroy is used instead.
 static void DestroyTemplate(Opaque tp)
 {
 	Instrument *ip = (Instrument *)tp;
 	delete ip;
 }
 
+// Initialization - adds all instrument types to the instrument manager.
+// Typically the inclInstr flags are set to include all types. For a 
+// custom version of BasicSynth the flags can be set so that only
+// some instruments are made available. N.B. - disabling instruments
+// can cause problems when loading a project that contains disabled
+// instrument types... This needs some more work.
 void SynthProject::Init()
 {
 	synthInfo = 0;
@@ -37,6 +50,7 @@ void SynthProject::Init()
 	libInfo = 0;
 	libPath = 0;
 	change = 0;
+	cvtActive = 0;
 
 	seq.SetController(&prjMidiCtrl);
 	prjMidiIn.SetSequenceInfo(&seq, &mgr);
@@ -135,6 +149,7 @@ void SynthProject::Init()
 	}
 }
 
+// Initialize the project tree information
 void SynthProject::InitProject()
 {
 	name = "Project";
@@ -151,7 +166,8 @@ void SynthProject::InitProject()
 
 	midiInfo = new MidiItem;
 	midiInfo->SetParent(this);
-	prjTree->AddNode(midiInfo);
+	if (prjOptions.inclMIDI)
+		prjTree->AddNode(midiInfo);
 
 	mixInfo = new MixerItem;
 	mixInfo->SetParent(this);
@@ -192,13 +208,15 @@ void SynthProject::InitProject()
 
 	sblInfo = new SoundBankList;
 	sblInfo->SetParent(this);
-	prjTree->AddNode(sblInfo);
+	if (prjOptions.inclSoundFonts)
+		prjTree->AddNode(sblInfo);
 
 	libPath = new PathList;
 	libPath->SetParent(this);
 
 }
 
+// Edit the project properties.
 int SynthProject::ItemProperties()
 {
 	if (prjFrame)
@@ -213,6 +231,7 @@ int SynthProject::ItemProperties()
 	return change;
 }
 
+// Load properties into the property box
 int SynthProject::LoadProperties(PropertyBox *pb)
 {
 	pb->SetCaption("Project Properties");
@@ -227,6 +246,7 @@ int SynthProject::LoadProperties(PropertyBox *pb)
 	return 1;
 }
 
+// Save properties from the property box
 int SynthProject::SaveProperties(PropertyBox *pb)
 {
 	pb->GetValue(PROP_PRJ_NAME, name);
@@ -240,12 +260,16 @@ int SynthProject::SaveProperties(PropertyBox *pb)
 	return 1;
 }
 
+// Load the project file.
 int SynthProject::Load(XmlSynthElem *node)
 {
+	int err = 0;
+	int itmerr = 0;
 	char *content;
 	XmlSynthElem *child = node->FirstChild();
 	while (child)
 	{
+		itmerr = 0;
 		if (child->TagMatch("name"))
 		{
 			child->GetContent(&content);
@@ -278,25 +302,25 @@ int SynthProject::Load(XmlSynthElem *node)
 		}
 		else if (child->TagMatch("synth"))
 		{
-			synthInfo->Load(child);
+			itmerr = synthInfo->Load(child);
 		}
 		else if (child->TagMatch("midi"))
 		{
-			midiInfo->Load(child);
+			itmerr = midiInfo->Load(child);
 		}
 		else if (child->TagMatch("out"))
 		{
-			wvoutInfo->Load(child);
+			itmerr = wvoutInfo->Load(child);
 		}
 		else if (child->TagMatch("mixer"))
 		{
-			mixInfo->Load(child);
+			itmerr = mixInfo->Load(child);
 		}
 		else if (child->TagMatch("wvfile"))
 		{
 			WavefileItem *wv = new WavefileItem;
 			wv->SetParent(wfInfo);
-			wv->Load(child);
+			itmerr = wv->Load(child);
 			prjTree->AddNode(wv);
 		}
 		else if (child->TagMatch("libdir"))
@@ -312,7 +336,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			LibfileItem *lib = new LibfileItem;
 			lib->SetParent(libInfo);
-			lib->Load(child);
+			itmerr = lib->Load(child);
 			if (prjOptions.inclLibraries)
 				prjTree->AddNode(lib);
 		}
@@ -320,7 +344,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			NotelistItem *ni = new NotelistItem;
 			ni->SetParent(nlInfo);
-			ni->Load(child);
+			itmerr = ni->Load(child);
 			if (prjOptions.inclNotelist)
 				prjTree->AddNode(ni);
 		}
@@ -328,7 +352,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			FileItem *fi = new FileItem;
 			fi->SetParent(seqInfo);
-			fi->Load(child);
+			itmerr = fi->Load(child);
 			if (prjOptions.inclSequence)
 				prjTree->AddNode(fi);
 		}
@@ -336,7 +360,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			FileItem *fi = new FileItem;
 			fi->SetParent(txtInfo);
-			fi->Load(child);
+			itmerr = fi->Load(child);
 			if (prjOptions.inclTextFiles)
 				prjTree->AddNode(fi);
 		}
@@ -344,7 +368,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			FileItem *fi = new FileItem;
 			fi->SetParent(scriptInfo);
-			fi->Load(child);
+			itmerr = fi->Load(child);
 			if (prjOptions.inclScripts)
 				prjTree->AddNode(fi);
 		}
@@ -352,11 +376,17 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			SoundBankItem *sbi = new SoundBankItem;
 			sbi->SetParent(sblInfo);
-			sbi->Load(child);
+			itmerr = sbi->Load(child);
 			if (prjOptions.inclSoundFonts)
 				prjTree->AddNode(sbi);
 		}
-
+		if (itmerr)
+		{
+			lastError += "Error loading ";
+			lastError += child->TagName();
+			lastError += "\r\n";
+			err++;
+		}
 		XmlSynthElem *sib = child->NextSibling();
 		delete child;
 		child = sib;
@@ -380,7 +410,11 @@ int SynthProject::Load(XmlSynthElem *node)
 	{
 		if (child->TagMatch("instrlib"))
 		{
-			instrInfo->Load(child);
+			if (instrInfo->Load(child))
+			{
+				lastError += "Error loading instrlib\r\n";
+				err++;
+			}
 		}
 		XmlSynthElem *sib = child->NextSibling();
 		delete child;
@@ -390,13 +424,12 @@ int SynthProject::Load(XmlSynthElem *node)
 //	bsString colorFile;
 //	if (FindForm(colorFile, prjOptions.colorsFile))
 //		SynthWidget::colorMap.Load(colorFile);
-	return 0;
+	return err;
 }
 
 int SynthProject::Save(XmlSynthElem *node)
 {
 	// node points to the document root
-	//node->SetAttribute("name", name);
 
 	XmlSynthElem *child;
 	
@@ -438,7 +471,7 @@ int SynthProject::Save(XmlSynthElem *node)
 	return 0;
 }
 
-
+// Set defaults for a new project.
 int SynthProject::NewProject(const char *fname)
 {
 	InitProject();
@@ -504,8 +537,6 @@ int SynthProject::SaveProject(const char *fname)
 		}
 		fname = prjPath;
 	}
-	else
-		SetProjectPath(fname);
 
 	XmlSynthDoc doc;
 	XmlSynthElem *root;
@@ -522,7 +553,8 @@ int SynthProject::SaveProject(const char *fname)
 	{
 		if (doc.Save((char*)fname))
 		{
-			lastError = "Cannot write output file";
+			lastError = "Cannot write output file ";
+			lastError += fname;
 			return -1;
 		}
 	}
@@ -530,6 +562,7 @@ int SynthProject::SaveProject(const char *fname)
 	return err;
 }
 
+// Copy files that are associated with the project
 int SynthProject::CopyFiles(const char *oldDir, const char *newDir)
 {
 	int err = 0;
@@ -546,6 +579,7 @@ int SynthProject::CopyFiles(const char *oldDir, const char *newDir)
 	return err;
 }
 
+// Make all the path delimiters the same.
 char *SynthProject::NormalizePath(char *path)
 {
 	char *sl = path;
@@ -554,6 +588,7 @@ char *SynthProject::NormalizePath(char *path)
 	return path;
 }
 
+// Find the part of the path past the project directory.
 char *SynthProject::SkipProjectDir(char *path)
 {
 	size_t len = theProject->prjDir.Length();
@@ -562,17 +597,19 @@ char *SynthProject::SkipProjectDir(char *path)
 	return path;
 }
 
+// Exampled to a full path if needed.
 int SynthProject::FullPath(const char *s)
 {
 	return PathList::FullPath(s);
 }
 
-
+// Search for a file in the lib path list.
 int SynthProject::FindOnPath(bsString& fullPath, const char *fname)
 {
 	return libPath->FindOnPath(fullPath, fname);
 }
 
+// Find an editor form
 int SynthProject::FindForm(bsString& fullPath, char *fname)
 {
 	fullPath = prjOptions.formsDir;
@@ -583,6 +620,9 @@ int SynthProject::FindForm(bsString& fullPath, char *fname)
 	return FindOnPath(fullPath, fname);
 }
 
+// Handle callbacks from the sequencer.
+// If the project generate dialog is visible
+// the time and peak amplitude levels are updated.
 void SynthProject::SeqCallback(bsInt32 count, Opaque arg)
 {
 	((SynthProject*)arg)->UpdateGenerator(count);
@@ -602,19 +642,22 @@ void SynthProject::UpdateGenerator(bsInt32 count)
 	}
 }
 
+// Add sequencer events from the Notelist files.
 int SynthProject::GenerateSequence(nlConverter& cvt)
 {
+	cvtActive = &cvt;
+
 	if (prjGenerate)
 		prjGenerate->AddMessage("Generate sequences...");
 
-	mix.Reset();
+	// clear existing sequence
 	seq.Reset();
 
 	int err = 0;
-	if (nlInfo)
-		err |= nlInfo->Convert(cvt);
 	if (seqInfo)
 		err |= seqInfo->LoadSequences(&mgr, &seq);
+	if (nlInfo)
+		err |= nlInfo->Convert(cvt);
 	if (err == 0)
 	{
 		ErrCB ecb;
@@ -622,6 +665,8 @@ int SynthProject::GenerateSequence(nlConverter& cvt)
 		cvt.SetErrorCallback(&ecb);
 		err = cvt.Generate();
 	}
+	// TODO: load MIDI files (.mid)
+	cvtActive = 0;
 	return err;
 }
 
@@ -629,6 +674,7 @@ int SynthProject::GenerateToFile(long from, long to)
 {
 	if (!wvoutInfo)
 		return -1;
+	mix.Reset();
 	mgr.Init(&mix, wvoutInfo->GetOutput());
 
 	nlConverter cvt;
