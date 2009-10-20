@@ -135,7 +135,7 @@ int nlGenerate::Run()
 	mainSeq->Play();
 	cvtPtr->EndNotelist();
 
-	return 0;
+	return cvtPtr->WasCanceled();
 }
 
 /// Initialize the expression evaluation stack
@@ -1007,6 +1007,9 @@ nlScriptNode *nlWhileNode::Exec()
 		next->GetValue(&cond);
 		while (cond)
 		{
+			// hack to stop infinite loops:
+			if (genPtr->GetConverter()->WasCanceled())
+				return 0;
 			wseq->Play();
 			next->Exec();
 			next->GetValue(&cond);
@@ -1044,6 +1047,9 @@ nlScriptNode *nlLoopNode::Exec()
 
 		for (long n = 0; n < count; n++)
 		{
+			// hack to stop infinite loops:
+			if (genPtr->GetConverter()->WasCanceled())
+				return 0;
 			if (vox)
 				vox->loopCount = n;
 			lseq->Play();
