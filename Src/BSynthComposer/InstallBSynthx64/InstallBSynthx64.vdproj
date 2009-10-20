@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_05867FE79276473D943B57C91919B293"
+        "OwnerKey" = "8:_708BF3E8D0EA463698EEB9DE528AB88C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_09D41B06638F411FBE571EE08A45C1E7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -147,6 +153,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_39B2AD91EBFD49F1A2B151ABF0D08169"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3B09C3F5A2394E7998D4CA55B17E7CA0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -231,6 +243,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_708BF3E8D0EA463698EEB9DE528AB88C"
+        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_72640FB5489546348BC2FAECE594AF1D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -309,6 +327,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9A28C1D7DE1745E28B17EA58999BF356"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9AA37C4495AA4C3696F035F1AABCBD32"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -329,12 +353,6 @@
         {
         "MsmKey" = "8:_9FA4A5105E5742F9BA2306BF48547A6C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A1C92F46D9C740D0A21515D74278FDCE"
-        "OwnerKey" = "8:_AFEA46E0B3D84C37BB58DD510CD2ED0A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -383,12 +401,6 @@
         {
         "MsmKey" = "8:_AFD72A2DEEEC4B0880C39344AA37CB50"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AFEA46E0B3D84C37BB58DD510CD2ED0A"
-        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1090,6 +1102,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39B2AD91EBFD49F1A2B151ABF0D08169"
+            {
+            "SourcePath" = "8:..\\Forms\\GMPlayerEd.xml"
+            "TargetName" = "8:GMPlayerEd.xml"
+            "Tag" = "8:"
+            "Folder" = "8:_DDB8EA6F647C4284AE35513270D825EC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B09C3F5A2394E7998D4CA55B17E7CA0"
             {
             "SourcePath" = "8:..\\..\\..\\ExampleProjects\\ARestingPlace\\Runner.nl"
@@ -1614,6 +1646,26 @@
             {
             "SourcePath" = "8:..\\Forms\\FMAlg1a.jpg"
             "TargetName" = "8:FMAlg1a.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_DDB8EA6F647C4284AE35513270D825EC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A28C1D7DE1745E28B17EA58999BF356"
+            {
+            "SourcePath" = "8:..\\Forms\\MIDIControlEd.xml"
+            "TargetName" = "8:MIDIControlEd.xml"
             "Tag" = "8:"
             "Folder" = "8:_DDB8EA6F647C4284AE35513270D825EC"
             "Condition" = "8:"
@@ -2579,7 +2631,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth Composer"
         "ProductCode" = "8:{20A19260-5D1E-4BAD-B5D6-3A68E09B35F9}"
-        "PackageCode" = "8:{141FFAC8-5186-491F-9F2A-9A7723F71F4B}"
+        "PackageCode" = "8:{558E5B5A-8D18-4E06-8E2C-8DC696D05241}"
         "UpgradeCode" = "8:{B6698655-7F90-4F8D-BC48-A9AF8CFFC860}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -3307,7 +3359,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A1C92F46D9C740D0A21515D74278FDCE"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_05867FE79276473D943B57C91919B293"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -3321,7 +3373,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_AFEA46E0B3D84C37BB58DD510CD2ED0A"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_708BF3E8D0EA463698EEB9DE528AB88C"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
