@@ -154,11 +154,19 @@ public:
 	/// Save the properties from the property box.
 	virtual int SaveProperties(PropertyBox *pb) { return 1; }
 
+	/// Load the item from the project file.
 	virtual int Load(XmlSynthElem *node);
+	/// Save the item to the project file.
 	virtual int Save(XmlSynthElem *node);
+	/// Create the editor form (if applicable)
 	virtual WidgetForm *CreateForm(int xo, int yo);
 
+	/// Get the wildcard for file search.
+	/// For file items only, this returns a pattern
+	/// in the form File|*.ext| that is used in
+	/// the file browser dialog.
 	static const char *GetFileSpec(int type);
+	/// Get the file extension.
 	static const char *GetFileExt(int type);
 
 };
@@ -1174,6 +1182,7 @@ public:
 	Mixer mix;
 	InstrManager mgr;
 	Sequencer seq;
+	nlConverter *cvtActive;
 
 	SynthProject() : ProjectItem(PRJNODE_PROJECT)
 	{
