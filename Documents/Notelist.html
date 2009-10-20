@@ -689,6 +689,64 @@ following statement would cause C6 to refer to middle C.</p>
 number. Changing the octave of middle C only affects parsing and does not
 change the integer value for middle C passed to the synthesizer.</p>
 
+<h3>MIDICC</h3>
+
+<p>Syntax: midicc <i>control, value</i>;</p>
+
+<p>The MIDICC statement emits a MIDI controller change message. 
+The <i>control</i> argument specifies the MIDI controller number. 
+The <i>value</i> argument is the value for the controller.
+Both control and value must be in the ragne 0-127.</p>
+
+<h3>MIDIPW</h3>
+
+<p>Syntax: midipw <i>value</i>;</p>
+
+<p>The MIDIPW statement emits a MIDI pitch wheel change message. 
+The <i>value</i> argument is the raw pitch bend value and should be in the range +/-8192.</p>
+
+<h3>MIDIPRG</h3>
+
+<p>Syntax: midiprg <i>value</i>;</p>
+
+<p>The MIDIPRG statement emits a MIDI program change message. 
+The <i>value</i> argument is the program number in the range 0-127.</p>
+
+<h3>MIDIAT</h3>
+
+<p>Syntax: midiat <i>value</i>;</p>
+
+<p>The MIDIAT statement emits a MIDI channel pressure (after touch) message. 
+The <i>value</i> argument is the range 0-127.</p>
+
+
+<h3>MIXER</h3>
+
+<p>Syntax: mixer <i>mixfn,  mixop, [fxunit], start, [end, time, [freq, wt]]</i>;</p>
+
+<p>
+The MIXER statement provides dynamic mixer control functions that set the value of an input level, pan or effects unit.
+The <i>mixfn</i> argument can be one of the following:</p>
+<table  border="1" cellspacing="0" cellpadding="4">
+<tr><td>Argument</td><td>Use</td></tr>
+<tr><td>in</td><td>Change an input level</td></tr>
+<tr><td>pan</td><td>Change an input pan setting.</td></tr>
+<tr><td>send</td><td>Change the amount sent to an effects unit.</td></tr>
+<tr><td>fxin</td><td>Change an effects unit volume level.</td></tr>
+<tr><td>fxpan</td><td>Change an effects unit pan setting.</td></tr>
+</table>
+<p>
+A MIXER control statement that affects an input (in, pan or send) uses the current channel for the voice as the mixer channel number.
+When the function is <i>fxin</i> or <i>fxpan</i>, the first argument indicates which effects unit is altered. 
+The <i>mixop</i> argument is optional, and can be one of the following:</p>
+<table border="1" cellspacing="0" cellpadding="4">
+<tr><td>Argument</td><td>Use</td></tr>
+<tr><td>set</td><td>Set the value to <i>start</i>. The other parameters are ignored. If the <i>mixop</i> argument is missing, set is assumed.</td></tr>
+<tr><td>ramp</td><td>Produce a linear change from <i>start</i> to <i>end</i> over a duration of <i>time</i>.</td></tr>
+<tr><td>osc</td><td>Continuously vary the value from <i>start</i> to <i>end</i> over a duration of <i>time</i> at the rate 
+<i>freq</i> using the wavetable <i>wt</i>. If the wavetable argument is missing, a sine wave is used.</td></tr>
+</table>
+
 <h3>NOTE</h3>
 
 <p>Syntax: [note] <i>pitch</i>,<i> rhythm</i>,<i> volume</i>,<i> params</i>;</p>
@@ -755,6 +813,41 @@ to actual time at the point of the assignment.</p>
 
 <pre>set oct = 12;<br/>set step = 1;<br/>set val2 = C4 + (oct * step);</pre>
 
+<p>Any declared variable in Notelist can be treated as an associative array. When
+the variable name is followed by an index in brackets, the index value is associated
+with the value. The index can be a number or a string.</p>
+<pre>
+set myval["vol"] = 100;
+set myval[0] = 200;
+</pre>
+<p>Arrays can be used to store a set of values that are iterated using
+the <i>loop</i> or <i>while</i> statements. The following example
+generates a random series of pitches and plays them 12 times,
+transposing up a semitone each time.</p>
+
+<pre>
+var index;
+var pits;
+
+voice 0
+begin
+
+	set index = 0;
+	while index &lt; 16 do
+	begin
+		set pits[index] = rand(48,60);
+		set index = index + 1;
+	end
+
+	loop 12
+	begin
+		transpose count;
+		loop 16
+			pits[count], %16, 100;
+	end
+end
+</pre>
+
 <h3>SEQUENCE</h3>
 
 <p>Syntax: sequence <i>id </i>begin <i>notelist </i>end</p>
@@ -778,6 +871,15 @@ For example, a TRANSPOSE statement within a sequence would remain in effect for
 notes within the voice that come after the sequence is played.</p>
 
 <p>The keyword SEQUENCE may be abbreviated to SEQ.</p>
+
+<h3>START</h3>
+<p>Syntax: start <i>track, [loop]</i>;</p>
+<p>The START statement starts a background track. The optional loop count indicates how many times the track should be played.
+If the <i>loop</i> value is missing, or is zero, the track will play until a STOP statement is given.</p>
+
+<h3>STOP</h3>
+<p>Syntax: stop <i>track</i>;</p>
+<p>The STOP statement stops a background track.</p>
 
 <h3>SYNC</h3>
 
@@ -824,6 +926,55 @@ tempo and/or current start time.</p>
 absolutely. The second example moves the start time forward by 10 seconds. The
 third example moves the start time forward by the duration of a whole note at
 the current tempo.</p>
+
+<h3>TRACK</h3>
+<p>Syntax: track <i>n</i>;</p>
+<p>The TRACK statement changes the sequencer track for subsequent notes and resets the current time for the voice to zero.
+By default notes are assigned to track zero. Track zero is started automatically when the sequencer is started.
+When the track number is other than zero, all subsequent events in the voice are assigned to a separate sequencer track.
+Tracks other than zero must be explicitly started with a START statement, but can be started, stopped and looped individually.</p>
+<pre>
+
+voice 0
+begin
+  instr "piano";
+  channel 0;
+  
+  track 1;
+  {C4, G4, E4, G4}, %8, 100;
+  track 2;
+  {B3, G4, D4, G4}, %8, 100;
+  track 3;
+  [C4, E4, G4], %2, 100;
+end
+
+voice 1
+begin
+  instr "bass";
+  channel 1;
+  
+  track 1;
+  C3, %2, 100;
+  track 2;
+  G2, %2, 100;
+  track 3;
+  C2, %2, 100;
+end
+
+voice 3
+begin
+  instr "flute";
+  channel 3;
+  
+  track 0;
+  start 1, 4;
+  {C5, D5, E5, F5, G5},  {%2, %4,  %2, %4, %2}, 100;
+  start 2, 2;
+  {G5, F5, E5, D5}, %4, 100;
+  start 3, 1;
+  C5, %2, 100;
+end  
+</pre>
 
 <h3>TRANSPOSE</h3>
 
