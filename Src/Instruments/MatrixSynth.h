@@ -27,7 +27,7 @@
 #define TONE_FX2OUT  0x00000020
 #define TONE_FX3OUT  0x00000040
 #define TONE_FX4OUT  0x00000080
-//#define TONE_XXX   0x00007F00 <= available
+//#define TONE_XXX   0x00003F00 <= available
 #define TONE_TREM    0x00004000
 #define TONE_PAN     0x00008000
 #define TONE_OUTANY  0x000000F2
