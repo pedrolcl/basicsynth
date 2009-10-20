@@ -173,7 +173,10 @@ void InstrItem::RemoveInstr()
 WidgetForm *InstrItem::CreateForm(int xo, int yo)
 {
 	if (inc == 0 || inc->instrType == 0)
+	{
+		prjFrame->Alert("Instrument configuration or type is unknown", "Ooops...");
 		return new WidgetForm;
+	}
 
 	const char *type = inc->instrType->itype;
 	char form[MAX_PATH];
@@ -221,13 +224,15 @@ int InstrItem::Load(XmlSynthElem *node)
 	// instruments are loaded by the instrument manager
 	inc = theProject->mgr.LoadInstr(node);
 	ProjectItem::Load(node);
+	if (inc == 0)
+		return -1;
 	return 0;
 }
 
 int InstrItem::Save(XmlSynthElem *node)
 {
 	ProjectItem::Save(node);
-	if (inc)
+	if (inc && inc->instrType)
 	{
 		node->SetAttribute("id", (short)inc->inum);
 		node->SetAttribute("type", inc->instrType->GetType());
