@@ -7,6 +7,7 @@
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 /// @addtogroup grpInstrument
+/// @addtogroup grpMIDI
 //@{
 
 #if !defined(_GMPLAYER_H_)
@@ -22,7 +23,7 @@ class GMManager;
 #define GMGEN_DEF (SBGEN_PITWHLF|SBGEN_VIBLFOF|SBGEN_MODWHLF|SBGEN_MODWHLA)
 
 /// @brief GM sound player
-/// @detail The GM player implements playback of a SoundBank sample.
+/// @details The GM player implements playback of a SoundBank sample.
 /// GMPlayer objects are created and managed by the GMManager object,
 /// and should not be created directly.
 ///
@@ -136,9 +137,7 @@ protected:
 	bsUint32 genFlags;   ///< global generator enable flags
 
 public:
-	/// @copydoc InstrFactory
 	static Instrument *InstrFactory(InstrManager *m, Opaque tmplt);
-	/// @copydoc EventFactory
 	static SeqEvent *EventFactory(Opaque tmplt);
 	static Opaque TmpltFactory(XmlSynthElem *tmplt);
 	static void TmpltDump(Opaque tmplt);

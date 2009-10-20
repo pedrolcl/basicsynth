@@ -15,7 +15,7 @@
 #include "LFO.h"
 
 /// @brief One part of an AddSynth instrument.
-/// @detail Each part contains an oscillator and envelope generator.
+/// @details Each part contains an oscillator and envelope generator.
 /// The frequency is typically set as a multiple of the base frequency for
 /// the instrument. However, it is possible to set the frequency directly
 /// for each part.
@@ -34,6 +34,8 @@ struct AddSynthPart
 		mul = 1.0;
 	}
 
+	/// Make a copy of the settings.
+	/// @param p object to copy from.
 	void Copy(AddSynthPart *p)
 	{
 		mul = p->mul;
@@ -44,7 +46,7 @@ struct AddSynthPart
 };
 
 /// @brief Implements an additive synthesis instrument.
-/// @detail AddSynth contains a dynamic array of AddSynthPart
+/// @details AddSynth contains a dynamic array of AddSynthPart
 /// objects, each of which functions as a semi-independent
 /// instrument. The output of AddSynth is the sum of the
 /// output of all partials. Typically each part is set
