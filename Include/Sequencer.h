@@ -384,9 +384,9 @@ public:
 	/// of the sequence. These times are in samples.
 	/// The state argument indicates if immediate and/or scheduled events
 	/// will be played. See GetState() for more information.
-	/// @param instMgr instrument manager
-	/// @param startTime if non-zero, start at the indicated time
-	/// @param endTime if non-zero, stop at the indicated time
+	/// @param im instrument manager
+	/// @param startTime if non-zero, start at the indicated sample
+	/// @param endTime if non-zero, stop at the indicated sample
 	/// @param st sequencer mode of operation
 	/// @return number of samples output
 	virtual bsUint32 SequenceMulti(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0, SeqState st = seqSeqOnce);
@@ -395,6 +395,9 @@ public:
 	/// Similar to SequenceMulti() but does not check for live events or play multiple tracks.
 	/// This is optimal for auditioning sequences and creating wave file output when
 	/// only one master track exists.
+	/// @param im instrument manager
+	/// @param startTime if non-zero, start at the indicated sample
+	/// @param endTime if non-zero, stop at the indicated sample
 	/// @return number of samples output
 	virtual bsUint32 Sequence(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0);
 
@@ -410,7 +413,7 @@ public:
 	/// but does not check track event lists or make callbacks.
 	/// Start and Stop track events have no effect. This function only
 	/// returns when Halt() is invoked.
-	/// @param instMgr reference to an instrument manager object
+	/// @param im reference to an instrument manager object
 	/// @return number of samples output
 	virtual bsUint32 Play(InstrManager& im);
 };

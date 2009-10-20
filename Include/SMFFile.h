@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////
 // BasicSynth Library
 //
-/// @file MIDISequencer.h MIDI Sequencer Classes
+/// @file SMFFile.h Standard MIDI File loader
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

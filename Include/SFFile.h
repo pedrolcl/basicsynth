@@ -17,6 +17,8 @@
 #include <SFDefs.h>
 #include <SoundBank.h>
 
+/// A sound font file.
+/// SFFile is used to load a SF2 file into a SoundBank object.
 class SFFile
 {
 public:
@@ -87,7 +89,20 @@ public:
 	SFFile();
 	~SFFile();
 
+	/// Determine if the file is a SF2 format file.
+	/// @param fname path to the file
+	/// @returns true if the file is SF2 format
 	static int IsSF2File(const char *fname);
+
+	/// Load the sound found file into a SoundBank.
+	/// When pre is true, the sample data for all instruments is loaded
+	/// into memory. If only a few sounds are to be used
+	/// it is better to load each instrument's sample data explicitly.
+	/// The caller is responsible for deleteing the returned object.
+	/// @param fname path to the file
+	/// @param pre preload all samples
+	/// @param scl attenuation scaling
+	/// @returns pointer to SoundBank object.
 	SoundBank *LoadSoundBank(const char *fname, int pre = 1, float scl = 0.375);
 };
 //@}

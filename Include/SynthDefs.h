@@ -184,6 +184,7 @@ public:
 	/// directly. Negative pitch values are allowed but are calculated directly using
 	/// the equation for equal-tempered tuning (f * 2^n/12)
 	/// @param pitch pitch index
+	/// @returns frequency in Hz
 	FrqValue GetFrequency(int pitch)
 	{
 		if (pitch < 0 || pitch > 127)
@@ -197,7 +198,8 @@ public:
 	/// that range result in a direct calculation. The returned
 	/// value is multiplied by a base frequency to get the detuned
 	/// frequency.
-	/// @param cents deviation in pitch in 1/100 of a semitone.
+	/// @param c deviation in pitch in 1/100 of a semitone.
+	/// @returns frequency multiplier
 	FrqValue GetCentsMult(int c)
 	{
 		if (c < -1200 || c > 1200)
@@ -207,6 +209,8 @@ public:
 
 	/// Convert cB (centibel) of attenuation into amplitude level.
 	/// cb = 200 log10(amp)
+	/// @param cb centi-bels of attenuation
+	/// @returns linear amplitude value
 	AmpValue AttenCB(int cb)
 	{
 		if (cb <= 0)

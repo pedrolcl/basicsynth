@@ -134,7 +134,7 @@
 
 #pragma pack(push, 2)
 
-/// A RIFF chunk header
+/// SF2 RIFF chunk header
 struct sfChunk
 {
 	bsUint32 ckid; //char ckid[4];
@@ -151,7 +151,7 @@ typedef struct
 	bsUint8 byHi;
 } rangesType;
 
-/// A generator or modulator value
+/// SF2 generator or modulator value.
 /// Union of two bytes, signed and unsigned words
 typedef union
 {
@@ -160,7 +160,7 @@ typedef union
 	bsUint16 wAmount;
 } genAmountType;
 
-/// Preset header record layout.
+/// SF2 Preset header record layout.
 struct sfPresetHeader
 {
 	char achPresetName[20];
@@ -174,7 +174,7 @@ struct sfPresetHeader
 
 #define sfPresetHeaderSize 38
 
-/// Preset or Instrument bag record layout.
+/// SF2 Preset or Instrument bag record layout.
 struct sfBag
 {
 	bsUint16 wGenNdx;
@@ -183,7 +183,7 @@ struct sfBag
 
 #define sfBagSize 4
 
-/// Modulator record layout.
+/// SF2 Modulator record layout.
 struct sfModList
 {
 	bsInt16 sfModSrcOper;
@@ -195,7 +195,7 @@ struct sfModList
 
 #define sfModListSize 10
 
-/// Generator record layout.
+/// SF2 Generator record layout.
 struct sfGenList
 {
 	bsInt16 sfGenOper;
@@ -204,7 +204,7 @@ struct sfGenList
 
 #define sfGenListSize 4
 
-/// Instrument record layout
+/// SF2 Instrument record layout
 struct sfInst
 {
 	char achInstName[20];
@@ -213,7 +213,7 @@ struct sfInst
 
 #define sfInstSize 22
 
-/// Sample record layout.
+/// SF2 Sample record layout.
 struct sfSample
 {
 	char achSampleName[20];

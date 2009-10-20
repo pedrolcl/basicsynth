@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////
-/// @file MIDIInput.cpp MIDI keyboard input
+/// @file MIDIInput.h MIDI keyboard input
 //
 // Copyright 2009, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
-/// @addtogroup grpMidi
+/// @addtogroup grpMIDI
 //@{
 #ifndef MIDIINPUT_H
 #define MIDIINPUT_H

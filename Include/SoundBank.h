@@ -413,6 +413,8 @@ public:
 	{
 	}
 
+	/// Add a new, empty zone to this list.
+	/// @returns new zone object.
 	SBZone *AddZone()
 	{
 		return zoneList.AddItem();
@@ -424,7 +426,10 @@ public:
 	/// @note
 	/// There may be multiple zones that match.
 	/// Use EnumZones to find all matches.
-	/// @endnote
+	///
+	/// @param key MIDI key number.
+	/// @param vel MIDI note-on velocity.
+	/// @returns matching zone or NULL for no match.
 	SBZone *GetZone(int key, int vel)
 	{
 		SBZone *zone = 0;
@@ -467,7 +472,8 @@ public:
 		return 0;
 	}
 
-	/// Add a new modulator.
+	/// Add a new, empty modulator.
+	/// @returns new modulator object.
 	SBModInfo *AddModInfo()
 	{
 		return modList.AddItem();
@@ -481,7 +487,7 @@ public:
 	///    use mi;
 	/// @endcode
 	/// @param mi previous modulator or NULL for first.
-	/// @return next modulator or NULL for no more modulators.
+	/// @returns next modulator or NULL for no more modulators.
 	SBModInfo *EnumModInfo(SBModInfo *mi)
 	{
 		return modList.EnumItem(mi);
@@ -660,6 +666,7 @@ public:
 	/// @brief Locate an instrument.
 	/// @param bank bank number
 	/// @param prog patch number
+	/// @param load pre-load the instrument sample if not loaded
 	/// @return pointer to instrument definition, or null
 	SBInstr *GetInstr(bsInt16 bank, bsInt16 prog, int load = 1)
 	{

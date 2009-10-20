@@ -16,216 +16,41 @@
 #ifndef SFGEN_H
 #define SFGEN_H
 
-/// GenWaveSF classes handle four distinct scenarios:
-/// 1) A single sample with mono sample data
-/// 2) A single sample with stereo sample data
-/// 3) Two linked and phase-locked zones, each with separate sample
-/// 3) Two unlinked zones that are not phase locked.
-class GenWaveSF
+/// Oscillator that initializes directly from a SBZone.
+class GenWaveSF : public GenWaveWTLoop
 {
 public:
-	virtual void InitSF(FrqValue f, SBZone *zone, int skipAttack) = 0;
-	virtual void UpdateFrequency(FrqValue f) = 0;
-	virtual void Tick(AmpValue& lft, AmpValue& rgt) = 0;
-	virtual void Release() = 0;
-	virtual int  IsFinished() = 0;
-};
-
-class GenWaveSF1 : public GenWaveSF
-{
-private:
-	GenWaveWTLoop osc;
-
-public:
+	/// Init the wavetable oscillator.
+	/// @param f frequency in Hz
+	/// @param zone sample information.
+	/// @param skipAttack when true, start at the loop section.
 	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
 	{
-		if (zone)
+		if (zone && zone->sample)
 		{
-			osc.InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
+			InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
 		           zone->loopStart, zone->loopEnd, 
 		           zone->mode, zone->sample->sample);
-			if (skipAttack)
-				osc.Reset(zone->loopStart);
-		}
-		else
-		{
-			osc.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wtSet.GetWavetable(WT_SIN));
-		}
-	}
-
-	/// Combination of SetFrequency(f) + Reset(-1)
-	void UpdateFrequency(FrqValue f)
-	{
-		osc.UpdateFrequency(f);
-	}
-
-	AmpValue Gen()
-	{
-		return osc.Gen();
-	}
-
-	void Tick(AmpValue& lft, AmpValue& rgt)
-	{
-		lft = osc.Gen();
-		rgt = lft;
-	}
-
-	void Release()
-	{
-		osc.Release();
-	}
-
-	int IsFinished()
-	{
-		return osc.IsFinished();
-	}
-};
-
-class GenWaveSF2  : public GenWaveSF
-{
-private:
-	GenWaveWTLoop2 osc;
-
-public:
-	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
-	{
-		if (zone)
-		{
-			AmpValue *wtr;
-			AmpValue *wtl;
-			SBSample *samp = zone->sample;
-			if (samp->channels == 2)
+			if (skipAttack && zone->mode == 1)
 			{
-				wtl = &samp->sample[zone->tableStart];
-				wtr = &samp->linked[zone->tableStart];
-			}
-			else if (samp->linkSamp)
-			{
-				wtr = &samp->sample[zone->tableStart];
-				samp = samp->linkSamp;
-				wtl = &samp->sample[zone->tableStart];
-				if (zone->chan == 1) // sample is the left channel
-				{
-					AmpValue *tmp = wtr;
-					wtr = wtl;
-					wtl = tmp;
-				}
-			}
-			osc.InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
-		           zone->loopStart, zone->loopEnd, zone->mode, wtl);
-			osc.SetWavetable2(wtr);
-			if (skipAttack)
-				osc.Reset(zone->loopStart);
-		}
-		else
-		{
-			AmpValue *wt = wtSet.GetWavetable(WT_SIN);
-			osc.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wt);
-			osc.SetWavetable2(wt);
-		}
-	}
-
-	/// Combination of SetFrequency(f) + Reset(-1)
-	void UpdateFrequency(FrqValue f)
-	{
-		osc.UpdateFrequency(f);
-	}
-
-	void Tick(AmpValue& lft, AmpValue& rgt)
-	{
-		osc.Gen2(lft, rgt);
-	}
-
-	void Release()
-	{
-		osc.Release();
-	}
-
-	int IsFinished()
-	{
-		return osc.IsFinished();
-	}
-};
-
-
-class GenWaveSF3 : public GenWaveSF
-{
-private:
-	GenWaveWTLoop oscl;
-	GenWaveWTLoop oscr;
-
-public:
-	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
-	{
-		if (zone)
-		{
-			SBZone *zone1;
-			SBZone *zone2;
-			if (zone->chan == 1)
-			{
-				zone2 = zone;
-				zone1 = zone->linkZone;
-				if (zone1 == 0)
-					zone1 = zone2;
-			}
-			else
-			{
-				zone1 = zone;
-				zone2 = zone->linkZone;
-				if (zone2 == 0)
-					zone2 = zone1;
-			}
-			oscr.InitWTLoop(f, zone1->recFreq, zone1->rate, zone1->tableEnd, 
-		           zone1->loopStart, zone1->loopEnd, zone1->mode,
-				   &zone1->sample->sample[zone1->tableStart]);
-			oscl.InitWTLoop(f, zone2->recFreq, zone2->rate, zone2->tableEnd, 
-		           zone2->loopStart, zone2->loopEnd, zone2->mode, 
-				   &zone2->sample->sample[zone2->tableStart]);
-			if (skipAttack)
-			{
-				oscl.Reset(zone1->loopStart);
-				oscr.Reset(zone2->loopStart);
+				state = 1;
+				Reset(zone->loopStart);
 			}
 		}
 		else
 		{
-			AmpValue *wt = wtSet.GetWavetable(WT_SIN);
-			oscl.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wt);
-			oscr.InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wt);
+			InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wtSet.GetWavetable(WT_SIN));
 		}
 	}
-
-	/// Combination of SetFrequency(f) + Reset(-1)
-	void UpdateFrequency(FrqValue f)
-	{
-		oscl.UpdateFrequency(f);
-		oscr.UpdateFrequency(f);
-	}
-
-	void Tick(AmpValue& lft, AmpValue& rgt)
-	{
-		lft = oscl.Gen();
-		rgt = oscr.Gen();
-	}
-
-	void Release()
-	{
-		oscl.Release();
-		oscr.Release();
-	}
-
-	int IsFinished()
-	{
-		return oscl.IsFinished() && oscr.IsFinished();
-	}
-
 };
 
-/// Envelop generator for sound founts.
+/// Envelope generator for sound founts.
+/// A sound bank (SF2 or DLS) uses a six segment envelope --
+/// delay, attack, hold, decay, sustain, release.
 /// This EG differs from the typical BasicSynth EG in the following ways:
-/// 1. Start, peak and end levels are normalized to 0, 1, 0.
-/// 2. Attack, decay and relase are constant-rate calculations
-/// 3. Attack level follows an exponential convex curve (n^2)
+/// 1) Start, peak and end levels are normalized to 0, 1, 0.
+/// 2) Attack, decay and release are constant-rate calculations.
+/// 3) Attack level follows an exponential convex curve (n^2)
 class EnvGenSF : public GenUnit
 {
 private:
