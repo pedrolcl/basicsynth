@@ -6,7 +6,7 @@ Instrument base class and thus have the same set of publicly accessible methods.
 <p>Instrument configuration may be made programmatically, or loaded from an XML file, 
 allowing a single instrument to be setup for a wide variety of sounds. This page 
 describes the <i>BasicSynth</i> instruments, the XML format, and the parameter numbers for each
-instrument property. The BasicSynth book contains an in-depth description of each instrument.</p>
+instrument property. (The BasicSynth book contains an in-depth description of instrument design and implementation.)</p>
 
 <p><a href="#_Tone_Instrument">Tone Instrument</a></p>
 <p><a href="#_FM_Tone_Instrument">FM Tone Instrument</a></p>
@@ -17,6 +17,7 @@ instrument property. The BasicSynth book contains an in-depth description of eac
 <p><a href="#_Matrix_Synthesis_Instrument">Matrix Synthesis Instrument</a></p>
 <p><a href="#_Chuffer_Instrument">Chuffer (Noise) Instrument</a></p>
 <p><a href="#_ModSynth_Instrument">Modular Instrument</a></p>
+<p><a href="#_GM_Instrument">General MIDI Instrument</a></p>
 
 <p>Several instruments include LFO and Pitch bend units. Both units are implemented by 
 classes that are aggregated with the instrument class. The LFO unit includes a wavetable
@@ -41,6 +42,7 @@ is non-zero.</p>
 that is used in a <a href="Notelist.html">Notelist</a> <i>map</i> statement. The 
 short name form can also be used from a program by calling the insruments' <i>MapParamID</i> method.</p>
 
+<hr />
 <h2>Tone Instrument</h2>
 <p>The <i>Tone</i> instrument
 contains a single oscillator, ADSR envelope generator and LFO generator. The
@@ -247,8 +249,7 @@ equivalent XML tag and attribute values for the <i>Tone</i> instrument. </p>
 <h2><a name="_FM_Tone_Instrument"></a>FM Tone Instrument</h2>
 <p>The <i>FMTone</i> instrument is
 similar to the <i>Tone</i> instrument, but uses a two-oscillator FM generator
-in place of the single oscillator. The waveform is not selectable and is always
-a sine wave. The carrier-modulator ratio and modulation index are set by two
+in place of the single oscillator. The waveform is selectable. The carrier-modulator ratio and modulation index are set by two
 parameters.</p>
 <img src="ToneFMDiag.jpg" />
 <p>The <i>FMTone</i> instrument class is defined in <i>Src/Instruments/Tone.h</i>
@@ -2157,6 +2158,8 @@ with the implementation in <i>Src/Instruments/Chuffer.cpp</i>.</p>
   <td><p>Filter Q change rate tracks note duration (1) or is fixed (0).</p></td>
  </tr>
 </table>
+<br /><hr />
+
 <h2><a name="_ModSynth_Instrument" ></a>Modular Synthesis Instrument (ModSynth)</h2>
 <p>
 Unlike the other instruments in <i>BasicSynth</i>, the Modular Instrument does
@@ -2299,7 +2302,7 @@ modulator is calculated as A=I*F, where F is the modulator frequency.</td></tr>
 <tr><td>&nbsp;</td><td>harmonics</td><td>2</td><td>The number of harmonics.</td></tr>
 <tr><td>&nbsp;</td><td>modulate</td><td>3</td><td>Frequency modulator. This value is added to the frequency.</td></tr>
 
-<tr style="background:gray;color=black;"><td colspan="4">Noise generators</td>
+<tr style="background:gray;color=white;text-align:center;"><td colspan="4">Noise Generators</td>
 <tr><td>RANDH,RANDI</td><td>amplitutde</td><td>0</td><td>Peak amplitude level.</td></tr>
 <tr><td>&nbsp;</td><td>rate</td><td>1</td><td>Random number frequency in Hz.</td></tr>
 
@@ -2452,3 +2455,125 @@ Samples written to the <i>in</i> parameter are accumulated for one sample and th
 When panning is enabled (<i>pon</i> = 1), the pan setting is applied to the input sample and then set 
 directly in the mixer input, bypassing the mixer pan setting. In addition, samples can be written directly 
 to the left and right channels by setting the <i>left</i> and <i>right</i> parameter values. 
+
+<br /><hr />
+<h2><a name="_GM_Instrument"></a>General MIDI Instrument </h2>
+<p>The <i>GM </i> instrument emulates a MIDI wavetable synthesis keyboard instrument with downloadable sounds. The sound files may
+be loaded from either a SoundFont(R) (SF2) or DLS sound bank. The present version of this instrument does not implement all possible features of
+the GM specification and sound bank player, but is sufficient to play most sound bank files based on recorded sounds. In particular, only some
+MIDI controller values are recognized and applied to the instrument.</p>
+<p>The instrument type name is <i>GMPlayer</i>, but the instrument is implemented using a combination of objects:
+<ul>
+<li>GM Manager</li>
+<li>GM Player</li>
+<li>MIDI Control </li>
+<li>SoundBank</li>
+</ul>
+The GM Manager maintains a list of all currently sounding notes for a give channel and patch and applies global instrument settings.
+Each note is sounded by an instance of the GM Player object. MIDI channel values (pitch bend, program, and controllers) are held in the common
+MIDI Control object. The wavetables are held as members of the SoundBank object.</p>
+<p>In order to play sounds using a GM sound bank, the sound bank must be added to the project. An instrument of type GMPlayer must be
+added and configured to reference the sound bank. Specific sounds are selected using the MIDI bank and program values, or using
+the configuration values for the instrument. Multiple sound banks can be loaded and used by creating multiple GMPlayer instruments, one
+for each sound bank.</p>
+<h3>Patch Diagram<hr/></h3>
+<p>The following diagram shows the GM Player object internal structure.</p>
+<img src="gmplayerdiag.jpg" alt="GM diagram" />
+<p>This synthesis model is typical of instruments for SF2 and DLS sound bank files. It sums together values for key number,
+vibrato LFO, pitch wheel and pitch bend envelope to determine the playback frequency. It sums together values for volume,
+note-on velocity, envelope and modulation LFO to determine the volume level. The modulation wheel adds to the levels
+for vibrato and tremolo.</p>
+<h3>Configuration<hr/></h3>
+<p>Because synthesis parameters are loaded from either the SoundBank object or received from the MIDI Control object,
+the GM instrument does not have configuration values for synthesis parameters. However, configuration values setable on the GM Manager
+can override the selection of the patch, volume and pan, and also enable or disable MIDI controller values for all instances of the instrument.</p>
+<p>The <i>local</i> parameter can be used to override the default volume, pan and patch values for the instrument. 
+The following values can be added to control local override for the instrument.</p>
+<table border="1" cellspacing="0" cellpadding="4">
+<tr valign="top" style="background-color:Black;color:White;"><td>Override</td><td>Bit value</td></tr>
+<tr><td>Volume</td><td>1</td></tr>
+<tr><td>Patch</td><td>2</td></tr>
+<tr><td>Pan</td><td>4</td></tr>
+</table>
+<p>The <i>flags</i> can be used to ignore MIDI controller values. If a bit is clear, the associated generator connection is forced off.
+The following values can be added to control enable of each generator.</p>
+<table border="1" cellspacing="0" cellpadding="4">
+<tr valign="top" style="background-color:Black;color:White;"><td>Function</td><td>Bit Value</td></tr>
+<tr><td>Vibrato to pitch</td><td>1</td></tr>
+<tr><td>Modulator envelope to pitch</td><td>2</td></tr>
+<tr><td>Pitch wheel to pitch</td><td>4</td></tr>
+<tr><td>Modulator LFO to pitch</td><td>16</td></tr>
+<tr><td>Modulator Wheel to pitch</td><td>32</td></tr>
+<tr><td>Breath control to pitch</td><td>64</td></tr>
+<tr><td>Expression control to pitch</td><td>128</td></tr>
+<tr><td>Modulator LFO to volume</td><td>256</td></tr>
+<tr><td>Modulator Wheel to volume</td><td>512</td></tr>
+<tr><td>Breath control to volume</td><td>1024</td></tr>
+<tr><td>Expression control to volume</td><td>2048</td></tr>
+<tr><td>Modulation list*</td><td>4096</td></tr>
+<tr><td>Filter</td><td>8192</td></tr>
+</table>
+<p>* Modulation list refers to a list of other modulators found in the sound bank and is not currently implemented.</p>
+
+<p>The following table shows the parameter ID numbers and the
+equivalent XML tag and attribute values for the GM instrument. </p>
+
+<table border="1" cellspacing="0" cellpadding="4">
+ <tr valign="top" style="background-color:Black;color:White;">
+  <td><p align="center"><b>Parameter</b></p></td>
+  <td><p align="center"><b>Tag</b></p></td>
+  <td><p align="center"><b>Attribute</b></p></td>
+  <td><p align="center"><b>Name</b><p></td>
+  <td><p align="center"><b>Use</b></p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>16</p></td>
+  <td><p>gm</p></td>
+  <td><p>local</p></td>
+  <td><p>local</p></td>
+  <td><p>Flags to control local override for volume and pan settings.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>17</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>volume</p></td>
+  <td><p>volume</p></td>
+  <td><p>Volume level</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>18</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>pan</p></td>
+  <td><p>pan</p></td>
+  <td><p>Pan setting.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>19</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>bank</p></td>
+  <td><p>bank</p></td>
+  <td><p>Patch bank number.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>20</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>prog</p></td>
+  <td><p>prog</p></td>
+  <td><p>Patch program number.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>21</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>flags</p></td>
+  <td><p>flags</p></td>
+  <td>  <p>MIDI CC enable flags.</p></td>
+ </tr>
+</table>
+<h3>XML Format<hr/></h3>
+<pre>
+&lt;instr id=&quot;&quot; type=&quot;GMPlayer&quot; name=&quot;&quot; desc=&quot;&quot;&gt;
+   &lt;gm local=&quot;1&quot; vol=&quot;1.000000&quot; pan=&quot;0.000000&quot; bank=&quot;0&quot; prog=&quot;0&quot; flags=&quot;16375&quot;&gt;
+     Soundbank Name
+   &lt;/gm&gt;
+&lt;/instr&gt;
+</pre>
