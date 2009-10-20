@@ -429,13 +429,13 @@ int Sequencer::Tick()
 		actCount++;
 		if (act->ison == SEQ_AE_ON)
 		{
-			if ((act->flags & SEQ_AE_TM) && act->count-- == 0)
+			act->ip->Tick();
+			if ((act->flags & SEQ_AE_TM) && --act->count == 0)
 			{
 				act->ip->Stop();
 				act->ison = SEQ_AE_REL;
 				//printf("Stop Note for event %d\n", act->evid);
 			}
-			act->ip->Tick();
 			act = act->next;
 		}
 		else if (act->ison == SEQ_AE_REL)
@@ -516,16 +516,10 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 		actTail->InsertBefore(act);
 		act->evid = evt->evid;
 		act->ison = SEQ_AE_ON;
-		if (evt->duration == 0)
-		{
-			act->count = 0;
-			act->flags = flags & ~SEQ_AE_TM;
-		}
-		else
-		{
-			act->count = evt->duration;
-			act->flags = flags;
-		}
+		act->count = evt->duration;
+		if ((flags & SEQ_AE_TM) && act->count == 0)
+			act->count = 1;
+		act->flags = flags;
 
 		// assume: allocate should not fail, even if inum is invalid...
 		if (evt->im)
