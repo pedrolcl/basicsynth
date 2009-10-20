@@ -624,16 +624,18 @@ public:
 		AmpValue rvalOut = 0;
 		FxChannel *fx, *fxe;
 		MixChannel *pin = inBuf;
+		// Add inputs and send to fx units.
 		for (n = 0; n < mixInputs; n++)
 		{
 			if (pin->IsOn())
 			{
 				if ((fx = fxBuf) != 0)
 				{
+					AmpValue lvl = pin->Level();
 					fxe = &fxBuf[fxUnits];
 					while (fx < fxe)
 					{
-						fx->FxIn(n, pin->Level());
+						fx->FxIn(n, lvl);
 						fx++;
 					}
 				}
@@ -642,6 +644,7 @@ public:
 			pin++;
 		}
 
+		// Add outputs from fx units
 		if ((fx = fxBuf) != 0)
 		{
 			fxe = &fxBuf[fxUnits];
@@ -687,6 +690,9 @@ public:
 
 	/// Get a reference to an input channel object.
 	/// This is made available for editors.
+	/// This can be used for interactive mixer control
+	/// but can cause clicks if values are changed
+	/// during sound output.
 	/// @param ch Channel number
 	MixChannel *GetChannelPtr(int ch)
 	{
