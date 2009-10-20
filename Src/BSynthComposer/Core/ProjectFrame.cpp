@@ -304,7 +304,7 @@ int ProjectFrame::SaveProject()
 	SaveBackup();
 	if (!SaveAllEditors(0))
 		return -1;
-	if (theProject->SaveProject(path))
+	if (theProject->SaveProject())
 	{
 		bsString msg;
 		msg = "Could not save project: ";
@@ -341,8 +341,6 @@ int ProjectFrame::SaveProjectAs()
 	const char *ext = ProjectItem::GetFileExt(PRJNODE_PROJECT);
 	if (!BrowseFile(0, path, spc, ext))
 		return -1;
-	bsString oldDir;
-	theProject->GetProjectDir(oldDir);
 	if (theProject->SaveProject(path))
 	{
 		bsString msg;
@@ -351,7 +349,10 @@ int ProjectFrame::SaveProjectAs()
 		Alert(msg, "Ooops...");
 		return -1;
 	}
+	bsString oldDir;
 	bsString newDir;
+	theProject->GetProjectDir(oldDir);
+	theProject->SetProjectPath(path);
 	theProject->GetProjectDir(newDir);
 	if (oldDir.Length() > 0 && oldDir.Compare(newDir) != 0)
 		theProject->CopyFiles(oldDir, newDir);
