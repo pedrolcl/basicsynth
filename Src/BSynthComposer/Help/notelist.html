@@ -1042,6 +1042,41 @@ set step = 1;
 set val2 = C4 + (oct * step);
 </pre>
 
+<p>Any declared variable in Notelist can be treated as an associative array. When
+the variable name is followed by an index in brackets, the index value is associated
+with the value. The index can be a number or a string.</p>
+<pre>
+set myval["vol"] = 100;
+set myval[0] = 200;
+</pre>
+<p>Arrays can be used to store a set of values that are iterated using
+the <i>loop</i> or <i>while</i> statements. The following example
+generates a random series of pitches and plays them 12 times,
+transposing up a semitone each time.</p>
+
+<pre>
+var index;
+var pits;
+
+voice 0
+begin
+
+	set index = 0;
+	while index &lt; 16 do
+	begin
+		set pits[index] = rand(48,60);
+		set index = index + 1;
+	end
+
+	loop 12
+	begin
+		transpose count;
+		loop 16
+			pits[count], %16, 100;
+	end
+end
+</pre>
+
 <h3><a name="sequence">SEQUENCE</a></h3>
 
 <p>Syntax: sequence <i>id </i>begin <i>notelist </i>end</p>
@@ -1065,6 +1100,15 @@ For example, a TRANSPOSE statement within a sequence would remain in effect for
 notes within the voice that come after the sequence is played.</p>
 
 <p>The keyword SEQUENCE may be abbreviated to SEQ.</p>
+
+<h3><a name="start">START</a></h3>
+<p>Syntax: start <i>track, [loop]</i>;</p>
+<p>The START statement starts a background track. The optional loop count indicates how many times the track should be played.
+If the <i>loop</i> value is missing, or is zero, the track will play until a STOP statement is given.</p>
+
+<h3><a name="start">STOP</a></h3>
+<p>Syntax: stop <i>track</i>;</p>
+<p>The STOP statement stops a background track.</p>
 
 <h3><a name="sync">SYNC</a></h3>
 
@@ -1125,6 +1169,14 @@ only convenient way to enter a complex polyphonic phrase. For example:</p>
 time curtime - %2;
 {R, G4, B4, R, C5, A4 }, {%8, %16, %16, %8, %16, %16}, 100;
 </pre>
+
+<h3><a name="track">TRACK</a></h3>
+<p>Syntax: track <i>n</i>;</p>
+<p>The TRACK statement changes the sequencer track for subsequent notes and resets the current time to zero.
+By default notes are assigned to track zero. Track zero is started automatically when the sequencer is started.
+When the track number is other than zero, all subsequent events in the voice are assigned to a separate sequencer track.
+Tracks other than zero must be explicitly started with a START statement, but can be started, stopped and looped individually.
+</p>
 
 <h3><a name="transpose">TRANSPOSE</a></h3>
 
