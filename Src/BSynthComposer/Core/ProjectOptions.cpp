@@ -27,7 +27,8 @@ ProjectOptions::ProjectOptions()
 	inclTextFiles = 0;
 	inclLibraries = 0;
 	inclSoundFonts = 1;
-	inclInstr = 0xfff;
+	inclMIDI = 1;
+	inclInstr = -1;
 	midiDevice = -1;
 	memset(midiDeviceName, 0, MAX_PATH);
 	memset(waveDevice, 0, MAX_PATH);
@@ -37,7 +38,7 @@ ProjectOptions::ProjectOptions()
 	frmWidth = 1024;
 	frmHeight = 768;
 	frmMax = 0;
-#if _WIN32
+#if defined(_WIN32) && _WIN32
 	dsoundHWND = 0;
 	waveID = 0;
 #endif
@@ -63,7 +64,7 @@ static int xtoi(const char *p)
 	return x;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && _WIN32
 #include <Mmsystem.h>
 #include <Mmreg.h>
 
@@ -147,7 +148,7 @@ public:
 
 	int SetValue(const char *key, char *value)
 	{
-		return ::RegSetValueEx(hk, key, NULL, REG_SZ, (LPBYTE)value, strlen(value));
+		return ::RegSetValueEx(hk, key, NULL, REG_SZ, (LPBYTE)value, (DWORD)strlen(value));
 	}
 
 	int SetValue(const char *key, int value)
@@ -217,8 +218,8 @@ void ProjectOptions::Load()
 		rk.QueryValue("InclLibraries", inclLibraries);
 		rk.QueryValue("InclSoundFonts", inclSoundFonts);
 		rk.QueryValue("Latency", playBuf);
-		rk.QueryValue("InclInstruments", buf);
-		inclInstr = xtoi(buf);
+		if (rk.QueryValue("InclInstruments", buf))
+			inclInstr = xtoi(buf);
 		rk.QueryValue("Author", defAuthor);
 		rk.QueryValue("Copyright", defCopyright);
 		rk.QueryValue("MIDIDeviceName", midiDeviceName);
