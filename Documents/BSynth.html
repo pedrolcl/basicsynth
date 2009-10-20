@@ -21,6 +21,9 @@ that control the format of the output. An template project file is shown below.<
       &lt;part mul=&quot;&quot; amp=&quot;&quot; phs=&quot;&quot;/&gt;
     &lt;/wvtable&gt;
   &lt;/synth&gt;
+  &lt;midi&gt;
+     &lt;chnl cn=&quot;&quot; bnk=&quot;&quot; prg=&quot;&quot; vol=&quot;&quot; pan=&quot;&quot; /&gt;
+  &lt;/midi&gt;
   &lt;wvdir&gt;wave file path&lt;/wvdir&gt;
   &lt;wvfile id=&quot;&quot; name=&quot;&quot; desc=&quot;&quot; &gt;file name&lt;/wvfile&gt;
   &lt;mixer chnls=&quot;&quot; fxunits=&quot;&quot; lft=&quot;&quot; rgt=&quot;&quot;&gt;
@@ -36,6 +39,7 @@ that control the format of the output. An template project file is shown below.<
       &lt;send chnl=&quot;&quot; amt=&quot;&quot; /&gt;
     &lt;/echo&gt;
   &lt;/mixer&gt;
+  &lt;sndbnk name=&quot;&quot; inc=&quot;&quot; pre=&quot;&quot; nrm=&quot;&quot;&gt;file name&lt;/sndbnk&gt;
   &lt;libdir&gt;path to libraries and scores&lt;/libdir&gt;
   &lt;libfile&gt;an instrument library&lt;/libfile&gt;
   &lt;instrlib&gt;
@@ -64,6 +68,12 @@ Tag</th><th>Attribute</th><th>Use</th></tr>
 <tr><td>synth</td><td>sr</td><td>Sample rate (default 44100)</td></tr>
 <tr><td>&nbsp;</td><td>wt</td><td>Wavetable length (default 16k. Values greater than 32k may cause problems.)</td></tr>
 <tr><td>&nbsp;</td><td>usr</td><td>Number of user defined wave tables, defined by <i>wvtable</i> tags</td></tr>
+<tr><td>midi</td><td>&nbsp;</td><td>Default MIDI settings</td></tr>
+<tr><td>chnl</td><td>cn</td><td>MIDI Channel</td></tr>
+<tr><td>&nbsp;</td><td>bnk</td><td>Bank number</td></tr>
+<tr><td>&nbsp;</td><td>prg</td><td>Program number</td></tr>
+<tr><td>&nbsp;</td><td>vol</td><td>Volume (cc# 7) normalized to 0-1</td></tr>
+<tr><td>&nbsp;</td><td>pan</td><td>Pan (cc# 10) normalized to +/-1</td></tr>
 <tr><td>wvtable</td><td>ndx</td><td>Wavetable index number (0-9 are reserved for library use)</td></tr>
 <tr><td>&nbsp;</td><td>id</td><td>Wavetable ID, same as index for pre-defined tables.</td></tr>
 <tr><td>&nbsp;</td><td>parts</td><td>Number of partials</td></tr>
@@ -96,6 +106,10 @@ Tag</th><th>Attribute</th><th>Use</th></tr>
 <tr><td>echo</td><td>unit</td><td>Effects unit number</td></tr>
 <tr><td>&nbsp;</td><td>tm</td><td>Echo delay time</td></tr>
 <tr><td>&nbsp;</td><td>dec</td><td>Decay value</td></tr>
+<tr><td>sndbnk</td><td>name</td><td>SoundBank alias name</td></tr>
+<tr><td>&nbsp;</td><td>inc</td><td>Include in project</td></tr>
+<tr><td>&nbsp;</td><td>pre</td><td>Preload all samples when opened.</td></tr>
+<tr><td>&nbsp;</td><td>nrm</td><td>Value to normalize (scale) atteunation</td></tr>
 <tr><td>libdir</td><td>&nbsp;</td><td>Path to libraries</td></tr>
 <tr><td>wvdir</td><td>&nbsp;</td><td>Path to wave files</td></tr>
 <tr><td>wvfile</td><td>&nbsp;</td><td>Wave file to load</td></tr>
