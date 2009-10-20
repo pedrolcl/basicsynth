@@ -143,8 +143,6 @@ public:
 		}
 		AmpValue v = sinv(index);
 		index += indexIncr;
-		//if (index >= twoPI)
-		//	index -= twoPI;
 		return v;
 	}
 };
@@ -436,7 +434,7 @@ public:
 };
 
 /// Normalized phase integrator. 
-/// THe output counts up from 0 to 1-incr
+/// The phase counts up from 0 to 1-incr
 class Phasor : public GenUnit
 {
 protected:
@@ -477,7 +475,8 @@ public:
 		}
 	}
 
-	// set 'in' to the max value, usually 1
+	/// Generate the next value.
+	/// Set 'in' to the max value, e.g., table length.
 	AmpValue Sample(AmpValue in)
 	{
 		in *= (AmpValue) phase;
@@ -488,7 +487,7 @@ public:
 };
 
 /// Normalized phase integrator. 
-/// The output counts down from 1 to 0
+/// The phase counts down from 1 to 0
 class PhasorR : public Phasor
 {
 public:
@@ -498,7 +497,8 @@ public:
 		phase = 1.0 - phase;
 	}
 
-	// set 'in' to the max value, usually 1
+	/// Generate the next value.
+	/// Set 'in' to the max value, e.g., table length.
 	AmpValue Sample(AmpValue in)
 	{
 		in *= (AmpValue) phase;

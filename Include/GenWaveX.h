@@ -553,7 +553,8 @@ public:
 /// f(t) = A = 1
 /// @endcode
 /// See: Computer Music, Dodge&Jerse, chapter 5.3a
-/// and http://www.cs.sfu.ca/~tamaras/
+/// and http://www.cs.sfu.ca/~tamaras/.
+///
 /// When a wavetable is used, we need to use interpolation
 /// to avoid clicks and pops caused by round-off errros.
 /// @sa GenWave

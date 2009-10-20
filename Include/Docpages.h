@@ -148,14 +148,14 @@ output, either a wave file or a sound output device (DAC). The project informati
 parameters component contains general synthesizer information and also allows the sequencer 
 to discover the available instruments and scores that are to be used. 
 
-\image html architecture.jpg
+\image html architecture2.jpg
 
 Because it is a component architecture, it is possible to replace any of the components in the 
 system with custom versions. So long as the interface to the component is maintained, the
 remainder of the system will work without modification.
 
-Since all configuration files are in XML format, a simple text editor may be used. 
-The BasicSynthComposer program implements GUI editors for each part of the system.
+Since all configuration files are in XML format, a simple text editor may be used to configure the system. 
+The \e BasicSynth Composer program implements GUI editors for each part of the system.
 
 <table border="1" cellspacing="0">
 <tr style="background-color:black;color:white;"><td>Module</td><td>Description</td></tr>
@@ -183,21 +183,65 @@ allowed the sequencer to store any series of synthesizer control parameters and 
 the control signals automatically. In a software synthesis system, the sequencer is expanded
 to provide the ability to automate timed control of any synthesizer function.
 
-\image html sequencer.jpg
+\image html sequencer2.jpg
 
-The Sequence File Loader implements functions to read a list of events and event parameters from a file. Each event includes a unique identifier that indicates which instrument will process the event. As each event is loaded, the loader calls the Instrument Manager to instantiate an Event object specific to the target instrument. The Instrument Manager uses the instrument identifier to locate information about the instrument in the Instrument Definition Table. The Instrument Manager then calls a method on the Instrument interface to instantiate the event object. Parameters from the file are added to the event object by calling the set parameter method on the event object. The Event object is then added to the Sequencer Loop event list.
+The Sequence File Loader implements functions to read a list of events and event parameters from a file. 
+Each event (SeqEvent) includes a unique identifier that indicates which instrument will process the event. 
+As each event is loaded, the loader calls the Instrument Manager to instantiate an Event object specific to the target instrument. 
+The Instrument Manager uses the instrument identifier to locate information about the instrument in the Instrument Definition Table. 
+The Instrument Manager then calls a method on the Instrument interface to instantiate the event object. 
+Parameters from the file are added to the event object by calling the set parameter method on the event object. 
+The Event object is then added to the Sequencer Loop track event list.
 
-The Instrument Definition Table contains entries to identify each instrument in the synthesizer. This list can be dynamically created when the synthesizer is loaded, or can be compiled into the program. Typically, the table is loaded from a file containing instrument types and default settings. The table contains the address of a factory for each instrument and event type. The factory is the code that "manufactures" (i.e., instantiates) the instrument or event, and is defined as a part of the instrument object implementation. By storing the information in a table created at runtime, the synthesizer can have access to an unlimited number of instrument definitions.
+The Sequencer maintains a group of Track objects (SeqTrack). Each Track represents a time ordered list of sequencer events.
+Track zero is the master track that is started when the Sequencer is started. Other tracks can be started
+and stopped indpendently of the main track. The track is determined by a value in the event object.
 
-Once the sequence is loaded, playback is started by calling a method on the Sequencer Loop. The Sequencer Loop calls the start method on the Instrument Manager. This allows the Instrument Manager to pre-allocate instruments if needed and also to initialize the Mixer and Wave File outputs. The Sequencer Loop scans the list of events until the start time of an event is reached. The Sequencer Loop then invokes the Instrument Manager to allocate an instance of the instrument identified by the Event object and receives back a reference to the Instrument interface, which is stored in the Active list. The Event is then passed to the instrument using the start method. 
+Events can also be passed directly to the Sequencer for immediate execution. These events typically come
+from a MIDI keyboard, but can be generated from any source that has access to the sequencer. Immediate
+events do not have a start time, and are removed from the event list as soon as they are played.
 
-The instrument associated with the event is called for each sample time until the duration of the event is completed. The Sequencer Loop then calls the instrument stop method to signal the instrument to end. However, the instrument remains active, and the tick method continues to be called, so long as the isfinished method returns false. This allows the instrument to produce samples beyond the limit of its event duration if necessary. For example, the instrument can wait to begin the release portion of the envelope until a stop signal is received, and processors such as delay lines can empty the delay line before terminating. When the instrument indicates it has finished, the Sequencer Loop removes the instrument from the active list and notifies the Instrument Manager that the instrument is no longer in use by invoking the deallocate method. The Instrument Manager can then either destroy the instrument instance, or recycle it if possible.
+The Instrument Definition Table contains entries to identify each instrument in the synthesizer. 
+This list can be dynamically created when the synthesizer is loaded, or can be compiled into the program. 
+Typically, the table is loaded from a file containing instrument types and default settings. 
+The table contains the address of a factory for each instrument and event type.
+The factory is the code that "manufactures" (i.e., instantiates) the instrument or event, and is defined as a part
+of the instrument object implementation. By storing the information in a table created at runtime, the synthesizer
+can have access to an unlimited number of instrument definitions.
 
-When the tick method is called on an instrument, the instrument produces a sample and passes it to the Instrument Manager which then adds the sample to the appropriate Mixer input. However, an instrument does not need to produce samples. An instrument can also be defined to control other synthesizer functions, such as panning, mixer levels, etc. When all active instruments have been processed, the Sequencer Loop calls the tick method on the Instrument Manager. The output of the Mixer is then retrieved and passed to the Wave File output buffer.
+The Control object is optional. When set, control events are passed to the Control instead of the Instrument Manager.
+Typically, the Control maintains a set of global instrument parameters. Instruments can query the Control to obatin
+those values.
+
+Once the sequence is loaded, playback is started by calling a method on the Sequencer Loop. 
+The Sequencer Loop calls the start method on the Instrument Manager. This allows the Instrument Manager to 
+pre-allocate instruments if needed and also to initialize the Mixer and Wave File outputs. 
+The Sequencer Loop scans the list of events associated with each Track until the start time of an event is reached. 
+The Sequencer Loop then invokes the Instrument Manager to allocate an instance of the instrument identified by the
+Event object and receives back a reference to the Instrument interface, which is stored in the Active Event list. 
+The Event is then passed to the instrument using the start method. 
+
+The instrument associated with the event is called for each sample time until the duration of the event is completed. 
+The Sequencer Loop then calls the instrument stop method to signal the instrument to end. 
+However, the instrument remains active, and the tick method continues to be called, so long as the \e isfinished method returns false. 
+This allows the instrument to produce samples beyond the limit of its event duration if necessary. 
+For example, the instrument can wait to begin the release portion of the envelope until a stop signal is received, 
+and processors such as delay lines can empty the delay line before terminating. When the instrument indicates it has finished, 
+the Sequencer Loop removes the instrument from the active list and notifies the Instrument Manager that the instrument is no 
+longer in use by invoking the deallocate method. The Instrument Manager can then either destroy the instrument instance, or recycle it if possible.
+
+When the tick method is called on an instrument, the instrument produces a sample and passes it to the Instrument Manager 
+which then adds the sample to the appropriate Mixer input. However, an instrument does not need to produce samples. 
+An instrument can also be defined to control other synthesizer functions, such as panning, mixer levels, etc. 
+When all active instruments have been processed, the Sequencer Loop calls the tick method on the Instrument Manager. 
+The output of the Mixer is then retrieved and passed to the Wave File output buffer.
 
 Once all events have been completed, the stop method on the Instrument Manager is called to close out the wave file and discard any pre-allocated instruments.
 
-This design allows for nearly unlimited flexibility in the sequencer. We only need a few event types and can sequence any number of instruments, processors and controllers without having to build the knowledge of the instruments into the sequencer. Any synthesizer function that can be performed with the stop, start, change, and tick signals can be sequenced. The key to this design lies in the flexibility of the event object, the dynamic allocation of instrument instances, and the abstract instrument interface.
+This design allows for nearly unlimited flexibility in the sequencer. We only need a few event types and can sequence any number of instruments, 
+processors and controllers without having to build the knowledge of the instruments into the sequencer. Any synthesizer function that can be 
+performed with the stop, start, change, and tick signals can be sequenced. The key to this design lies in the flexibility of the event object, 
+the dynamic allocation of instrument instances, and the abstract instrument interface.
 
 \page pgbsynth BSynth synthesizer
 

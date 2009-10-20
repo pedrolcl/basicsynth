@@ -138,7 +138,7 @@
 
 #pragma pack(push, 2)
 
-/// A RIFF chunk header
+/// DLS RIFF chunk header
 struct dlsChunk
 {
 	bsUint32 ckid; //char ckid[4];
@@ -155,12 +155,14 @@ struct dlsID
 	bsUint8  data4[8];
 };
 
+/// DLS version record
 struct dlsVersion
 {
 	bsUint32 dwVersionMS;
 	bsUint32 dwVersionLS;
 };
 
+/// DLS connection record
 struct dlsConnection
 {
 	bsUint16 source;
@@ -170,7 +172,7 @@ struct dlsConnection
 	bsInt32  scale;
 };
 
-// Level 1 Articulation Data
+/// DLS Level 1 Articulation Data
 struct dlsConnectionList
 {
 	bsUint32 size; // size of the connection list structure
@@ -180,6 +182,8 @@ struct dlsConnectionList
 ///////////////////////////////////////////////////////////////////////////
 // Generic type defines for regions and instruments
 ///////////////////////////////////////////////////////////////////////////
+
+/// DLS Region key range.
 struct dlsRgnRange
 {
 	bsUint16 low;
@@ -198,6 +202,7 @@ struct dlsMidiLocale
 // regions.
 ///////////////////////////////////////////////////////////////////////////
 #define F_RGN_OPTION_SELFNONEXCLUSIVE 0x0001
+/// DLS Region header
 struct dlsRgnHeader
 {
 	dlsRgnRange rangeKey; // Key range
@@ -209,12 +214,14 @@ struct dlsRgnHeader
 	bsUint16    exclusive; // Level 2 only
 };
 
+/// DLS Instrument header record.
 struct dlsInstHeader
 {
 	bsUint32 regions; // Count of regions in this instrument
 	dlsMidiLocale locale; // Intended MIDI locale of this instrument
 };
 
+/// DLS header record.
 struct dlsHeader
 {
 	bsUint32 instruments; // Count of instruments in the collection
@@ -256,6 +263,7 @@ struct dlsPoolTable
 //////////////////////////////////////////////////////////////////////////////
 #define F_WSMP_NO_TRUNCATION 0x0001l
 #define F_WSMP_NO_COMPRESSION 0x0002l
+/// DLS sample data
 struct dlsSample
 {
 	bsUint32 size;
@@ -270,6 +278,7 @@ struct dlsSample
 // played until the envelope reaches an off threshold in the release
 // portion of the volume envelope
 #define WLOOP_TYPE_FORWARD 0
+/// DLS loop points record.
 struct dlsLoop
 {
 	bsUint32 size;
@@ -278,6 +287,7 @@ struct dlsLoop
 	bsUint32 length; // Length of loop in samples
 };
 
+/// DLS wavetable data format; same as FORMATETC.
 struct dlsWaveFmt
 {
 	bsUint16 fmtTag; 

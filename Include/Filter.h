@@ -304,7 +304,7 @@ public:
 			inAmp0 = 0;
 			return;
 		}
-		// Hal Chamberlin's equation, (derived from CSound source)
+		// Hal Chamberlin, Musical Applications of Microprocessors
 		double tmp = -PI * fc / (q * synthParams.sampleRate);
 		dlyAmp1 = -2.0 * cos(synthParams.frqRad * fc) * exp(tmp);
 		dlyAmp2 = exp(tmp+tmp);

@@ -258,16 +258,8 @@ public:
 /// 3. Playing the wavetable through to the end.
 ///
 /// The loopMode variable determines the interpretation
-/// of the wavetable. Mode 1 indicates no looping. Mode 2 indicates
+/// of the wavetable. Mode 0 indicates no looping. Mode 1 indicates
 /// a loop through decay. Mode 3 indicates play to end during decay.
-///
-/// This oscillator supports 2-channel capability so that stereo
-/// recordings are preserved when desired. If both left
-/// and right wavetables are set, the values for each channel
-/// are determined individually. The sum of the two channels is
-/// returned by the Gen() function. After Gen() is called, the
-/// GetLeft() and GetRight() accessor functions can be used to
-/// retrieve the separate left and right values.
 ///
 /// Values can be set directly using the SetWavetable and Init
 /// functions. However, this class is normally used as a base class
@@ -326,6 +318,15 @@ public:
 		}
 	}
 
+	/// Initialize the oscillator.
+	/// @param fo desired oscillator frequency
+	/// @param fr wavetable frequency
+	/// @param sr wavetable sample rate
+	/// @param te table end point in samples
+	/// @param ls loop start point in samples
+	/// @param le loop end point in samples
+	/// @param lm loop mode (0 = no loop)
+	/// @param wt wavetable samples (mono)
 	void InitWTLoop(FrqValue fo, FrqValue fr, FrqValue sr, 
 		bsInt32 te, bsInt32 ls, bsInt32 le, bsInt16 lm, AmpValue *wt)
 	{
@@ -348,6 +349,8 @@ public:
 		Reset(0);
 	}
 
+	/// Reset the current phase and calculate phase increment.
+	/// Reset must be called directly if SetFrequency is used.
 	void Reset(float initPhs)
 	{
 		if (initPhs >= 0)
@@ -367,16 +370,24 @@ public:
 			state = 2;
 	}
 
+	/// Alter the frequency by d.
 	void Modulate(FrqValue d)
 	{
 		phsIncr = (frq + d) * piMult;
 	}
 
+	/// Set the phase increment directly.
+	/// This function is useful for pitch bend
+	/// and other effects. It does not change
+	/// the base frequency of the oscillator, thus
+	/// calling Reset() will restore the original
+	/// frequency value if desired.
 	inline void UpdateFrequency(FrqValue f)
 	{
 		phsIncr = f * piMult;
 	}
 	
+	/// Generate the next sample.
 	AmpValue Gen()
 	{
 		if (phase < 0)
@@ -411,6 +422,11 @@ public:
 		return v1 + ((v2 - v1) * fr);
 	}
 
+	/// Determine if the wavetable end has been reached.
+	/// For wavetables with loop points, you must call
+	/// Release() to transition past the loop end.
+	/// For wavetables without loop points, this will
+	/// return true as soon as the entire sample is played.
 	int IsFinished()
 	{
 		return state == 2 && phase >= tableEnd;
@@ -442,11 +458,14 @@ public:
 
 	void Gen2(AmpValue& lft, AmpValue& rgt)
 	{
-		lft = GenWaveWTLoop::Gen();
 		if (phase >= tableEnd)
+		{
+			lft = 0;
 			rgt = 0;
+		}
 		else
 		{
+			lft = GenWaveWTLoop::Gen();
 			AmpValue v1 = wavetable2[ii];
 			AmpValue v2 = wavetable2[ii+1];
 			rgt = v1 + ((v2 - v1) * fr);

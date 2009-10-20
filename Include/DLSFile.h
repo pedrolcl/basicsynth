@@ -16,6 +16,7 @@
 #include <DLSDefs.h>
 
 
+/// INFO string value.
 class DLSInfoStr : public SynthList<DLSInfoStr>
 {
 public:
@@ -30,6 +31,7 @@ public:
 	int Read(FileReadBuf& file, bsUint32 cksz);
 };
 
+/// List of INFO strings.
 class DLSInfoList : public SynthEnumList<DLSInfoStr>
 {
 public:
@@ -52,6 +54,8 @@ public:
 	int Read(FileReadBuf& file, bsUint32 cksz);
 };
 
+/// Articulation information data.
+/// Articulation is specifed by source, destination, and scaling values.
 class DLSArtInfo : public SynthList<DLSArtInfo>
 {
 public:
@@ -71,21 +75,26 @@ public:
 		delete info;
 	}
 
+	/// Get the KEY modifier value for the given destination.
 	bsInt32 GetKeyMod(bsInt16 dst)
 	{
 		return GetConnection(CONN_SRC_KEYNUMBER, CONN_SRC_NONE, dst, 0);
 	}
 
+	/// Get the VELOCITY modifier for the given destination.
 	bsInt32 GetVelMod(bsInt16 dst)
 	{
 		return GetConnection(CONN_SRC_KEYONVELOCITY, CONN_SRC_NONE, dst, 0);
 	}
 
+	/// Get the default (SOURCE NONE) for a destination.
 	bsInt32 GetDefault(bsInt16 dst, bsInt32 defval)
 	{
 		return GetConnection(CONN_SRC_NONE, CONN_SRC_NONE, dst, defval);
 	}
 
+	/// Find a connection if it exists.
+	/// If the connection does not exist, return the default value.
 	bsInt32 GetConnection(bsInt16 src, bsInt16 ctl, bsInt16 dst, bsInt32 defval)
 	{
 		dlsConnection *ci = info;
@@ -102,9 +111,11 @@ public:
 		return defval;
 	}
 
+	/// Read the articulation info into this object.
 	int Read(FileReadBuf& file, bsUint32 cksz);
 };
 
+/// List of DLS articulation information.
 class DLSArtList : public SynthEnumList<DLSArtInfo>
 {
 public:
@@ -116,6 +127,9 @@ public:
 	int Read(FileReadBuf& file, bsUint32 cksz);
 };
 
+/// DLS region information.
+/// A region defines a sample for a specific range of
+/// key numbers and velocity values.
 class DLSRgnInfo : public SynthList<DLSRgnInfo>
 {
 public:
@@ -141,9 +155,11 @@ public:
 	{
 	}
 
+	/// Read the region information from the file.
 	int Read(FileReadBuf& file, bsUint32 cksz);
 };
 
+/// List of DLS region information.
 class DLSRgnList : public SynthEnumList<DLSRgnInfo>
 {
 public:
@@ -152,9 +168,12 @@ public:
 		return EnumItem(ri);
 	}
 
+	/// Read the region list from the file.
 	int Read(FileReadBuf& file, bsUint32 chksz);
 };
 
+/// DLS instrument information.
+/// An instrument contains region and articulation info.
 class DLSInsInfo : public SynthList<DLSInsInfo>
 {
 public:
@@ -201,9 +220,11 @@ public:
 		return 0;
 	}
 
+	/// Read the region information from the file.
 	int Read(FileReadBuf& file, bsUint32 chksz);
 };
 
+/// List of DLS instruments.
 class DLSInsList : public SynthEnumList<DLSInsInfo>
 {
 public:
@@ -212,9 +233,13 @@ public:
 		return EnumItem(ii);
 	}
 
+	/// Read the list of instruments from the file.
 	int Read(FileReadBuf& file, bsUint32 chksz);
 };
 
+/// Wavetable from a DLS file.
+/// Typically, each region uses a separate sample,
+/// but samples can be shared.
 class DLSWaveInfo : public SynthList<DLSWaveInfo>
 {
 public:
@@ -239,6 +264,7 @@ public:
 
 	~DLSWaveInfo()
 	{
+		// the sample data is owned by the sound bank object.
 		//if (samples)
 		//	delete samples;
 	}
@@ -247,6 +273,13 @@ public:
 	int ReadSamples(FileReadBuf& file, bsUint32 chksz);
 };
 
+/// DLS wave pool information.
+/// This is added for completeness, but is not
+/// currently used. The wave pool data allows quick
+/// locating of wavetables in cases where the samples
+/// are not retained in memory. We store the offset
+/// into the file in the DLSWaveInfo as the file is 
+/// scanned, thus making the wave pool redundant.
 class DLSWvplInfo : public SynthEnumList<DLSWaveInfo>
 {
 public:
@@ -275,6 +308,9 @@ public:
 	int Read(FileReadBuf& file, bsUint32 chksz);
 };
 
+/// DLS file information.
+/// This includes global INFO strings along
+/// with lists of instruments.
 class DLSFileInfo
 {
 public:
@@ -320,7 +356,15 @@ public:
 	DLSFile();
 	~DLSFile();
 
+	/// Determine if the file is a DLS format file.
 	static int IsDLSFile(const char *fname);
+
+	/// Load the file and return as a SoundBank object.
+	/// The caller is responsible for deleteing the returned object.
+	/// @param fname path to the file
+	/// @param pre preload all samples
+	/// @param scl attenuation scaling
+	/// @returns pointer to SoundBank object.
 	SoundBank *LoadSoundBank(const char *fname, int pre = 1, float scl = 1.0);
 	DLSFileInfo *GetInfo() { return &info; }
 };
