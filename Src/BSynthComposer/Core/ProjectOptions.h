@@ -4,7 +4,7 @@
 #ifndef MAX_PATH
 #define MAX_PATH 512
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) && _WIN32
 #define WIN32_REGISTRY 1
 #endif
 
@@ -28,6 +28,7 @@ public:
 	int inclLibraries;
 	int inclSoundFonts;
 	int inclInstr;
+	int inclMIDI;
 	int midiDevice;
 	char midiDeviceName[MAX_PATH];
 	char waveDevice[MAX_PATH];
@@ -37,7 +38,7 @@ public:
 	int frmWidth;
 	int frmHeight;
 	int frmMax;
-#ifdef _WIN32
+#if defined(_WIN32) && _WIN32
 	HWND dsoundHWND;
 	GUID *waveID;
 #endif
