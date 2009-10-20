@@ -92,7 +92,7 @@ FILE_PATTERNS          = *.c \
                          *.idl \
                          *.odl \
                          *.cs
-RECURSIVE              = YES
+RECURSIVE              = NO
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
