@@ -78,43 +78,40 @@ void WavetableEdit::SetParams()
 	SynthWidget *knb;
 	int parts = 0;
 	int ndx;
+	int pndx;
 	int wid = 0;
 	for (ndx = 0; ndx < WT_MAX_PARTIAL; ndx++)
 	{
 		wdg = mainGroup->FindID(wid+1);
 		if (wdg->GetState())
+		{
 			parts++;
+			knb = mainGroup->FindID(wid+2);
+			savebuf[ndx].amp = knb->GetValue();
+			knb = mainGroup->FindID(wid+4);
+			savebuf[ndx].phs = knb->GetValue();
+			savebuf[ndx].on = 1;
+		}
+		else
+		{
+			savebuf[ndx].amp = 0;
+			savebuf[ndx].phs = 0;
+			savebuf[ndx].on = 0;
+		}
 		wid += 10;
 	}
 	if (parts < 1)
 		parts = 1;
-	wi->AllocParts(parts);
-	wid = 0;
-	AmpValue amp;
-	FrqValue phs;
-	for (ndx = 0; ndx < parts; ndx++)
+	if (wi->AllocParts(parts) != 0)
 	{
-		wdg = mainGroup->FindID(wid+1);
-		if (wdg->GetState())
-		{
-			knb = mainGroup->FindID(wid+2);
-			amp = knb->GetValue();
-			knb = mainGroup->FindID(wid+4);
-			phs = knb->GetValue();
-			wi->SetPart(ndx, ndx+1, amp, phs);
-			savebuf[ndx].amp = amp;
-			savebuf[ndx].phs = phs;
-			savebuf[ndx].on = 1;
-		}
-		wid += 10;
+		// Alert("Out of memory");
+		return;
 	}
-
-	while (ndx < WT_MAX_PARTIAL)
+	pndx = 0;
+	for (ndx = 0; ndx < WT_MAX_PARTIAL; ndx++)
 	{
-		savebuf[ndx].amp = 0;
-		savebuf[ndx].phs = 0;
-		savebuf[ndx].on = 0;
-		ndx++;
+		if (savebuf[ndx].on)
+			wi->SetPart(pndx++, ndx+1, savebuf[ndx].amp, savebuf[ndx].phs);
 	}
 
 	wdg = mainGroup->FindID(200);
