@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////
-// BasicSynth - Example 4a (Chapter 8)
+// BasicSynth - Example 4a
 //
-// Soundfont player
+// Soundfont dump/player
 //
 // use: example4a soundfont -bbank -ppreset -m -d(1|2|3) -wprefix -n[0|1] -l[0|1]
 // -d1 = print internal representation
@@ -791,7 +791,7 @@ private:
 	{
 	public:
 		SBZone *zone;
-		GenWaveSF1 osc;
+		GenWaveWTLoop osc;
 		GenWaveWT  vib;
 		GenWaveWT  mod;
 		EnvGenSF   volEnv;  // volume envelope
@@ -826,7 +826,9 @@ public:
 		frq = synthParams.GetFrequency(pit-12); 
 		ZonePlay *zp = zoneList.AddItem();
 		zp->zone = zone;
-		zp->osc.InitSF(frq, zone, 0);
+		zp->osc.InitWTLoop(frq, zone->recFreq, zone->rate, 
+			zone->tableEnd, zone->loopStart, zone->loopEnd,
+			zone->mode, zone->sample->sample);
 		zp->volEnv.InitEnv(&zone->volEg, pit, vel);
 		zp->modEnv.InitEnv(&zone->modEg, pit, vel);
 		zp->vibDelay = (bsInt32) (zone->vibLfo.delay * synthParams.sampleRate);
