@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
 	// Add it as template to the available instrument list.
 	InstrConfig *inc = inmgr.AddInstrument(0, ime, instr);
-	for (int i = 0; i < 16; i++)
+	for (i = 0; i < 16; i++)
 	{
 		map[i].inc = inc;
 		// The bank and patch params can be used to send

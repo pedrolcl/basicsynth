@@ -266,7 +266,7 @@ int MIDIFileLoad::LoadFile(char *file)
 			err = -1;
 			break;
 		}
-		if (fp.FileRead(inpBuf, trkSize) != trkSize)
+		if ((bsUint32)fp.FileRead(inpBuf, trkSize) != trkSize)
 		{
 			err = -1;
 			break;

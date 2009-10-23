@@ -125,6 +125,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualKBD", "Utilities\Vir
 		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example4a", "Examples\Example4a\Example4a-2005.vcproj", "{365E9329-E6C9-4F9E-A23A-F86FE9555F89}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example9a", "Examples\Example9a\Example9a-2005.vcproj", "{C79EF41F-B1B8-4D94-90C0-C84A2CB27C4C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3932F06-DA1D-42A8-95AB-B3469B90F26F} = {E3932F06-DA1D-42A8-95AB-B3469B90F26F}
+		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32

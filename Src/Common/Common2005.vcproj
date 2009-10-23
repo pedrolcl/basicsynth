@@ -298,6 +298,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InstrManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MIDIControl.cpp"
 				>
 			</File>

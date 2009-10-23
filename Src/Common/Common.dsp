@@ -102,6 +102,10 @@ SOURCE=.\Global.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\InstrManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MIDIControl.cpp
 # End Source File
 # Begin Source File

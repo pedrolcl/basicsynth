@@ -511,7 +511,7 @@ int DLSInfoStr::Read(FileReadBuf& file, bsUint32 cksz)
 {
 	//printf("  InfoStr(%d)\n", cksz);
 	char *s = (char *)malloc(cksz+1);
-	if (file.FileRead(s, cksz) == cksz)
+	if ((bsUint32)file.FileRead(s, cksz) == cksz)
 	{
 		s[cksz] = '\0';
 		while (--cksz >= 0)

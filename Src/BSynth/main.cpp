@@ -392,12 +392,12 @@ public:
 						else if (mixElem->TagMatch("echo"))
 						{
 							fxCount++;
-							float tm = 0;
+							float dly = 0;
 							float dec = 0;
-							mixElem->GetAttribute("tm", tm);
+							mixElem->GetAttribute("dly", dly);
 							mixElem->GetAttribute("dec", dec);
-							DelayLine *dl = new DelayLine;
-							dl->InitDL(tm, dec);
+							DelayLineR *dl = new DelayLineR;
+							dl->InitDLR(dly, dec, 0.001, 1.0);
 							LoadFX(mixElem, dl);
 						}
 						sib = mixElem->NextSibling();
@@ -409,6 +409,32 @@ public:
 						fprintf(stderr, "Not all fx units are configured (only %d of %d)\n", fxCount, fxChnl);
 						errcnt++;
 					}
+				}
+			}
+			else if (child->TagMatch("midi"))
+			{
+				short chnl;
+				bsInt16 val;
+				AmpValue vol;
+
+				XmlSynthElem *chnlNode = child->FirstChild();
+				while (chnlNode)
+				{
+					if (chnlNode->TagMatch("chnl"))
+					{
+						chnlNode->GetAttribute("cn", chnl);
+						chnlNode->GetAttribute("bnk", val);
+						midiCtl.SetBank(chnl, val);
+						chnlNode->GetAttribute("prg", val);
+						midiCtl.SetPatch(chnl, val);
+						chnlNode->GetAttribute("vol", vol);
+						midiCtl.SetVolume(chnl, vol);
+						chnlNode->GetAttribute("pan", vol);
+						midiCtl.SetPan(chnl, vol);
+					}
+					XmlSynthElem *n = chnlNode->NextSibling();
+					delete chnlNode;
+					chnlNode = n;
 				}
 			}
 			sib = child->NextSibling();
@@ -617,6 +643,7 @@ public:
 				wvf.OpenWaveFile(outFile, 2);
 				wvp = &wvf;
 			}
+			mix.Reset();
 			mgr.Init(&mix, wvp);
 			pad = (long) (synthParams.isampleRate * lead);
 			while (pad-- > 0)

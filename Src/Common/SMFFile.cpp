@@ -80,7 +80,7 @@ int SMFFile::LoadFile(const char *file)
 			break;
 		}
 
-		if (fp.FileRead(inpBuf, trkSize) != trkSize)
+		if ((bsUint32)fp.FileRead(inpBuf, trkSize) != trkSize)
 		{
 			err = -1;
 			break;
