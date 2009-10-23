@@ -19,7 +19,7 @@
 #define MIDIIN_CHNL_ENABLE(bits,ch) bits |= MIDI_CHNL_BIT(ch)
 #define MIDIIN_CHNL_DISABLE(bits,ch) bits &= ~MIDI_CHNL_BIT(ch)
 
-#if defined(_MSC_VER) && (_MSC_VER < 1200)
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
 typedef unsigned long ULONG_PTR;
 typedef ULONG_PTR DWORD_PTR;
 #endif
