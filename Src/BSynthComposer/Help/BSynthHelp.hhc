@@ -59,6 +59,10 @@
 			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Project Options">
+		<param name="Local" value="projectoptions.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Project Files">
 		<param name="Local" value="projects.html">
 		</OBJECT>
@@ -122,6 +126,10 @@
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="General MIDI Instrument">
 			<param name="Local" value="gminstr.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Sound Bank Instrument">
+			<param name="Local" value="sfinstr.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Instrument Libraries">
