@@ -52,9 +52,9 @@ int KeyboardForm::Load(const char *fileName, int xo, int yo)
 	if (wdg)
 		wdg->SetValue(defacc);
 
-	wdg = mainGroup->FindID(46); // MIDI on/off
-	if (prjOptions.midiDevice < 0 || prjOptions.midiDeviceName[0] == 0)
-		wdg->SetEnable(0);
+//	wdg = mainGroup->FindID(46); // MIDI on/off
+//	if (prjOptions.midiDevice < 0 || prjOptions.midiDeviceName[0] == 0)
+//		wdg->SetEnable(0);
 
 	return 0;
 }
@@ -152,10 +152,14 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 		break;
 	case 46:
 		// MIDI On/Off
-		//if (kbd)
-		//	kbd->MidiIn(wdg->GetState());
 		if (wdg->GetState())
-			theProject->prjMidiIn.Start();
+		{
+			if (theProject->prjMidiIn.Start())
+			{
+				wdg->SetState(0);
+				Redraw(wdg);
+			}
+		}
 		else
 			theProject->prjMidiIn.Stop();
 		break;
