@@ -699,6 +699,7 @@ public:
 	/// The sample object must already be initialized
 	/// with the correct file offset, size and format.
 	/// @param ndx index (id) of the sample
+	/// @param load load the sample data if not loaded
 	/// @return pointer to sample
 	SBSample *GetSample(int ndx, int load = 1)
 	{
