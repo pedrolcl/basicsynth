@@ -35,7 +35,7 @@ that control the format of the output. An template project file is shown below.<
       cntr=&quot;&quot; depth=&quot;&quot; sweep=&quot;&quot; pan=&quot;&quot; &gt;
       &lt;send chnl=&quot;&quot; amt=&quot;&quot; /&gt;
     &lt;/flanger&gt;
-    &lt;echo unit=&quot;&quot; tm=&quot;&quot; dec=&quot;&quot; &gt;
+    &lt;echo unit=&quot;&quot; dly=&quot;&quot; dec=&quot;&quot; &gt;
       &lt;send chnl=&quot;&quot; amt=&quot;&quot; /&gt;
     &lt;/echo&gt;
   &lt;/mixer&gt;
@@ -104,7 +104,7 @@ Tag</th><th>Attribute</th><th>Use</th></tr>
 <tr><td>&nbsp;</td><td>sweep</td><td>Sweep rate in Hz</td></tr>
 <tr><td>&nbsp;</td><td>pan</td><td>Pan position for flanger output</td></tr>
 <tr><td>echo</td><td>unit</td><td>Effects unit number</td></tr>
-<tr><td>&nbsp;</td><td>tm</td><td>Echo delay time</td></tr>
+<tr><td>&nbsp;</td><td>dly</td><td>Echo delay time</td></tr>
 <tr><td>&nbsp;</td><td>dec</td><td>Decay value</td></tr>
 <tr><td>sndbnk</td><td>name</td><td>SoundBank alias name</td></tr>
 <tr><td>&nbsp;</td><td>inc</td><td>Include in project</td></tr>
@@ -178,6 +178,12 @@ sound file editor can apply more sophisticated sample rate conversion algorithms
 path to wave files using the <i>wvdir</i> node. In addition, the wave file directory can be
 specified using an environment variable named <b>BSYNTHWAVEIN</b>. On MS-Windows, the path
 may also be placed into the registry using the key HKEY_CURRENT_USER\Software\BasicSynth and a value named WaveIn.</p>
+<h3>Sound Banks</h3>
+<p>A sound bank is a file containing wavetable instrument definitions. Usually the wavetables are based
+on recorded sounds, processed into an efficient format. <em>BasicSynth</em> supports loading and
+playback of both SoundFont&reg& and MIDI DLS file formats. The <a href="Instruments.html#_GM_Instrument">GMPlayer instrument </a>
+is used to play sound banks compatible with the General MIDI specification. The SoundBank instrument will also render
+sound bank wavetables.</p>
 <h3>Instrument Library Files</h3>
 <p>Typically, the instruments used in a composition are defined in the
 project file. However, instruments that are used by multiple compositions can be collected
