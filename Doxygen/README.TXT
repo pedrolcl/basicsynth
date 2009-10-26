@@ -16,7 +16,9 @@ FMSynthDiag.jpg
 MatSynthDiag.jpg
 ToneFMDiag.jpg
 ToneDiag.jpg
-WFPlayDiag.jpg, 
+WFPlayDiag.jpg
+gmplayerdiag.jpg
+SoundBankDiag.jpg
 
 For Windows users, get the Doxygen program from http://www.doxygen.org
 or http://sourceforge.net/projects/doxygen and install it. If you want nice class
