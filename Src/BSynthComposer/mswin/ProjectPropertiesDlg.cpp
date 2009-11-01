@@ -291,14 +291,15 @@ LRESULT ProjectPropertiesDlg::OnBrowseWv(WORD wNotifyCode, WORD wID, HWND hWndCt
 	bi.lpszTitle = "Select the folder for WAV files";
     bi.ulFlags = BIF_USENEWUI;
 
-	PIDLIST_ABSOLUTE pidl;
+//	PIDLIST_ABSOLUTE pidl;
+	LPCITEMIDLIST pidl;
 	if ((pidl = SHBrowseForFolder(&bi)) != NULL)
 	{
 		SHGetPathFromIDList(pidl, name);
 		wavPathWnd.SetWindowText(name);
 		IMalloc *mp;
 		SHGetMalloc(&mp);
-		mp->Free(pidl);
+		mp->Free((void*)pidl);
 		mp->Release();
 	}
 	EnableUpDn();

@@ -33,7 +33,7 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "InstallBSynth", "InstallBSy
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "InstallBSynthx64", "InstallBSynthx64\InstallBSynthx64.vdproj", "{11CE3454-6BE2-4193-9933-E07E06F2C4E3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Help", "Help\Help.vcproj", "{E8F06A1D-E882-4B34-8EE5-048AE1017BA4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Help", "Help\Help2005.vcproj", "{E8F06A1D-E882-4B34-8EE5-048AE1017BA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

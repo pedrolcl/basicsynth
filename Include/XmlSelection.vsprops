@@ -7,7 +7,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories=""
-		PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;USE_TINYXML"
+		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;USE_TINYXML"
 		RuntimeLibrary="2"
 		WarningLevel="3"
 	/>

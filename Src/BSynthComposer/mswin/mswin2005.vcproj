@@ -485,6 +485,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SoundBankSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -635,6 +639,10 @@
 			</File>
 			<File
 				RelativePath=".\ScoreErrorsDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBankSelect.h"
 				>
 			</File>
 			<File

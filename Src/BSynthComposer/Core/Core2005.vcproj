@@ -6,7 +6,6 @@
 	ProjectGUID="{1A1DB816-2BB9-4236-B78F-7EE59365ECDE}"
 	RootNamespace="Core"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -374,6 +373,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MIDIControlEd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MixerEdit.cpp"
 				>
 			</File>
@@ -402,7 +405,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProjectOptions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SliderWidget.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBankEd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBankItem.cpp"
 				>
 			</File>
 			<File
@@ -423,6 +438,10 @@
 			</File>
 			<File
 				RelativePath=".\SynthProject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SynthProjectPS.cpp"
 				>
 			</File>
 			<File
@@ -508,6 +527,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MIDIControlEd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MixerEdit.h"
 				>
 			</File>
@@ -520,7 +543,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProjectOptions.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SliderWidget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SoundBankEd.h"
 				>
 			</File>
 			<File
