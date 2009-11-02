@@ -1,0 +1,43 @@
+// stdafx.h : include file for standard system include files,
+// or project specific include files that are used frequently, but
+// are changed infrequently
+//
+
+#pragma once
+
+#ifdef _WIN32
+#include "targetver.h"
+
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define NOGDI                           // don't need graphics
+#define NOCRYPT
+// Windows Header Files:
+#include <windows.h>
+#define MMNODRV
+#include <Mmsystem.h>
+#pragma comment(lib, "Winmm.lib")
+#include <dsound.h>
+#pragma comment(lib, "dsound.lib")
+#define snprintf sprintf_s
+#endif
+
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <BasicSynth.h>
+#include <Instruments.h>
+#include <SFFile.h>
+#include <DLSFile.h>
+#include <SMFFile.h>
+#include <GMPlayer.h>
+#ifdef _WIN32
+#include <WaveOutDirect.h>
+#endif
+#ifdef UNIX
+#include <pthread.h>
+#include <WaveOutALSA.h>
+#endif
+
+#include "GMInstrManager.h"
+#include "GMSynthDLL.h"
+
