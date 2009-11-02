@@ -40,7 +40,7 @@ typedef ULONG_PTR DWORD_PTR;
 /// channels and to discard all system common messages.
 class MIDIInput
 {
-private:
+protected:
 	bsUint8 noteOn[128];
 	bsUint8 noteOff[128];
 	int devNum;

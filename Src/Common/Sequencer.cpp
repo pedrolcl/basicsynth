@@ -186,15 +186,15 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 	instMgr = &im;
 	instMgr->Start();
 
-	tickCount = 0;
-	wrapCount = 0;
-	if (tickCB)
-		tickCB(0, tickArg);
-
 	state = st;
 	int live = st & seqPlay;
 	int sequenced = st & seqSequence;
 	int once = st & seqOnce;
+
+	tickCount = 0;
+	wrapCount = 0;
+	if (tickCB)
+		tickCB(0, tickArg);
 
 	playing = true;
 	while (playing)
@@ -250,6 +250,7 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 	ClearActive();
 	
 	state = seqOff;
+
 	if (tickCB)
 		tickCB(wrapCount, tickArg);
 
@@ -276,12 +277,12 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 	instMgr = &im;
 	instMgr->Start();
 
+	state = seqSeqOnce;
+
 	tickCount = 0;
 	wrapCount = 0;
 	if (tickCB)
 		tickCB(0, tickArg);
-
-	state = seqSeqOnce;
 
 	playing = true;
 	while (playing)
@@ -308,10 +309,11 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 	// active, we do clean-up here. We don't bother with Stop or IsFinished
 	// since we are no longer generating samples.
 	ClearActive();
-	if (tickCB)
-		tickCB(wrapCount, tickArg);
 
 	state = seqOff;
+
+	if (tickCB)
+		tickCB(wrapCount, tickArg);
 
 	return seqTick; // in case the caller wants to know how long we played...
 }

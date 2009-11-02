@@ -204,7 +204,9 @@ public:
 		return 0;
 	}
 
+	/// Reset to clear all events.
 	void Reset();
+	/// Add a new event.
 	void AddEvent(SeqEvent *evt);
 };
 
@@ -275,7 +277,8 @@ public:
 	bsInt32 NextEventID() { return ++globEventID & 0x7FFFFFFF; }
 
 	/// Reset the sequencer.
-	/// Reset should be called to clean up any memory before filling in a new sequence. 
+	/// Reset should be called to clean up any memory before 
+	/// filling in a new sequence. 
 	virtual void Reset();
 
 	/// Get the length of the current sequence. 
@@ -408,7 +411,7 @@ public:
 	/// notes received from a keyboard. This is an optimized version
 	/// of Sequence. It is equivalent to:
 	/// @code
-	///	Sequence(im, 0, 0, seqPlay)
+	///	SequenceMulti(im, 0, 0, seqPlay)
 	/// @endcode
 	/// but does not check track event lists or make callbacks.
 	/// Start and Stop track events have no effect. This function only
@@ -419,9 +422,7 @@ public:
 };
 
 /// Sequencer event callback function.
-/// If set, the callback will be called when certain
-/// events are processed, and when the sequencer state
-/// changes. The callback should be short and not attempt
+/// The callback should be short and not attempt
 /// to manipulate either the instrument manager
 /// or sequencer other than possibly telling the
 /// sequencer to halt playback.
@@ -448,6 +449,9 @@ public:
 	}
 
 	/// Set the event callback function. 
+	/// If set, the callback will be called when certain
+	/// events are processed and when the sequencer state
+	/// changes. 
 	/// @param cb callback function
 	/// @param arg caller supplied data
 	virtual void SetEventCB(SeqEventCB cb, Opaque arg)
@@ -456,14 +460,18 @@ public:
 		evtArg = arg;
 	}
 
+	/// Notify the callback of an event.
 	virtual void Notify(bsInt16 id, SeqEvent *evt)
 	{
 		if (evtCB)
 			evtCB(seqTick, id, evt, evtArg);
 	}
 
+	/// @copydoc Sequencer::SequenceMulti
 	virtual bsUint32 SequenceMulti(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0, SeqState st = seqSeqOnce);
+	/// @copydoc Sequencer::Sequence
 	virtual bsUint32 Sequence(InstrManager& im, bsUint32 startTime = 0, bsUint32 endTime = 0);
+	/// @copydoc Sequencer::Play
 	virtual bsUint32 Play(InstrManager& im);
 };
 

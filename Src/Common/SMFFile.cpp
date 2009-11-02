@@ -89,8 +89,7 @@ int SMFFile::LoadFile(const char *file)
 		inpPos = inpBuf;
 		inpEnd = inpBuf + trkSize;
 		lastMsg = 0;
-		trackObj = new SMFTrack(trkNum);
-		trackList.AddItem(trackObj);
+		trackObj = AddTrack(trkNum);
 
 		while (inpPos < inpEnd)
 		{
@@ -277,8 +276,14 @@ void SMFFile::ChnlMessage(bsUint16 msg)
 int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb)
 {
 	sbnk = sb;
-	seq = s;
-	instrMap = map;
+	if (s)
+		SetSequencer(s);
+	if (map)
+		SetInstrMap(map);
+
+	if (seq == 0 || instrMap == 0)
+		return -1;
+
 	int trkNum = 0;
 	SMFTrack *tp = 0;
 
@@ -302,7 +307,7 @@ int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb)
 		theTick += srTicks;
 	} while (trkNum > 0);
 
-	return 1;
+	return 0;
 }
 
 int SMFFile::GetChannelMap(bsInt32 *ch)
@@ -354,10 +359,20 @@ void SMFFile::NoteOff(short chnl, short key, short vel, short track)
 	if (dur < 1.0) // "it happens..."
 		return;
 
+	if (seq == 0)
+		return;
+
 	SMFInstrMap *pm = &instrMap[chnl];
+	if (pm == 0)
+		return;
 	InstrConfig *inc = pm->inc;
+	if (inc == 0 || inc->instrType == 0)
+		return;
 
 	NoteEvent *evt = (NoteEvent *) inc->instrType->manufEvent(inc->instrTmplt);
+	if (evt == 0)
+		return;
+
 	evt->SetType(SEQEVT_START);
 	evt->SetID(seq->NextEventID());
 	evt->SetInum(pm->inc->inum);
@@ -386,6 +401,8 @@ void SMFFile::NoteOff(short chnl, short key, short vel, short track)
 	if (explNoteOff)
 	{
 		NoteEvent *evt2 = (NoteEvent *) inc->instrType->manufEvent(inc->instrTmplt);
+		if (evt2 == 0)
+			return;
 		evt2->SetType(SEQEVT_STOP);
 		evt2->SetID(evt->evid);
 		evt2->SetStart((bsUint32) (start + dur));
@@ -447,6 +464,9 @@ void SMFFile::ControlChange(short chnl, short ctl, short val, short track)
 
 void SMFFile::AddControlEvent(short mmsg, short chnl, short ctl, short val, short track)
 {
+	if (seq == 0)
+		return;
+
 	if (chnl >= 0 && chnl <= 15)
 		chnlStatus[chnl].count++;
 

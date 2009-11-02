@@ -8,7 +8,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////
-/// @addtogroup grpSeq
+/// @addtogroup grpMIDI
 //@{
 #ifndef _SMFFILE_H_
 #define _SMFFILE_H_
@@ -23,16 +23,16 @@
 class MIDIEvent : public SynthList<MIDIEvent>
 {
 public:
-	bsUint32 deltat; // deltaTime
-	bsUint16 mevent;
-	bsUint16 chan;  // channel or meta
-	bsUint16 val1;
-	bsUint16 val2;
+	bsUint32 deltat; ///< deltaTime
+	bsUint16 mevent; ///< MIDI event (status byte)
+	bsUint16 chan;   ///< channel or meta
+	bsUint16 val1;   ///< value byte 1
+	bsUint16 val2;   ///< value byte 2
 	union
 	{
 		bsUint32 lval;
 		void *pval;
-	} val3;
+	} val3;          ///< value as long
 
 	MIDIEvent()
 	{
@@ -98,8 +98,7 @@ public:
 		}
 	}
 
-	// Add the event to the sequence. The caller is responsible for setting
-	// valid values for inum, start, duration, type and eventid.
+	/// Add an event to the track.
 	void AddEvent(MIDIEvent *evt)
 	{
 		//deltaTime += evt->deltat;
@@ -226,12 +225,21 @@ public:
 /// read into memory and stored as a list of tracks. Each track
 /// maintains a list of raw MIDI events for the track. If desired,
 /// that information can be used to edit the MIDI file. To play
-/// using the BasicSynthesizer, invoke the Generate method, passing
+/// using the BasicSynth sequencer, invoke the Generate method, passing
 /// in the sequencer object and an instrument map. Generate converts
 /// the MIDI events into absolute time events and merges Note ON/OFF
 /// into a single START event with duration.
+///
+/// The tracks can also be loaded manually. Call AddTrack and then 
+/// add MIDIEvent objects directly to the track. Optionally, use
+/// the functions to generate sequencer events directly from MIDI
+/// messages without adding to a SMFTrack object.
+///
 /// The gmbank flag indicates we are doing General MIDI 1 or 2. This affects
 /// the processing of the bank/preset number. GM 1 always uses bank 0 or 128.
+///
+/// This class does not implement a save function. You have to do that in
+/// a derived class.
 class SMFFile
 {
 protected:
@@ -338,7 +346,7 @@ public:
 	void Reset()
 	{
 		trackList.Clear();
-		hdr.format = 1;
+		hdr.format = 1;  // SMF type 1 (multiple tracks)
 		hdr.numTrk = 0;
 		hdr.tmDiv = 24;
 		lastMsg = 0;
@@ -346,6 +354,7 @@ public:
 		inpPos = 0;
 		inpEnd = 0;
 		ppqn = 24.0e6;
+		// tempo: quarter = 60, 24ppqn
 		srTicks = (0.5 * synthParams.sampleRate) / 24.0;
 		trackObj = 0;
 		instrMap = 0;
@@ -378,11 +387,24 @@ public:
 		gmbank = val;
 	}
 
+	/// Set the sequencer object.
+	inline void SetSequencer(Sequencer *s)
+	{
+		seq = s;
+	}
+
+	/// Set the instrument map.
+	inline void SetInstrMap(SMFInstrMap *map)
+	{
+		instrMap = map;
+	}
+
+
 	/// Emit note off events.
 	/// By default, we generate one event per note.
 	/// To emulate MIDI NoteOn/NoteOff, we can emit 
 	/// two separate events for note start and note stop.
-	/// @param onoff if zero, emit two events for each note.
+	/// @param onoff if non-zero, emit two events for each note.
 	inline void ExplicitNoteOff(int onoff)
 	{
 		explNoteOff = onoff;
@@ -418,10 +440,12 @@ public:
 		return keySig;
 	}
 
-	/// Generate sequencer event.
-	/// These are the generate functions and should
-	/// only be called by the Track object or internally.
+	/// @name Generate sequencer events.
+	/// These are the generate functions and normally
+	/// only called by the Track object or internally.
 	/// They are public so that SMFTrack can get at them.
+	/// They could also be used to dynamically load the
+	/// sequencer from recorded MIDI events.
 	//@{
 	void NoteOn(short chnl, short key, short vel, short track = 0);
 	void NoteOff(short chnl, short key, short vel, short track = 0);
@@ -435,19 +459,47 @@ public:
 	//@}
 
 	/// Load a SMF file.
+	/// @param file path to file in SMF format.
+	/// @returns 0 on success, -1 file not found or read error, -2 invalid format (SMTPE)
 	int LoadFile(const char *file);
 
 	/// Generate sequencer events from the SMF file.
+	/// The instrument map is used to locate the entry in the
+	/// instrument manager corresponding to the current patch.
+	/// The optional SoundBank allows loading samples dynamically,
+	/// when needed, rather than having to preload all sounds
+	/// in the SoundBank.
+	/// @param seq Sequencer object
+	/// @param map instrument map 
+	/// @param sb SoundBank (optional)
 	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0);
 
 	/// Determine how many notes are on each channel.
 	/// This is only valid after calling GenerateSeq.
+	/// @param ch array of 16 values to store the events per channel, or NULL.
 	/// @returns number of channels found with notes.
 	int GetChannelMap(bsInt32 *ch);
 
+	/// Enumerate the tracks.
+	/// On the first call, set trk = NULL, then
+	/// pass the previous track until the return
+	/// value is NULL.
+	/// @param trk previous track.
+	/// @returns next track.
 	SMFTrack *Enum(SMFTrack *trk)
 	{
 		return trackList.EnumItem(trk);
+	}
+
+	/// Add a new track.
+	/// @param tn track number.
+	/// @returns new track object.
+	SMFTrack *AddTrack(int tn)
+	{
+		SMFTrack *to = new SMFTrack(tn);
+		if (to)
+			trackList.AddItem(to);
+		return to;
 	}
 
 };
