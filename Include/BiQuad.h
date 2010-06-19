@@ -38,11 +38,13 @@ public:
 	AmpValue dlyOut1;
 	AmpValue dlyOut2;
 	FrqValue cutoff;
+	FrqValue fq;
 
 	BiQuadFilter()
 	{
 		rad = PI / synthParams.sampleRate;
 		cutoff = 1;
+		fq = 1.0;
 		gain = 0;
 		ampIn0 = 0;
 		ampIn1 = 0;
@@ -62,6 +64,7 @@ public:
 	{
 		cutoff = filt->cutoff;
 		gain = filt->gain;
+		fq = filt->fq;
 		ampIn0 = filt->ampIn0;
 		ampIn1 = filt->ampIn1;
 		ampIn2 = filt->ampIn2;
@@ -71,6 +74,24 @@ public:
 		dlyIn2 = filt->dlyIn2;
 		dlyOut1 = filt->dlyOut1;
 		dlyOut2 = filt->dlyOut2;
+	}
+
+	/// Set the cutoff frequency.
+	inline void SetFrequency(FrqValue fc)
+	{
+		cutoff = fc;
+	}
+
+	/// Set the filter Q.
+	inline void SetQ(FrqValue q)
+	{
+		fq = q;
+	}
+
+	/// Set the overall gain.
+	inline void SetGain(AmpValue g)
+	{
+		gain = g;
 	}
 
 	/// Initialize the filter. The input array holds the cutoff frequency and gain.
@@ -89,11 +110,28 @@ public:
 	/// @param g overall filter gain
 	virtual void Init(FrqValue cu, AmpValue g)
 	{
-		cutoff = cu;
-		gain = g;
+		SetFrequency(cu);
+		SetGain(g);
+		CalcCoef();
+		Reset(0.0);
 	}
 
-	/// Reset the filter. The history buffer is cleared to zero. The phase argument is ignored.
+	/// Initialize cutoff frequency, Q, and gain.
+	/// @param cu cutoff frequency
+	/// @param q filter 'Q'
+	/// @param g overall filter gain
+	virtual void Init(FrqValue cu, FrqValue q, AmpValue g)
+	{
+		SetQ(q);
+		Init(cu, g);
+	}
+
+	/// Calculate the coefficients.
+	/// The derived class must implement this method.
+	virtual void CalcCoef() { }
+
+	/// Reset the filter. 
+	/// The history buffer is cleared to zero. 
 	/// @param initPhs (not used)
 	virtual void Reset(float initPhs)
 	{
@@ -103,7 +141,8 @@ public:
 		dlyOut2 = 0;
 	}
 
-	/// Process the current sample. The output sample is calculated from
+	/// Process the current sample. 
+	/// The output sample is calculated from
 	/// the coefficients and delayed samples.
 	/// @param vin current sample amplitude
 	virtual AmpValue Sample(AmpValue vin)
@@ -125,6 +164,26 @@ public:
 	}
 };
 
+/// BiQuadFilter optimized for Bandpass.
+/// For bandpass filters, we know that ampIn1 == 0
+/// and can avoid the useless multiply by 0.
+/// Likewise, ampIn2 is -ampIn0, and we can
+/// refactor to eliminate the multiply/add of ampIn2.
+class BiQuadFilterBP : public BiQuadFilter
+{
+public:
+	AmpValue Sample(AmpValue vin)
+	{
+		AmpValue out = (ampIn0 * (vin - dlyIn2))
+		             - (ampOut1 * dlyOut1) - (ampOut2 * dlyOut2);
+		dlyOut2 = dlyOut1;
+		dlyOut1 = out;
+		dlyIn2 = dlyIn1;
+		dlyIn1 = vin;
+		return out * gain;
+	}
+};
+
 ///////////////////////////////////////////////////////////
 /// Low-pass filter. This class extends BiQuadFilter adding
 /// code to calculate the coefficients for a 2nd order
@@ -133,31 +192,20 @@ public:
 class FilterLP : public BiQuadFilter
 {
 public:
-	/// Initialize the filter. This method calculates the
-	/// low-pass coefficients from the cutoff frequency and stores
-	/// the gain value for use in processing.
-	/// @param cu cutoff frequency
-	/// @param g overall filter gain
-	virtual void Init(FrqValue cu, AmpValue g)
+	void CalcCoef()
 	{
-		FrqValue old = cutoff;
-		BiQuadFilter::Init(cu, g);
+		if (cutoff < 1)
+			cutoff = 1;
+		double c = 1 / tan(rad * cutoff);
+		double c2 = c * c;
+		double csqr2 = sqr2 * c;
+		double oned = 1.0 / (c2 + csqr2 + 1.0);
 
-		if (old != cutoff)
-		{
-			if (cutoff < 1)
-				cutoff = 1;
-			double c = 1 / tan(rad * cutoff);
-			double c2 = c * c;
-			double csqr2 = sqr2 * c;
-			double oned = 1.0 / (c2 + csqr2 + 1.0);
-
-			ampIn0 = oned;
-			ampIn1 = oned + oned;
-			ampIn2 = oned;
-			ampOut1 = (2.0 * (1.0 - c2)) * oned;
-			ampOut2 = (c2 - csqr2 + 1.0) * oned;
-		}
+		ampIn0 = oned;
+		ampIn1 = oned + oned;
+		ampIn2 = oned;
+		ampOut1 = (2.0 * (1.0 - c2)) * oned;
+		ampOut2 = (c2 - csqr2 + 1.0) * oned;
 	}
 };
 
@@ -169,29 +217,18 @@ public:
 class FilterHP : public BiQuadFilter
 {
 public:
-	/// Initialize the filter. This method calculates the
-	/// high-pass coefficients from the cutoff frequency and stores
-	/// the gain value for use in processing.
-	/// @param cu cutoff frequency
-	/// @param g overall filter gain
-	virtual void Init(FrqValue cu, AmpValue g)
+	void CalcCoef()
 	{
-		FrqValue old = cutoff;
-		BiQuadFilter::Init(cu, g);
+		double c = tan(rad * cutoff);
+		double c2 = c * c;
+		double csqr2 = sqr2 * c;
+		double oned = 1.0 / (1.0 + c2 + csqr2);
 
-		if (old != cutoff)
-		{
-			double c = tan(rad * cutoff);
-			double c2 = c * c;
-			double csqr2 = sqr2 * c;
-			double oned = 1.0 / (1.0 + c2 + csqr2);
-
-			ampIn0 = (AmpValue) oned;   // 1/d
-			ampIn1 = -(ampIn0 + ampIn0);                      // -2/d
-			ampIn2 = ampIn0;                                  // 1/d
-			ampOut1 = (AmpValue) ((2.0 * (c2 - 1.0)) * oned);
-			ampOut2 = (AmpValue) ((1.0 - csqr2 + c2) * oned);
-		}
+		ampIn0 = (AmpValue) oned;     // 1/d
+		ampIn1 = -(ampIn0 + ampIn0);  // -2/d
+		ampIn2 = ampIn0;              // 1/d
+		ampOut1 = (AmpValue) ((2.0 * (c2 - 1.0)) * oned);
+		ampOut2 = (AmpValue) ((1.0 - csqr2 + c2) * oned);
 	}
 };
 
@@ -200,108 +237,166 @@ public:
 /// code to calculate the coefficients for a 2nd order
 /// Butterworth band-pass filter.
 ///////////////////////////////////////////////////////////
-class FilterBP : public BiQuadFilter
+class FilterBP : public BiQuadFilterBP
 {
-private:
-	float bw;
 public:
-	FilterBP()
+	void CalcCoef()
 	{
-		bw = 1000.0;
+		double bw;
+		if (fq < 0.5)
+			bw = 1.0;
+		else
+			bw = 1.0 / fq;
+		double c = 1.0 / tan(rad * 1.0 * bw);
+		//double d = 2.0 * cos(2.0 * r * cutoff);
+		double d = 2.0 * cos(synthParams.frqRad * cutoff);
+		double oned = 1.0 / (1.0 + c);
+
+		ampIn0 = oned;
+		ampIn1 = 0;
+		ampIn2 = -oned;
+		ampOut1 = -c * d * oned;
+		ampOut2 = (c - 1.0) * oned;
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Lowpass filter.
+/// The RBJ filters are normalized for unity gain and are easier
+/// to use because of that. They also have 'Q' for all forms.
+///
+/// See: _Cookbook Forumlae for audio EQ biquad filter coefficients_,
+/// Robert Bristow-Johnson (http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt)
+///////////////////////////////////////////////////////////////////////////////
+class FilterLP2 : public BiQuadFilter
+{
+public:
+	void CalcCoef()
+	{
+		if (fq < 0.5)
+			fq = 0.5;
+		double w0 = synthParams.frqRad * cutoff;
+		double cw0 = cos(w0);
+		double alpha = sin(w0) / (2.0*fq);
+//		double w0 = synthParams.frqTI * cutoff;
+//		double cw0 = wtSet.CosWT(w0);
+//		double alpha = wtSet.SinWT(w0) / (2.0*fq);
+
+		double b0 = (1.0 - cw0) / 2.0;
+		double b1 = 1.0 - cw0;
+		double b2 = b0;
+		double a0 = 1.0 + alpha;
+		double a1 = -2.0 * cw0;
+		double a2 = 1.0 - alpha;
+		ampIn0 = b0/a0;
+		ampIn1 = b1/a0;
+		ampIn2 = b2/a0;
+		ampOut1 = a1/a0;
+		ampOut2 = a2/a0;
+	}
+};
+
+/// Highpass filter.
+class FilterHP2 : public BiQuadFilter
+{
+public:
+	void CalcCoef()
+	{
+		if (fq < 0.5)
+			fq = 0.5;
+		double w0 = synthParams.frqRad * cutoff;
+		double cw0 = cos(w0);
+		double alpha = sin(w0) / (2.0*fq);
+
+		double b0 = (1.0 + cw0) / 2.0;
+		double b1 = -(1.0 + cw0);
+		double b2 = b0;
+		double a0 = 1.0 + alpha;
+		double a1 = -2.0 * cw0;
+		double a2 = 1.0 - alpha;
+		ampIn0 = b0/a0;
+		ampIn1 = b1/a0;
+		ampIn2 = b2/a0;
+		ampOut1 = a1/a0;
+		ampOut2 = a2/a0;
+	}
+};
+
+/// Bandpass Filter (0dB peak gain).
+class FilterBP2 : public BiQuadFilterBP
+{
+public:
+	void CalcCoef()
+	{
+		if (fq < 0.5)
+			fq = 0.5;
+		double w0 = synthParams.frqRad * cutoff;
+		double cw0 = cos(w0);
+		double alpha = sin(w0) / (2.0*fq);
+
+		double b0 = alpha;
+		double b1 = 0.0;
+		double b2 = -alpha;
+		double a0 = 1.0 + alpha;
+		double a1 = -2.0 * cw0;
+		double a2 = 1.0 - alpha;
+		ampIn0 = b0/a0;
+		ampIn1 = b1/a0;
+		ampIn2 = b2/a0;
+		ampOut1 = a1/a0;
+		ampOut2 = a2/a0;
 	}
 
-	/// Initialize the filter. This method calculates the
-	/// coefficients from the cutoff frequency and stores
-	/// the gain value for use in processing. Bandwidth defaults
-	/// to 1K.	
-	/// @param cu cutoff frequency
-	/// @param g overall filter gain
-	virtual void Init(FrqValue cu, AmpValue g)
-	{
-		Init(cu, g, 1000.0);
-	}
-
-	/// Initialize the filter. This method calculates the
-	/// bandpass coefficients from the cutoff frequency and stores
-	/// the gain value for use in processing. Bandwidth is
-	/// taken from the B argument.
-	/// @param cu cutoff frequency
-	/// @param g overall filter gain
-	/// @param B bandwidth
-	virtual void Init(FrqValue cu, AmpValue g, float B)
-	{
-		FrqValue old = cutoff;
-		BiQuadFilter::Init(cu, g);
-
-		if (old != cutoff || bw != B)
-		{
-			if (B < 1)
-				bw = 1;
-			else
-				bw = B;
-			double c = 1.0 / tan(rad * B);
-			//double d = 2.0 * cos(2.0 * r * cutoff);
-			double d = 2.0 * cos(synthParams.frqRad * cutoff);
-			double oned = 1.0 / (1.0 + c);
-
-			ampIn0 = oned;
-			ampIn1 = 0;
-			ampIn2 = -oned;
-			ampOut1 = -c * d * oned;
-			ampOut2 = (c - 1.0) * oned;
-		}
-	}
 };
 
 ///////////////////////////////////////////////////////////
 /// Constant gain Resonantor. This class extends BiQuadFilter
 /// adding code to calculate the coefficients for a constant
-/// gain resonant band-pass filter.
+/// gain resonant band-pass filter. R must be 0 < r < 1.
 /// See J. Smith, "Introduction to Digital Filters", Appendix B
 /// and Perry Cook, "Real Sound Synthesis", Chapter 3
 ///////////////////////////////////////////////////////////
-class Reson : public BiQuadFilter
+class Reson : public BiQuadFilterBP
 {
 private:
-	float res;
-
+	FrqValue res;
 public:
 	Reson()
 	{
-		res = 0.7;
+		res = 0.9;
 	}
 
-	/// Initialize the filter. 
-	/// Sets the cutoff frequency and gain. Resonance defaults to 1.
-	/// @param cu cutoff frequency
-	/// @param g overall filter gain
-	virtual void Init(FrqValue cu, AmpValue g)
+	/// Set the resonance directly.
+	/// By default, res is calculated from 'Q'.
+	/// @param r resonance 0 < r < 1
+	inline void SetRes(FrqValue r)
 	{
-		InitRes(cu, g, res);
+		res = r;
 	}
 
-	/// Initialize the filter from arguments.
-	/// The coefficients are calculated
-	/// for a band-pass filter with a center frequency and resonance.
-	/// @param cu cutoff frequency
-	/// @param g filter gain
-	/// @param r resonance (0 < r < 1)
-	virtual void InitRes(FrqValue cu, AmpValue g, float r)
+	virtual void CalcCoef()
 	{
-		FrqValue old = cutoff;
-		BiQuadFilter::Init(cu, g);
+		ampOut1 = -(res + res) * cos(synthParams.frqRad * cutoff);
+		ampOut2 = res * res;
+		ampIn0 = (1.0 - ampOut2) * 0.5;
+		// alternate scaling:
+		//ampIn0 = sqrt(1.0 - ampOut2) * 0.5;
+		ampIn1 = 0;
+		ampIn2 = -ampIn0;
+	}
 
-		if (old != cutoff || res != r)
-		{
-			res = r;
-			ampOut1 = -(res + res) * cos(synthParams.frqRad * cutoff);
-			ampOut2 = res * res;
-			ampIn0 = 0.5 - (0.5 * ampOut2);
-			ampIn1 = 0;
-			ampIn2 = -ampIn0;
-		}
+	virtual void Init(FrqValue cu, FrqValue q, AmpValue g)
+	{
+		if (q > 0.0)
+			res = exp(-PI / (q * synthParams.sampleRate));
+		else
+			res = exp(-PI / synthParams.sampleRate);
+		if (res > 0.99999)
+			res = 0.99999;
+		BiQuadFilterBP::Init(cu, g);
 	}
 };
+
 
 //@}
 #endif

@@ -106,10 +106,12 @@ public:
 
 	/// Initialize the reverb.
 	/// InitReverb sets the typical LT values for a Scroeder unit.
-	/// The RT value is 1-2 seconds typical.
+	/// The RT value is 1-2 seconds, typical.
 	/// The attenuation value controls how much of the signal
 	/// will be sent through the reverb. Usually it is set to
-	/// 1.0, but can be lowered if the reverb distorts.
+	/// 1.0, but can be lowered if the reverb distorts. If no
+	/// output attenuation is applied, set the internal attenuation
+	/// to 0.1 to 0.25 to balance the summation of the four comb filters.
 	/// @param a attenuation value for input
 	/// @param rt reverb time
 	void InitReverb(AmpValue a, FrqValue rt)

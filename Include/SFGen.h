@@ -17,41 +17,47 @@
 #define SFGEN_H
 
 /// Oscillator that initializes directly from a SBZone.
-class GenWaveSF : public GenWaveWTLoop
+class GenWaveSB : public GenWaveWTLoop
 {
 public:
 	/// Init the wavetable oscillator.
-	/// @param f frequency in Hz
 	/// @param zone sample information.
+	/// @param pi frequency in phase increment
 	/// @param skipAttack when true, start at the loop section.
-	void InitSF(FrqValue f, SBZone *zone, int skipAttack = 0)
+	void InitSB(SBZone *zone, PhsAccum pi, int skipAttack = 0)
 	{
-		if (zone && zone->sample)
-		{
-			InitWTLoop(f, zone->recFreq, zone->rate, zone->tableEnd, 
-		           zone->loopStart, zone->loopEnd, 
-		           zone->mode, zone->sample->sample);
-			if (skipAttack && zone->mode == 1)
-			{
-				state = 1;
-				Reset(zone->loopStart);
-			}
-		}
-		else
-		{
-			InitWTLoop(f, f, synthParams.sampleRate, 0, 0, 0, 1, wtSet.GetWavetable(WT_SIN));
-		}
+		//frq = fo;
+		phsIncr = pi;
+		recFrq = zone->recFreq;
+		rateRatio = zone->rate / synthParams.sampleRate;
+		piMult = rateRatio / recFrq; // pre-calculate for Modulate code
+		period = zone->rate / recFrq;
+		phase = (PhsAccum) zone->tableStart;
+		tableEnd = (PhsAccum) zone->tableEnd;
+		loopStart = (PhsAccum) zone->loopStart;
+		loopEnd = (PhsAccum) zone->loopEnd;
+		loopLen = loopEnd - loopStart;
+		loopMode = zone->mode;
+		if (skipAttack && loopMode == 1)
+			phase = loopStart;
+		wavetable = zone->sample->sample;
 	}
+
+	inline void UpdatePhaseIncr(PhsAccum p)
+	{
+		phsIncr = p;
+	}
+
 };
 
 /// Envelope generator for sound founts.
 /// A sound bank (SF2 or DLS) uses a six segment envelope --
 /// delay, attack, hold, decay, sustain, release.
 /// This EG differs from the typical BasicSynth EG in the following ways:
-/// 1) Start, peak and end levels are normalized to 0, 1, 0.
-/// 2) Attack, decay and release are constant-rate calculations.
-/// 3) Attack level follows an exponential convex curve (n^2)
-class EnvGenSF : public GenUnit
+/// 1) Start, peak and end levels are always normalized to [0,1,0]
+/// 2) Sustain is a percentage of peak.
+/// 3) Attack, decay and release are constant-rate calculations.
+class EnvGenSB : public GenUnit
 {
 private:
 	AmpValue curLevel;
@@ -63,18 +69,19 @@ private:
 	bsInt32  holdCount;
 	int      segNdx;
 public:
-	EnvGenSF()
+	EnvGenSB()
 	{
-		curLevel = 0;
-		susLevel = 0;
+		curLevel = 0.0;
+		susLevel = 0.0;
 		atkIncr = 1.0;
 		decIncr = 1.0;
 		relIncr = 1.0;
 		delayCount = 0;
 		holdCount = 0;
-		segNdx = 0;
+		segNdx = 6;
 	}
 
+	/// Initialize from an array of floats.
 	void Init(int n, float *v)
 	{
 		if (n >= 6)
@@ -85,84 +92,69 @@ public:
 			SetDecay(v[3]);
 			SetSustain(v[4]);
 			SetRelease(v[5]);
-			segNdx = 0;
+			Reset(0);
 		}
 	}
 
-	inline AmpValue GetCurLevel() { return curLevel; }
-	inline void SetCurLevel(AmpValue n) { curLevel = n; }
-
-	void InitEnv(SBEnv *eg, int key = 60, int vel = 127)
+	inline void Stop()
 	{
-		if (eg)
-		{
-			SetSustain(eg->sustain);
-			FrqValue km = (FrqValue) (60 - key);
-			SetDelay(SoundBank::EnvRate(eg->delay));
-			SetAttack(SoundBank::EnvRate(eg->attack + (((AmpValue) vel / 127.0) * eg->velAttack)));
-			SetHold(SoundBank::EnvRate(eg->hold + (km * eg->keyHold)));
-			SetDecay(SoundBank::EnvRate(eg->decay + (km * eg->keyDecay)));
-			SetRelease(SoundBank::EnvRate(eg->release));
-		}
-		else
-		{
-			delayCount = 0;
-			atkIncr = 1.0;
-			holdCount = 0;
-			decIncr = 1.0;
-			susLevel = 0.0;
-			relIncr = 1.0;
-		}
+		segNdx = 6;
 		curLevel = 0;
-		segNdx = 0;
 	}
 
-	void SetDelay(FrqValue rt)
+	inline void SetDelay(FrqValue rt)
 	{
-		holdCount = (bsInt32) (synthParams.sampleRate * rt);
+		delayCount = (bsInt32) (synthParams.sampleRate * rt);
 	}
 
-	void SetAttack(FrqValue rt)
+	inline void SetAttack(FrqValue rt)
 	{
-		FrqValue count = (synthParams.sampleRate * rt);
+		FrqValue count = floor(synthParams.sampleRate * rt);
 		if (count > 0)
 			atkIncr = 1.0 / count;
 		else
 			atkIncr = 1.0;
 	}
 
-	void SetHold(FrqValue rt)
+	inline void SetHold(FrqValue rt)
 	{
 		holdCount = (bsInt32) (synthParams.sampleRate * rt);
 	}
 
-	void SetDecay(FrqValue rt)
+	inline void SetDecay(FrqValue rt)
 	{
-		FrqValue count = (synthParams.sampleRate * rt);
+		FrqValue count = floor(synthParams.sampleRate * rt);
 		if (count > 0)
 			decIncr = 1.0 / count;
 		else
 			decIncr = 1.0;
 	}
 
-	void SetRelease(FrqValue rt)
+	inline void SetSustain(AmpValue n)
+	{ 
+		susLevel = n; 
+	}
+
+	inline void SetRelease(FrqValue rt)
 	{
-		FrqValue count = (synthParams.sampleRate * rt);
+		FrqValue count = floor(synthParams.sampleRate * rt);
 		if (count > 0)
 			relIncr = 1.0 / count;
 		else
 			relIncr = 1.0;
 	}
 
-	void SetSustain(AmpValue a)
+	inline void SetSegment(int n)
 	{
-		if (a > 1.0)
-			susLevel = 1.0;
-		else
-			susLevel = a;
+		segNdx = n; 
 	}
 
-	void Reset(float initPhs)
+	inline int GetSegment()
+	{
+		return segNdx;
+	}
+
+	inline void Reset(float initPhs)
 	{
 		if (initPhs >= 0)
 		{
@@ -171,12 +163,25 @@ public:
 		}
 	}
 
-	int IsFinished()
+	inline int IsFinished()
 	{
 		return segNdx > 5;
 	}
 
-	void Release()
+	inline void AdjustRelease()
+	{
+		// only for volume envelope
+		if (segNdx < 2)
+		{
+			// still in attack.
+			curLevel = 1.0 - (-200.0/960.0 * log10(curLevel));
+			segNdx = 5;
+		}
+		else if (segNdx < 5)
+			segNdx = 5;
+	}
+
+	inline void Release()
 	{
 		if (segNdx < 5)
 			segNdx = 5;
@@ -187,42 +192,44 @@ public:
 		switch (segNdx)
 		{
 		case 0: // delay
-			if (--delayCount > 0)
-				return 0.0;
+			if (--delayCount >= 0)
+				break;
 			segNdx++;
-		case 1:
+		case 1: // attack
 			curLevel += atkIncr;
 			if (curLevel >= 1.0)
 			{
 				segNdx++;
 				return curLevel = 1.0;
 			}
-			return curLevel;// * curLevel;
-		case 2:
-			if (--holdCount > 0)
-				return 1.0;
+			return curLevel;
+		case 2: // hold
+			if (--holdCount >= 0)
+				break;
 			segNdx++;
-		case 3:
+		case 3: // decay
 			curLevel -= decIncr;
 			if (curLevel > susLevel)
-				return curLevel;// * curLevel;
+				break;
 			segNdx++;
 			curLevel = susLevel;
-		case 4:
-			return susLevel;
-		case 5:
+		case 4: // sustain
+			break;
+		case 5: // release
 			curLevel -= relIncr;
-			if (curLevel > 0.00001)
-				return curLevel;// * curLevel;
+			if (curLevel > 0.0)
+				break;
 			segNdx++;
 			curLevel = 0.0;
 			break;
-		//case 6:
+		case 6:
 		//default:
-		//	return 0.0;
+			return 0.0;
 		}
-		return 0.0;
+		return curLevel;
 	}
 };
+
+
 //@}
 #endif

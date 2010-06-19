@@ -30,6 +30,8 @@ typedef __int64 int64;
 #endif
 
 /// Oscillator with 64-bit fixed point phase accumulator.
+/// The phase accumulator is Q24.40 and allows table lengths
+/// up to 2^23 (8M) entries.
 /// @sa GenWave32
 class GenWave64 : public GenWaveWT
 {
@@ -78,10 +80,10 @@ public:
 
 	virtual AmpValue Gen()
 	{
-		// cast to bsInt32 helps 32-bit processors with emulated 64 bits
-		// (avoids 64 bit multiply for table index)
-		// you can use this on a true 64 bit system, but it doesn't really matter much
-		// AmpValue v = waveTable[(i64Index + 0x8000000000) >> 40];
+		// The cast to bsInt32 helps 32-bit processors with emulated 64 bits
+		// (avoids 64 bit multiply for table index).
+		// This can be used on a true 64 bit system or tables > 32k
+		//	AmpValue v = waveTable[(i64Index + 0x8000000000) >> 40];
 		AmpValue v = waveTable[(bsInt32) ((i64Index + round64) >> 40)];
 		i64Index = (i64Index + i64IndexIncr) & i64IndexMask;
 		return v;

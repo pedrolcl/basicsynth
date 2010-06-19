@@ -48,6 +48,21 @@ public:
 		lastNdx = 0;
 	}
 
+	void CalcCoef()
+	{
+		// c = 1 / tan((PI / synthParams.sampleRate) * cutoff);
+		double c = (double) sinTable[lastNdx+cosOffs] / (double) sinTable[lastNdx];
+		double c2 = c * c;
+		double csqr2 = sqr2 * c;
+		double oned = 1.0 / (c2 + csqr2 + 1.0);
+
+		ampIn0 = oned;
+		ampIn1 = oned + oned;
+		ampIn2 = oned;
+		ampOut1 = (2.0 * (1.0 - c2)) * oned;
+		ampOut2 = (c2 - csqr2 + 1.0) * oned;
+	}
+
 	/// Process the current sample.
 	/// The current sample is passed through the filter and the filtered value is returned.
 	/// @param in current sample value
@@ -59,17 +74,7 @@ public:
 		if (tndx != lastNdx)
 		{
 			lastNdx = tndx;
-			// c = 1 / tan((PI / synthParams.sampleRate) * cutoff);
-			double c = (double) sinTable[tndx+cosOffs] / (double) sinTable[tndx];
-			double c2 = c * c;
-			double csqr2 = sqr2 * c;
-			double oned = 1.0 / (c2 + csqr2 + 1.0);
-
-			ampIn0 = oned;
-			ampIn1 = oned + oned;
-			ampIn2 = oned;
-			ampOut1 = (2.0 * (1.0 - c2)) * oned;
-			ampOut2 = (c2 - csqr2 + 1.0) * oned;
+			CalcCoef();
 		}
 		return BiQuadFilter::Sample(in);
 	}

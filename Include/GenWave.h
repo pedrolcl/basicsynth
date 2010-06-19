@@ -83,12 +83,10 @@ public:
 	virtual void Reset(float initPhs = 0)
 	{
 		indexIncr = (PhsAccum)frq * synthParams.frqRad;
+		if (indexIncr > PI)
+			indexIncr = PI;
 		if (initPhs >= 0)
-		{
-			index = (initPhs / twoPI) * indexIncr;
-			while (index >= twoPI)
-				index -= twoPI;
-		}
+			index = initPhs;
 	}
 
 	/// Modulate the oscillator frequency.  This forces recalculation of the
@@ -97,10 +95,8 @@ public:
 	virtual void Modulate(FrqValue d)
 	{
 		indexIncr = (PhsAccum)(frq + d) * synthParams.frqRad;
-		if (indexIncr >= twoPI)
-			indexIncr -= twoPI;
-		else if (indexIncr < 0)
-			indexIncr += twoPI;
+		if (indexIncr > PI)
+			indexIncr = PI;
 	}
 
 	/// Modulate the oscillator phase. This changes the oscillator frequency by
@@ -110,18 +106,15 @@ public:
 	virtual void PhaseMod(PhsAccum phs)
 	{
 		index += phs;
-		/*if ((index += phs) >= twoPI)
-		{
-			do
-				index -= twoPI;
-			while (index >= twoPI);
-		}
-		else if (index < 0)
-		{
-			do
-				index += twoPI;
-			while (index < 0);
-		}*/
+	}
+
+	inline PhsAccum PhaseWrap(PhsAccum index)
+	{
+		while (index >= twoPI)
+			index -= twoPI;
+		while (index < 0)
+			index += twoPI;
+		return index;
 	}
 
 	/// Generate the next sample. The sample amplitude is normalized to [-1,+1]
@@ -129,21 +122,29 @@ public:
 	/// @return sample value for the current phase
 	virtual AmpValue Gen()
 	{
-		if (index >= twoPI)
-		{
-			do
-				index -= twoPI;
-			while (index >= twoPI);
-		}
-		else if (index < 0)
-		{
-			do
-				index += twoPI;
-			while (index < 0);
-		}
-		AmpValue v = sinv(index);
+		index = PhaseWrap(index);
+		AmpValue out = sinv(index);
 		index += indexIncr;
-		return v;
+		return out;
+	}
+
+	/// Generate next sample (high-precision).
+	/// Generators that can produce a higher precision
+	/// output should override this method.
+	/// @return sample value for the current phase
+	virtual AmpValue2 Gen2() { return (AmpValue2) Gen(); }
+};
+
+/// Like GenWave, but high-precision.
+class GenWave2 : public GenWave
+{
+public:
+	virtual AmpValue2 Gen2()
+	{
+		index = PhaseWrap(index);
+		PhsAccum out = sin(index);
+		index += indexIncr;
+		return out;
 	}
 };
 
@@ -450,11 +451,15 @@ public:
 		frq = 0;
 	}
 
+	/// @copydoc GenWave::SetFrequency
 	inline void SetFrequency(FrqValue f)
 	{
 		frq = f;
 	}
 
+	/// Initialize the phasor.
+	/// @param n number of value (1)
+	/// @param v v[0] contains the frequency
 	void Init(int n, float *v)
 	{
 		if (n > 0)
@@ -476,7 +481,7 @@ public:
 	}
 
 	/// Generate the next value.
-	/// Set 'in' to the max value, e.g., table length.
+	/// @param in the scale value, e.g., table length.
 	AmpValue Sample(AmpValue in)
 	{
 		in *= (AmpValue) phase;

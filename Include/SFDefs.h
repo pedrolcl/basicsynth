@@ -3,8 +3,6 @@
 //
 /// @file SFDefs.h SoundFont(R) file "generator" types
 //
-// These definitions are common between SFFile and SoundBank
-//
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 
 // (http://creativecommons.org/licenses/GPL/2.0/)
@@ -145,20 +143,20 @@ struct sfChunk
 #define sfChunkSize 8
 
 /// Two bytes 
-typedef struct
+struct rangesType
 {
 	bsUint8 byLo;
 	bsUint8 byHi;
-} rangesType;
+};
 
 /// SF2 generator or modulator value.
 /// Union of two bytes, signed and unsigned words
-typedef union
+union  genAmountType
 {
 	rangesType ranges;
 	bsInt16 shAmount;
 	bsUint16 wAmount;
-} genAmountType;
+};
 
 /// SF2 Preset header record layout.
 struct sfPresetHeader

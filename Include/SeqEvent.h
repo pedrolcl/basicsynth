@@ -36,6 +36,7 @@
 #define SEQEVT_STARTTRACK 4 ///< Start a sequencer track
 #define SEQEVT_STOPTRACK 5  ///< Stop a sequencer track
 #define SEQEVT_CONTROL 6    ///< MIDI (or other) Control change
+#define SEQEVT_CANCEL  7    ///< Cancel all notes
 
 /// User defined events can be placed in the sequence with values
 /// SEQEVT_USER or greater. The sequencer will ignore these;
@@ -47,7 +48,7 @@
 #define P_CHNL  1           ///< Mixer channel number
 #define P_START 2           ///< Start time in samples
 #define P_DUR   3           ///< Duration in samples
-#define P_XTRA  4           /// First id for user params
+#define P_XTRA  4           ///< First id for user params
 
 class InstrConfig;
 
@@ -74,7 +75,7 @@ class InstrConfig;
 class SeqEvent : public SynthList<SeqEvent>
 {
 public:
-	bsInt16 type;     ///< event type, 0 -> start output, 1 -> alter parameters
+	bsInt16 type;     ///< event type, (see SEQEVT_* above)
 	bsInt16 inum;     ///< instrument number
 	bsInt16 chnl;     ///< channel number (usually mixer input)
 	bsInt16 track;    ///< track number (formerly known as extra)
@@ -194,7 +195,11 @@ public:
 #define P_VOLUME 6       ///< The volume (0-1)
 #define P_TRACK  7       ///< Track number
 #define P_NOTEONVEL 8    ///< Note-on velocity (if MIDI)
-#define P_USER 16        ///< First instrument specific parameter
+#define P_PITCHBEND 9    ///< MIDI Pitch bend
+#define P_CHNLPRESS 10   ///< MIDI channel pressure
+#define P_BANK   11
+#define P_PATCH  12
+#define P_USER   16      ///< First instrument specific parameter
 
 ///////////////////////////////////////////////////////////
 /// A note event.
@@ -210,6 +215,10 @@ class NoteEvent : public SeqEvent
 public:
 	bsInt16 pitch;
 	bsInt16 noteonvel;
+	bsInt16 bank;
+	bsInt16 patch;
+	FrqValue pitchbend;
+	AmpValue chnlpress;
 	FrqValue frq;
 	AmpValue vol;
 
@@ -217,20 +226,27 @@ public:
 	{
 		pitch = 0;
 		noteonvel = 0;
+		bank = 0;
+		patch = 0;
+		pitchbend = 0.0;
+		chnlpress = 0.0;
 		frq = 0.0;
 		vol = 1.0;
 	}
 
 	/// @copydoc SeqEvent::MaxParam
-	virtual bsInt16 MaxParam() { return P_NOTEONVEL; }
+	virtual bsInt16 MaxParam() { return P_USER-1; }
 	virtual void SetFrequency(FrqValue f) { frq = f; }
 	virtual void SetPitch(bsInt16 p) 
 	{
-		pitch = p;
-		SetFrequency(synthParams.GetFrequency(pitch));
+		SetFrequency(synthParams.GetFrequency(pitch = p));
 	}
 	virtual void SetVolume(AmpValue v) { vol = v; }
 	virtual void SetVelocity(bsInt16 v) { noteonvel = v; }
+	virtual void SetBank(bsInt16 b) { bank = b; }
+	virtual void SetPatch(bsInt16 p) { patch = p; }
+	virtual void SetPitchbend(FrqValue v) { pitchbend = v; }
+	virtual void SetChannelPressure(AmpValue v) { chnlpress = v; }
 
 	/// @copydoc SeqEvent::SetParam
 	virtual void SetParam(bsInt16 id, float v)
@@ -248,6 +264,21 @@ public:
 			break;
 		case P_NOTEONVEL:
 			SetVelocity((bsInt16)v);
+			break;
+		case P_TRACK:
+			SetTrack((bsInt16)v);
+			break;
+		case P_BANK:
+			SetBank((bsInt16)v);
+			break;
+		case P_PATCH:
+			SetPatch((bsInt16)v);
+			break;
+		case P_PITCHBEND:
+			SetPitchbend(v);
+			break;
+		case P_CHNLPRESS:
+			SetChannelPressure(v);
 			break;
 		default:
 			SeqEvent::SetParam(id, v);
@@ -270,6 +301,14 @@ public:
 			return (float) track;
 		case P_NOTEONVEL:
 			return (float) noteonvel;
+		case P_BANK:
+			return (float) bank;
+		case P_PATCH:
+			return (float) patch;
+		case P_PITCHBEND:
+			return (float) pitchbend;
+		case P_CHNLPRESS:
+			return (float) chnlpress;
 		}
 		return SeqEvent::GetParam(id);
 	}
@@ -284,6 +323,10 @@ public:
 		vol = ne->vol;
 		track = ne->track;
 		noteonvel = ne->noteonvel;
+		patch = ne->patch;
+		bank = ne->bank;
+		pitchbend = ne->pitchbend;
+		chnlpress = ne->chnlpress;
 	}
 };
 
@@ -431,8 +474,8 @@ public:
 };
 
 #define P_MMSG  4         ///< The MIDI message
-#define P_CTRL  5         ///< The controller
-#define P_CVAL  6         ///< Controller value
+#define P_CTRL  5         ///< The controller or data1
+#define P_CVAL  6         ///< Controller value or data2
 
 /// A ControlEvent is used for global synthsizer control.
 /// For the most part, this is used to implement MIDI

@@ -2,6 +2,7 @@
 #include <SynthDefs.h>
 #include <SynthList.h>
 #include <SynthFile.h>
+#include <SynthMutex.h>
 #include <WaveTable.h>
 #include <WaveFile.h>
 
@@ -9,6 +10,7 @@
 #include <GenWaveWT.h>
 #include <GenNoise.h>
 #include <GenWaveX.h>
+#include <GenWaveDSF.h>
 
 #include <EnvGen.h>
 #include <EnvGenSeg.h>
@@ -25,12 +27,11 @@
 #include <Mixer.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
 #include <Sequencer.h>
 #include <SequenceFile.h>
-
-#include <MIDIDefs.h>
-#include <MIDIControl.h>
 #include <MIDIInput.h>
 
 //////////////////////////////////////////

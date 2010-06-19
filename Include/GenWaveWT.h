@@ -43,8 +43,8 @@ public:
 		if (waveTable == 0)
 			waveTable = wtSet.GetWavetable(WT_SIN);
 
-		indexIncr = (PhsAccum) frq * synthParams.frqTI;
-		if (initPhs > 0)
+		indexIncr = PhsAccum(frq) * synthParams.frqTI;
+		if (initPhs >= 0)
 			index = (initPhs / twoPI) * synthParams.ftableLength;
 	}
 
@@ -52,18 +52,15 @@ public:
 	virtual void Modulate(FrqValue d)
 	{
 		indexIncr = (PhsAccum)(frq + d) * synthParams.frqTI;
-		while (indexIncr < 0)
-			indexIncr += synthParams.ftableLength;
-		PhsAccum maxInc = synthParams.ftableLength / 2; 
-		if (indexIncr >= maxInc)
-			indexIncr = maxInc;
+		if (indexIncr >= synthParams.maxIncrWT)
+			indexIncr = synthParams.maxIncrWT-1;
 	}
 
 	/// @copydoc GenWave::PhaseMod()
 	virtual void PhaseMod(PhsAccum phs)
 	{
-		//PhaseModWT(phs * synthParams.radTI);
-		index += phs * synthParams.radTI;
+		PhaseModWT(phs * synthParams.radTI);
+		//index += phs * synthParams.radTI;
 	}
 
 	/// Modulate phase for wavetable.
@@ -105,7 +102,8 @@ public:
 		Reset();
 	}
 
-	/// Initialize the oscillator. The values are passed in the v array
+	/// Initialize the oscillator. 
+	/// The values are passed in the v array
 	/// with v[0] = frequency and v[1] = wavetable index.
 	/// @param n number of values (2)
 	/// @param v array of values
@@ -120,21 +118,30 @@ public:
 		Reset();
 	}
 
+	/// Adjust for phase overflow/underflow.
+	/// @param phs phase (index into wavetable)
+	/// @return phase limited to table length.
+	inline PhsAccum PhaseWrapWT(PhsAccum phs)
+	{
+		if (phs >= synthParams.ftableLength)
+		{
+			do
+				phs -= synthParams.ftableLength;
+			while (phs >= synthParams.ftableLength);
+		}
+		else if (phs < 0)
+		{
+			do
+				phs += synthParams.ftableLength;
+			while (phs < 0);
+		}
+		return phs;
+	}
+
 	/// @copydoc GenWave::Gen()
 	virtual AmpValue Gen()
 	{
-		if (index >= synthParams.ftableLength)
-		{
-			do
-				index -= synthParams.ftableLength;
-			while (index >= synthParams.ftableLength);
-		}
-		else if (index < 0)
-		{
-			do
-				index += synthParams.ftableLength;
-			while (index < 0);
-		}
+		index = PhaseWrapWT(index);
 		// Note: it's OK to round-up index since tables have guard point.
 		int n = (int) (index + 0.5);
 		index += indexIncr;
@@ -142,7 +149,8 @@ public:
 	}
 };
 
-/// Wavetable oscillator with simple linear interpolation.
+
+/// Wavetable oscillator with linear interpolation.
 /// This significantly improves the quality of signals 
 /// when shorter wave tables (< 4096) are used.
 /// With longer wavetables, the benefit is a little less.
@@ -152,33 +160,29 @@ public:
 	/// @copydoc GenWave::Gen()
 	virtual AmpValue Gen()
 	{
-		if (index >= synthParams.ftableLength)
-		{
-			do
-				index -= synthParams.ftableLength;
-			while (index >= synthParams.ftableLength);
-		}
-		else if (index < 0)
-		{
-			do
-				index += synthParams.ftableLength;
-			while (index < 0);
-		}
+		return (AmpValue) Gen2();
+	}
+
+	/// @copydoc GenWave::Gen2()
+	virtual AmpValue2 Gen2()
+	{
+		index = PhaseWrapWT(index);
 		// fract = index - floor(index);
 		int intIndex = (int) index;
 		PhsAccum fract = index - (PhsAccum) intIndex;
 		index += indexIncr;
-		AmpValue v1 = waveTable[intIndex];
-		AmpValue v2 = waveTable[intIndex+1];
-		return v1 + ((v2 - v1) * (AmpValue)fract);
+		AmpValue2 v1 = (AmpValue2) waveTable[intIndex];
+		AmpValue2 v2 = (AmpValue2) waveTable[intIndex+1];
+		return (v1 + ((v2 - v1) * fract));
 	}
 };
 
-/// Fast wavetable generator. This oscillator used a fixed point (Q16.16)
+/// Fast wavetable generator. 
+/// This oscillator used a fixed point (Q16.16)
 /// phase accumulator for fast operation at the expense of slightly
 /// less accurate phase increment values. Overall, the signal quality
 /// is very good and indistinguisable from floating point versions
-/// in most cases.
+/// in many cases.
 /// @note The index range limits wavetable size to <= 16k entries
 class GenWave32 : public GenWaveWT
 {
@@ -187,7 +191,7 @@ private:
 	bsInt32 i32IndexIncr;
 	bsInt32 i32IndexMask;
 
-	inline void CalcPhase()
+	inline void CalcPhaseIncr()
 	{
 		i32IndexIncr = (bsInt32) (indexIncr * 65536.0);
 	}
@@ -204,33 +208,21 @@ public:
 	virtual void Modulate(FrqValue d)
 	{
 		GenWaveWT::Modulate(d);
-		CalcPhase();
+		CalcPhaseIncr();
 	}
 
 	// N.B. - abs(phs) should NEVER be > tableLength/2
 	/// @copydoc GenWaveWT::PhaseModWT
 	virtual void PhaseModWT(PhsAccum phs)
 	{
-		if (phs >= synthParams.ftableLength)
-		{
-			do
-				phs -= synthParams.ftableLength;
-			while (phs >= synthParams.ftableLength);
-		}
-		else if (phs < 0)
-		{
-			do
-				phs += synthParams.ftableLength;
-			while (phs < 0);
-		}
-		i32Index += (bsInt32) (phs * 65536.0) & i32IndexMask;
+		i32Index += (bsInt32) (PhaseWrapWT(phs) * 65536.0) & i32IndexMask;
 	}
 
 	/// @copydoc GenWave::Reset()
 	virtual void Reset(float initPhs = 0)
 	{
 		GenWaveWT::Reset(initPhs);
-		CalcPhase();
+		CalcPhaseIncr();
 		if (initPhs >= 0)
 			i32Index = (bsInt32) (index * 65536.0);
 	}
@@ -282,7 +274,6 @@ protected:
 	FrqValue piMult;
 	int ii;
 	PhsAccum fr;
-	int state;
 	int loopMode;
 
 public:
@@ -293,6 +284,7 @@ public:
 		piMult = 0.0;
 		tableEnd = 0.0;
 		phase = 0.0;
+		loopMode = 0;
 	}
 
 	void SetFrequency(FrqValue f)
@@ -311,7 +303,7 @@ public:
 	{
 		if (n >= 7)
 		{
-			InitWTLoop(values[0], values[1], values[2], 
+			InitWTLoop(values[0], values[1], values[2], 0,
 				(bsInt32) values[3], (bsInt32) values[4], 
 				(bsInt32) values[5], (bsInt16) values[6], 
 				wavetable);
@@ -322,13 +314,14 @@ public:
 	/// @param fo desired oscillator frequency
 	/// @param fr wavetable frequency
 	/// @param sr wavetable sample rate
+	/// @param ts table start point in samples
 	/// @param te table end point in samples
 	/// @param ls loop start point in samples
 	/// @param le loop end point in samples
 	/// @param lm loop mode (0 = no loop)
 	/// @param wt wavetable samples (mono)
 	void InitWTLoop(FrqValue fo, FrqValue fr, FrqValue sr, 
-		bsInt32 te, bsInt32 ls, bsInt32 le, bsInt16 lm, AmpValue *wt)
+		bsInt32 ts, bsInt32 te, bsInt32 ls, bsInt32 le, bsInt16 lm, AmpValue *wt)
 	{
 		frq = fo;
 		recFrq = fr;
@@ -340,12 +333,8 @@ public:
 		loopEnd = (PhsAccum) le;
 		loopLen = loopEnd - loopStart;
 		loopMode = lm;
-		if (loopMode == 0)
-			state = 2;
-		else
-			state = 0;
 		wavetable = wt;
-		phase = 0.0;
+		phase = ts;
 		Reset(0);
 	}
 
@@ -367,7 +356,7 @@ public:
 	void Release()
 	{
 		if (loopMode == 3)
-			state = 2;
+			loopMode = 0;
 	}
 
 	/// Alter the frequency by d.
@@ -386,27 +375,16 @@ public:
 	{
 		phsIncr = f * piMult;
 	}
-	
+
 	/// Generate the next sample.
 	AmpValue Gen()
 	{
 		if (phase < 0)
 			phase += period;
-		if (state == 0) // attack - segment prior to loopStart
-		{
-			if (phase >= loopStart)
-				state = 1;
-		}
-		else if (state == 1) // looping from loopStart to loopEnd
-		{
-			if (phase >= loopEnd)
-				phase -= loopLen;
-			else if (phase < loopStart)
-				phase += loopLen;
-		}
-		if (phase >= tableEnd)
-			return 0;
-		// else (state == 2) // playing through to the end (release or no loop)
+		if (loopMode && phase >= loopEnd)
+			phase -= loopLen;
+		else if (phase >= tableEnd)
+			return 0.0;
 
 		// no interpolation is faster...
 		//ii = (int)(phase+0.5);
@@ -423,13 +401,13 @@ public:
 	}
 
 	/// Determine if the wavetable end has been reached.
-	/// For wavetables with loop points, you must call
+	/// For wavetables with values past the loop end, you must call
 	/// Release() to transition past the loop end.
 	/// For wavetables without loop points, this will
 	/// return true as soon as the entire sample is played.
 	int IsFinished()
 	{
-		return state == 2 && phase >= tableEnd;
+		return !loopMode && phase >= tableEnd;
 	}
 };
 

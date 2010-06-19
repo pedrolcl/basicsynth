@@ -7,14 +7,14 @@
 ///  - define USE_LIBXML to use the libxml2 library
 ///  - define USE_TINYXML to use the tinyxml library
 ///  - define none to create a dummy XML class
-// 
+//
 // Compile the appropriate .cpp file as well:
 //  XmlWrapW.cpp - MSXML
 //  XmlWrapU.cpp - Libxml2
 //  XmlWrapN.cpp - no XML support
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 #if defined(USE_MSXML)
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #include <atlbase.h>
-//#import "msxml3.dll" raw_interfaces_only named_guids 
+//#import "msxml3.dll" raw_interfaces_only named_guids
 //using namespace MSXML2;
 #include <msxml2.h>
 #endif
@@ -58,7 +58,7 @@ private:
 	TiXmlElement *pElem;
 	void SetNode(TiXmlElement *pnode) { pElem = pnode; }
 #endif
-	
+
 	friend class XmlSynthDoc;
 
 public:
@@ -87,16 +87,16 @@ public:
 	/// @param childElem wrapper object for the new child.
 	XmlSynthElem *AddChild(const char *childTag, XmlSynthElem *childElem);
 	const char *TagName();
-	int GetAttribute(char *attrName, short& val);
-	int GetAttribute(char *attrName, long& val);
-	int GetAttribute(char *attrName, float& val);
-	int GetAttribute(char *attrName, double& val);
-	int GetAttribute(char *attrName, char **val);
-	int SetAttribute(char *attrName, short val);
-	int SetAttribute(char *attrName, long val);
-	int SetAttribute(char *attrName, float val);
-	int SetAttribute(char *attrName, double val);
-	int SetAttribute(char *attrName, const char *val);
+	int GetAttribute(const char *attrName, short& val);
+	int GetAttribute(const char *attrName, long& val);
+	int GetAttribute(const char *attrName, float& val);
+	int GetAttribute(const char *attrName, double& val);
+	int GetAttribute(const char *attrName, char **val);
+	int SetAttribute(const char *attrName, short val);
+	int SetAttribute(const char *attrName, long val);
+	int SetAttribute(const char *attrName, float val);
+	int SetAttribute(const char *attrName, double val);
+	int SetAttribute(const char *attrName, const char *val);
 	int TagMatch(const char *tag);
 	int SetContent(const char *data);
 	int GetContent(char **data);
@@ -128,20 +128,20 @@ public:
 	/// The new element is added as a child of parent with the given tag
 	XmlSynthElem *CreateElement(XmlSynthElem *parent, const char *tag, XmlSynthElem *childElem);
 	/// Create a new XML doc.
-	XmlSynthElem *NewDoc(char *roottag);
+	XmlSynthElem *NewDoc(const char *roottag);
 	/// Create a new XML doc.
-	XmlSynthElem *NewDoc(char *roottag, XmlSynthElem *rootElem);
+	XmlSynthElem *NewDoc(const char *roottag, XmlSynthElem *rootElem);
 	/// Open an XML file.
 	/// @param fname path to the XML file
 	/// @return the root node of the XML document.
-	XmlSynthElem *Open(char *fname);
+	XmlSynthElem *Open(const char *fname);
 	/// Open an XML file.
 	/// @param fname path to the XML file
 	/// @param rootElem wrapper to hold the root element
 	/// @return the root node of the XML document.
-	XmlSynthElem *Open(char *fname, XmlSynthElem *rootElem);
+	XmlSynthElem *Open(const char *fname, XmlSynthElem *rootElem);
 	/// Save the XML file
-	int Save(char *fname);
+	int Save(const char *fname);
 	/// Close the XML file.
 	int Close();
 };

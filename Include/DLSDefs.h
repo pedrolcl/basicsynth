@@ -13,65 +13,69 @@
 #ifndef _DLSDEFS_H_
 #define _DLSDEFS_H_
 
+/////////////////// RIFF CHUNK Value //////////////////////////
+#ifndef RIFF4CC
+#if BIG_ENDIAN
+#define RIFF4CC(a,b,c,d) ((a<<24)|(b<<16)|(c<<8)|d)
+// NB: This macro only works for unsigned
+#define SwapBytes(n)  ((n&0xff)<<8)|((n>>8)&0xff)
+#else
+#define RIFF4CC(a,b,c,d) (a|(b<<8)|(c<<16)|(d<<24))
+#define SwapBytes(n)  n
+#endif
+#endif
+
 /////////////////// BEGIN RIFF STRUCTURES //////////////////////////
 
-#ifndef FOURCC
-#if BS_BIG_ENDIAN
-#define FOURCC(a,b,c,d) ((a<<24)|(b<<16)|(c<<8)|d)
-#else
-#define FOURCC(a,b,c,d) (a|(b<<8)|(c<<16)|(d<<24))
-#endif
-#endif
-
 // Chunk format values found in a DLS file
-#define DLS_RIFF_CHUNK  FOURCC('R','I','F','F')
-#define DLS_VERS_CHUNK  FOURCC('v','e','r','s')
-#define DLS_DLID_CHUNK  FOURCC('d','l','i','d')
-#define DLS_COLH_CHUNK  FOURCC('c','o','l','h')
-#define DLS_LIST_CHUNK  FOURCC('L','I','S','T')
-#define DLS_PTBL_CHUNK  FOURCC('p','t','b','l')
-#define DLS_ART1_CHUNK  FOURCC('a','r','t','1')
-#define DLS_ART2_CHUNK  FOURCC('a','r','t','2')
-#define DLS_RGNH_CHUNK  FOURCC('r','g','n','h')
-#define DLS_INSH_CHUNK  FOURCC('i','n','s','h')
-#define DLS_WLNK_CHUNK  FOURCC('w','l','n','k')
-#define DLS_WSMP_CHUNK  FOURCC('w','s','m','p')
-#define DLS_FMT__CHUNK  FOURCC('f','m','t',' ')
-#define DLS_DATA_CHUNK  FOURCC('d','a','t','a')
+#define DLS_RIFF_CHUNK  RIFF4CC('R','I','F','F')
+#define DLS_VERS_CHUNK  RIFF4CC('v','e','r','s')
+#define DLS_DLID_CHUNK  RIFF4CC('d','l','i','d')
+#define DLS_COLH_CHUNK  RIFF4CC('c','o','l','h')
+#define DLS_LIST_CHUNK  RIFF4CC('L','I','S','T')
+#define DLS_PTBL_CHUNK  RIFF4CC('p','t','b','l')
+#define DLS_ART1_CHUNK  RIFF4CC('a','r','t','1')
+#define DLS_ART2_CHUNK  RIFF4CC('a','r','t','2')
+#define DLS_RGNH_CHUNK  RIFF4CC('r','g','n','h')
+#define DLS_INSH_CHUNK  RIFF4CC('i','n','s','h')
+#define DLS_WLNK_CHUNK  RIFF4CC('w','l','n','k')
+#define DLS_WSMP_CHUNK  RIFF4CC('w','s','m','p')
+#define DLS_FMT__CHUNK  RIFF4CC('f','m','t',' ')
+#define DLS_DATA_CHUNK  RIFF4CC('d','a','t','a')
 
 // INFO-LIST text chunks
-#define DLS_IARL_CHUNK  FOURCC('I','A','R','L')
-#define DLS_IART_CHUNK  FOURCC('I','A','R','T')
-#define DLS_ICMS_CHUNK  FOURCC('I','C','M','S')
-#define DLS_ICMT_CHUNK  FOURCC('I','C','M','T')
-#define DLS_ICOP_CHUNK  FOURCC('I','C','O','P')
-#define DLS_ICRD_CHUNK  FOURCC('I','C','R','D')
-#define DLS_IENG_CHUNK  FOURCC('I','E','N','G')
-#define DLS_IGNR_CHUNK  FOURCC('I','G','N','R')
-#define DLS_IKEY_CHUNK  FOURCC('I','K','E','Y')
-#define DLS_IMED_CHUNK  FOURCC('I','M','E','D')
-#define DLS_INAM_CHUNK  FOURCC('I','N','A','M')
-#define DLS_IPRD_CHUNK  FOURCC('I','P','R','D')
-#define DLS_ISBJ_CHUNK  FOURCC('I','S','B','J')
-#define DLS_ISFT_CHUNK  FOURCC('I','S','F','T')
-#define DLS_ISRC_CHUNK  FOURCC('I','S','R','C')
-#define DLS_ISRF_CHUNK  FOURCC('I','S','R','F')
-#define DLS_ITCH_CHUNK  FOURCC('I','T','C','H')
+#define DLS_IARL_CHUNK  RIFF4CC('I','A','R','L')
+#define DLS_IART_CHUNK  RIFF4CC('I','A','R','T')
+#define DLS_ICMS_CHUNK  RIFF4CC('I','C','M','S')
+#define DLS_ICMT_CHUNK  RIFF4CC('I','C','M','T')
+#define DLS_ICOP_CHUNK  RIFF4CC('I','C','O','P')
+#define DLS_ICRD_CHUNK  RIFF4CC('I','C','R','D')
+#define DLS_IENG_CHUNK  RIFF4CC('I','E','N','G')
+#define DLS_IGNR_CHUNK  RIFF4CC('I','G','N','R')
+#define DLS_IKEY_CHUNK  RIFF4CC('I','K','E','Y')
+#define DLS_IMED_CHUNK  RIFF4CC('I','M','E','D')
+#define DLS_INAM_CHUNK  RIFF4CC('I','N','A','M')
+#define DLS_IPRD_CHUNK  RIFF4CC('I','P','R','D')
+#define DLS_ISBJ_CHUNK  RIFF4CC('I','S','B','J')
+#define DLS_ISFT_CHUNK  RIFF4CC('I','S','F','T')
+#define DLS_ISRC_CHUNK  RIFF4CC('I','S','R','C')
+#define DLS_ISRF_CHUNK  RIFF4CC('I','S','R','F')
+#define DLS_ITCH_CHUNK  RIFF4CC('I','T','C','H')
 
-#define DLS_FILE_FORMAT FOURCC('D','L','S',' ')
-#define DLS_WVPL_FORMAT FOURCC('w','v','p','l')
-#define DLS_PATH_FORMAT FOURCC('p','a','t','h')
-#define DLS_WAVE_FORMAT FOURCC('w','a','v','e')
-#define DLS_LINS_FORMAT FOURCC('l','i','n','s')
-#define DLS_INS__FORMAT FOURCC('i','n','s',' ')
-#define DLS_INSH_FORMAT FOURCC('i','n','s','h')
-#define DLS_RGN__FORMAT FOURCC('r','g','n',' ')
-#define DLS_RGN2_FORMAT FOURCC('r','g','n','2')
-#define DLS_LRGN_FORMAT FOURCC('l','r','g','n')
-#define DLS_LART_FORMAT FOURCC('l','a','r','t')
-#define DLS_LAR2_FORMAT FOURCC('l','a','r','2')
-#define DLS_INFO_FORMAT FOURCC('I','N','F','O')
-#define DLS_CDL__FORMAT FOURCC('c','d','l',' ')
+#define DLS_FILE_FORMAT RIFF4CC('D','L','S',' ')
+#define DLS_WVPL_FORMAT RIFF4CC('w','v','p','l')
+#define DLS_PATH_FORMAT RIFF4CC('p','a','t','h')
+#define DLS_WAVE_FORMAT RIFF4CC('w','a','v','e')
+#define DLS_LINS_FORMAT RIFF4CC('l','i','n','s')
+#define DLS_INS__FORMAT RIFF4CC('i','n','s',' ')
+#define DLS_INSH_FORMAT RIFF4CC('i','n','s','h')
+#define DLS_RGN__FORMAT RIFF4CC('r','g','n',' ')
+#define DLS_RGN2_FORMAT RIFF4CC('r','g','n','2')
+#define DLS_LRGN_FORMAT RIFF4CC('l','r','g','n')
+#define DLS_LART_FORMAT RIFF4CC('l','a','r','t')
+#define DLS_LAR2_FORMAT RIFF4CC('l','a','r','2')
+#define DLS_INFO_FORMAT RIFF4CC('I','N','F','O')
+#define DLS_CDL__FORMAT RIFF4CC('c','d','l',' ')
 
 ///////////////////////////////////////////////////////////////////////////
 // Articulation connection graph definitions
@@ -90,19 +94,28 @@
 #define CONN_SRC_MONOPRESSURE 0x000a
 
 // Midi Controllers 0-127
-#define CONN_SRC_CC1 0x0081
-#define CONN_SRC_CC2 0x0082
-#define CONN_SRC_CC7 0x0087
-#define CONN_SRC_CC10 0x008a
-#define CONN_SRC_CC11 0x008b
+#define CONN_SRC_CC1  0x0081   ///< Modulation wheel
+#define CONN_SRC_CC2  0x0082   ///< Breath controller
+#define CONN_SRC_CC7  0x0087   ///< Volume
+#define CONN_SRC_CC10 0x008a   ///< Pan
+#define CONN_SRC_CC11 0x008b   ///< Expression
+#define CONN_SRC_CC91 0x00db   ///< Reverb
+#define CONN_SRC_CC93 0x00dd   ///< Chorus
+#define CONN_SRC_RPN0 0x0100   ///< Pitch bend sensitivity
+#define CONN_SRC_RPN1 0x0101   ///< Fine tune
+#define CONN_SRC_RPN2 0x0102   ///< Course tune
 
 // Generic Destinations
 #define CONN_DST_NONE 0x0000
 #define CONN_DST_ATTENUATION 0x0001
+#define CONN_DST_GAIN 0x0001
 #define CONN_DST_RESERVED 0x0002
 #define CONN_DST_PITCH 0x0003
 #define CONN_DST_PAN 0x0004
 #define CONN_DST_KEYNUMBER 0x0005
+
+#define CONN_DST_CHORUS	 0x0080
+#define CONN_DST_REVERB  0x0081
 
 // LFO Destinations
 #define CONN_DST_LFO_FREQUENCY 0x0104
@@ -133,8 +146,11 @@
 #define CONN_DST_FLT_CUTOFF 0x0500
 #define CONN_DST_FLT_Q 0x0501
 
-#define CONN_TRN_NONE 0x0000
+#define CONN_TRN_NONE    0x0000
 #define CONN_TRN_CONCAVE 0x0001
+#define CONN_TRN_CONVEX  0x0002
+#define CONN_TRN_SWITCH  0x0003
+
 
 #pragma pack(push, 2)
 
@@ -146,11 +162,12 @@ struct dlsChunk
 	// data[cksz]
 };
 
-// Note: this is identical to a 'GUID'
+/// Uniquie identifier.
+/// Note: this is identical to a 'GUID'
 struct dlsID
 {
 	bsUint32 data1;
-	bsUint16  data2;
+	bsUint16 data2;
 	bsUint16 data3;
 	bsUint8  data4[8];
 };
@@ -209,22 +226,22 @@ struct dlsRgnHeader
 	dlsRgnRange rangeVel; // Velocity Range
 	bsUint16    options;  // Synthesis options for this range
 	bsUint16    keyGroup; // Key grouping for non simultaneous play
-	                      // 0 = no group, 1 up is group
-	                      // for Level 1 only groups 1-15 are allowed
+						  // 0 = no group, 1 up is group
+						  // for Level 1 only groups 1-15 are allowed
 	bsUint16    exclusive; // Level 2 only
 };
 
 /// DLS Instrument header record.
 struct dlsInstHeader
 {
-	bsUint32 regions; // Count of regions in this instrument
-	dlsMidiLocale locale; // Intended MIDI locale of this instrument
+	bsUint32 regions;      ///< Count of regions in this instrument
+	dlsMidiLocale locale;  ///< Intended MIDI locale of this instrument
 };
 
 /// DLS header record.
 struct dlsHeader
 {
-	bsUint32 instruments; // Count of instruments in the collection
+	bsUint32 instruments;  ///< Count of instruments in the collection
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -236,6 +253,7 @@ struct dlsHeader
 #define WAVELINK_CHANNEL_LEFT 0x0001l
 #define WAVELINK_CHANNEL_RIGHT 0x0002l
 #define F_WAVELINK_PHASE_MASTER 0x0001
+#define F_WAVELINK_MULTICHANNEL 0x0002
 struct dlsWaveLink
 {
 	// any paths or links are stored right after struct
@@ -278,6 +296,7 @@ struct dlsSample
 // played until the envelope reaches an off threshold in the release
 // portion of the volume envelope
 #define WLOOP_TYPE_FORWARD 0
+#define WLOOP_TYPE_RELEASE 1
 /// DLS loop points record.
 struct dlsLoop
 {

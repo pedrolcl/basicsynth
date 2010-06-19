@@ -526,6 +526,30 @@ public:
 		wavTable[synthParams.itableLength] = wavTable[0];
 		return 0;
 	}
+
+	/// Get sin(ndx) using interpolation of a table.
+	/// @param ndx current table index (phase)
+	/// @return sin value as double precision
+	inline double SinWT(PhsAccum ndx)
+	{
+		int intIndex = (int) ndx; // floor(ndx)
+		double fract = ndx - (double) intIndex;
+		double v1 = (double) wavSin[intIndex];
+		double v2 = (double) wavSin[intIndex+1];
+		return v1 + ((v2 - v1) * fract);
+	}
+
+	/// Get cos(ndx) using interpolation of a table.
+	/// @param ndx current table index (phase)
+	/// @return sin value as double precision
+	inline double CosWT(PhsAccum ndx)
+	{
+		// add PI/2 radians to phase
+		ndx += synthParams.ftableLength / 4.0;
+		if (ndx >= synthParams.ftableLength)
+			ndx -= synthParams.ftableLength;
+		return SinWT(ndx);
+	}
 };
 
 /// Global wavetable object. This global must be allocated somewhere. It is shared

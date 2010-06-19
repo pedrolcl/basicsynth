@@ -131,6 +131,9 @@ public:
 	/// @param hp when true, produce a high-passs
 	void CalcCoef(FrqValue fc, int hp = 0)
 	{
+		if (fc > synthParams.nyquist)
+			fc = synthParams.nyquist;
+
 		double x = exp(-twoPI * (fc/synthParams.sampleRate));
 		if (hp)
 		{
@@ -154,7 +157,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////
-/// One-pole, two-zero filter. This filter implements the equation
+/// One-pole, one-zero filter. This filter implements the equation
 /// @code
 /// y[n] = a0 * x[n] + a1 * x[n-1] + b1 * y[n-1]
 /// @endcode
@@ -212,6 +215,9 @@ public:
 	/// @param hp when true, produce a high-passs
 	void CalcCoef(FrqValue fc, int hp = 0)
 	{
+		if (fc > synthParams.nyquist)
+			fc = synthParams.nyquist;
+
 		double x = exp(-twoPI * (fc/synthParams.sampleRate));
 		if (hp)
 		{
@@ -304,24 +310,14 @@ public:
 			inAmp0 = 0;
 			return;
 		}
-		// Hal Chamberlin, Musical Applications of Microprocessors
-		double tmp = -PI * fc / (q * synthParams.sampleRate);
-		dlyAmp1 = -2.0 * cos(synthParams.frqRad * fc) * exp(tmp);
-		dlyAmp2 = exp(tmp+tmp);
-		inAmp0 = 1.0 + dlyAmp1 + dlyAmp2;
+		if (fc > synthParams.nyquist)
+			fc = synthParams.nyquist;
 
-		//------------------------------------------------------------
-		// Another version from: Dodge & Jerse
-		// b2 = exp(-twoPI * BW / sampleRate);
-		// b1 = ((-4 * b2) / (1 + b2)) * cos(twoPI * fc / sampleRate);
-		// a0 = (1 - b2) * sqrt(1 - (b2*b2) / (4 * b2));
-		// Note: q = fc/BW -> BW = fc/q
-		//------------------------------------------------------------
-		//double rad = synthParams.frqRad * fc;
-		//dlyAmp2 = exp(-rad / q);
-		//double tmp = dlyAmp2 * 4.0;
-		//dlyAmp1 = (-tmp / (1.0 + dlyAmp2)) * cos(rad);
-		//inAmp0 = (1.0 - dlyAmp2) * sqrt(1.0 - ((dlyAmp1*dlyAmp1)/tmp));
+		// Hal Chamberlin, Musical Applications of Microprocessors
+		double r = exp(-PI * fc / (q * synthParams.sampleRate));
+		dlyAmp1 = -2.0 * r * cos(synthParams.frqRad * fc);
+		dlyAmp2 = r * r;
+		inAmp0 = 1.0 + dlyAmp1 + dlyAmp2;
 	}
 
 	/// Process the current sample. The input sample is stored in the delay
@@ -342,6 +338,15 @@ public:
 /// @code
 /// y[n] = h[0] * x[0] + h[1] * x[n-1] ... + h[m] * x[n-m]
 /// @endcode
+/// For a windowed sinc filter kernel of length M,
+/// the impulse is calculated:
+/// @code
+/// h[k] = sin(2*PI*f*(k-M/2))/(k-(M/2) * W(k)
+/// W(k) = 0.42 - 0.5 * cos(2*PI*(k/M))
+/// f = fc / fs, i.e. fraction of the sample rate
+/// @endcode
+/// See: _The Scientist and Engineer's Guide to Digital Signal Processing_
+/// Steven Smith, Chapter 6, 14, 16.
 ///////////////////////////////////////////////////////////
 class FilterFIRn : public GenUnit
 {
@@ -363,8 +368,9 @@ public:
 		delete imp;
 	}
 
-	/// Allocate impulse response. The impulse responce array holds the coefficients
-	/// for convolution. This array is allocated automatically when Init is called.
+	/// Allocate impulse response. 
+	/// The impulse responce array holds the coefficients for convolution. 
+	/// This array is allocated automatically when Init is called.
 	/// If coefficients are to be set individulally using SetCoef() this function
 	/// must be called first to create the buffer.
 	/// @param n number of coefficients
@@ -380,7 +386,6 @@ public:
 			delete imp;
 			imp = NULL;
 		}
-
 		if ((length = n) > 0)
 		{
 			val = new AmpValue[length];
@@ -388,9 +393,9 @@ public:
 		}
 	}
 
-	/// Initialize the filter. The first member of the value array
-	/// contains the number of impulses. The remaining values
-	/// contain the amplitudes for each impulse.
+	/// Initialize the filter. 
+	/// The first member of the value array contains the number of samples.
+	/// The remaining values contain the amplitudes for each sample.
 	/// @param n number of values
 	/// @param v values, v[0] = number of coefficients (n), v[1..n] = array of coefficient values
 	void Init(int n, float *v)
@@ -415,31 +420,41 @@ public:
 			imp[i] = AmpValue(v[i]);
 	}
 	
-	/// Calculate coefficients. The impulse responce coefficients are calculated
-	/// for a low-pass or high-pass filter using the windowed sinc equation with
-	/// a Hamming window.
+	/// Calculate coefficients. 
+	/// The impulse responce coefficients are calculated for a low-pass
+	/// filter using the windowed sinc equation with a Hamming window.
+	/// High-pass is also possible by "spectral inversion" of the
+	/// coefficients.
 	/// @param fc cutoff frequency
 	/// @param hp 0 = low-pass, 1 = high-pass
 	void CalcCoef(FrqValue fc, int hp = 0)
 	{
 		if (!(length & 1))
 			return;
+		if (fc > synthParams.nyquist)
+			fc = synthParams.nyquist;
+		int n2 = length/2;
+		int k;
+		// g is the sum of the coefficients and used
+		// to normalize gain.
+		double g = 0;
+		// ti1 is the sin() phase increment for sinc() calculation.
 		PhsAccum ti1 = fc * synthParams.frqTI;
+		// ti2 is the cos() phase increment for Hamming window.
 		PhsAccum ti2 = synthParams.ftableLength / (PhsAccum) (length - 1);
+		// Initial phase is at the right lobe of the function.
 		PhsAccum tph1 = ti1;
 		PhsAccum tph2 = ti2 + (synthParams.ftableLength / 4);
-		AmpValue divInc = PI;
-		AmpValue div = divInc;
-		int n2 = length/2;
+		AmpValue div = 1;
 		int ndx1 = n2 + 1;
 		int ndx2 = n2 - 1;
-		double g = 2 * (fc / synthParams.sampleRate);
+		g = twoPI * (fc / synthParams.sampleRate);
 		imp[n2] = g;
-		int k;
+
 		AmpValue v;
 		for (k = 0; k < n2; k++)
 		{
-			v = (wtSet.wavSin[(int)(tph1+0.5)] / div) * (0.54 + (0.46 * wtSet.wavSin[(int)(tph2+0.5)]));
+			v = (wtSet.SinWT(tph1) / div) * (0.54 + (0.46 * wtSet.SinWT(tph2)));
 			g += v + v;
 			imp[ndx1++] = v;
 			imp[ndx2--] = v;
@@ -447,8 +462,9 @@ public:
 				tph1 -= synthParams.ftableLength;
 			if ((tph2 += ti2) >= synthParams.ftableLength)
 				tph2 -= synthParams.ftableLength;
-			div += divInc;
+			div += 1.0;
 		}
+
 		// normalize filter gain for unity at DC
 		// and optionally convert to high-pass
 		for (k = 0; k < length; k++)
@@ -460,18 +476,20 @@ public:
 		if (hp)
 			imp[n2] += 1.0;
 
-		/**** Direct calculation (for reference) ****
-		int z = (length - 1) / 2;
+		/**** Direct calculation (for reference) ******
 		double m = (double) length - 1;
 		double f = fc / synthParams.sampleRate;
 		for (k = 0; k < length; k++)
 		{
 			double n = (double)k - (m / 2);
 			if (n == 0)
-				imp[k] = 2.0 * f;
+				imp[k] = twoPI * f; //2.0 * f;
 			else
-				imp[k] = sin(twoPI*f*n) / (PI*n);
-			imp[k] *= 0.54 + (0.46 * cos(twoPI * n / m));
+			{
+				imp[k] = sin(twoPI*f*n) / n;
+				imp[k] *= 0.54 + (0.46 * cos(twoPI * n / m));
+			}
+			g += imp[k];
 		}
 		**********************************************/
 	}
@@ -597,6 +615,156 @@ public:
 		return out / (AmpValue) length;
 	}
 };
+
+/// State variable filter.
+/// The state variable filter produces simultaneous low pass, high pass
+/// and band pass outputs from a single second order filter.
+/// The output of FilterSV is the sum of the three outputs.
+/// By varying the relative gain of each output a wide variety
+/// of filters can be realized.
+/// The three outputs are also available separately.
+/// For dynamic changes, call CalcCoef() directly.
+/// Unfortunately, this nice little filter becomes unstable
+/// at frequencies above 1/6 of the sample rate. It's good for
+/// a lot of subtractive synthesis, but not a good choice for
+/// an anti-alias or upper frequency filter.
+/// See Hal Chamberlin, Musical Applications of Microprocessors
+class FilterSV : public GenUnit
+{
+protected:
+	AmpValue lowPass;
+	AmpValue hiPass;
+	AmpValue bandPass;
+
+	AmpValue a;
+	AmpValue b;
+
+	AmpValue lpOut;
+	AmpValue hpOut;
+	AmpValue bpOut;
+
+	AmpValue maxFc;
+
+public:
+	FilterSV()
+	{
+		lowPass = 0;
+		hiPass = 0;
+		bandPass = 0;
+		lpOut = 0;
+		hpOut = 0;
+		bpOut = 0;
+		a = 0;
+		b = 0;
+		maxFc = synthParams.sampleRate / 6.0;
+	}
+
+	/// Standard initializer.
+	void Init(int n, float *v)
+	{
+		if (n >= 5)
+			InitFilter(v[0], v[1], v[2], v[3], v[4]);
+	}
+
+	void CalcCoef(FrqValue fc, AmpValue q)
+	{
+		if (fc > maxFc)
+			fc = maxFc;
+		a = 2.0 * wtSet.SinWT(synthParams.maxIncrWT * fc / synthParams.sampleRate);
+		if (q > 0)
+			b = 1.0 / q;
+		else
+			b = 0;
+	}
+
+	void SetRatios(AmpValue lp, AmpValue hp, AmpValue bp)
+	{
+		lpOut = lp;
+		hpOut = hp;
+		bpOut = bp;
+	}
+
+	/// Initialize the filter.
+	/// @param fc cutoff frequency
+	/// @param q filter Q, 0.5 < Q < INF
+	/// @param lp volume for low pass output
+	/// @param hp volume for high pass output
+	/// @param bp volume for band pass output
+	void InitFilter(FrqValue fc, AmpValue q, AmpValue lp, AmpValue hp, AmpValue bp)
+	{
+		CalcCoef(fc, q);
+		SetRatios(lp, hp, bp);
+		Reset(0);
+	}
+
+	/// Clear the filter history buffers.
+	/// @param initPhs ignored
+	void Reset(float initPhs)
+	{
+		lowPass = 0;
+		hiPass = 0;
+		bandPass = 0;
+	}
+
+	/// Return the next sample.
+	/// The output is the sum of low pass, high pass and band pass
+	/// each adjusted by the respective volume level.
+	/// @param in current sample.
+	/// @returns filtered sample.
+	AmpValue Sample(AmpValue in)
+	{
+		lowPass += a * bandPass;
+		hiPass = in - (lowPass + (b * bandPass));
+		bandPass += a * hiPass;
+		// notch = hiPass + lowPass;
+
+		return (lowPass * lpOut) + (hiPass * hpOut) + (bandPass * bpOut) /*+ notch * brOut) */;
+	}
+
+	/// Return the low pass output alone.
+	inline AmpValue LowPass()  { return lowPass; }
+	/// Return the high pass output alone.
+	inline AmpValue HighPass() { return hiPass; }
+	/// Return the band pass output alone.
+	inline AmpValue BandPass() { return bandPass; }
+	/// Return the band reject output alone.
+	inline AmpValue BandReject() { return hiPass + lowPass; }
+};
+
+
+/// Resonant lowpass filter based on state variable filter.
+/// This is a simplified version, optimized for use as 
+/// a resonant lowpass filter.
+/// We don't need (and don't store) the high-pass output.
+class FilterSVLP : public FilterSV
+{
+public:
+	void Init(int n, float *v)
+	{
+		InitFilter(v[0], v[1]);
+	}
+
+	/// Initialize the filter.
+	/// @param fc cutoff frequency
+	/// @param q filter Q, 0.5 < Q < INF
+	void InitFilter(FrqValue fc, AmpValue q)
+	{
+		CalcCoef(fc, q);
+		Reset(0);
+	}
+
+	/// Return the next sample.
+	/// The output is the low pass tap.
+	/// @param in current sample.
+	/// @returns filtered sample.
+	AmpValue Sample(AmpValue in)
+	{
+		lowPass += a * bandPass;
+		bandPass += a * (in - (lowPass + (b * bandPass)));
+		return lowPass;
+	}
+};
+
 //@}
 
 #endif

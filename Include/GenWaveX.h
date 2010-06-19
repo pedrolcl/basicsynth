@@ -53,7 +53,7 @@ public:
 		sigK = 0;
 		scale = 1;
 		gibbs = 0;
-		maxMult = 0;
+		maxMult = 1;
 	}
 
 	~GenWaveSum()
@@ -96,7 +96,7 @@ public:
 	/// @param g apply correction for gibbs effect
 	void InitParts(int n, float *m, float *a, int g = 0)
 	{
-		maxMult = 0;
+		maxMult = 1;
 		gibbs = g;
 		AllocParts(n);
 		for (int i = 0; i < n; i++)
@@ -136,7 +136,7 @@ public:
 		}
 		parts = new SumPart[n];
 		numPart = n;
-		maxMult = 0;
+		maxMult = 1;
 		cntPart = 0;
 		scale = 1;
 	}
@@ -175,10 +175,6 @@ public:
 		while (pp < pe)
 		{
 			pp->phase += phs * pp->mul;
-			while (pp->phase >= synthParams.ftableLength)
-				pp->phase -= synthParams.ftableLength;
-			while (pp->phase < 0)
-				pp->phase += synthParams.ftableLength;
 			pp++;
 		}
 	}
@@ -193,9 +189,14 @@ public:
 		FrqValue tld2 = synthParams.ftableLength / 2;
 		scale = 0;
 		cntPart = 0;
-		AmpValue sigK = PI / maxMult;
+		AmpValue sigK;
 		AmpValue sigN;
-		AmpValue sigTL = tld2/PI;
+		AmpValue sigTL;
+		if (gibbs)
+		{
+			sigK = PI / maxMult;
+			sigTL = tld2/PI;
+		}
 		SumPart *pp = parts;
 		SumPart *pe = &parts[numPart];
 		while (pp < pe)
@@ -206,7 +207,8 @@ public:
 				if (gibbs && pp->mul > 0)
 				{
 					sigN = sigK * pp->mul;
-					pp->sigma = (wtSet.wavSin[(int)((sigN*sigTL)+0.5)] / sigN) * pp->amp;
+					//pp->sigma = (wtSet.wavSin[(int)((sigN*sigTL)+0.5)] / sigN) * pp->amp;
+					pp->sigma = pp->amp * wtSet.SinWT(sigN*sigTL) / sigN;
 				}
 				else
 					pp->sigma = pp->amp;
@@ -230,10 +232,9 @@ public:
 		SumPart *pe = &parts[numPart];
 		while (pp < pe)
 		{
+			pp->phase = PhaseWrapWT(pp->phase);
 			val += waveTable[(int)(pp->phase+0.5)] * pp->sigma;
 			pp->phase += pp->incr;
-			if (pp->phase >= synthParams.ftableLength)
-				pp->phase -= synthParams.ftableLength;
 			pp++;
 		}
 		return val / scale;
@@ -298,6 +299,15 @@ public:
 		modAmp = indexOfMod * modIncr;
 	}
 
+	inline void CalcModIncr()
+	{
+		modIncr = indexIncr * modMult;
+		if (modIncr > synthParams.maxIncrWT)
+			modIncr = synthParams.maxIncrWT;
+		CalcModAmp();
+	}
+
+
 	/// Set the index of modulation
 	void SetModIndex(AmpValue iom)
 	{
@@ -329,21 +339,26 @@ public:
 		GenWaveWT::Reset(initPhs);
 		if (initPhs >= 0)
 			modIndex = initPhs * synthParams.radTI;
-		modIncr = indexIncr * modMult;
-		if (modIncr >= (synthParams.ftableLength/2))
-			modIncr = synthParams.ftableLength/2;
-		CalcModAmp();
+		CalcModIncr();
+	}
+
+	virtual void Modulate(FrqValue d)
+	{
+		GenWaveWT::Modulate(d);
+		CalcModIncr();
+	}
+
+	virtual void PhaseModWT(PhsAccum phs)
+	{
+		GenWaveWT::PhaseModWT(phs);
+		modIndex += phs * modMult;
 	}
 
 	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
-		while (index >= synthParams.ftableLength)
-			index -= synthParams.ftableLength;
-		while (index < 0)
-			index += synthParams.ftableLength;
-		while (modIndex >= synthParams.ftableLength)
-			modIndex -= synthParams.ftableLength;
+		index = PhaseWrapWT(index);
+		modIndex = PhaseWrapWT(modIndex);
 
 		AmpValue valCar = waveTable[(int)(index+0.5)];
 		AmpValue valMod = waveTable[(int)(modIndex+0.5)];
@@ -406,36 +421,32 @@ public:
 		GenWaveWT::Reset(initPhs);
 		modIncr = synthParams.frqTI * PhsAccum(modFrq);
 		if (initPhs >= 0)
-		{
 			modIndex = initPhs * synthParams.radTI;
-			while (modIndex >= synthParams.ftableLength)
-				modIndex -= synthParams.ftableLength;
-		}
+	}
+
+	virtual void Modulate(FrqValue d)
+	{
+		GenWaveWT::Modulate(d);
+		modIncr = synthParams.frqTI * PhsAccum(modFrq+d);
+	}
+
+	virtual void PhaseModWT(PhsAccum phs)
+	{
+		index += phs;
+		modIndex += (phs * modAmp / modFrq);
 	}
 
 	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
-		if (index >= synthParams.ftableLength)
-		{
-			do
-				index -= synthParams.ftableLength;
-			while (index >= synthParams.ftableLength);
-		}
-		if (index < 0)
-		{
-			do
-				index += synthParams.ftableLength;
-			while (index < 0);
-		}
-		while (modIndex >= synthParams.ftableLength)
-			modIndex -= synthParams.ftableLength;
+		index = PhaseWrapWT(index);
+		modIndex = PhaseWrapWT(modIndex);
 
 		AmpValue valMod = 1.0 + (modAmp * waveTable[(int)(modIndex+0.5)]);
-		AmpValue v = waveTable[(int)(index+0.5)] * valMod * modScale;
+		AmpValue out = waveTable[(int)(index+0.5)] * valMod * modScale;
 		index += indexIncr;
 		modIndex += modIncr;
-		return v;
+		return out;
 	}
 };
 
@@ -446,21 +457,8 @@ public:
 	/// @copydoc GenWave::Gen
 	virtual AmpValue Gen()
 	{
-		if (index >= synthParams.ftableLength)
-		{
-			do
-				index -= synthParams.ftableLength;
-			while (index >= synthParams.ftableLength);
-		}
-		if (index < 0)
-		{
-			do
-				index += synthParams.ftableLength;
-			while (index < 0);
-		}
-		while (modIndex >= synthParams.ftableLength)
-			modIndex -= synthParams.ftableLength;
-
+		index = PhaseWrapWT(index);
+		modIndex = PhaseWrapWT(modIndex);
 		AmpValue v = waveTable[(int)(index+0.5)] * modAmp * waveTable[(int)(modIndex+0.5)];
 		index += indexIncr;
 		modIndex += modIncr;
@@ -523,166 +521,6 @@ public:
 	}
 };
 
-///////////////////////////////////////////////////////////
-/// @brief Pulse wave generator.
-/// @details Buzz uses a closed form of the Fourier series:
-/// @code
-///         A       sin((2N+1)*PI*fo*t)
-/// f(t) = ---- * ((---------------------) - 1)
-///         2N        sin(PI*fo*t)
-/// ============================================
-///         A      (2N+1)*cos((2N+1)*PI*fo*t)
-/// f(t) = ---- * ((--------------------------) - 1)
-///         2N            cos(PI*fo*t)
-/// @endcode
-/// This produces a bandwidth limited pulse wave with peak amplitude A.
-/// In this implementation, A is always 1.
-/// The number of harmonics (N) is a settable parameter. 
-/// A higher number of harmonics produces a narrower pulse.
-/// When the denominator sin(x) is 0, then
-/// we can't use the first form, but we can use the cos() form.
-/// However, we know that when sin(x) = 0, then cos(x) = 1. 
-/// In addition, sin(x) = 0 only when the phase is some multiple of PI.
-/// Since phase of the numerator is an integer
-/// multiple of the phase of the denominator, we know
-/// the phase must be 0 or some multiple of PI also. Thus:
-/// @code
-/// f(t) = A/2N * (((2N+1)*cos(0)/cos(0)) - 1)
-/// f(t) = A/2N * (((2N+1)*1/1) - 1)
-/// f(t) = A/2N * 2N
-/// f(t) = A = 1
-/// @endcode
-/// See: Computer Music, Dodge&Jerse, chapter 5.3a
-/// and http://www.cs.sfu.ca/~tamaras/.
-///
-/// When a wavetable is used, we need to use interpolation
-/// to avoid clicks and pops caused by round-off errros.
-/// @sa GenWave
-///////////////////////////////////////////////////////////
-class GenWaveBuzz : public GenWave
-{
-private:
-	bsInt32 numHarm;
-	PhsAccum index2;
-	PhsAccum indexIncr2;
-	AmpValue ampScale;
-	PhsAccum num2p1;
-
-	/// Calcuate the phase increment.
-	/// @param f frequency
-	void CalcIncr(FrqValue f)
-	{
-		num2p1 = PhsAccum((2 * numHarm) + 1);
-		indexIncr = synthParams.frqTI * f * 0.5;
-		indexIncr2 = indexIncr * num2p1;
-	}
-
-	/// Get sin(ndx) using interpolation of a table.
-	AmpValue SinWT(PhsAccum ndx)
-	{
-		int intIndex = (int) ndx; // floor(ndx)
-		PhsAccum fract = ndx - (PhsAccum) intIndex;
-		AmpValue v1 = wtSet.wavSin[intIndex];
-		AmpValue v2 = wtSet.wavSin[intIndex+1];
-		return v1 + ((v2 - v1) * (AmpValue)fract);
-	}
-
-public:
-	GenWaveBuzz()
-	{
-		numHarm = 1;
-		ampScale = 0.5;
-		index2 = 0.0;
-		indexIncr2 = 0.0;
-	}
-
-	/// @copydoc GenWave::Init
-	void Init(int n, float *v)
-	{
-		if (n > 1)
-			InitBuzz(v[0], (int)v[1]);
-	}
-
-	/// Set the number of harmonics.
-	/// The higher n, the narowwer the pulse.
-	/// @param n number of harmonics (0 < n < (SR/2Fo))
-	void SetHarmonics(bsInt32 n)
-	{
-		numHarm = n;
-	}
-
-	/// Initialize the Buzz generator
-	/// @param f frequency
-	/// @param n number of harmonics (0 = maximum)
-	void InitBuzz(FrqValue f, bsInt32 n)
-	{
-		SetFrequency(f);
-		SetHarmonics(n);
-		Reset();
-	}
-
-	/// @copydoc GenWave::Reset
-	void Reset(float initPhs = 0.0)
-	{
-		bsInt32 maxN = (bsInt32) floor(synthParams.sampleRate / (2.0 * frq));
-		if (numHarm > maxN)
-			numHarm = maxN;
-		ampScale = 1.0 / AmpValue(2 * numHarm);
-		CalcIncr(frq);
-		if (initPhs == 0.0)
-		{
-			index = 0.0;
-			index2 = 0.0;
-		}
-		else
-			index2 = index * num2p1;
-	}
-
-	/// @copydoc GenWave::Modulate
-	void Modulate(FrqValue d)
-	{
-		CalcIncr(frq+d);
-	}
-
-	/// @copydoc GenWave::Gen
-	AmpValue Gen()
-	{
-		AmpValue out;
-		AmpValue div;
-		if (index >= synthParams.ftableLength)
-		{
-			do
-				index -= synthParams.ftableLength;
-			while (index >= synthParams.ftableLength);
-		}
-		else if (index < 0)
-		{
-			do
-				index += synthParams.ftableLength;
-			while (index < 0);
-		}
-		if (index2 >= synthParams.ftableLength)
-		{
-			do
-				index2 -= synthParams.ftableLength;
-			while (index2 >= synthParams.ftableLength);
-		}
-		else if (index2 < 0)
-		{
-			do
-				index2 += synthParams.ftableLength;
-			while (index2 < 0);
-		}
-		div = SinWT(index);
-		if (div != 0)
-			out = ampScale * ((SinWT(index2) / div) - 1.0);
-		else
-			out = 1.0;
-		index += indexIncr;
-		index2 += indexIncr2;
-		return out;
-	}
-};
 
 //@}
 #endif

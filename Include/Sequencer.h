@@ -68,6 +68,7 @@ struct ActiveEvent : public SynthList<ActiveEvent>
 	bsInt16 ison;   ///< SEQ_AE_REL after stop is sent to the instrument
 	bsInt16 flags;  ///< event options
 	bsInt16 chnl;   ///< output channel
+	bsInt16 trk;    ///< track number
 };
 
 ///////////////////////////////////////////////////////////
@@ -80,10 +81,13 @@ struct ActiveEvent : public SynthList<ActiveEvent>
 class SeqControl
 {
 public:
-	/// Process a control event.
+	/// Process a channel or global control event.
 	/// This is called on SEQEVT_CONTROL events. If flags is 0, this is an
 	/// immediate event, otherwise a sequenced event. 
+	/// @param evt a controller event
+	/// @param flags immediate or sequenced
 	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags) = 0;
+
 	/// Called on each sample.
 	/// This method allows the controller to count ticks,
 	/// or provide per-sample processing.
@@ -106,18 +110,31 @@ typedef int SeqState;
 #define seqSeqOnce  (seqSequence|seqOnce)
 #define seqPlaySeqOnce (seqSequence|seqPlay|seqOnce)
 
+///////////////////////////////////////////////////////////
+/// Sequencer Track
+///
+/// A sequencer track contains a list of events sorted
+/// ascending by time. Time is measured in samples.
+/// A track can have a loop count that causes the track
+/// to automatically start over when the end time is reached.
+/// Track 0 is the main track and is started automatically.
+/// All other tracks must be started by an event on track 0.
+/// Tracks are evaluated at tickRes intervals.
+//////////////////////////////////////////////////////////
 class SeqTrack : public SynthList<SeqTrack>
 {
 protected:
-	SeqEvent *evtHead;
-	SeqEvent *evtTail;
-	SeqEvent *evtLast;
-	SeqEvent *evtPlay;
-	bsInt32 loopCount;
-	bsInt32 startTime;
-	bsInt32 seqLength;
-	bsInt16 enable;
-	bsInt16 trkNum;
+	SeqEvent *evtHead;   ///< event list head
+	SeqEvent *evtTail;   ///< event list tail
+	SeqEvent *evtLast;   ///< last used event list position
+	SeqEvent *evtPlay;   ///< next event to play
+	bsInt32 loopCount;   ///< number of times to repeat the track
+	bsInt32 startTime;   ///< time (in samples) of first event
+	bsInt32 seqLength;   ///< time (in samples) of the track
+	bsInt32 seqResLen;   ///< total length for playback
+	bsInt32 tickRes;     ///< number of samples/tick
+	bsInt16 enable;      ///< enable (1) or disable (0) the track
+	bsInt16 trkNum;      ///< track number
 
 public:
 	SeqTrack(int tn = 0)
@@ -127,6 +144,8 @@ public:
 		loopCount = 0;
 		startTime = 0;
 		seqLength = 0;
+		seqResLen = 0;
+		tickRes = 1;
 		evtHead = new SeqEvent;
 		evtTail = new SeqEvent;
 		//evtHead->Insert(evtTail);
@@ -157,10 +176,17 @@ public:
 
 	/// Start the track.
 	/// @param st start time relative to start of track (usually 0)
-	void Start(bsInt32 st)
+	/// @param res timing resolution, i.e. samples between calls to Tick()
+	void Start(bsInt32 st, bsInt32 res = 1)
 	{
 		enable = 1;
 		startTime = st;
+		tickRes = res;
+		seqResLen = seqLength;
+		// round up to integer multipler of res
+		bsInt32 rem = seqLength % res;
+		if (rem != 0)
+			seqResLen += res - rem;
 		evtPlay = evtHead->next;
 		while (evtPlay != evtTail && evtPlay->start < st)
 			evtPlay = evtPlay->next;
@@ -173,11 +199,17 @@ public:
 	inline void Continue() { enable = 1; }
 
 	/// Determine if the track is playing or not.
+	/// Tick adds the number of samples for one tick
+	/// and checks to see if the track is finished.
+	/// Note that we don't test for evtPlay == tail
+	/// because the start time for tail is set to
+	/// a maximum time value.
+	/// @returns true if the track is still running
 	int Tick()
 	{
 		if (enable)
 		{
-			if (++startTime >= seqLength)
+			if ((startTime += tickRes) >= seqResLen)
 			{
 				// At the end - see if we should loop or quit
 				if (--loopCount == 0)
@@ -193,6 +225,10 @@ public:
 	}
 
 	/// Get the next ready event.
+	/// An event is considered "ready" if the track
+	/// is running and we have passed the start time
+	/// of the event.
+	/// @returns next event to play, or NULL
 	inline SeqEvent *NextEvent()
 	{
 		if (enable && evtPlay->start <= startTime)
@@ -238,6 +274,9 @@ protected:
 	SeqTickCB tickCB;
 	bsInt32 tickCount;
 	bsInt32 tickWrap;
+	bsInt32 tickRes;
+	bsInt32 maxNote;    ///< maximum number of active notes
+	bsInt32 evtActive;  ///< number of active notes
 	Opaque  tickArg;
 	bsInt32 wrapCount;
 
@@ -247,20 +286,23 @@ protected:
 	// v 1.2 - add immediate events
 	SeqEvent *immHead;
 	SeqEvent *immTail;
-	void *critMutex;
-	void *pauseSignal;
+
+	SynthMutex critMutex;
+	SynthSignal pauseSignal;
+
+//	void *critMutex;
+//	void *pauseSignal;
 
 	InstrManager* instMgr;
-	SeqControl *cntrlMgr;
 
 	SeqState state;
 
-	void CreateMutex();
-	void DestroyMutex();
-	inline void EnterCritical();
-	inline void LeaveCritical();
-	void Sleep();
-	void Wakeup();
+//	void CreateMutex();
+//	void DestroyMutex();
+//	inline void EnterCritical();
+//	inline void LeaveCritical();
+//	void Sleep();
+//	void Wakeup();
 
 	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags);
 	virtual int Tick();
@@ -303,6 +345,11 @@ public:
 		return count;
 	}
 
+	virtual void SetMaxNotes(bsInt32 n)
+	{
+		maxNote = n;
+	}
+
 	/// Set the tick callback function. 
 	/// @param cb callback function
 	/// @param wrap number of ticks between callbacks
@@ -312,13 +359,6 @@ public:
 		tickCB = cb;
 		tickWrap = wrap;
 		tickArg = arg;
-	}
-
-	/// Set the control event handler.
-	/// If this is not set, control events are ignored.
-	virtual void SetController(SeqControl *c)
-	{
-		cntrlMgr = c;
 	}
 
 	/// Get the sequencer state.
@@ -357,7 +397,7 @@ public:
 		if (pausing)
 		{
 			pausing = false;
-			Wakeup();
+			pauseSignal.Wakeup();
 		}
 	}
 
@@ -375,6 +415,8 @@ public:
 	/// valid values for inum, type and event id where appropriate.
 	/// @param evt the event to schedule
 	virtual void AddImmediate(SeqEvent *evt);
+
+	virtual void Broadcast(SeqEvent *evt);
 
 	/// The sequencer loop. 
 	///
@@ -419,6 +461,17 @@ public:
 	/// @param im reference to an instrument manager object
 	/// @return number of samples output
 	virtual bsUint32 Play(InstrManager& im);
+
+
+	/// Set the tick resolution.
+	/// The tick resolution determines how many samples
+	/// are generated before checking the tracks for
+	/// new events. Higher settings allow better performance.
+	/// @param res resolution in seconds
+	virtual void SetResolution(FrqValue res)
+	{
+		tickRes = (bsInt32) (res * synthParams.sampleRate);
+	}
 };
 
 /// Sequencer event callback function.

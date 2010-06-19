@@ -50,19 +50,30 @@ public:
 	sfSample *shdr;
 
 	int preload;
-	float atnScl;
 
 	FileReadBuf file;
 	SoundBank *sfbnk;
-	short hdrVals[sfgEndOper];
+	// generator amounts at different levels
+	genAmountType defaultVal[sfgEndOper];
+	genAmountType globPreset[sfgEndOper];
+	genAmountType loclPreset[sfgEndOper];
+	genAmountType globZone[sfgEndOper];
+	genAmountType loclZone[sfgEndOper];
 
 	short *samples;
 	bsUint32 sampleSize;
 	bsUint32 sampleFileOffs1;
 	bsUint32 sampleFileOffs2;
 
-	void ReadString(long len, bsString *str);
+	int ReadChunk(sfChunk& chk);
 	int ReadData(void **pdata, long cksz);
+	void ReadString(long len, bsString *str);
+	bsUint16 ReadShort();
+	bsUint32 ReadLong();
+	bsUint16 Swap(bsUint16 n);
+	bsUint32 Swap(bsUint32 n);
+	bsInt16 Swap(bsInt16 n) { return (bsInt16)Swap((bsUint16)n); }
+	bsInt32 Swap(bsInt32 n) { return (bsInt32)Swap((bsUint32)n); }
 
 	int InfoChunk(long cksz);
 	int SDTAChunk(long cksz);
@@ -71,19 +82,22 @@ public:
 
 	SBSample *CreateSample(sfSample *shdr, short id);
 
-	int  AddHeaderGen(short gen);
-	void ApplyModulator(SBZone *zone, sfModList *mp);
-	void BuildInstrument(SBInstr *in, int n, int pbagNdx);
+	int ValidInstrGen(short gen);
+	int ValidPresetGen(short gen);
+	int AddPresetGen(short gen);
+	short MapDestination(short destination);
+	short MapSource(short source);
+	void ApplyModulator(SBZone *zone, sfModList *mp, int preset = 0);
+	SBModInfo *AddGenerator(SBModList *zone, short src, short dst, short ctl, short amnt);
+	SBModInfo *AddModulator(SBModList *zone, short src, short dst, short ctl, short amnt, short flags = 0);
+	SBModInfo *AddInitializer(SBModList *zone, short src, short dst, short ctl, short amnt, short flags = 0);
+	void BuildInstrument(SBZoneGroup *grp, int n, int pbagNdx, int gbagNdx);
 	void BuildPreset(int n);
 	void BuildSoundBank();
 
-	AmpValue SFEnvLevel(short amt);
 	AmpValue SFAttenuation(short amt);
-	AmpValue SFPercent(short amt);
-	FrqValue SFFrequency(short amt);
-	FrqValue SFRelCents(short amt);
 	char *CopyName(char *dst, char *src);
-	void InitGenVals(short *genVals);
+	void InitGenVals(genAmountType *genVals);
 
 public:
 	SFFile();
@@ -101,9 +115,8 @@ public:
 	/// The caller is responsible for deleteing the returned object.
 	/// @param fname path to the file
 	/// @param pre preload all samples
-	/// @param scl attenuation scaling
 	/// @returns pointer to SoundBank object.
-	SoundBank *LoadSoundBank(const char *fname, int pre = 1, float scl = 0.375);
+	SoundBank *LoadSoundBank(const char *fname, int pre = 1);
 };
 //@}
 #endif

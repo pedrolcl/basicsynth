@@ -4,7 +4,7 @@
 /// @file DLSFile.h DLS file loader.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #define _DLSFILE_H_
 
 #include <DLSDefs.h>
-
 
 /// INFO string value.
 class DLSInfoStr : public SynthList<DLSInfoStr>
@@ -28,7 +27,7 @@ public:
 		id = 0;
 	}
 
-	int Read(FileReadBuf& file, bsUint32 cksz);
+	int Read(FileReadBuf& file, bsInt32 cksz);
 };
 
 /// List of INFO strings.
@@ -197,15 +196,15 @@ public:
 
 	bsInt16 GetBank()
 	{
-		// quick test for standard GM.
-		if (hdr.locale.bank == 0)
-			return 0;
-		if (hdr.locale.bank & 0x80000000)
+		// percussion bank?
+		if (hdr.locale.bank & F_INSTRUMENT_DRUMS)
 			return 128;
-		bsInt16 b = hdr.locale.bank & 0x7f;
-		if (b == 0)
-			b = (bsInt16) ((hdr.locale.bank >> 8) & 0x7f);
-		return b;
+		short msb = hdr.locale.bank & 0x7f00;
+		if (msb == 0x7900)
+			return 128;
+		if (msb != 0x7800)  // hmmm...
+			return (msb >> 8) & 0x7F;
+		return hdr.locale.bank & 0x7f;
 	}
 
 	bsInt16 GetProg()
@@ -278,7 +277,7 @@ public:
 /// currently used. The wave pool data allows quick
 /// locating of wavetables in cases where the samples
 /// are not retained in memory. We store the offset
-/// into the file in the DLSWaveInfo as the file is 
+/// into the file in the DLSWaveInfo as the file is
 /// scanned, thus making the wave pool redundant.
 class DLSWvplInfo : public SynthEnumList<DLSWaveInfo>
 {
@@ -336,21 +335,25 @@ public:
 
 };
 
+/// Downloadable Sounds (DLS) file.
+/// This class loads a DLS1 or DLS2 file and builds a SoundBank
+/// object from it.
 class DLSFile
 {
 protected:
 	FileReadBuf file;
 	DLSFileInfo info;
 	int preload;
-	float atnScl;
 
-	AmpValue DLSScale(bsInt32 scl);
-	FrqValue DLSFrequency(bsInt32 pc);
-	AmpValue DLSPercent(bsInt32 pct);
-	AmpValue DLSAttenuation(bsInt32 cb);
+	float DLSScale(bsInt32 scl);
+	float MapScale(short destination, bsInt32 scale);
 
-	SoundBank *BuildSoundBank(const char *fname);
+	short MapDestination(short destination);
+	short MapSource(short source);
 	void ApplyArt(SBZone *zone, DLSArtInfo *art);
+	void AddModulator(SBModList *list, dlsConnection *ci);
+	void InitModulator(SBModInfo *mi, dlsConnection *ci);
+	SoundBank *BuildSoundBank(const char *fname);
 
 public:
 	DLSFile();
@@ -363,11 +366,14 @@ public:
 	/// The caller is responsible for deleteing the returned object.
 	/// @param fname path to the file
 	/// @param pre preload all samples
-	/// @param scl attenuation scaling
 	/// @returns pointer to SoundBank object.
-	SoundBank *LoadSoundBank(const char *fname, int pre = 1, float scl = 1.0);
+	SoundBank *LoadSoundBank(const char *fname, int pre = 1);
+
+	/// Get the info records.
+	/// @returns pointer to file info.
 	DLSFileInfo *GetInfo() { return &info; }
 };
-//@}
+
 
 #endif
+//@}

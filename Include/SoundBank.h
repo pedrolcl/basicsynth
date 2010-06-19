@@ -17,6 +17,90 @@
 #define SOUNDBANK_H
 #include <SynthFile.h>
 
+#define SBGEN_NONE     0x0000 ///< Constant 1.0
+
+// Generator destinations (summing nodes)
+#define SBGEN_PITCH    0x0001
+#define SBGEN_VOLUME   0x0002
+#define SBGEN_FILTER   0x0003
+#define SBGEN_FILTQ    0x0004
+#define SBGEN_PAN      0x0005
+#define SBGEN_CHORUS   0x0006
+#define SBGEN_REVERB   0x0007
+
+// Internal generator
+#define SBGEN_LFO1PC   0x0008 ///< LFO1 - pitch
+#define SBGEN_LFO2PC   0x0009 ///< LFO2 - pitch
+#define SBGEN_LFO2CB   0x000A ///< LFO2 - attenuation
+#define SBGEN_LFO2FC   0x000B ///< LFO2 - filter
+#define SBGEN_EG2PC    0x000C ///< EG2 - pitch
+#define SBGEN_EG2FC    0x000D ///< EG2 - filter
+
+// Synth parameters
+#define SBGEN_LFO1FRQ  0x000E
+#define SBGEN_LFO1DLY  0x000F
+#define SBGEN_LFO2FRQ  0x0010
+#define SBGEN_LFO2DLY  0x0011
+
+#define SBGEN_EG1DLY   0x0012
+#define SBGEN_EG1ATK   0x0013
+#define SBGEN_EG1HOLD  0x0014
+#define SBGEN_EG1DEC   0x0015
+#define SBGEN_EG1SUS   0x0016
+#define SBGEN_EG1REL   0x0017
+#define SBGEN_EG1KEYH  0x0018
+#define SBGEN_EG1KEYD  0x0019
+#define SBGEN_EG1VELA  0x001A
+#define SBGEN_EG1SHTDN 0x001B
+
+#define SBGEN_EG2DLY   0x001C
+#define SBGEN_EG2ATK   0x001D
+#define SBGEN_EG2HOLD  0x001E
+#define SBGEN_EG2DEC   0x001F
+#define SBGEN_EG2SUS   0x0020
+#define SBGEN_EG2REL   0x0021
+#define SBGEN_EG2KEYH  0x0022
+#define SBGEN_EG2KEYD  0x0023
+#define SBGEN_EG2VELA  0x0024
+
+#define SBGEN_KEYN     0x0025
+#define SBGEN_VELN     0x0026
+#define SBGEN_PITCHWHL 0x0027
+#define SBGEN_CHNLAT   0x0028
+#define SBGEN_PKEYAT   0x0029
+#define SBGEN_RPN0     0x002A
+#define SBGEN_LFO1     0x002B
+#define SBGEN_LFO2     0x002C
+#define SBGEN_EG1      0x002D
+#define SBGEN_EG2      0x002E
+
+#define SBGEN_SIZE     0x002F
+
+// Flags indicating internal generator connections.
+#define SBGEN_LFO1X   0x00000001 ///< LFO1 is active
+#define SBGEN_LFO2X   0x00000002 ///< LFO2 is active
+#define SBGEN_EG2X    0x00000004 ///< MOD EG is active
+#define SBGEN_FILTERX 0x00000010 ///< Filter is active
+#define SBGEN_FILTERD 0x00000020 ///< Filter is dynamic
+#define SBGEN_SF2     0x10000000 ///< Loaded from SF2 file
+#define SBGEN_DLS     0x20000000 ///< Loaded from DLS file
+
+// other MIDI Channel controller source (flag - or'd with CC#)
+#define SBGEN_CHCTL  0x0080  ///< MIDI CC value
+
+#define SBGEN_PREFLG  0x8000
+
+/// Normalization index values.
+/// These must match the normalize[] array setup.
+#define SBGEN_LINEAR  0x00
+#define SBGEN_CONCAVE 0x01
+#define SBGEN_CONVEX  0x02
+#define SBGEN_SWITCH  0x03
+#define SBGEN_POLFLG  0x10 // bi-polar when set
+#define SBGEN_NEGFLG  0x20 // invert when set
+
+class SBInstr; // forward ref
+
 /// @brief Soundbank file information
 /// The strings are read from INFO chunks in the soundbank file.
 /// Not all INFO possible chunk IDs are represented. This list
@@ -46,64 +130,77 @@ struct SBInfo
 	}
 };
 
-// Flags indicating active generators
-#define SBGEN_VIBLFOF 0x0001
-#define SBGEN_MODENVF 0x0002
-#define SBGEN_PITWHLF 0x0004
-#define SBGEN_MODLFOF 0x0010
-#define SBGEN_MODWHLF 0x0020
-#define SBGEN_BRTHFRQ 0x0040
-#define SBGEN_EXPRFRQ 0x0080
-#define SBGEN_MODLFOA 0x0100
-#define SBGEN_MODWHLA 0x0200
-#define SBGEN_BRTHAMP 0x0400
-#define SBGEN_EXPRAMP 0x0800
-#define SBGEN_MODLIST 0x1000
-#define SBGEN_FILTER  0x2000
-#define SBGEN_MODLFOX (SBGEN_MODLFOF|SBGEN_MODLFOA)
-#define SBGEN_MODWHLX (SBGEN_MODLFOF|SBGEN_MODLFOA)
-#define SBGEN_MODFRQX (SBGEN_VIBLFOF|SBGEN_MODLFOF|SBGEN_MODENVF)
-#define SBGEN_MODAMPX (SBGEN_MODLFOA|SBGEN_BRTHAMP|SBGEN_EXPRAMP)
-
-/// Internal generator Source or Destination values
-#define SBGEN_PITCH   0x0000
-#define SBGEN_VOLUME  0x0001
-#define SBGEN_VIBFRQ  0x0002
-#define SBGEN_VIBDLY  0x0003
-#define SBGEN_VIBAMNT 0x0004
-#define SBGEN_MODFRQ  0x0005
-#define SBGEN_MODDLY  0x0006
-#define SBGEN_MODAMNT 0x0007
-#define SBGEN_EG1DLY  0x0009
-#define SBGEN_EG1ATK  0x000A
-#define SBGEN_EG1HOLD 0x000B
-#define SBGEN_EG1DEC  0x000C
-#define SBGEN_EG1SUS  0x000D
-#define SBGEN_EG1REL  0x000E
-#define SBGEN_EG2DLY  0x000F
-#define SBGEN_EG2ATK  0x0010
-#define SBGEN_EG2HOLD 0x0011
-#define SBGEN_EG2DEC  0x0012
-#define SBGEN_EG2SUS  0x0013
-#define SBGEN_EG2REL  0x0014
-#define SBGEN_EG2AMNT 0x0015
-#define SBGEN_IATTEN  0x0016
-#define SBGEN_KEYHLD  0x0017
-#define SBGEN_KEYDEC  0x0018
-#define SBGEN_VELATK  0x0019
-#define SBGEN_VELCTY  0x001A
-#define SBGEN_KEYNUM  0x001B
-#define SBGEN_FLTFRQ  0x001C
-#define SBGEN_FLTQ    0x001D
-
+/// @brief One SF2 modulator, or DLS connection block.
+/// These can appear at the preset, Instrument or zone level.
 class SBModInfo : public SynthList<SBModInfo>
 {
 public:
-	short srcOp;
-	short dstOp;
-	short srcAmntOp;
-	short transOp;
-	float value;
+	short srcOp;  ///< Source
+	short srcNf;  ///< Source normalize function
+	short ctlOp;  ///< Control source
+	short ctlNf;  ///< Control normalize function
+	short dstOp;  ///< Destination
+	short trnOp;  ///< Output transfer function
+	float scale;  ///< Source scaling
+
+	SBModInfo()
+	{
+		srcOp = SBGEN_NONE;
+		dstOp = SBGEN_NONE;
+		ctlOp = SBGEN_NONE;
+		trnOp = 0;
+		srcNf = 0;
+		ctlNf = 0;
+		scale = 0.0f;
+	}
+};
+
+/// @brief A container of modulators for instrument, group or zone.
+/// @details This aggregates two lists, one for initialization
+/// and one for playback. The initialization list typically
+/// has a source of NONE, KEY, or VEL and is only processed
+/// during note-on.
+class SBModList
+{
+public:
+	SynthEnumList<SBModInfo> modList; ///< MIDI modulators (not currently used)
+	
+	/// @brief Get modulator information
+	/// Locate any modulator info that connects 
+	/// the given source generator to the given
+	/// destination generator.
+	/// @param src Source generator
+	/// @param ctl Source Amount generator (controller)
+	/// @param dst Destination generator
+	SBModInfo *GetModInfo(short src, short ctl, short dst)
+	{
+		SBModInfo *mod = 0;
+		while ((mod = modList.EnumItem(mod)) != 0)
+		{
+			if (mod->srcOp == src 
+			 && mod->ctlOp == ctl 
+			 && mod->dstOp == dst)
+				return mod;
+		}
+		return 0;
+	}
+
+	/// Add a new, empty modulator.
+	/// @returns new modulator object.
+	inline SBModInfo *AddModInfo()
+	{
+		return modList.AddItem();
+	}
+
+	/// Enumerate all modulators.
+	/// On the first call, mi should be set equal to NULL.
+	/// @param mi previous modulator or NULL for first.
+	/// @returns next modulator or NULL for no more modulators.
+	SBModInfo *EnumModInfo(SBModInfo *mi)
+	{
+		return modList.EnumItem(mi);
+	}
+
 };
 
 /// @brief SBSample contains a block of samples read from the file.
@@ -133,7 +230,7 @@ public:
 		linked = 0;
 		linkSamp = 0;
 		sampleLen = 0;
-		rate = synthParams.isampleRate;
+		rate = 44100;
 		filepos = 0;
 		filepos2 = 0;
 		format = -1;
@@ -147,6 +244,7 @@ public:
 	}
 };
 
+
 /// @brief Envelope definition for a soundbank instrument.
 /// This is a 6-segment envelope: delay, attack, hold,
 /// decay, sustain, release. Time values are in timecents.
@@ -158,6 +256,7 @@ public:
 	FrqValue  hold;         ///< hold time (timecents)
 	FrqValue  decay;        ///< decay rate (timecents)
 	FrqValue  release;      ///< release rate (timecents)
+	FrqValue  shutdown;     ///< shutdown rate (secs)
 	AmpValue  sustain;      ///< sustain level (percent)
 	FrqValue  keyDecay;     ///< Key # to decay rate scale (timecents)
 	FrqValue  keyHold;      ///< Key # to hold rate scale (timecents)
@@ -165,12 +264,13 @@ public:
 
 	SBEnv()
 	{
-		delay = -12000.0;
+		delay = -32768.0;
 		attack = -12000.0;
-		hold = -12000.0;
+		hold = -32768.0;
 		decay = -12000.0;
 		release = -12000.0;
-		sustain = 0.0;
+		shutdown = 0.001;
+		sustain = 1000.0;
 		keyHold = 0.0;
 		keyDecay = 0.0;
 		velAttack = 0.0;
@@ -200,17 +300,20 @@ public:
 /// range of pitches per zone.
 /// Percussion instruments typically have one zone per sound,
 /// each mapped to one key number.
-class SBZone : public SynthList<SBZone>
+class SBZone : 
+	public SBModList,
+	public SynthList<SBZone>
 {
 public:
 	bsString  name;      ///< zone name
-	bsInt32   sampleNdx; ///< index into sample list
+	bsInt16   zoneNdx;   ///< zone index (SF2 IBAG#)
+	bsInt16   sampleNdx; ///< index into sample list
 	SBSample *sample;    ///< the wavetable
 	SBZone   *linkZone;  ///< link to another zone (stereo sample)
-	bsUint32  sampleLen;
 	AmpValue  pan;       ///< pan 
 	FrqValue  rate;      ///< sample rate
-	FrqValue  recFreq;   ///< recording frequency
+	FrqValue  recCents;  ///< recording frequency in pitch cents
+	FrqValue  recFreq;   ///< recording frequency in Hz
 	bsInt32   tableStart;///< first playable sample (usually 0)
 	bsInt32   tableEnd;  ///< one past last playable sample
 	bsInt32   loopStart; ///< the phase where we start looping
@@ -221,42 +324,47 @@ public:
 	bsInt16   cents;     ///< detune amount (multiplier for frequency) frq *= pow(2, cents / 1200);
 	bsInt16   chan;      ///< 0 = right/mono, 1 = left;
 	bsInt16   mode;      ///< 0 = no loop, 
-	                     ///< 1 = loop continuously
-	                     ///< 3 = loop during key, then play remainder
+						 ///< 1 = loop continuously
+						 ///< 3 = loop during key, then play remainder
 	bsInt16   lowKey;    ///< lowest pitch for this sample
 	bsInt16   highKey;   ///< highest pitch for this sample
 	bsInt16   lowVel;    ///< lowest MIDI note-on velocity
 	bsInt16   highVel;   ///< highest MIDI note-on velocity
-	bsUint32  exclNote;  ///< Exclusive note id
+	bsInt16   exclNote;  ///< Exclusive note id
+	bsInt16   exclSelf;  ///< Non-self exclusive (DLS2 1.4.4)
+	bsInt16   fixedKey;
+	bsInt16   fixedVel;
+	bsInt16   fineTune;
+	bsInt16   coarseTune;
+	bsInt16   scaleTune;
 
-	bsUint32  genFlags;  ///< flags indicating active modulators
-	AmpValue  volAtten;  ///< Peak volume in dB of attenuation
-	AmpValue  velScale;  ///< Attenuation scaling from note-on velocity
 	SBEnv     volEg;     ///< Volume envelope
 	SBEnv     modEg;     ///< Modulator envelope
 	SBLfo     vibLfo;    ///< LFO 1 (vibrato)
 	SBLfo     modLfo;    ///< LFO 2 (modulation)
 
+	AmpValue  velScale;  ///< Note-on velocity scaling (centibels)
+	FrqValue  velFlt;    ///< Note-on velocity filter scaling (cents)
+	AmpValue  initAtten; ///< Initial attenuation
 	FrqValue  vibLfoFrq; ///< Vib LFO amount applied to frequency (cents)
+	FrqValue  vibLfoMwFrq;
 	AmpValue  modLfoVol; ///< Mod LFO amount appiled to volume (centibels)
+	FrqValue  modLfoFlt; ///< Mod LFO amount applied to filter (cents)
 	FrqValue  modLfoFrq; ///< Mod LFO amount applied to frequency (cents)
+	FrqValue  modLfoMwFrq;
+	FrqValue  modLfoMwFlt;
+	AmpValue  modLfoMwVol;
 	FrqValue  modEnvFrq; ///< Mod ENV amount applied to frequency (cents)
-	AmpValue  volEnvAmp; ///< Vol ENV amount applied to amplitude
+	FrqValue  modEnvFlt; ///< Mod ENV amount applied to filter (cents)
 
 	FrqValue  filtFreq;
 	AmpValue  filtQ;
 
-	FrqValue  pbfScale;  ///< Pitchwheel amount
-	AmpValue  mwaScale;  ///< Modwheel CC volume amount
-	FrqValue  mwfScale;  ///< Modwheel CC pitch amount
-	AmpValue  expaScale; ///< Expression CC volume amount
-	FrqValue  expfScale; ///< Expression CC pitch amount
-	AmpValue  bthaScale; ///< Breath CC volume amount
-	FrqValue  bthfScale; ///< Breath CC pitch amount
-	AmpValue  rvrbSend;  ///< % to send to reverb unit
-	AmpValue  chorusSend; ///< % to send to chorus unit
+	AmpValue  reverb;
+	AmpValue  chorus;
 
-	SynthEnumList<SBModInfo> modList;
+	bsUint32  genFlags;  ///< flags indicating default modulator connections
+	AmpValue  peak;      ///< peak amplitude of loop
 
 	SBZone()
 	{
@@ -270,17 +378,21 @@ public:
 	/// Initialize member variables.
 	void Init()
 	{
-		genFlags = 0;
+		zoneNdx = 0;
 		sampleNdx = 0;
-		tableStart = 0;
-		tableEnd = 0;
 		sample = 0;
 		linkZone = 0;
+		peak = 0.0;
+		pan = 0.0;
+		rate = 44100;
+		recCents = 6000;
+		recFreq = 261.6255653;
+		tableStart = 0;
+		tableEnd = 0;
 		loopStart = 0;
 		loopEnd = 0;
 		loopLen = 0;
-		recFreq = 440.0;
-		keyNum = -1;
+		keyNum = 60;
 		cents = 0;
 		chan = 0;
 		mode = 0;
@@ -289,56 +401,29 @@ public:
 		lowVel = 0;
 		highVel = 127;
 		exclNote = 0;
-		pan = 0.0;
-		volAtten = 0.0;
-		velScale = 1.0;
-
+		exclSelf = 1;
+		fixedKey = -1;
+		fixedVel = -1;
+		fineTune = 0;
+		coarseTune = 0;
+		scaleTune = 100;
+		velScale = 960.0;
+		velFlt = 0;
 		vibLfoFrq = 0;
 		modLfoVol = 0;
+		modLfoFlt = 0;
 		modLfoFrq = 0;
+		modLfoMwFrq = 0;
+		modLfoMwFlt = 0;
+		modLfoMwVol = 0;
 		modEnvFrq = 0;
-		volEnvAmp = 960.0;
-		filtFreq = 20000.0;
-		filtQ = 1.0;
+		modEnvFlt = 0;
+		filtFreq = 13500;
+		filtQ = 0;
+		reverb = 0;
+		chorus = 0;
 
-		mwaScale = 0.0;
-		mwfScale = 0.0;
-		expaScale = 0.0;
-		expfScale = 0.0;
-		bthaScale = 0.0;
-		bthfScale = 0.0;
-		rvrbSend = 0.0;
-		chorusSend = 0.0;
-	}
-
-	/// @brief Get modulator information
-	/// Locate any modulator info that connects 
-	/// the given source generator to the given
-	/// destination generator.
-	/// @param src Source generator
-	/// @param dst Destination generator
-	SBModInfo *GetModInfo(short src, short dst)
-	{
-		SBModInfo *mod = 0;
-		while ((mod = modList.EnumItem(mod)) != 0)
-		{
-			if (mod->srcOp == src && mod->dstOp == dst)
-				return mod;
-		}
-		return 0;
-	}
-
-	/// Add a modulator connection.
-	inline SBModInfo *AddModInfo()
-	{
-		return modList.AddItem();
-	}
-
-	/// List all modulator connections.
-	/// On the first call, set mi = 0.
-	inline SBModInfo *EnumModInfo(SBModInfo *mi)
-	{
-		return modList.EnumItem(mi);
+		genFlags = 0;
 	}
 
 	/// @brief Check this zone for a match to key and velocity.
@@ -359,50 +444,152 @@ public:
 	{
 		return vel >= lowVel && vel <= highVel;
 	}
+};
 
-	/// @brief Set the generator flags.
-	/// Generator flags are an optimization for playback.
-	/// This function checks to see if the generator
-	/// will affect playback and sets bits in the genVals
-	/// member appropriately.
-	void SetGenFlags()
+/// @brief A reference to a zone.
+/// This is used to make up an optimized map of
+/// key number to zone. Since a zone can apply
+/// to multiple keys, we keep a list. This makes
+/// multiple references to a zone.
+class SBZoneRef : public SynthList<SBZoneRef>
+{
+public:
+	SBZone *zone;
+};
+
+/// @brief A Group of zones.
+/// This is roughly the same as the SF2 "Instrument"
+/// and is needed to make layering work right.
+/// Zones in the zone group are played only
+/// if the current key and velocity are in the
+/// range of the group and the zone.
+/// DLS1 does not support layering, so there will be exactly
+/// one group with all zones in it.
+class SBZoneGroup : 
+	public SBModList,
+	public SynthList<SBZoneGroup>
+{
+public:
+	SBZoneRef *map[128];
+	bsInt16 lowKey;
+	bsInt16 highKey;
+	bsInt16 lowVel;
+	bsInt16 highVel;
+	bsInt16 index;
+	bsInt16 global;       ///< true if this is "global" to groups in the instrument
+	SBInstr *instr;
+	SynthEnumList<SBModInfo> modList; ///< playback modulators
+	SynthEnumList<SBModInfo> iniList; ///< initialization modulators
+
+	SBZoneGroup()
 	{
-		if (vibLfoFrq != 0)
-			genFlags |= SBGEN_VIBLFOF;
-		if (modLfoFrq != 0)
-			genFlags |= SBGEN_MODLFOF;
-		if (modLfoVol != 0)
-			genFlags |= SBGEN_MODLFOA;
-		if (modEnvFrq != 0)
-			genFlags |= SBGEN_MODENVF;
-		if (filtFreq > 0 && filtFreq < (synthParams.sampleRate / 2) && filtQ > 0)
-			genFlags |= SBGEN_FILTER;
+		lowKey = 0;
+		highKey = 127;
+		lowVel = 1;
+		highVel = 127;
+		instr = 0;
+		index = 0;
+		global = 0;
+		memset(map, 0, sizeof(map));
+	}
+
+	~SBZoneGroup()
+	{
+		ClearMap();
+	}
+
+	void ClearMap()
+	{
+		for (int n = 0; n < 128; n++)
+		{
+			SBZoneRef *last;
+			SBZoneRef *ref = map[n];
+			while (ref)
+			{
+				last = ref->next;
+				delete ref;
+				ref = last;
+			}
+			map[n] = 0;
+		}
+	}
+
+	int InRange(short zLowKey, short zHighKey, short zLowVel, short zHighVel)
+	{
+		//int lo = max(zLowKey, lowKey);
+		int lo = zLowKey > lowKey ? zLowKey : lowKey;
+		//int hi = min(zHighKey, highKey);
+		int hi = zHighKey < highKey ? zHighKey : highKey;
+		if (lo > hi)
+			return 0;
+
+		//lo = max(zLowVel, lowVel);
+		lo = zLowVel > lowVel ? zLowVel : lowVel;
+		//hi = min(zHighVel, highVel);
+		hi = zHighVel < highVel ? zHighVel : highVel;
+		if (lo > hi)
+			return 0;
+
+		return 1;
+	}
+
+	void AddZone(SBZone *zone)
+	{
+		//int lo = max(zone->lowKey, lowKey);
+		int lo = zone->lowKey > lowKey ? zone->lowKey : lowKey;
+		//int hi = min(zone->highKey, highKey);
+		int hi = zone->highKey < highKey ? zone->highKey : highKey;
+		for (int n = lo; n <= hi; n++)
+		{
+			SBZoneRef *ref = new SBZoneRef;
+			ref->zone = zone;
+			ref->next = map[n];
+			map[n] = ref;
+		}
+	}
+
+	/// @brief Check this group for a match to key and velocity.
+	inline int Match(int key, int vel)
+	{
+		return key >= lowKey && key <= highKey
+			&& vel >= lowVel && vel <= highVel;
+	}
+
+	/// @brief Return a zone matching key and velocity.
+	/// @details This only returns one zone, and is probably
+	/// useless because of that.
+	SBZone *GetZone(int key, int vel)
+	{
+		SBZoneRef *ref = map[key];
+		while (ref)
+		{
+			if (ref->zone->MatchVel(vel))
+				return ref->zone;
+			ref = ref->next;
+		}
+		return 0;
 	}
 };
 
 /// @brief Soundbank Instrument
 /// An instrument is a collection of zones and global modulators.
-class SBInstr : public SynthList<SBInstr>
+/// This is roughly equivalent to a SF2 "preset" or a DLS "instrument"
+/// structure;
+class SBInstr : 
+	public SBModList,
+	public SynthList<SBInstr>
 {
 public:
 	SynthEnumList<SBZone> zoneList;
-	SynthEnumList<SBModInfo> modList;
+	SynthEnumList<SBZoneGroup> groupList;
 	bsString instrName;
 	bsInt16  instrNdx;
 	bsInt16  bank;
 	bsInt16  prog;
 	bsInt16  loaded;
-	bsInt16  lowKey;
-	bsInt16  highKey;
-	bsInt16  fixedKey;
-	bsInt16  fixedVel;
 
 	SBInstr()
 	{
-		fixedKey = -1;
-		fixedVel = -1;
-		lowKey = 0;
-		highKey = 127;
 		instrNdx = -1;
 		bank = 0;
 		prog = 0;
@@ -420,10 +607,16 @@ public:
 		return zoneList.AddItem();
 	}
 
+	SBZoneGroup *AddGroup()
+	{
+		SBZoneGroup *grp = groupList.AddItem();
+		grp->instr = this;
+		return grp;
+	}
+
 	/// @brief Locate a zone
-	/// GenZone checks all zones to see if an entry
-	/// exists which matches the key and velocity.
-	/// @note
+	/// GenZone finds the first zone that 
+	/// matches the key and velocity.
 	/// There may be multiple zones that match.
 	/// Use EnumZones to find all matches.
 	///
@@ -432,65 +625,31 @@ public:
 	/// @returns matching zone or NULL for no match.
 	SBZone *GetZone(int key, int vel)
 	{
-		SBZone *zone = 0;
-		while ((zone = zoneList.EnumItem(zone)) != 0)
+		SBZoneGroup *grp = 0;
+		while ((grp = groupList.EnumItem(grp)) != 0)
 		{
-			if (zone->Match(key, vel))
-				break;
-		}
-		return zone;
-	}
-
-	/// Enumerate all zones.
-	/// On the first call, zone should be set equal to NULL.
-	/// @code
-	/// SBZone *zone = 0;
-	/// while ((zone = EnumZones(zone)) != 0)
-	///    use zone;
-	/// @endcode
-	/// @param zone previous zone or NULL for first zone.
-	/// @return next zone or NULL for no more zones.
-	SBZone *EnumZones(SBZone *zone)
-	{
-		return zoneList.EnumItem(zone);
-	}
-
-	/// @brief Get modulator information
-	/// Locate any modulator info that connects 
-	/// the given source generator to the given
-	/// destination generator.
-	/// @param src Source generator
-	/// @param dst Destination generator
-	SBModInfo *GetModInfo(short src, short dst)
-	{
-		SBModInfo *mod = 0;
-		while ((mod = modList.EnumItem(mod)) != 0)
-		{
-			if (mod->srcOp == src && mod->dstOp == dst)
-				return mod;
+			if (grp->Match(key, vel))
+			{
+				SBZone *zone = grp->GetZone(key, vel);
+				if (zone != NULL)
+					return zone;
+			}
 		}
 		return 0;
 	}
 
-	/// Add a new, empty modulator.
-	/// @returns new modulator object.
-	SBModInfo *AddModInfo()
+	inline SBZoneGroup *EnumGroups(SBZoneGroup *grp)
 	{
-		return modList.AddItem();
+		return groupList.EnumItem(grp);
 	}
 
-	/// Enumerate all modulators.
-	/// On the first call, mi should be set equal to NULL.
-	/// @code
-	/// SBModInfo *mi = 0;
-	/// while ((mi = EnumZones(mi)) != 0)
-	///    use mi;
-	/// @endcode
-	/// @param mi previous modulator or NULL for first.
-	/// @returns next modulator or NULL for no more modulators.
-	SBModInfo *EnumModInfo(SBModInfo *mi)
+	/// Enumerate all zones.
+	/// On the first call, zone should be set equal to NULL.
+	/// @param zone previous zone or NULL for first zone.
+	/// @return next zone or NULL for no more zones.
+	inline SBZone *EnumZones(SBZone *zone)
 	{
-		return modList.EnumItem(mi);
+		return zoneList.EnumItem(zone);
 	}
 
 };
@@ -498,23 +657,20 @@ public:
 //////////////////////////////////////////////////////////////
 /// @brief SoundBank holds a collection of instruments.
 /// A SoundBank is typically loaded from either a
-/// SF2 file, DLS file, or from individual WAVE files.
-/// It could be constructed directly in memory if
-/// appropriate.
+/// SF2 file or a DLS file, but could be created directly 
+/// in memory from individual WAVE files or oscillators.
 ///
 /// Instruments are represented by bank and program (patch)
-/// numbers, with 128 patch settings per bank.
-/// For MIDI, there are potentially 16k banks. The bank
-/// number is constructed from CC# 0 (MSB) and CC# 32 (LSB) as:
-/// @code
-/// bank = (MSB << 7) | LSB
-/// @endcode
+/// numbers, with 128 patch settings per bank. 
+/// For MIDI, there are potentially 16k banks with the bank
+/// number represented as a pair of values, CC# 0 (MSB) and CC# 32 (LSB).
 /// A GM soundbank typically has two banks of importance,
-/// bank 0 (melody instruments) and bank 128 (drum instruments).
-/// This SoundBank class supports 129 banks. The entire
-/// MIDI bank range could be handled with some type of
-/// bank mapping list, but, for now, if the LSB is zero,
-/// we use the MSB part as the bank number.
+/// a melody instruments bank, represented by MSB 0x78,
+/// and a percussion bank represented by MSB of 0x79.
+/// Technically, only banks with LSB of 0-9 are defined under GM.
+/// This implementation allows the bank number to range 0-128, with
+/// bank number 128 representing the percussion bank. The user of the 
+/// sound bank must map the MIDI bank number into the range 0-128.	
 ///
 /// Soundbank files typically encode pitch, time and
 /// volume with a fixed point value, scaled appropriately.
@@ -522,6 +678,8 @@ public:
 /// is in centibels. This class includes static methods 
 /// to convert the integer representation
 /// into the appropriate floating point value.
+/// In addition, four tables are created to apply a normalization
+/// transfer function to a raw MIDI value.
 ///
 /// All soundbank objects should be attached to the static
 /// SoundBankList member and located using FindBank.
@@ -531,25 +689,48 @@ class SoundBank : public SynthList<SoundBank>
 private:
 	int lockCount;
 public:
+	bsInt32  id;
+	bsUint16 chnls;
 	bsString file;                 ///< file name (empty if constructed in memory)
 	bsString name;                 ///< symbolic name
 	SBInfo info;                   ///< INFO records (copyright, version, etc.)
 	SBInstr **instrBank[129];      ///< array of instruments[bank][patch]
 	SBSample *samples;             ///< list of sample blocks
+	FileReadBuf sampleFile;        ///< file for on-demand loading of samples
+	int sampleFileOpen;
 
 	static SoundBank SoundBankList; ///< List of loaded soundbanks
 	static void DeleteBankList();  ///< Remove all soundbanks
 	static SoundBank *FindBank(const char *name); ///< Find soundbank by name
+	static SoundBank *FindBankFile(const char *file); ///< Find soundbank by file path
 	static SoundBank *DefaultBank();
 
-	static FrqValue *envRateTable;
+	/// Pre-calculated powers of 2^(n/1200)
+	static FrqValue *pow2Table;
 
-	/// Convert relative cents to frequency multiplier.
-	/// Pitch in cents is defined as: pc = 1200 log2(df), 
-	/// where df is frequency deviation in Hz.
-	/// @param pc pitch deviation in cents
-	/// @return multiplier for the base frequency.
-	static FrqValue PitchCents(FrqValue pc);
+	/// Pre-calculated powers of 10^(n/-200)
+	static AmpValue *pow10Table;
+
+	/// Maximum filter, pitch cents
+	static FrqValue maxFilter;
+	/// Minimum filter, pitch cents
+	static FrqValue minFilter;
+
+	/// normalization curve tables
+	/// Use the transform and raw MIDI value as index: normalize[fn][value].
+	/// The "negative" function is available as: normalize[fn][127 - value].
+	/// Bipolar functions are a little more complicated.
+	///@{
+	static float posLinear[128];
+	static float posConcave[128];
+	static float posConvex[128];
+	static float posSwitch[128];
+	static float *normalize[4];
+	static void InitTransform();
+	static float Transform(short val, short tt);
+	///}@
+
+	static double log2(double f);
 
 	/// Convert time cents to time
 	/// Time cents is defined as tc = 1200 * log2(sec),
@@ -559,28 +740,58 @@ public:
 	/// @return time in seconds
 	static FrqValue EnvRate(FrqValue tc);
 
-	/// Convert attenuation in centibles to linear amplitude.
-	/// Centibels is defined as cb = 200 * log10(amp), where
-	/// cb ranges from 0 (no attenuation) to -960 (silence)
+	/// Convert pitch cents to frequency.
+	static FrqValue Frequency(FrqValue pc);
+
+	/// Convert attenuation in centibels to linear amplitude.
+	/// Centibels is defined as cb = 200 * log10(-amp), where
+	/// cb ranges from 0 (no attenuation) to 960 (silence)
 	/// @param cb attenuation in centibels
 	/// @return linear amplitude (0-1)
 	static AmpValue Attenuation(AmpValue cb);
+	
+	/// Convert gain in centibels to linear amplitude.
+	/// Centibels is defined as cb = 200 * log10(amp).
+	/// Linear gain is thus: g = pow(10, amp/200).
+	/// Values less than zero will attenuate, greater
+	/// than zero will multiply.
+	/// @param cb gain in centibels
+	/// @return linear amplitude
+	static AmpValue Gain(AmpValue cb);
+
+	/// Lookup 2^(n/1200).
+	/// This function uses a table where possible.
+	/// It has multiple uses since a lot of SF/DLS
+	/// parameters are stored as 1200 * log2(x).
+	/// To convert MIDI key to frequency use:
+	/// @code
+	/// freq = 440.0 * GetPow2n1200(100*(key-69));
+	/// @endcode
+	/// To add cents to a frequency:
+	/// @code
+	/// freq *= GetPow2n1200(cents);
+	/// @endcode
+	/// @return power of 2
+	static FrqValue GetPow2n1200(FrqValue fc);
+	static void InitPow2n1200();
+
+	/// Lookup 10^(n/-200)
+	static AmpValue GetPow10n200(AmpValue amp);
+	static void InitPow10n200();
 
 	SoundBank()
 	{
+		sampleFileOpen = 0;
 		lockCount = 0;
 		samples = 0;
+		chnls = 0xffff;
+		id = 0;
 		memset(&instrBank[0], 0, sizeof(instrBank));
-		if (envRateTable == 0)
-		{
-			envRateTable = new FrqValue[20000];
-			double x = -12000.0;
-			for (int index = 0; index < 20000; index++)
-			{
-				envRateTable[index] = pow(2.0, x / 1200.0);
-				x += 1.0;
-			}
-		}
+		InitPow2n1200();
+		InitPow10n200();
+		InitTransform();
+		maxFilter = log2((synthParams.sampleRate/4)/8.175) * 1200;
+		minFilter = log2(20.0/8.175) * 1200;
 	}
 
 	~SoundBank()
@@ -605,6 +816,12 @@ public:
 			samples = samp->next;
 			delete samp;
 		}
+	}
+
+	/// Optimize the zone lookup.
+	void Optimize()
+	{
+		// no longer needed
 	}
 
 	/// @name SoundBank locking.
@@ -672,10 +889,24 @@ public:
 	{
 		if (bank < 0 || bank > 128 || prog < 0 || prog > 127)
 			return 0;
-		SBInstr **instrList = instrBank[bank];
-		if (instrList == 0)
-			return 0;
-		SBInstr *in = instrList[prog];
+		SBInstr **instrList;
+		SBInstr *in = 0;
+		if (bank == 128)
+		{
+			if ((instrList = instrBank[128]) != 0)
+				 in = instrList[prog];
+		}
+		else
+		{
+			do
+			{
+				if ((instrList = instrBank[bank]) != 0)
+				{
+					if ((in = instrList[prog]) != 0)
+						break;
+				}
+			} while (--bank >= 0);
+		}
 		if (in && load && !in->loaded)
 			LoadInstr(in);
 		return in;
@@ -724,6 +955,7 @@ public:
 	/// @param f already open file
 	/// @return 0 on success, non-zero on failure.
 	/// @{
+	int OpenSampleFile();
 	int LoadSample(SBSample *samp);
 	int LoadSample(SBSample *samp, FileReadBuf& f);
 	int LoadInstr(SBInstr *instr);
@@ -732,6 +964,6 @@ public:
 	int ReadSamples2(SBSample *samp, FileReadBuf& f);
 	/// @}
 };
-//@}
 
 #endif
+//@}

@@ -197,7 +197,9 @@ public:
 	bsInt32 bank;
 	bsInt32 patch;
 	bsInt32 cc[128];
+	bsInt32 ctl[128/32]; // one bit per controller
 	bsInt32 count;
+	bsInt32 enable;
 
 	SMFChnlStatus()
 	{
@@ -213,6 +215,7 @@ public:
 			noteOn[i] = 0.0;
 			cc[i] = 0;
 		}
+		memset(ctl, 0, sizeof(ctl));
 		count = 0;
 		bank = 0;
 		patch = 0;
@@ -343,37 +346,8 @@ public:
 	{
 	}
 
-	void Reset()
-	{
-		trackList.Clear();
-		hdr.format = 1;  // SMF type 1 (multiple tracks)
-		hdr.numTrk = 0;
-		hdr.tmDiv = 24;
-		lastMsg = 0;
-		inpBuf = 0;
-		inpPos = 0;
-		inpEnd = 0;
-		ppqn = 24.0e6;
-		// tempo: quarter = 60, 24ppqn
-		srTicks = (0.5 * synthParams.sampleRate) / 24.0;
-		trackObj = 0;
-		instrMap = 0;
-		seq = 0;
-		gmbank = 1;
-		sbnk = 0;
-		chnlStatus[9].bank = 128;
-		metaText = "";
-		metaCpyr = "";
-		metaSeqName = "";
-		timeSig = "";
-		keySig = "";
-		keySigKey = 0;
-		keySigMaj = 0;
-		timeSigNum = 4;
-		timeSigDiv = 4;
-		timeSigBeat = 60;
-		explNoteOff = 0;
-	}
+	/// Reset to default values.
+	void Reset();
 
 	/// Set GM level.
 	/// By default, we use GM=1, and all instruments
@@ -398,7 +372,6 @@ public:
 	{
 		instrMap = map;
 	}
-
 
 	/// Emit note off events.
 	/// By default, we generate one event per note.
@@ -454,8 +427,9 @@ public:
 	void ControlChange(short chnl, short ctl, short val, short track = 0);
 	void KeyAfterTouch(short chnl, short key, short val, short track = 0);
 	void ChannelAfterTouch(short chnl, short val, short track = 0);
-	void PitchBend(short chnl, short val, short track = 0);
+	void PitchBend(short chnl, short val1, short val2, short track = 0);
 	void AddControlEvent(short mmsg, short chnl, short ctl, short val, short track = 0);
+	void Cancel(short chnl);
 	//@}
 
 	/// Load a SMF file.
@@ -472,13 +446,26 @@ public:
 	/// @param seq Sequencer object
 	/// @param map instrument map 
 	/// @param sb SoundBank (optional)
-	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0);
+	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0, bsInt16 mask = 0xff);
 
 	/// Determine how many notes are on each channel.
 	/// This is only valid after calling GenerateSeq.
 	/// @param ch array of 16 values to store the events per channel, or NULL.
 	/// @returns number of channels found with notes.
 	int GetChannelMap(bsInt32 *ch);
+
+	/// Determine if a channel was used.
+	inline int ChannelUsed(int chnl) 
+	{ 
+		return chnlStatus[chnl].count > 0; 
+	}
+
+	/// Get the controllers actually used.
+	inline int ControlerUsed(int chnl, int ctl)
+	{
+		return chnlStatus[chnl].ctl[ctl >> 5] & (1 << (ctl & 0x1f));
+	}
+
 
 	/// Enumerate the tracks.
 	/// On the first call, set trk = NULL, then

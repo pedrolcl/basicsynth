@@ -3,7 +3,9 @@
 //
 /// @file MIDISequencer.h MIDI Sequencer Classes
 /// @deprecated The MIDISequencer and associated classes are no longer needed.
-/// Use Sequencer and MIDIControl along with the GMManager instrument and SMFFile.
+/// Since they are referenced in the BasicSynth book, they are included for reference.
+/// The main Sequencer and Instrument Manager now handle MIDI functions.
+/// Use SMFFile to load the sequence and a GMPlayer to play GM sound fonts.
 //
 // Copyright 2008, Daniel R. Mitchell
 // License: Creative Commons/GNU-GPL 

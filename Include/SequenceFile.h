@@ -1,11 +1,11 @@
 
 ///////////////////////////////////////////////////////////
-// BasicSynth - 
+// BasicSynth -
 //
 /// @file SequenceFile.h Sequence file loader
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -76,31 +76,31 @@ public:
 
 /// Sequencer file loader.
 /// A sequencer file is a line of timed events. Each event line
-/// in the file must start with the values required by the 
+/// in the file must start with the values required by the
 /// sequencer event base class. The format of one event line
 /// in the sequence file is as follows:
 /// @code
 ///    [+|-|&]inum chnl time duration track { param }
 /// @endcode
 /// A line beginning with a plus (+) will generate a PARAM event.
-/// Lines beginning with a minus (-) will generate a STOP event. 
+/// Lines beginning with a minus (-) will generate a STOP event.
 /// A line beginning with ampersand will generate a RESTART event.
-/// All other lines (except as noted below) will produce a START event. 
+/// All other lines (except as noted below) will produce a START event.
 ///
 /// Fields are separated by one or more spaces and may be either
 /// a number or a character string. Numbers (other than the inum field)
 /// may be entered as a real or integer value and may also include
 /// a leading negative sign. Character strings are enclosed in either
 /// single or double quote marks. The maximum field length is 256 characters.
-/// The first four fields are required. The inum field is an integer 
-/// value that matches an entry in the instrument definition table. 
-/// The chnl field indicates the output channel, usually a mixer input. 
-/// The time and duration fields are numbers that specify the event 
-/// time and duration in seconds. 
+/// The first four fields are required. The inum field is an integer
+/// value that matches an entry in the instrument definition table.
+/// The chnl field indicates the output channel, usually a mixer input.
+/// The time and duration fields are numbers that specify the event
+/// time and duration in seconds.
 ///
-/// The params are optional and specific to the instrument inum. 
-/// Any number of param fields may be included, up to a maximum line 
-/// length of 2048 characters. 
+/// The params are optional and specific to the instrument inum.
+/// Any number of param fields may be included, up to a maximum line
+/// length of 2048 characters.
 ///
 /// A line beginning with equal (=) defines a parameter map. Since
 /// the number of parameters is potentially large, the parameter map
@@ -124,8 +124,8 @@ private:
 	bsInt32 lastID;
 	FileReadBuf fp;
 
-	char *NextParam(char *pin, char *pout);
-	int Comment(char *line);
+	const char *NextParam(const char *pin, char *pout);
+	int Comment(const char *line);
 	int ReadLine(char *buf);
 
 
@@ -166,7 +166,7 @@ public:
 
 	/// Parse the sequence from a memory buffer.
 	/// @param linbuf buffer with one sequencer line
-	int ParseMem(char *linbuf);
+	int ParseMem(const char *linbuf);
 
 	/// Load the file from a disk file
 	/// @param fileName path to file to load

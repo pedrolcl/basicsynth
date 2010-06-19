@@ -14,6 +14,7 @@
 #define _INSTRDEF_
 
 class InstrManager; // forward reference for type defs below
+class Sequencer;
 
 ///////////////////////////////////////////////////////////
 /// Base class for instruments. This class defines
@@ -48,10 +49,18 @@ public:
 	/// returns true.
 	virtual void Stop() { }
 
+	/// Cancel note.
+	/// This is a "hack" for MIDI. When EOT is reached,
+	/// or we see a ALL NOTES OFF, we cancel all notes.
+	/// The instrument should shutdown ASAP.
+	/// By default this is just like a stop, but some
+	/// instruments respond differently to a Cancel.
+	virtual void Cancel() { Stop(); }
+
 	/// Produce next sample.
 	/// This method is called to generate the current sample. 
 	/// Sample output is done through the instrument manager, 
-	/// set by the instrument factory function
+	/// set by the instrument factory function.
 	virtual void Tick() { }
 
 	/// Test for output complete.
@@ -150,22 +159,14 @@ typedef const char *(*ParamName)(bsInt16, Opaque tmplt);
 class InstrMapEntry : public SynthList<InstrMapEntry>
 {
 public:
-	/// Instrument type name.
-	bsString itype;
-	/// Instrument type description.
-	bsString idesc;
-	/// Create an instrument instance.
-	InstrFactory manufInstr;
-	/// Create an instruement event.
-	EventFactory manufEvent;
-	/// Create an instrument template.
-	TmpltFactory manufTmplt;
-	/// Destroy an instrument template.
-	TmpltDump dumpTmplt;
-	/// Convert parameter name to id.
-	ParamID paramToID;
-	/// Convert parameter it to name.
-	ParamName paramToName;
+	bsString itype;     ///< Instrument type name.
+	bsString idesc;     ///< Instrument type description.
+	InstrFactory manufInstr;  ///< Create an instrument instance.
+	EventFactory manufEvent;  ///< Create an instruement event.
+	TmpltFactory manufTmplt;  ///< Create an instrument template.
+	TmpltDump dumpTmplt;      ///< Destroy an instrument template.
+	ParamID paramToID;        ///< Convert parameter name to id.
+	ParamName paramToName;    ///< Convert parameter id to name.
 
 	/// Construct a blank instrument map
 	InstrMapEntry()
@@ -254,16 +255,12 @@ public:
 class InstrConfig : public SynthList<InstrConfig>
 {
 public:
-	/// Instrument id number
-	bsInt16 inum;
-	/// Instrument name
-	bsString name;
-	/// Instrument description
-	bsString desc;
-	/// Template to create new instance.
-	Opaque instrTmplt;
-	/// Instrument type entry
-	InstrMapEntry *instrType;
+	
+	bsInt16 inum;   ///< Instrument id number
+	bsString name;  ///< Instrument name
+	bsString desc;  ///< Instrument description
+	Opaque instrTmplt; ///< Template to create new instance.
+	InstrMapEntry *instrType; ///< Instrument type entry
 
 	InstrConfig()
 	{
@@ -375,15 +372,23 @@ public:
 /// return object if specific instrument numbers are needed.
 /// In addition, the caller should set the name on the returned
 /// object if it is desired to locate instruments by name.
+///
+/// The instrument manager also stores the current MIDI
+/// values. Instruments that are MIDI-aware can use the
+/// functions on the MIDIControl class to retrieve the
+/// current values.
+/// @sa MIDIControl
 ///////////////////////////////////////////////////////////
-class InstrManager
+class InstrManager : public MIDIControl
 {
 protected:
-	InstrConfig *instList;
-	InstrMapEntry *typeList;
-	Mixer *mix;
-	WaveOut *wvf;
-	bsInt16 internalID;
+	InstrConfig *instList;    ///< List of instrument configurations (templates)
+	InstrMapEntry *typeList;  ///< List of instrument types
+	Mixer *mix;               ///< Mixer - accumulator for instrument output
+	WaveOut *wvf;             ///< Audio endpoint
+	Sequencer *seq;           ///< The sequencer (when appropriate)
+	bsInt16 internalID;       ///< Counter for next auto instrument ID
+	Instrument *exclNotes[16*16]; ///< SF2/DLS exclusive notes 16 channels, 16 groups each
 
 public:
 	InstrManager()
@@ -392,7 +397,12 @@ public:
 		typeList = 0;
 		mix = 0;
 		wvf = 0;
+		seq = 0;
 		internalID = 16384;
+		for (int ch = 0; ch < 16; ch++)
+			channel[ch].Reset();
+		channel[9].bank = 128;
+		memset(exclNotes, 0, sizeof(exclNotes));
 	}
 
 	virtual ~InstrManager() 
@@ -411,11 +421,11 @@ public:
 	/// types.
 	virtual void Clear()
 	{
-		InstrConfig *ime;
-		while ((ime = instList) != 0)
+		InstrConfig *ic;
+		while ((ic = instList) != 0)
 		{
-			instList = ime->next;
-			delete ime;
+			instList = ic->next;
+			delete ic;
 		}
 		internalID = 16384;
 	}
@@ -431,6 +441,7 @@ public:
 		wvf = w;
 	}
 
+	inline void SetSequencer(Sequencer *s) { seq = s; }
 	inline void SetMixer(Mixer *m) { mix = m; }
 	inline Mixer *GetMixer() { return mix; }
 	inline void SetWaveOut(WaveOut *w) { wvf = w; }
@@ -537,7 +548,7 @@ public:
 	int LoadInstrLib(XmlSynthElem *inst);
 
 	/// Load instrument configuration.
-	/// This method reads one instrument conifgurations from the
+	/// This method reads one instrument conifguration from the
 	/// XML tree and adds the instrument configuration to this instrument
 	/// manager. The argument must be the node with tag instr.
 	/// @param inst node for the instrument configuration
@@ -607,6 +618,15 @@ public:
 		return new Instrument;
 	}
 
+	/// Allocate an instrument instance from event.
+	/// @param evt sequencer event
+	virtual Instrument *Allocate(SeqEvent *evt)
+	{
+		if (evt->im)
+			return evt->im->MakeInstance(this);
+		return Allocate(FindInstr(evt->inum));
+	}
+
 	/// Deallocate an instrument instance.
 	/// @param ip pointer to the instrument object
 	virtual void Deallocate(Instrument *ip)
@@ -645,11 +665,13 @@ public:
 		// clear the mixer
 		if (mix)
 			mix->Reset();
+		memset(exclNotes, 0, sizeof(exclNotes));
 	}
 	
 	/// Stop is called by the sequencer when the sequence stops.
 	virtual void Stop()
 	{
+		memset(exclNotes, 0, sizeof(exclNotes));
 	}
 
 	/// Tick is called by the sequencer on each sample. This is
@@ -698,12 +720,45 @@ public:
 		mix->ChannelIn2(ch, lft, rgt);
 	}
 
-	/// Handle a control event.
-	virtual int ControlEvent(SeqEvent *evt)
-	{
-		// TBD
-		return 0;
-	}
+	/// Controller change (MIDI).
+	/// Sets the current controller value.
+	/// @param chnl channel number
+	/// @param ccx controller number
+	/// @param val value (0-127)
+	virtual void ControlChange(int chnl, int ccx, int val);
+
+	/// Pitch wheel change (MIDI).
+	/// Sets the current pitch wheel value. This is a
+	/// 14-bit value divided into two bytes. Final value is
+	/// (msb<<7)|lsb. The value should be scaled by RPN0,
+	/// with a default range of +/-2 semitones.
+	/// @param chnl channel number
+	/// @param v1 message byte 1 (LSB)
+	/// @param v2 message byte 2 (MSB)
+	virtual void PitchbendChange(int chnl, int v1, int v2);
+
+	/// Channel pressure change (MIDI).
+	/// @param chnl channel number
+	/// @param val message value (0-127)
+	virtual void AftertouchChange(int chnl, int val);
+
+	/// Exclusive note on.
+	/// SF2 and DLS files allow indicating a note
+	/// as "exclusive" - no other note in the same
+	/// group should sound simultaneously. If a sounding
+	/// note in the same group and channel is found,
+	/// it is sent a Cancel signal. Typically
+	/// this is used for percussion instruments.
+	/// The index is (channel<<4)|group.
+	/// @param index exclusive note group + channel.
+	/// @param ip instrument that is currently sounding.
+	virtual void ExclNoteOn(int index, Instrument *ip);
+
+	/// Exclusive note off.
+	/// See ExclNoteOn().
+	/// @param index exclusive note group + channel.
+	/// @param ip instrument that is currently sounding.
+	virtual void ExclNoteOff(int index, Instrument *ip);
 };
 //@}
 #endif

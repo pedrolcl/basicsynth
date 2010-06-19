@@ -609,7 +609,8 @@ public:
 	/// @param val sample value
 	void FxIn(int f, AmpValue val)
 	{
-		fxBuf[f].FxIn(val);
+		if (f < fxUnits)
+			fxBuf[f].FxIn(val);
 	}
 
 	/// Get the mixed output.

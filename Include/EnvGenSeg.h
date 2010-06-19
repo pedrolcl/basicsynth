@@ -6,7 +6,6 @@
 ///
 ///  - AR
 ///  - ADSR
-///  - A3SR
 ///  - Multi-Seg with fixed sustain
 ///  - Multi-seg with variable sustain
 ///  - Pre-calculated table
@@ -662,7 +661,7 @@ public:
 /// equal for one of the segments and setting the type
 /// to susSeg. 
 //
-/// The AR, ADSR, and A3SR classes derive from this class
+/// The AR and ADSR classes derive from this class
 /// and implement a state-machine that stops at the sustain
 /// segment if it is set to on.
 ///////////////////////////////////////////////////////////
@@ -714,8 +713,9 @@ public:
 		SetSegs(ap->numSeg);
 		susOn = ap->susOn;
 		duration = ap->duration;
-		for (int n = 0; n < ap->numSeg; n++)
-			SetSegN(n, ap->segRLT[n].rate, ap->segRLT[n].level, ap->segRLT[n].type, ap->segRLT[n].fixed);
+		SegVals *sv = ap->segRLT;
+		for (int n = 0; n < ap->numSeg; n++, sv++)
+			SetSegN(n, sv->rate, sv->level, sv->type, sv->fixed);
 	}
 
 	/// Initialize envelope generator.
@@ -749,8 +749,9 @@ public:
 		SetSegs(def->nsegs);
 		SetStart(def->start);
 		susOn = def->suson;
-		for (int n = 0; n < numSeg; n++)
-			SetSegN(n, def->segs[n].rate, def->segs[n].level, def->segs[n].type, def->segs[n].fixed);
+		SegVals *sv = def->segs;
+		for (int n = 0; n < numSeg; n++, sv++)
+			SetSegN(n, sv->rate, sv->level, sv->type, sv->fixed);
 	}
 
 	/// @copydoc EnvGenUnit::GetEnvDef()

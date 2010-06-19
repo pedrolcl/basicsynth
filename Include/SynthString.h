@@ -7,7 +7,7 @@
 /// but it does all that BasicSynth needs.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ private:
 	char *theStr;        // character string buffer
 	size_t maxLen;       // size of allocated buffer
 	size_t curLen;       // current actual string length
-	static char *nulStr;
+	static const char *nulStr;
 public:
 	bsString()
 	{
@@ -74,7 +74,7 @@ public:
 	/// Get a character at a specific position.
 	char operator[](size_t n)
 	{
-		if (n >= 0 && n < curLen)
+		if (n < curLen)
 			return theStr[n];
 		return 0;
 	}
@@ -206,6 +206,9 @@ public:
 
 	/// Extract the sub-string
 	size_t SubString(bsString& out, int start, size_t len);
+
+	/// Split a file path into directory and file parts
+	int SplitPath(bsString& base, bsString& file, int inclSep = 1);
 
 	/// Pass ownership of a buffer to this object.
 	void Attach(char *str, int cl = -1, int ml = -1);

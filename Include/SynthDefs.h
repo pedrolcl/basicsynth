@@ -47,7 +47,7 @@ typedef unsigned int   bsUint32;
 typedef void* Opaque;
 
 // Choose one of these as the oscillator phase accumulator type.
-// double gives less noise with slightly more calculation time
+// double gives less noise with slightly more calculation time.
 /// Type for a phase accumulator
 typedef double PhsAccum;
 #define sinv sin
@@ -56,13 +56,18 @@ typedef double PhsAccum;
 
 /// Type for an amplitude value
 typedef float AmpValue;
+/// Type for a high precision amplitude value
+typedef double AmpValue2;
 /// Type for a frequency or time value
 typedef float FrqValue;
+/// Type for a generic parameter
+typedef float ParamValue;
 
 #define PI 3.14159265358979
 #define twoPI 6.28318530717958
 
 #define PANTBLLEN 4096
+#define MAX_AMPCB 1440
 
 /// Global parameters for the synthesizer. SynthConfig holds global information for the synthesizer.
 /// This includes sample rate, wave table size, phase increment calculation constants, 
@@ -74,6 +79,8 @@ class SynthConfig
 public:
 	/// Sample rate
 	FrqValue sampleRate;
+	/// Maximum frequency (Nyquist limit)
+	FrqValue nyquist;
 	/// Sample rate as integer
 	bsInt32 isampleRate;
 	/// multiplier to convert internal sample values into output values
@@ -88,6 +95,8 @@ public:
 	PhsAccum ftableLength;
 	/// wave table length as integer
 	bsInt32  itableLength;
+	/// maximum phase increment for wavetables (ftableLength/2)
+	PhsAccum maxIncrWT;
 	/// table to convert pitch index into frequency
 	FrqValue tuning[128];
 	/// table to convert cents +/-1200 into frequency multiplier
@@ -101,7 +110,7 @@ public:
 	/// wave file path (semi-colon separated)
 	bsString wvPath;
 	/// cB value table
-	AmpValue cbVals[960];
+	AmpValue cbVals[MAX_AMPCB];
 
 	/// Constructor. The constructor for \p SynthConfig initializes
 	/// member variables to default values by calling \p Init().
@@ -150,7 +159,7 @@ public:
 
 		// lookup table for centibels attenuation to amplitude
 		double lvl = 0;
-		for (i = 0; i < 960; i++)
+		for (i = 0; i < MAX_AMPCB; i++)
 		{
 			cbVals[i] = (AmpValue) pow(10.0, (double) lvl / -200.0);
 			lvl += 1.0;
@@ -169,9 +178,11 @@ public:
 	void Init(bsInt32 sr = 44100, bsInt32 tl = 16384)
 	{
 		sampleRate = (FrqValue) sr;
+		nyquist = sampleRate * 0.5;
 		isampleRate = sr;
 		itableLength = tl;
 		ftableLength = (PhsAccum) tl;
+		maxIncrWT = ftableLength * 0.5;
 		frqRad = twoPI / (PhsAccum) sampleRate;
 		frqTI = ftableLength / (PhsAccum) sampleRate;
 		radTI = ftableLength / twoPI;
@@ -193,10 +204,10 @@ public:
 	}
 
 	/// Convert cents to frequency multiplier.
-	/// Cents represent a tuning variation of 1/100 semitone
+	/// Cents represent a frequency variation of 1/100 semitone
 	/// and should range +/- one octave [-1200,+1200]. Values outside
 	/// that range result in a direct calculation. The returned
-	/// value is multiplied by a base frequency to get the detuned
+	/// value can be multiplied by a base frequency to get the detuned
 	/// frequency.
 	/// @param c deviation in pitch in 1/100 of a semitone.
 	/// @returns frequency multiplier
@@ -208,14 +219,16 @@ public:
 	}
 
 	/// Convert cB (centibel) of attenuation into amplitude level.
-	/// cb = 200 log10(amp)
+	/// cb = -200 log10(amp). Each bit in the sample represents ~60cB. 
+	/// For 16-bits resolution the useful range is 0-960, 
+	/// 24 bits 0-1440, 32 bits 0-1920, etc.
 	/// @param cb centi-bels of attenuation
 	/// @returns linear amplitude value
 	AmpValue AttenCB(int cb)
 	{
 		if (cb <= 0)
 			return 1.0;
-		if (cb >= 960)
+		if (cb >= MAX_AMPCB)
 			return 0.0;
 		return cbVals[cb];
 	}
