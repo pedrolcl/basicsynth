@@ -6,7 +6,7 @@
 // MIDI Sequencer code that is not inline
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
@@ -20,6 +20,8 @@
 #include <SynthList.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
 //#include <Sequencer.h>
 #include <MIDISequencer.h>
@@ -315,8 +317,8 @@ int MIDIFileLoad::LoadFile(char *file)
 
 void MIDIFileLoad::MetaEvent()
 {
-	static char *flats[]  = {"C", "F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb"};
-	static char *sharps[] = {"C", "G", "D",  "A",  "E",  "B",  "F#", "C#"};
+	static const char *flats[]  = {"C", "F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb"};
+	static const char *sharps[] = {"C", "G", "D",  "A",  "E",  "B",  "F#", "C#"};
 	MIDIEvent *evt;
 
 	bsUint16 meta = *inpPos++;

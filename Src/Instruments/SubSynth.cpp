@@ -58,12 +58,12 @@ static InstrParamMap subSynthParams[] =
 
 bsInt16 SubSynth::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
 }
 
 const char *SubSynth::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, subSynthParams, sizeof(subSynthParams)/sizeof(InstrParamMap));
 }
 
 SubSynth::SubSynth()
@@ -163,6 +163,13 @@ void SubSynth::Start(SeqEvent *evt)
 
 void SubSynth::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+	{
+		ControlEvent *cevt = (ControlEvent *)evt;
+		if ((cevt->mmsg & MIDI_EVTMSK) == MIDI_PWCHG)
+			pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+		return; // TODO: process controller changes
+	}
 	SetParams((VarParamEvent *)evt);
 	osc.Reset(-1);
 	filt->Reset(-1);
@@ -179,10 +186,12 @@ int SubSynth::SetParams(VarParamEvent *evt)
 	int err = 0;
 	chnl = evt->chnl;
 	vol = evt->vol;
-	osc.SetFrequency(evt->frq);
-	pbGen.SetFrequency(evt->frq);
-	lfoGen.SetSigFrq(evt->frq);
-	pbWT.SetSigFrq(evt->frq);
+	pwFrq = im->GetPitchbendC(chnl);
+	frq = evt->frq;
+	osc.SetFrequency(frq);
+	pbGen.SetFrequency(frq);
+	lfoGen.SetSigFrq(frq);
+	pbWT.SetSigFrq(frq);
 	pbWT.SetDurationS(evt->duration);
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
@@ -413,12 +422,14 @@ void SubSynth::Stop()
 
 void SubSynth::Tick()
 {
+	FrqValue phs = pwFrq;
 	if (lfoGen.On())
-		osc.PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
+		phs += lfoGen.Gen();
 	if (pbOn)
-		osc.PhaseModWT(pbGen.Gen() * synthParams.frqTI);
+		phs += pbGen.Gen();
 	if (pbWT.On())
-		osc.PhaseModWT(pbWT.Gen() * synthParams.frqTI);
+		phs += pbWT.Gen();
+	osc.PhaseModWT(phs * synthParams.frqTI);
 	AmpValue sigVal = osc.Gen();
 	if (nzOn)
 		sigVal = (sigVal * sigMix) + (nz.Gen() * nzMix);

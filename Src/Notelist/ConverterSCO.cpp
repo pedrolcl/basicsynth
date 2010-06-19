@@ -4,7 +4,7 @@
 // Convert to CSound score file.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ void nlConverterSCO::Write(char *txt)
 	nlConverter::Write(txt);
 }
 
-char *nlConverterSCO::SetExtension(char *name, char *ext)
+char *nlConverterSCO::SetExtension(const char *name, const char *ext)
 {
 	size_t len = strlen(name) + strlen(ext) + 1;
 	char *newname = new char[len];

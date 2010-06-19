@@ -16,17 +16,19 @@ typedef struct _GUID
     unsigned short Data3;
     unsigned char  Data4[ 8 ];
 } GUID;
+#ifndef MAX_PATH
+#define MAX_PATH 1024
+#endif
 #endif
 
 static const GUID GMSYNTH_MAGIC  = 
 { 0x2d257162, 0x432b, 0x438d, { 0xbd, 0x5e, 0x86, 0x9a, 0xbb, 0x7, 0x3a, 0x3c } };
 
 /// Structure to hold global information.
-/// This is returned as the HANDLE on GMSynthInit
-class GMSynthDLL
+/// There is exactly one of these allocated.
+class GMSynthDLL : public SynthThread
 {
 private:
-	MIDIControl mc;
 	GMInstrManager inmgr;
 	SequencerCB seq;
 	SeqState seqMode;
@@ -35,43 +37,49 @@ private:
 	SMFFile midFile;
 	MIDIInput kbd;
 	GMSYNTHCB usrCB;
-	Opaque    usrArg;
+	void *usrArg;
+	bsString outFileName;
+	float ldTm;
+	int live;
+	bsInt32 stTime;
+	bsInt32 endTime;
 
 #ifdef _WIN32
 	WaveOutDirect wvd;
-	HANDLE genThreadH;
-	DWORD  genThreadID;
+	HWND wavWnd;
+	GUID wavDevice;
 #endif
 
 #ifdef UNIX
 	WaveOutALSA wvd;
-	pthread_t genThreadID;
+	char *wavDevice;
 #endif
 
-	int StartSequencer();
-	int StopSequencer();
-	static void eventCB(bsUint32 tick, bsInt16 evtID, const SeqEvent *evt, Opaque usr);
-	static void tickCB(bsInt32 cnt, Opaque arg);
+	static void eventCB(bsUint32 tick, bsInt16 evtID, const SeqEvent *evt, void *usr);
+	static void tickCB(bsInt32 cnt, void *arg);
 
 public:
 	GUID magic;
 
-	GMSynthDLL(HANDLE w)
+	GMSynthDLL(Opaque w)
 	{
 		magic = GMSYNTH_MAGIC;
 		sbnk = 0;
-		seqMode = seqPlay;
-		seq.SetController(&mc);
-		inmgr.SetController(&mc);
-		genThreadID = 0;
+		seqMode = seqOff;
+		seq.SetMaxNotes(32);
 		kbd.SetSequenceInfo(&seq, &inmgr);
+		wvf.SetBufSize(30);
+		ldTm = 0.5;
+		live = 1;
+		stTime = 0;
+		endTime = 0;
 
 #ifdef _WIN32
-		genThreadH = INVALID_HANDLE_VALUE;
-		wvd.Setup((HWND) w, 0.02, 4, NULL);
+		SetWaveDevice(NULL);
+		wavWnd = (HWND)w;
 #endif
 #ifdef UNIX
-		wvd.Setup((char*)w, 0.02, 4);
+		SetWaveDevice("hw:0");
 #endif
 	}
 
@@ -81,32 +89,24 @@ public:
 		memset(&magic, 0, sizeof(GUID));
 	}
 
-	void SetCallback(GMSYNTHCB cb, bsInt32 cbRate, Opaque arg)
-	{
-		usrArg = arg;
-		usrCB = cb;
-		if (cb != 0)
-		{
-			if (cbRate > 0)
-				seq.SetCB(tickCB, (cbRate * synthParams.isampleRate) / 1000, this);
-			else
-				seq.SetCB(0, 0, 0);
-			seq.SetEventCB(eventCB, this);
-		}
-	}
-
+	void SetTimes(float start, float end);
+	void SetVolume(float db, float rv);
+	void SetCallback(GMSYNTHCB cb, bsInt32 cbRate, void *arg);
 	void OnTick(bsInt32 cnt);
 	void OnEvent(bsInt16 evtid, const SeqEvent *evt);
 
-	void Sequence(bsInt32 st, bsInt32 end)
-	{
-		seq.SequenceMulti(inmgr, st, end, seqMode);
-	}
+	void SetWaveDevice(void *dev);
+	void OpenWaveDevice();
+	int  ThreadProc();
 
-	int LoadSoundBank(const char *alias, const char *fileName, int preload);
+	int Unload();
+	int LoadSoundBank(const char *alias, const char *fileName, int preload, float scl);
+	int LoadSequence(const char *fileName, const char *sbnkName, short mask);
 	int GetMetaText(int id, char *txt, size_t len);
 	int GetMetaData(int id, long *vals);
-	int LoadSequence(const char *fileName, const char *sbnkName);
+	int GetBanks(short *banks, size_t len);
+	int GetPreset(short bank, short preset, char *txt, size_t len);
+
 	int Start(int mode);
 	int Stop();
 	int Pause();
@@ -116,77 +116,112 @@ public:
 	void ImmediateEvent(short mmsg, short val1, short val2);
 };
 
+static GMSynthDLL *theSynth;
+static int openCount = 0;
+
 /////////////////////////////////////////////////////////////////////
 // C++ Wrapper 
 ////////////////////////////////////////////////////////////////////
 
-GMSynth::GMSynth(HANDLE w)
+GMSynth::GMSynth(Opaque w)
 {
-	synth = (void*) new GMSynthDLL(w);
+	if (theSynth == NULL)
+		theSynth = new GMSynthDLL(w);
+	openCount++;
 }
 
 GMSynth::~GMSynth()
 {
-	delete (GMSynthDLL*)synth;
+	if (--openCount == 0)
+	{
+		delete theSynth;
+		theSynth = 0;
+	}
 }
 
-void GMSynth::SetCallback(GMSYNTHCB cb, bsInt32 cbRate, Opaque arg)
+void GMSynth::SetVolume(float db, float rv)
 {
-	((GMSynthDLL*)synth)->SetCallback(cb, cbRate, arg);
+	theSynth->SetVolume(db, rv);
 }
 
-int GMSynth::LoadSoundBank(const char *alias, const char *fileName, int preload)
+void GMSynth::SetCallback(GMSYNTHCB cb, bsInt32 cbRate, void *arg)
 {
-	return ((GMSynthDLL*)synth)->LoadSoundBank(alias, fileName, preload);
+	theSynth->SetCallback(cb, cbRate, arg);
+}
+
+void GMSynth::SetWaveDevice(void *dev)
+{
+	theSynth->SetWaveDevice(dev);
+}
+
+int GMSynth::Unload()
+{
+	return theSynth->Unload();
+}
+
+int GMSynth::LoadSoundBank(const char *alias, const char *fileName, int preload, float scl)
+{
+	return theSynth->LoadSoundBank(alias, fileName, preload, scl);
 }
 
 int GMSynth::GetMetaText(int id, char *txt, size_t len)
 {
-	return ((GMSynthDLL*)synth)->GetMetaText(id, txt, len);
+	return theSynth->GetMetaText(id, txt, len);
 }
 
 int GMSynth::GetMetaData(int id, long *vals)
 {
-	return ((GMSynthDLL*)synth)->GetMetaData(id, vals);
+	return theSynth->GetMetaData(id, vals);
 }
 
-int GMSynth::LoadSequence(const char *fileName, const char *sbnkName)
+int GMSynth::GetBanks(short *banks, size_t len)
 {
-	return ((GMSynthDLL*)synth)->LoadSequence(fileName, sbnkName);
+	return theSynth->GetBanks(banks, len);
 }
 
-int GMSynth::Start(int mode)
+int GMSynth::GetPreset(short bank, short preset, char *txt, size_t len)
 {
-	return ((GMSynthDLL*)synth)->Start(mode);
+	return theSynth->GetPreset(bank, preset, txt, len);
+}
+
+int GMSynth::LoadSequence(const char *fileName, const char *sbnkName, unsigned short mask)
+{
+	return theSynth->LoadSequence(fileName, sbnkName, mask);
+}
+
+int GMSynth::Start(int mode, void *dev)
+{
+	theSynth->SetWaveDevice(dev);
+	return theSynth->Start(mode);
 }
 
 int GMSynth::Stop()
 {
-	return ((GMSynthDLL*)synth)->Stop();
+	return theSynth->Stop();
 }
 
 int GMSynth::Pause()
 {
-	return ((GMSynthDLL*)synth)->Pause();
+	return theSynth->Pause();
 }
 int GMSynth::Resume()
 {
-	return ((GMSynthDLL*)synth)->Resume();
+	return theSynth->Resume();
 }
 
 int GMSynth::Generate(const char *fileName)
 {
-	return ((GMSynthDLL*)synth)->Generate(fileName);
+	return theSynth->Generate(fileName);
 }
 
 int GMSynth::MidiIn(int onoff, int device)
 {
-	return ((GMSynthDLL*)synth)->MidiIn(onoff, device);
+	return theSynth->MidiIn(onoff, device);
 }
 
 void GMSynth::ImmediateEvent(short mmsg, short val1, short val2)
 {
-	return ((GMSynthDLL*)synth)->ImmediateEvent(mmsg, val1, val2);
+	return theSynth->ImmediateEvent(mmsg, val1, val2);
 }
 
 
@@ -196,144 +231,172 @@ void GMSynth::ImmediateEvent(short mmsg, short val1, short val2)
 
 extern "C" {
 
-static GMSynthDLL *CheckHandle(HANDLE gm)
+static int CheckHandle()
 {
-	if (gm == 0)
-		return 0;
-
-	GMSynthDLL *synth = (GMSynthDLL *)gm;
-	if (!memcmp(&synth->magic, &GMSYNTH_MAGIC, sizeof(GUID)))
-		return 0;
-	return synth;
+	if (theSynth == NULL)
+		return 1;
+	return memcmp(&theSynth->magic, &GMSYNTH_MAGIC, sizeof(GUID));
 }
 
-HANDLE EXPORT GMSynthOpen(HANDLE w, bsInt32 sr)
+int EXPORT GMSynthOpen(Opaque w, bsInt32 sr)
 {
-	if (sr == 0)
-		sr = 44100;
-	InitSynthesizer(sr);
-
-	GMSynthDLL *synth = new GMSynthDLL(w);
-	return (HANDLE) synth;
-}
-
-
-int EXPORT GMSynthClose(HANDLE gm)
-{
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
-		return GMSYNTH_ERR_BADHANDLE;
-
-	delete synth;
+	if (++openCount == 1)
+	{
+		theSynth = new GMSynthDLL(w);
+		if (theSynth == NULL)
+		{
+			openCount = 0;
+			return GMSYNTH_ERR_BADHANDLE;
+		}
+		if (sr == 0)
+			sr = 44100;
+		InitSynthesizer(sr);
+	}
 	return GMSYNTH_NOERROR;
 }
 
-int EXPORT GMSynthLoadSoundBank(HANDLE gm, const char *fileName, int preload, const char *alias)
+
+int EXPORT GMSynthClose()
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (openCount < 1)
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->LoadSoundBank(alias, fileName, preload);
+	if (--openCount == 0)
+	{
+		delete theSynth;
+		theSynth = 0;
+	}
+	return GMSYNTH_NOERROR;
 }
 
-int EXPORT GMSynthLoadSequence(HANDLE gm, const char *fileName, const char *sbnkName)
+int EXPORT GMSynthUnload()
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
+		return GMSYNTH_ERR_BADHANDLE;
+	return theSynth->Unload();
+}
+
+int EXPORT GMSynthLoadSoundBank(const char *fileName, const char *alias, int preload, float scl)
+{
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->LoadSequence(fileName, sbnkName);
+	return theSynth->LoadSoundBank(alias, fileName, preload, scl);
 }
 
-int EXPORT GMSynthMetaText(HANDLE gm, int id, char *txt, size_t len)
+int EXPORT GMSynthLoadSequence(const char *fileName, const char *sbnkName, unsigned short mask)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->GetMetaText(id, txt, len);
+	return theSynth->LoadSequence(fileName, sbnkName, mask);
 }
 
-int EXPORT GMSynthMetaData(HANDLE gm, int id, long *vals)
+int EXPORT GMSynthMetaText(int id, char *txt, size_t len)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->GetMetaData(id, vals);
+	return theSynth->GetMetaText(id, txt, len);
 }
 
-int EXPORT GMSynthStart(HANDLE gm, int mode)
+int EXPORT GMSynthMetaData(int id, long *vals)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->Start(mode);
+	return theSynth->GetMetaData(id, vals);
 }
 
-int EXPORT GMSynthStop(HANDLE gm)
+int EXPORT GMSynthStart(int mode, float start, float end, void *dev)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->Stop();
+	theSynth->SetWaveDevice(dev);
+	theSynth->SetTimes(start, end);
+	return theSynth->Start(mode);
 }
 
-int EXPORT GMSynthPause(HANDLE gm)
+int EXPORT GMSynthStop()
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->Pause();
+	return theSynth->Stop();
 }
 
-int EXPORT GMSynthResume(HANDLE gm)
+int EXPORT GMSynthPause()
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
+		return GMSYNTH_ERR_BADHANDLE;
+
+	return theSynth->Pause();
+}
+
+int EXPORT GMSynthResume()
+{
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 	
-	return synth->Resume();
+	return theSynth->Resume();
 }
 
-int EXPORT GMSynthGenerate(HANDLE gm, const char *fileName)
+int EXPORT GMSynthGenerate(const char *fileName)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	return synth->Generate(fileName);
+	return theSynth->Generate(fileName);
 }
 
-int EXPORT GMSynthSetCallback(HANDLE gm, GMSYNTHCB cb, bsUint32 cbRate, Opaque arg)
+int EXPORT GMSynthSetCallback(GMSYNTHCB cb, bsUint32 cbRate, void *arg)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
 
-	synth->SetCallback(cb, cbRate, arg);
+	theSynth->SetCallback(cb, cbRate, arg);
 	return 0;
 }
 
-int EXPORT GMSynthMIDIKbdIn(HANDLE gm, int onoff, int device)
+int EXPORT GMSynthMIDIKbdIn(int onoff, int device)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
-	return synth->MidiIn(onoff, device);
+
+	return theSynth->MidiIn(onoff, device);
 }
 
-int EXPORT GMSynthMIDIEvent(HANDLE gm, short mmsg, short val1, short val2)
+int EXPORT GMSynthMIDIEvent(short mmsg, short val1, short val2)
 {
-	GMSynthDLL *synth = CheckHandle(gm);
-	if (synth == 0)
+	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
-	synth->ImmediateEvent(mmsg, val1, val2);
+	theSynth->ImmediateEvent(mmsg, val1, val2);
 	return 0;
+}
+
+int EXPORT GMSynthSetVolume(float db, float rv)
+{
+	if (CheckHandle())
+		return GMSYNTH_ERR_BADHANDLE;
+	theSynth->SetVolume(db, rv);
+	return 0;
+}
+
+/// Return a list of valid bank numbers.
+/// Pass in a NULL for banks to get the maximum number.
+int EXPORT GMSynthGetBanks(short *banks, size_t len)
+{
+	if (CheckHandle())
+		return GMSYNTH_ERR_BADHANDLE;
+	return theSynth->GetBanks(banks, len);
+}
+
+int EXPORT GMSynthGetPreset(short bank, short preset, char *txt, size_t len)
+{
+	if (CheckHandle())
+		return GMSYNTH_ERR_BADHANDLE;
+	return theSynth->GetPreset(bank, preset, txt, len);
 }
 
 // TODO:
@@ -348,12 +411,12 @@ int EXPORT GMSynthMIDIEvent(HANDLE gm, short mmsg, short val1, short val2)
 // Component implementation
 /////////////////////////////////////////////////////////////////////////
 
-void GMSynthDLL::tickCB(bsInt32 cnt, Opaque arg)
+void GMSynthDLL::tickCB(bsInt32 cnt, void *arg)
 {
 	((GMSynthDLL*)arg)->OnTick(cnt);
 }
 
-void GMSynthDLL::eventCB(bsUint32 tick, bsInt16 evtID, const SeqEvent *evt, Opaque usr)
+void GMSynthDLL::eventCB(bsUint32 tick, bsInt16 evtID, const SeqEvent *evt, void *usr)
 {
 	((GMSynthDLL*)usr)->OnEvent(evtID, evt);
 }
@@ -369,7 +432,7 @@ void GMSynthDLL::OnEvent(bsInt16 evtid, const SeqEvent *evt)
 	if (usrCB)
 	{
 		NoteEvent *nevt;
-		ControlEvent *cevt;
+//		ControlEvent *cevt;
 		TrackEvent *tevt;
 		bsInt16 uevt;
 		bsInt32 val = 0;
@@ -407,17 +470,11 @@ void GMSynthDLL::OnEvent(bsInt16 evtid, const SeqEvent *evt)
 			uevt = GMSYNTH_EVENT_TRKOFF;
 			val = tevt->trkNo;
 			break;
-		case SEQEVT_CONTROL:
-			uevt = GMSYNTH_EVENT_CTLCHG;
-			cevt = (ControlEvent *)evt;
-			val = (cevt->mmsg | cevt->chnl) << 16;
-			if (cevt->mmsg == MIDI_CTLCHG)
-				val |= (cevt->ctrl << 8) | cevt->cval;
-			else if (cevt->mmsg == MIDI_PWCHG)
-				val |= ((cevt->cval << 1) & 0xff) | (cevt->cval & 0x7f);
-			else
-				val |= cevt->cval;
-			break;
+		//case SEQEVT_CONTROL:
+		//	uevt = GMSYNTH_EVENT_CTLCHG;
+		//	cevt = (ControlEvent *)evt;
+		//	val = (cevt->mmsg | cevt->chnl) << 16) | (cevt->ctrl << 8) | cevt->cval;
+		//	break;
 		case SEQEVT_PARAM:
 		case SEQEVT_RESTART:
 			return;
@@ -426,9 +483,22 @@ void GMSynthDLL::OnEvent(bsInt16 evtid, const SeqEvent *evt)
 	}
 }
 
-int GMSynthDLL::LoadSoundBank(const char *alias, const char *fileName, int preload)
+int GMSynthDLL::Unload()
+{
+	midFile.Reset();
+	SoundBank::SoundBankList.DeleteBankList();
+	return GMSYNTH_NOERROR;
+}
+
+int GMSynthDLL::LoadSoundBank(const char *alias, const char *fileName, int preload, float scl)
 {
 	SoundBank *sb = 0;
+	sb = SoundBank::SoundBankList.FindBank(alias);
+	if (sb != NULL)
+	{
+		sb->Unlock();
+		sb = 0;
+	}
 	if (SFFile::IsSF2File(fileName))
 	{
 		SFFile file;
@@ -446,33 +516,34 @@ int GMSynthDLL::LoadSoundBank(const char *alias, const char *fileName, int prelo
 		return GMSYNTH_ERR_FILEOPEN;
 
 	sb->Lock();
-	if (alias)
-		sb->name = alias;
+	sb->name = alias;
 	SoundBank::SoundBankList.Insert(sb);
+	inmgr.SetSoundBank(sb, scl);
 	sbnk = sb;
 	return GMSYNTH_NOERROR;
 }
 
-int GMSynthDLL::LoadSequence(const char *fileName, const char *sbnkName)
+int GMSynthDLL::LoadSequence(const char *fileName, const char *sbnkName, short mask)
 {
-	Stop();
-
-	if (sbnkName && *sbnkName)
+	if (sbnkName)
 	{
-		SoundBank *sb = SoundBank::FindBank(sbnkName);
+		SoundBank *sb = SoundBank::SoundBankList.FindBank(sbnkName);
 		if (sb == 0)
-			return GMSYNTH_ERR_BADID;
+			return GMSYNTH_ERR_SOUNDBANK;
 		sbnk = sb;
-		inmgr.SetSoundBank(sb);
 	}
-	if (sbnk == 0)
-		return GMSYNTH_ERR_BADID;
+	else if (sbnk == 0)
+		return GMSYNTH_ERR_SOUNDBANK;
+	//inmgr.SetSoundBank(sbnk, 1.0);
 
+	Stop();
+	seq.Reset();
 	midFile.Reset();
 	if (midFile.LoadFile(fileName))
 		return GMSYNTH_ERR_FILEOPEN;
 
-	InstrConfig *inc = inmgr.FindInstr((bsInt16)0);
+
+	InstrConfig *inc = inmgr.FindInstr((bsInt16)1);
 	SMFInstrMap map[16];
 	for (int i = 0; i < 16; i++)
 	{
@@ -481,7 +552,7 @@ int GMSynthDLL::LoadSequence(const char *fileName, const char *sbnkName)
 		map[i].preParam = -1;
 	}
 
-	if (midFile.GenerateSeq(&seq, map, sbnk))
+	if (midFile.GenerateSeq(&seq, map, sbnk, mask))
 		return GMSYNTH_ERR_GENERATE;
 
 	return GMSYNTH_NOERROR;
@@ -489,37 +560,31 @@ int GMSynthDLL::LoadSequence(const char *fileName, const char *sbnkName)
 
 int GMSynthDLL::Start(int mode)
 {
+	Stop();
 	switch (mode)
 	{
 	case GMSYNTH_MODE_PLAY:
 		seqMode = seqPlay;
 		break;
 	case GMSYNTH_MODE_SEQUENCE:
-		seqMode = seqPlaySeqOnce;
+		seqMode = seqSeqOnce;
 		break;
 	case GMSYNTH_MODE_SEQPLAY:
-		seqMode = seqPlaySeq;
+		seqMode = seqPlaySeqOnce;
 		break;
 	default:
 		return GMSYNTH_ERR_BADID;
 	}
-
-	Stop();
-	inmgr.SetWaveOut(&wvd);
-	wvd.Restart();
-	return StartSequencer();
+	live = 1;
+	return StartThread();
 }
 
 int GMSynthDLL::Stop()
 {
 	SeqState wasRunning = seq.GetState();
-	if (wasRunning != seqOff)
+	//if (wasRunning != seqOff)
 		seq.Halt();
-	StopSequencer();
-	if (seqMode == seqSeqOnce)
-		wvf.CloseWaveFile();
-	else if (seqMode & seqPlay)
-		wvd.Stop();
+	WaitThread();
 	seqMode = seqOff;
 	return wasRunning != seqOff;
 }
@@ -538,8 +603,7 @@ int GMSynthDLL::Pause()
 		// to the DirectSound/ALSA buffer!
 		while (seq.GetState() != seqPaused)
 			Sleep(0);
-		if (seqMode & seqPlay)
-			wvd.Stop();
+		wvd.Stop();
 	}
 	return GMSYNTH_NOERROR;
 }
@@ -551,23 +615,55 @@ int GMSynthDLL::Resume()
 		return GMSYNTH_ERR_BADID;
 	if (st == seqPaused)
 	{
-		if (seqMode & seqPlay)
-			wvd.Restart();
+		wvd.Restart();
 		seq.Resume();
 	}
 	return GMSYNTH_NOERROR;
 }
 
+int GMSynthDLL::ThreadProc()
+{
+	if (live)
+	{
+		if (seqMode & seqPlay)
+			ldTm = 0.02;
+		else
+			ldTm = 0.20;
+		OpenWaveDevice();
+		inmgr.SetWaveOut(&wvd);
+	}
+	else
+	{
+		if (wvf.OpenWaveFile(outFileName, 2))
+		{
+			OnEvent(SEQEVT_SEQSTOP, NULL);
+			return GMSYNTH_ERR_FILEOPEN;
+		}
+		inmgr.SetWaveOut(&wvf);
+	}
+	inmgr.Reset();
+	seq.SequenceMulti(inmgr, stTime, endTime, seqMode);
+	if (live)
+	{
+		bsInt32 drain = (bsInt32) (synthParams.sampleRate * (ldTm * 4));
+		while (--drain > 0)
+			inmgr.Tick();
+		wvd.Stop();
+	}
+	else
+		wvf.CloseWaveFile();
+	return GMSYNTH_NOERROR;
+}
+
 int GMSynthDLL::Generate(const char *fileName)
 {
-	Stop();
-
-	if (wvf.OpenWaveFile(fileName, 2))
+	if (fileName == NULL)
 		return GMSYNTH_ERR_FILEOPEN;
-
-	inmgr.SetWaveOut(&wvf);
+	outFileName = fileName;
+	Stop();
 	seqMode = seqSeqOnce;
-	return StartSequencer();
+	live = 0;
+	return StartThread();
 }
 
 int GMSynthDLL::GetMetaText(int id, char *txt, size_t len)
@@ -636,6 +732,8 @@ int GMSynthDLL::GetMetaData(int id, long *vals)
 			vals[2] = (long) sbnk->info.wMajorVer;
 			vals[3] = (long) sbnk->info.wMinorVer;
 		}
+		else
+			return GMSYNTH_ERR_SOUNDBANK;
 		break;
 	default:
 		return GMSYNTH_ERR_BADID;
@@ -643,9 +741,50 @@ int GMSynthDLL::GetMetaData(int id, long *vals)
 	return GMSYNTH_NOERROR;
 }
 
+int GMSynthDLL::GetBanks(short *banks, size_t len)
+{
+	if (sbnk == 0)
+		return 0;
+	size_t count = 0;
+	int index;
+	for (index = 0; index < 129; index++)
+	{
+		if (sbnk->instrBank[index] != NULL)
+		{
+			if (banks)
+			{
+				if (count < len)
+					banks[count] = index;
+			}
+			count++;
+		}
+	}
+	return (int)count;
+}
+
+int GMSynthDLL::GetPreset(short bank, short preset, char *txt, size_t len)
+{
+	if (txt == NULL || len < 1)
+		return GMSYNTH_ERR_BADID;
+	*txt = '\0';
+	if (sbnk == 0)
+		return GMSYNTH_ERR_SOUNDBANK;
+	SBInstr *in = sbnk->GetInstr(bank, preset, 0);
+	if (in == NULL)
+		return GMSYNTH_ERR_BADID;
+	strncpy(txt, in->instrName, len-1);
+	txt[len-1] = 0;
+	return GMSYNTH_NOERROR;
+}
+
 void GMSynthDLL::ImmediateEvent(short mmsg, short val1, short val2)
 {
-	kbd.MIDIInput::ReceiveMessage(mmsg, val1, val2, 0);
+	if ((mmsg & 0xf0) == MIDI_PRGCHG && sbnk != 0)
+		sbnk->GetInstr(inmgr.GetBank(mmsg&0x0f), val1, 1);
+	if (seq.GetState() != seqOff)
+		kbd.MIDIInput::ReceiveMessage(mmsg, val1, val2, 0);
+	else if (mmsg <= MIDI_SYSEX && (mmsg & 0xF0) > MIDI_NOTEON)
+		inmgr.ProcessMessage(mmsg, val1, val2);
 }
 
 int GMSynthDLL::MidiIn(int onoff, int device)
@@ -659,80 +798,66 @@ int GMSynthDLL::MidiIn(int onoff, int device)
 		kbd.Stop();
 	return 0;
 }
+void GMSynthDLL::SetTimes(float start, float end)
+{
+	stTime = (bsInt32) (synthParams.sampleRate * start);
+	endTime = (bsInt32) (synthParams.sampleRate * end);
+}
+
+void GMSynthDLL::SetVolume(float db, float rv)
+{
+	inmgr.SetVolume(pow(10, (double)db/20.0), rv);
+}
+
+void GMSynthDLL::SetCallback(GMSYNTHCB cb, bsInt32 cbRate, void *arg)
+{
+	usrArg = arg;
+	usrCB = cb;
+	if (cb != 0)
+	{
+		if (cbRate > 0)
+			seq.SetCB(tickCB, (cbRate * synthParams.isampleRate) / 1000, this);
+		else
+			seq.SetCB(0, 0, 0);
+		seq.SetEventCB(eventCB, this);
+	}
+}
+
+
+////////////////////////////////////////////////////////////////
 
 #ifdef _WIN32
-
-static DWORD WINAPI PlayerProc(LPVOID param)
-{
-	GMSynthDLL *synth = (GMSynthDLL *) param;
-	synth->Sequence(0, 0);
-	return 0;
+void GMSynthDLL::SetWaveDevice(void *w) 
+{ 
+	if (w)
+		memcpy(&wavDevice, w, sizeof(GUID)); 
+	else
+		memset(&wavDevice, 0, sizeof(GUID));
 }
 
-int GMSynthDLL::StartSequencer()
-{
-	genThreadH = CreateThread(NULL, 0, PlayerProc, this, CREATE_SUSPENDED, &genThreadID);
-	if (genThreadH != INVALID_HANDLE_VALUE)
-	{
-		SetThreadPriority(genThreadH, THREAD_PRIORITY_ABOVE_NORMAL);
-		ResumeThread(genThreadH);
-		return 1;
-	}
-	return -2;
-}
 
-int GMSynthDLL::StopSequencer()
+void GMSynthDLL::OpenWaveDevice()
 {
-	try
-	{
-		WaitForSingleObject(genThreadH, 10000);
-	}
-	catch(...)
-	{
-	}
-	genThreadH = INVALID_HANDLE_VALUE;
-	return 0;
+	wvd.Setup(wavWnd, ldTm, 4, &wavDevice);
 }
 
 #endif
 
 #ifdef UNIX
 
-// use a mutex to sync threads. 
-// could possibly use pthread_barrier_* ?
-static pthread_mutex_t genDlgGuard;
-
-static void *PlayerProc(void *param)
+void GMSynthDLL::SetWaveDevice(void *w) 
 {
-	// synchronize with the main thread...
-	pthread_mutex_lock(&genDlgGuard);
-	pthread_mutex_unlock(&genDlgGuard);
-	GMSynthDLL *synth = (GMSynthDLL *) param;
-	synth->Sequence(0, 0);
-	pthread_exit((void*)0);
-	return 0;
+	if (wavDevice)
+		free(wavDevice);
+	if (w)
+		wavDevice = strdup((char *)w);
+	else
+		wavDevice = 0;
 }
 
-int GMSynthDLL::StartSequencer()
+void GMSynthDLL::OpenWaveDevice()
 {
-	pthread_mutex_init(&genDlgGuard, NULL);
-	pthread_mutex_lock(&genDlgGuard);
-	int err = pthread_create(&genThreadID, NULL, PlayerProc, this);
-	pthread_mutex_unlock(&genDlgGuard);
-	return err;
+	wvd.Setup(wavDevice, ldTm, 4);
 }
 
-int GMSynthDLL::StopSequencer()
-{
-	try
-	{
-		pthread_join(genThreadID, NULL); 
-		pthread_mutex_destroy(&genDlgGuard);
-	}
-	catch (...)
-	{
-	}
-	genThreadH = 0;
-	return 0;
-}
 #endif

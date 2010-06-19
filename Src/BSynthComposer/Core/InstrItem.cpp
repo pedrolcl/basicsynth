@@ -18,6 +18,7 @@
 #include "ChufferEd.h"
 #include "ModSynthEd.h"
 #include "SoundBankEd.h"
+#include "BuzzSynthEd.h"
 
 int InstrItem::ItemActions()
 {
@@ -152,7 +153,6 @@ int InstrItem::CopyItem()
 		return 1;
 	}
 	prjTree->RemoveNode(inew);
-	delete inew;
 	return 0;
 }
 
@@ -209,6 +209,8 @@ WidgetForm *InstrItem::CreateForm(int xo, int yo)
 		ed = new SoundBankEdit;
 	else if (strcmp("GMPlayer", type) == 0)
 		ed = new GMPlayerEdit;
+	else if (strcmp("BuzzSynth", type) == 0)
+		ed = new BuzzSynthEdit;
 	else
 		ed = new SynthEdit;
 	if (ed)
@@ -300,7 +302,6 @@ int InstrList::NewItem()
 		return 1;
 	}
 	prjTree->RemoveNode(inew);
-	delete inew;
 	return 0;
 }
 

@@ -18,15 +18,16 @@
 class ToneBase : public InstrumentVP
 {
 protected:
-	int chnl;
-	int pbOn;
-	int phsOn;
-	AmpValue vol;
-	GenWaveWT *osc;
-	EnvGenADSR env;
-	LFO lfoGen;
-	PitchBend pbGen;
-	PitchBendWT pbWT;
+	int chnl;          ///< output channel
+	int pbOn;          ///< pitch modification is enabled
+	AmpValue vol;      ///< overall volume level
+	FrqValue frq;      ///< base frequency
+	FrqValue pwFrq;    ///< MIDI pitch wheel frequency delta
+	GenWaveWT *osc;    ///< oscillator
+	EnvGenADSR env;    ///< envelope
+	LFO lfoGen;        ///< LFO (vibrato)
+	PitchBend pbGen;   ///< Pitch bend generator
+	PitchBendWT pbWT;  ///< Pitch bend wavetable
 
 	InstrManager *im;
 

@@ -15,9 +15,9 @@
 // to produce noisy transient sounds.
 // A delay line is available to add resonance.
 // Panning can be done internally rather than through the mixer
-// 
+//
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ VarParamEvent *FMSynth::AllocParams()
 	return (VarParamEvent *) FMSynthEventFactory(0);
 }
 
-static InstrParamMap fmsynthParams[] = 
+static InstrParamMap fmsynthParams[] =
 {
 	{ "dlydec",  82 }, { "dlylen",  81 }, { "dlymix",  80 },
 
@@ -69,18 +69,18 @@ static InstrParamMap fmsynthParams[] =
 	{ "nzfr",    62 }, { "nzmix",   60 }, { "nzpk",    66 }, { "nzrel",   69 }, { "nzst",    64 },
 	{ "nzsus",   68 }, { "nzty",    71 },
 
-	{ "pbamp",  106 }, { "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 }, 
+	{ "pbamp",  106 }, { "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 },
 	{ "pbfrq",  108 }, { "pbon",   100 }, { "pbr1",   101 }, { "pbr2",   102 },
 	{ "pbwt",   107 }
 };
 
 bsInt16 FMSynth::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
 }
 const char *FMSynth::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, fmsynthParams, sizeof(fmsynthParams)/sizeof(InstrParamMap));
 }
 
 FMSynth::FMSynth()
@@ -167,7 +167,7 @@ void FMSynth::Copy(FMSynth *ip)
 	dlyMix = ip->dlyMix;
 	dlySamps = ip->dlySamps;
 	dlyOn = ip->dlyOn;
-	
+
 	lfoGen.Copy(&ip->lfoGen);
 	pbGen.Copy(&ip->pbGen);
 	pbOn = ip->pbOn;
@@ -252,6 +252,8 @@ void FMSynth::Start(SeqEvent *evt)
 
 void FMSynth::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+		return; // TODO: process controller changes
 	lfoGen.SetSigFrq(frq);
 	pbWT.SetSigFrq(frq);
 	SetParams((VarParamEvent*)evt);
@@ -345,7 +347,7 @@ int FMSynth::SetParam(bsInt16 id, float val)
 	case 39: // wt
 		gen1Wt = (int) val;
 		break;
-	//gen2: 
+	//gen2:
 	case 40: //mul
 		gen2Mult = val;
 		break;
@@ -413,7 +415,7 @@ int FMSynth::SetParam(bsInt16 id, float val)
 	case 59: // wt
 		gen3Wt = (int) val;
 		break;
-	//nz: 
+	//nz:
 	case 60: //mix
 		nzMix = val;
 		break;
@@ -453,7 +455,7 @@ int FMSynth::SetParam(bsInt16 id, float val)
 		nzEnvDef.SetType(1, segType);
 		nzEnvDef.SetType(2, segType);
 		break;
-	//dlyn: 
+	//dlyn:
 	case 80: //mix
 		dlyMix = val;
 		break;
@@ -463,7 +465,7 @@ int FMSynth::SetParam(bsInt16 id, float val)
 	case 82: //dec
 		dlyDec = val;
 		break;
-	//lfo: 
+	//lfo:
 	case 90: //frq
 		lfoGen.SetFrequency(FrqValue(val));
 		break;
@@ -632,7 +634,7 @@ int FMSynth::GetParam(bsInt16 id, float *val)
 	case 39: // wt
 		*val = (float) gen1Wt;
 		break;
-	//gen2: 
+	//gen2:
 	case 40: //mul
 		*val = (float) gen2Mult;
 		break;
@@ -694,7 +696,7 @@ int FMSynth::GetParam(bsInt16 id, float *val)
 	case 59: // wt
 		*val = (float) gen3Wt;
 		break;
-	//nz: 
+	//nz:
 	case 60: //mix
 		*val = (float) nzMix;
 		break;
@@ -731,7 +733,7 @@ int FMSynth::GetParam(bsInt16 id, float *val)
 	case 71: //ty
 		*val = (float) (int) nzEnvDef.GetType(0);
 		break;
-	//dlyn: 
+	//dlyn:
 	case 80: //mix
 		*val = (float) dlyMix;
 		break;
@@ -741,7 +743,7 @@ int FMSynth::GetParam(bsInt16 id, float *val)
 	case 82: //dec
 		*val = (float) dlyDec;
 		break;
-	//lfo: 
+	//lfo:
 	case 90: //frq
 		*val = (float) lfoGen.GetFrequency();
 		break;
@@ -814,7 +816,7 @@ void FMSynth::Tick()
 	AmpValue gen1Out;
 	AmpValue gen2Out;
 	AmpValue gen3Out;
-	AmpValue nzOut;
+	AmpValue nzOut = 0;
 	AmpValue dlyOut;
 	AmpValue lfoOut = 0;
 	AmpValue gen1Mod;
@@ -857,19 +859,18 @@ void FMSynth::Tick()
 
 	sigOut = gen1Out * fmMix;
 
-	if (nzOn) 
+	if (nzOn)
 	{
 		nzOut = nzi.Gen() * nzEG.Gen();
 		if (nzFrqo)
 			nzOut *= nzo.Gen();
 		sigOut += nzOut * nzMix;
 	}
-	
+
 	if (dlyOn)
 	{
 		AmpValue dlyIn = gen1Out * fmDly;
-		if (nzOn)
-			dlyIn += nzOut * nzDly;
+		dlyIn += nzOut * nzDly;
 		dlyOut = apd.Sample(dlyIn);
 		sigOut += dlyOut * dlyMix;
 	}
@@ -996,7 +997,7 @@ int FMSynth::Load(XmlSynthElem *parent)
 	return 0;
 }
 
-XmlSynthElem *FMSynth::SaveEG(XmlSynthElem *parent, char *tag, EnvDef& eg)
+XmlSynthElem *FMSynth::SaveEG(XmlSynthElem *parent, const char *tag, EnvDef& eg)
 {
 	XmlSynthElem *elem = parent->AddChild(tag);
 	if (elem != NULL)
@@ -1016,7 +1017,7 @@ XmlSynthElem *FMSynth::SaveEG(XmlSynthElem *parent, char *tag, EnvDef& eg)
 int FMSynth::Save(XmlSynthElem *parent)
 {
 	XmlSynthElem *elem;
-	
+
 	elem = parent->AddChild("fm");
 	if (elem == NULL)
 		return -1;

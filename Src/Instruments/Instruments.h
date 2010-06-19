@@ -6,6 +6,7 @@
 #include <Tone.h>
 #include <LFO.h>
 #include <SubSynth.h>
+#include <BuzzSynth.h>
 #include <AddSynth.h>
 #include <FMSynth.h>
 #include <MatrixSynth.h>

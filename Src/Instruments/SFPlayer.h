@@ -14,15 +14,22 @@
 
 #include "LFO.h"
 #include "PitchBend.h"
-#include <SFDefs.h>
 #include <SoundBank.h>
+#include <SFGen.h>
+
+#define SFPLAYER_BANK 16
+#define SFPLAYER_PROG 17
 
 /// One generator for SFPlayer.
 class SFGen : public SynthList<SFGen>
 {
 public:
-	GenWaveWTLoop osc;
+	//GenWaveWTLoop osc;
+	GenWaveSB osc;
+	FrqValue phsPC;
 	Panner pan;
+
+	void CalcPhsIncr(int pit, SBZone *zone);
 };
 
 /// BasicSynth Instrument to play SoundBank sounds.
@@ -48,6 +55,7 @@ protected:
 	bsInt16 keyHi;      ///< highest key for current zone
 	AmpValue vol;       ///< volume level
 	FrqValue frq;       ///< playback frequency
+	FrqValue pwFrq;     ///< pitch wheel (pitch cents)
 	SFGen *genList;     ///< primary generator
 	SFGen *xfdList;     ///< cross-fade generator
 	EnvSegLin fadeEG;   ///< cross-fade interpolator
@@ -105,8 +113,19 @@ public:
 	const char *GetSoundFile()        { return sndFile; }
 	const char *GetInstrName()       { return insName; }
 
-	void SetSoundFile(const char *str) { sndFile = str; }
-	void SetInstrName(const char *str) { insName = str; }
+	void SetSoundFile(const char *str) 
+	{
+		sndFile = str;
+		if (sndbnk)
+			sndbnk->Unlock();
+		sndbnk = 0;
+		instr = 0;
+	}
+	void SetInstrName(const char *str) 
+	{ 
+		insName = str; 
+		instr = 0;
+	}
 
 	virtual int Load(XmlSynthElem *parent);
 	virtual int Save(XmlSynthElem *parent);

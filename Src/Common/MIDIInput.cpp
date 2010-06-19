@@ -12,13 +12,15 @@
 #include <SynthDefs.h>
 #include <SynthString.h>
 #include <SynthList.h>
+#include <SynthMutex.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
 #include <Mixer.h>
 #include <WaveFile.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
 #include <Sequencer.h>
-#include <MIDIDefs.h>
 #include <MIDIInput.h>
 
 MIDIInput::MIDIInput()

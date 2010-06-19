@@ -2,7 +2,7 @@
 // BasicSynth - Project item that represents the whole project.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ static void DestroyTemplate(Opaque tp)
 }
 
 // Initialization - adds all instrument types to the instrument manager.
-// Typically the inclInstr flags are set to include all types. For a 
+// Typically the inclInstr flags are set to include all types. For a
 // custom version of BasicSynth the flags can be set so that only
 // some instruments are made available. N.B. - disabling instruments
 // can cause problems when loading a project that contains disabled
@@ -52,7 +52,6 @@ void SynthProject::Init()
 	change = 0;
 	cvtActive = 0;
 
-	seq.SetController(&prjMidiCtrl);
 	prjMidiIn.SetSequenceInfo(&seq, &mgr);
 	prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
 
@@ -140,12 +139,17 @@ void SynthProject::Init()
 	}
 	if (prjOptions.inclInstr & 0x800)
 	{
-		ime = mgr.AddType("GMPlayer", GMManager::InstrFactory, GMManager::EventFactory);
-		ime->paramToID = GMManager::MapParamID;
-		ime->paramToName = GMManager::MapParamName;
-		ime->manufTmplt = GMManager::TmpltFactory;
-		ime->dumpTmplt = GMManager::TmpltDump;
-		GMManager::midiCtrl = &prjMidiCtrl;
+		ime = mgr.AddType("GMPlayer", GMPlayer::InstrFactory, GMPlayer::EventFactory);
+		ime->paramToID = GMPlayer::MapParamID;
+		ime->paramToName = GMPlayer::MapParamName;
+		ime->dumpTmplt = DestroyTemplate;
+	}
+	if (prjOptions.inclInstr & 0x1000)
+	{
+		ime = mgr.AddType("BuzzSynth", BuzzSynth::InstrFactory, BuzzSynth::EventFactory);
+		ime->paramToID = BuzzSynth::MapParamID;
+		ime->paramToName = BuzzSynth::MapParamName;
+		ime->dumpTmplt = DestroyTemplate;
 	}
 }
 
@@ -157,61 +161,74 @@ void SynthProject::InitProject()
 	prjTree->AddNode(this);
 
 	synthInfo = new SynthItem;
+	synthInfo->AddRef();
 	synthInfo->SetParent(this);
 	prjTree->AddNode(synthInfo);
 
 	wvoutInfo = new WaveoutItem;
+	wvoutInfo->AddRef();
 	wvoutInfo->SetParent(this);
 	prjTree->AddNode(wvoutInfo);
 
 	midiInfo = new MidiItem;
+	midiInfo->AddRef();
 	midiInfo->SetParent(this);
 	if (prjOptions.inclMIDI)
 		prjTree->AddNode(midiInfo);
 
 	mixInfo = new MixerItem;
+	mixInfo->AddRef();
 	mixInfo->SetParent(this);
 	prjTree->AddNode(mixInfo);
 
 	nlInfo = new NotelistList;
+	nlInfo->AddRef();
 	nlInfo->SetParent(this);
 	if (prjOptions.inclNotelist)
 		prjTree->AddNode(nlInfo);
 
 	scriptInfo = new ScriptList;
+	scriptInfo->AddRef();
 	scriptInfo->SetParent(this);
 	if (prjOptions.inclScripts)
 		prjTree->AddNode(scriptInfo);
 
 	seqInfo = new SeqList;
+	seqInfo->AddRef();
 	seqInfo->SetParent(this);
 	if (prjOptions.inclSequence)
 		prjTree->AddNode(seqInfo);
 
 	txtInfo = new FileList;
+	txtInfo->AddRef();
 	txtInfo->SetParent(this);
 	if (prjOptions.inclTextFiles)
 		prjTree->AddNode(txtInfo);
 
 	instrInfo = new InstrList;
+	instrInfo->AddRef();
 	instrInfo->SetParent(this);
 	prjTree->AddNode(instrInfo);
 
 	wfInfo = new WavefileList;
+	wfInfo->AddRef();
 	wfInfo->SetParent(this);
 	prjTree->AddNode(wfInfo);
 
 	libInfo = new LibfileList;
+	libInfo->AddRef();
 	libInfo->SetParent(this);
 	if (prjOptions.inclLibraries)
 		prjTree->AddNode(libInfo);
 
 	sblInfo = new SoundBankList;
+	sblInfo->AddRef();
 	sblInfo->SetParent(this);
 	if (prjOptions.inclSoundFonts)
 		prjTree->AddNode(sblInfo);
 
 	libPath = new PathList;
+	libPath->AddRef();
 	libPath->SetParent(this);
 
 }
@@ -432,7 +449,7 @@ int SynthProject::Save(XmlSynthElem *node)
 	// node points to the document root
 
 	XmlSynthElem *child;
-	
+
 	child = node->AddChild("name");
 	child->SetContent(name);
 	delete child;
@@ -597,7 +614,7 @@ char *SynthProject::SkipProjectDir(char *path)
 	return path;
 }
 
-// Exampled to a full path if needed.
+// Exampand to a full path if needed.
 int SynthProject::FullPath(const char *s)
 {
 	return PathList::FullPath(s);
@@ -610,7 +627,7 @@ int SynthProject::FindOnPath(bsString& fullPath, const char *fname)
 }
 
 // Find an editor form
-int SynthProject::FindForm(bsString& fullPath, char *fname)
+int SynthProject::FindForm(bsString& fullPath, const char *fname)
 {
 	fullPath = prjOptions.formsDir;
 	fullPath += '/';

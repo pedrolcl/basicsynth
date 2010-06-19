@@ -13,7 +13,7 @@
 // use: Example02 [duration [pitch [volume]]]
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 	envTime[1] = (long) (0.2 * synthParams.sampleRate);
 	envTime[2] = (long) (0.5 * synthParams.sampleRate);
 	envTime[3] = (long) (0.2 * synthParams.sampleRate);
-	
+
 	// pre-calculate increments
 	envIncr[0] = envLevel[0] / envTime[0];
 	for (n = 1; n < maxEnvIndex; n++)
@@ -296,6 +296,7 @@ int main(int argc, char *argv[])
 	volume = 0;
 	envCount = 0;
 	envPeak = 0;
+	envStep = 0;
 	for (n = 0; n < totalSamples; n++)
 	{
 		if (--envCount <= 0)
@@ -340,7 +341,7 @@ int main(int argc, char *argv[])
 	atkTime[1] = (long) (0.2 * synthParams.sampleRate);
 	decTime[0] = (long) (0.1 * synthParams.sampleRate);
 	decTime[1] = (long) (0.2 * synthParams.sampleRate);
-	
+
 	sustainTime = totalSamples - (atkTime[0] + atkTime[1] + decTime[0] + decTime[1]);
 	phase = 0;
 	volume = 0;
@@ -429,11 +430,11 @@ int main(int argc, char *argv[])
 	float decIncrCR = 1.0 / (decTimeCR * synthParams.sampleRate);
 	float relIncrCR = 1.0 / (relTimeCR * synthParams.sampleRate);
 
-	float susTimeCR;
+	float susTimeCR = 0;
 
 	for (n = 0; n < totalSamples; n++)
 	{
-		switch (envState) 
+		switch (envState)
 		{
 		case 0:
 			if ((volume += atkIncrCR) >= 1.0)
@@ -448,7 +449,7 @@ int main(int argc, char *argv[])
 				volume = sustainAmpCR;
 				envState = 2;
 				// for testing. This type envelope would normally sustain until release signal.
-				susTimeCR = totalSamples - n - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);			
+				susTimeCR = totalSamples - n - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);
 			}
 			break;
 		case 2:
@@ -481,7 +482,7 @@ int main(int argc, char *argv[])
 	float decTblCR[960];
 	atkTblCR[0] = 0.0;
 	decTblCR[0] = 0.0;
-	for (n = 1; n < envTblLen; n++) 
+	for (n = 1; n < envTblLen; n++)
 	{
 		volume = pow(10, (double)(959 - n) / -200.0);
 		atkTblCR[n] = volume;
@@ -499,7 +500,7 @@ int main(int argc, char *argv[])
 	envState = 0;
 	for (n = 0; n < totalSamples; n++)
 	{
-		switch (envState) 
+		switch (envState)
 		{
 		case 0:
 			if ((envTblNdx += atkIncrCR) >= envTblLen)
@@ -517,7 +518,7 @@ int main(int argc, char *argv[])
 			{
 				volume = sustainAmpCR;
 				envState = 2;
-				susTimeCR = totalSamples - n - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);			
+				susTimeCR = totalSamples - n - ((relTimeCR * synthParams.sampleRate) * sustainAmpCR);
 			}
 			break;
 		case 2:

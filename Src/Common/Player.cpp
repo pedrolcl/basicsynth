@@ -16,11 +16,14 @@
 #include <math.h>
 #include <SynthDefs.h>
 #include <SynthString.h>
+#include <SynthMutex.h>
 #include <WaveFile.h>
 #include <Mixer.h>
 #include <SynthList.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
 #include <Sequencer.h>
 #include <Player.h>

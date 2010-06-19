@@ -347,7 +347,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SynthMutex.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SynthString.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SynthThread.cpp"
 				>
 			</File>
 			<File
@@ -445,6 +453,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Include\GenWaveDSF.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Include\GenWaveWT.h"
 				>
 			</File>
@@ -529,7 +541,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Include\SynthMutex.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Include\SynthString.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SynthThread.h"
 				>
 			</File>
 			<File

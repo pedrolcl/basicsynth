@@ -31,6 +31,8 @@ extern CAppModule _Module;
 #include <math.h>
 #include <BasicSynth.h>
 #include <Player.h>
+#include <SFFile.h>
+#include <DLSFile.h>
 #include <WaveOutDirect.h>
 #include <Instruments.h>
 

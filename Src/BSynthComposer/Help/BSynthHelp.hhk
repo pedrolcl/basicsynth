@@ -41,6 +41,11 @@
 		<param name="Local" value="subsynthinstr.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="BuzzSynth">
+		<param name="Name" value="BUZZ Synthesis Instrument">
+		<param name="Local" value="buzzsynthinstr.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="WFSynth">
 		<param name="Name" value="Wave File Playback Instrument">
 		<param name="Local" value="wfsynthinstr.html">

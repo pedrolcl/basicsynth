@@ -1033,7 +1033,7 @@ LRESULT MainFrame::OnPrjDelItem(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 	NMTREEVIEW *nmtv = (NMTREEVIEW*)pnmh;
 	ProjectItem *pi = (ProjectItem *)nmtv->itemOld.lParam;
 	if (pi)
-		delete pi;
+		pi->Release();
 	return 1;
 }
 
@@ -1067,6 +1067,7 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 	tvi.item.pszText = (LPSTR) itm->GetName();
 	tvi.item.lParam = (LPARAM) itm;
 	itm->SetPSData((void*) prjList.InsertItem(&tvi));
+	itm->AddRef();
 }
 
 void MainFrame::SelectNode(ProjectItem *pi)
@@ -1080,15 +1081,16 @@ void MainFrame::RemoveNode(ProjectItem *itm)
 	if (itm == 0 || itm->GetPSData() == 0)
 		return;
 
-	HTREEITEM ht = (HTREEITEM) itm->GetPSData();
-	itm->SetPSData(0);
-	prjList.SetItemData(ht, 0);
-	prjList.DeleteItem(ht);
 	if (itm->GetType() == PRJNODE_NOTELIST)
 	{
 		if (errWnd)
 			errWnd->RemoveItem(itm);
 	}
+
+	HTREEITEM ht = (HTREEITEM) itm->GetPSData();
+	itm->SetPSData(0);
+//	prjList.SetItemData(ht, 0);
+	prjList.DeleteItem(ht);
 }
 
 void MainFrame::UpdateNode(ProjectItem *itm)
@@ -1102,8 +1104,10 @@ void MainFrame::MoveNode(ProjectItem *itm, ProjectItem *prev)
 	if (!itm || !prev)
 		return;
 
+	itm->AddRef();
 	RemoveNode(itm);
 	AddNode(itm, prev);
+	itm->Release();
 }
 
 ProjectItem *MainFrame::GetSelectedNode()
@@ -1139,7 +1143,7 @@ ProjectItem *MainFrame::NextSibling(ProjectItem *itm)
 void MainFrame::RemoveAll()
 {
 	prjList.DeleteAllItems();
-	theProject = 0;
+	//theProject = 0;
 }
 
 int MainFrame::CloseAllEditors()

@@ -28,11 +28,12 @@
 ToneBase::ToneBase()
 {
 	osc = 0;
+	frq = 440;
 	chnl = 0;
 	vol = 1.0;
 	im = NULL;
 	pbOn = 0;
-	phsOn = 0;
+	pwFrq = 0;
 }
 
 ToneBase::~ToneBase()
@@ -50,7 +51,6 @@ void ToneBase::Copy(ToneBase *tp)
 	pbOn = tp->pbOn;
 	pbGen.Copy(&tp->pbGen);
 	pbWT.Copy(&tp->pbWT);
-	phsOn = tp->phsOn;
 }
 
 void ToneBase::Start(SeqEvent *evt)
@@ -58,35 +58,35 @@ void ToneBase::Start(SeqEvent *evt)
 	SetParams((VarParamEvent*)evt);
 	osc->Reset(0);
 	env.Reset(0);
-	phsOn = 0;
 	if (lfoGen.On())
-	{
-		phsOn = 1;
 		lfoGen.Reset(0);
-	}
 	if (pbOn)
-	{
-		phsOn = 1;
 		pbGen.Reset(0);
-	}
 	if (pbWT.On())
-	{
-		phsOn = 1;
 		pbWT.Reset(0);
-	}
+	pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
 }
 
 void ToneBase::Param(SeqEvent *evt)
 {
-	SetParams((VarParamEvent*)evt);
-	osc->Reset(-1);
-	env.Reset(-1);
-	if (lfoGen.On())
-		lfoGen.Reset(-1);
-	if (pbOn)
-		pbGen.Reset(-1);
-	if (pbWT.On())
-		pbWT.Reset(-1);
+	if (evt->type == SEQEVT_CONTROL)
+	{
+		ControlEvent *cevt = (ControlEvent *)evt;
+		if ((cevt->mmsg & MIDI_EVTMSK) == MIDI_PWCHG)
+			pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+	}
+	else if (evt->type == SEQEVT_PARAM)
+	{
+		SetParams((VarParamEvent*)evt);
+		osc->Reset(-1);
+		env.Reset(-1);
+		if (lfoGen.On())
+			lfoGen.Reset(-1);
+		if (pbOn)
+			pbGen.Reset(-1);
+		if (pbWT.On())
+			pbWT.Reset(-1);
+	}
 }
 
 
@@ -97,18 +97,14 @@ void ToneBase::Stop()
 
 void ToneBase::Tick()
 {
-	FrqValue phs = 0;
+	FrqValue phs = pwFrq;
 	if (lfoGen.On())
-		//osc->PhaseModWT(lfoGen.Gen() * synthParams.frqTI);
-		phs = lfoGen.Gen();
+		phs += lfoGen.Gen();
 	if (pbOn)
-		//osc->PhaseModWT(pbGen.Gen() * synthParams.frqTI);
 		phs += pbGen.Gen();
 	if (pbWT.On())
-		//osc->PhaseModWT(pbWT.Gen() * synthParams.frqTI);
 		phs += pbWT.Gen();
-	if (phsOn)
-		osc->PhaseModWT(phs * synthParams.frqTI);
+	osc->PhaseModWT(phs * synthParams.frqTI);
 	im->Output(chnl, vol * env.Gen() * osc->Gen());
 }
 
@@ -236,7 +232,7 @@ int ToneBase::SetParams(VarParamEvent *params)
 {
 	int err = 0;
 
-	FrqValue frq = params->frq;
+	frq = params->frq;
 	chnl = params->chnl;
 	vol  = params->vol;
 	osc->SetFrequency(frq);
@@ -426,12 +422,12 @@ static InstrParamMap toneParams[] =
 
 bsInt16 ToneInstr::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
 }
 
 const char *ToneInstr::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, toneParams, sizeof(toneParams)/sizeof(InstrParamMap));
 }
 
 

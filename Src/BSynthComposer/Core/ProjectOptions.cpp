@@ -2,7 +2,7 @@
 // BasicSynth - Base class for project items.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -68,9 +68,9 @@ static int xtoi(const char *p)
 #include <Mmsystem.h>
 #include <Mmreg.h>
 
-static BOOL CALLBACK FindWaveDevice(LPGUID lpGUID, 
+static BOOL CALLBACK FindWaveDevice(LPGUID lpGUID,
              LPCTSTR lpszDesc,
-             LPCTSTR lpszDrvName, 
+             LPCTSTR lpszDrvName,
              LPVOID lpContext)
 {
 	if (strcmp(lpszDesc, prjOptions.waveDevice) == 0)
@@ -232,6 +232,7 @@ void ProjectOptions::Load()
 		rk.QueryValue("Maximize", frmMax);
 		rk.Close();
 	}
+#ifdef SHGFP_TYPE_CURRENT
 	else
 	{
 		HRESULT hr;
@@ -239,6 +240,7 @@ void ProjectOptions::Load()
 		if (hr != S_OK)
 			hr = SHGetFolderPathAndSubDir(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, programName, defPrjDir);
 	}
+#endif
 	if (defPrjDir[0] == 0)
 	{
 		strncpy(defPrjDir, curdir, MAX_PATH);
@@ -272,7 +274,9 @@ void ProjectOptions::Load()
 
 void ProjectOptions::Save()
 {
-	char *bsKey = "Software\\BasicSynth";
+	bsString bsKey;
+	bsKey = "Software\\";
+	bsKey += programName;
 	RegKey rk;
 	if (!rk.Open(HKEY_CURRENT_USER, bsKey))
 		rk.Create(HKEY_CURRENT_USER, bsKey);
@@ -311,7 +315,7 @@ static int GetMIDIDevice(const char *name)
 	if (*name == 0)
 		return -1;
 #ifdef _WIN32
-	UINT ndev = midiInGetNumDevs(); 
+	UINT ndev = midiInGetNumDevs();
 	for (UINT n = 0; n < ndev; n++)
 	{
 		MIDIINCAPS caps;
@@ -417,7 +421,7 @@ void ProjectOptions::Load()
 		strcat(installDir, "basicsynth");
 
 		strcpy(defAuthor, "Me");
-		strcpy(defCopyright, "2009");
+		strcpy(defCopyright, "2010");
 		strcpy(defLibDir, installDir);
 		strcat(defLibDir, "/libs");
 		strcpy(defWaveIn, installDir);

@@ -16,9 +16,9 @@ extern int SelectSoundBankPreset(SFPlayerInstr *instr);
 
 SoundBankItem::~SoundBankItem()
 {
-	if (name.Length() > 0)
+	if (fullPath.Length() > 0)
 	{
-		SoundBank *bnk = SoundBank::SoundBankList.FindBank(name);
+		SoundBank *bnk = SoundBank::SoundBankList.FindBankFile(fullPath);
 		if (bnk)
 			bnk->Unlock();
 	}
@@ -29,25 +29,31 @@ int SoundBankItem::LoadFile()
 	if (loaded)
 		return 0;
 
-	SoundBank *bnk = 0;
-	if (SFFile::IsSF2File(fullPath))
+	SoundBank *bnk = SoundBank::FindBankFile(fullPath);
+	if (bnk == NULL)
 	{
-		SFFile sndfile;
-		bnk = sndfile.LoadSoundBank(fullPath, preload, normalize);
+		if (SFFile::IsSF2File(fullPath))
+		{
+			SFFile sndfile;
+			bnk = sndfile.LoadSoundBank(fullPath, preload);
+		}
+		else if (DLSFile::IsDLSFile(fullPath))
+		{
+			DLSFile dls;
+			bnk = dls.LoadSoundBank(fullPath, preload);
+		}
+		// TODO: 
+		// Add type for loading individual wave files into a SoundBank object
+		if (bnk)
+		{
+			bnk->name = name;
+			SoundBank::SoundBankList.Insert(bnk);
+		}
 	}
-	else if (DLSFile::IsDLSFile(fullPath))
-	{
-		DLSFile dls;
-		bnk = dls.LoadSoundBank(fullPath, preload, normalize);
-	}
-	// TODO: 
-	// Add type for loading individual wave files into a SoundBank object
 	if (bnk)
 	{
 		loaded = 1;
-		bnk->name = name;
 		bnk->Lock();
-		SoundBank::SoundBankList.Insert(bnk);
 	}
 	else
 	{

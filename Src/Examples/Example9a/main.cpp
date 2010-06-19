@@ -24,12 +24,11 @@
 #include <SFFile.h>
 #include <DLSFile.h>
 #include <SMFFile.h>
-#include <MIDIControl.h>
 #include <GMPlayer.h>
 
-extern char *midiCCName[128];
-extern char *midiMsgName[8];
-extern char *midiSysName[16];
+extern const char *midiCCName[128];
+extern const char *midiMsgName[8];
+extern const char *midiSysName[16];
 
 void useage()
 {
@@ -62,7 +61,6 @@ int main(int argc, char *argv[])
 	bsString wavFile;
 	AmpValue vol = 2.0;
 
-	MIDIControl mc;
 	WaveFile wvf;
 	Sequencer seq;
 	Mixer mix;
@@ -104,9 +102,9 @@ int main(int argc, char *argv[])
 
 	SoundBank *sb = 0;
 	if (SFFile::IsSF2File(sbFile))
-		sb = sf.LoadSoundBank(sbFile, 0, 0.375);
+		sb = sf.LoadSoundBank(sbFile, 0);
 	else if (DLSFile::IsDLSFile(sbFile))
-		sb = dls.LoadSoundBank(sbFile, 0, 1.0);
+		sb = dls.LoadSoundBank(sbFile, 0);
 	if (!sb)
 	{
 		fprintf(stderr, "Failed to load soundbank %s\n", (const char *)sbFile);
@@ -116,9 +114,9 @@ int main(int argc, char *argv[])
 
 	if (verbose)
 	{
-		printf("Soundbank:\n%s\nVersion %d.%d.%d.%d\n%s\n\n", (const char*)sb->info.szName, 
-			sb->info.wMajorFile, sb->info.wMinorFile, 
-			sb->info.wMajorVer, sb->info.wMinorVer, 
+		printf("Soundbank:\n%s\nVersion %d.%d.%d.%d\n%s\n\n", (const char*)sb->info.szName,
+			sb->info.wMajorFile, sb->info.wMinorFile,
+			sb->info.wMajorVer, sb->info.wMinorVer,
 			(const char*)sb->info.szCopyright);
 	}
 
@@ -144,8 +142,9 @@ int main(int argc, char *argv[])
 			MIDIEvent *evt = 0;
 			while ((evt = trk->Enum(evt)) != 0)
 			{
-				char *evtName;
-				if ((evt->mevent & 0xf0) == 0xf0)
+				const char *evtName;
+				short mm = evt->mevent & 0xf0;
+				if (mm == 0xf0)
 				{
 					evtName = midiSysName[evt->mevent & 0x0f];
 					if (evt->mevent == MIDI_SYSEX)
@@ -154,9 +153,9 @@ int main(int argc, char *argv[])
 						evtName = fmtbuf;
 					}
 				}
-				else if (evt->mevent == MIDI_CTLCHG)
+				else if (mm == MIDI_CTLCHG)
 					evtName = midiCCName[evt->val1];
-				else if (evt->mevent == MIDI_NOTEON && evt->val2 == 0)
+				else if (mm == MIDI_NOTEON && evt->val2 == 0)
 					evtName = "NOTE ON-OFF";
 				else
 				{
@@ -167,8 +166,8 @@ int main(int argc, char *argv[])
 						evtName = fmtbuf;
 					}
 				}
-				printf("%08d %02x %02d %-3d %-3d = %s\n", 
-					evt->deltat, evt->mevent, evt->chan, 
+				printf("%08d %02x %02d %-3d %-3d = %s\n",
+					evt->deltat, evt->mevent, evt->chan,
 					evt->val1, evt->val2, evtName);
 			}
 		}
@@ -182,15 +181,13 @@ int main(int argc, char *argv[])
 
 	// Add GMManager type to instrument manager
 	InstrMapEntry *ime = inmgr.AddType("GMPlayer",
-		GMManager::InstrFactory,
-		GMManager::EventFactory,
-		GMManager::TmpltFactory);
-	ime->dumpTmplt = GMManager::TmpltDump;
+		GMPlayer::InstrFactory,
+		GMPlayer::EventFactory,
+		NULL);
 
 	// Create the template instrument
-	GMManager *instr = new GMManager;
-	instr->SetMidiControl(&mc);
-	instr->SetSoundFile(sb->name);
+	GMPlayer *instr = new GMPlayer;
+	//instr->SetSoundFile(sb->name);
 	instr->SetSoundBank(sb);
 
 	// Add it as template to the available instrument list.
@@ -199,13 +196,10 @@ int main(int argc, char *argv[])
 	{
 		map[i].inc = inc;
 		// The bank and patch params can be used to send
-		// the preset number to the instrument in the START event. 
-		//map[i].bnkParam = ??;
-		//map[i].preParam = ??;
-		map[i].bnkParam = -1;
-		map[i].preParam = -1;
+		// the preset number to the instrument in the START event.
+		map[i].bnkParam = 17;
+		map[i].preParam = 18;
 	}
-	mc.channel[9].bank = 128; // channel 10 is always drum bank
 
 	smf.GenerateSeq(&seq, &map[0], sb);
 	nchnls = smf.GetChannelMap(chnls);
@@ -227,7 +221,6 @@ int main(int argc, char *argv[])
 	// run the sequencer
 	wvf.OpenWaveFile(wavFile, 2);
 	inmgr.Init(&mix, &wvf);
-	seq.SetController(&mc);
 	seq.SetCB(GenCallback, synthParams.isampleRate, 0);
 	genTime = 0;
 	time(&clkTime);
@@ -237,7 +230,7 @@ int main(int argc, char *argv[])
 	if (verbose)
 	{
 		long clkTimeDiff = (long) (time(0) - clkTime);
-		printf("\n%02d:%02d in %02ld:%02ld %d%%\n", 
+		printf("\n%02d:%02d in %02ld:%02ld %d%%\n",
 			genTime / 60, genTime % 60, clkTimeDiff / 60, clkTimeDiff % 60,
 			(clkTimeDiff * 100) / genTime);
 	}

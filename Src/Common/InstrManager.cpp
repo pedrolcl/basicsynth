@@ -15,13 +15,17 @@
 #include <math.h>
 #include <SynthDefs.h>
 #include <SynthString.h>
+#include <SynthMutex.h>
 #include <WaveTable.h>
 #include <WaveFile.h>
 #include <Mixer.h>
 #include <SynthList.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
+#include <Sequencer.h>
 
 // Load an instrument library from the file "fname"
 // The file must be an XML file with a document node of "instrlib"
@@ -200,3 +204,87 @@ int InstrManager::LoadWavetable(XmlSynthElem *wvnode)
 
 	return 0;
 }
+
+void InstrManager::ControlChange(int chnl, int ctl, int val)
+{
+	switch (ctl)
+	{
+	case MIDI_CTRL_VOL:
+		if (mix)
+			mix->ChannelVolume(chnl, AmpValue(val) / 127.0);
+		break;
+	case MIDI_CTRL_PAN:
+		if (mix)
+		{
+			AmpValue pan = AmpValue(val - 64) / 64.0;
+			mix->ChannelPan(chnl, panTrig, pan);
+		}
+		break;
+	case MIDI_CTRL_FX1DPTH:
+	case MIDI_CTRL_FX2DPTH:
+	case MIDI_CTRL_FX3DPTH:
+	case MIDI_CTRL_FX4DPTH:
+	case MIDI_CTRL_FX5DPTH:
+		if (mix)
+		{
+			AmpValue lvl = AmpValue(val) / 127.0;
+			mix->FxLevel(ctl - MIDI_CTRL_FX1DPTH, chnl, lvl);
+		}
+		break;
+	}
+	if (seq)
+	{
+		ControlEvent e;
+		e.type = SEQEVT_CONTROL;
+		e.mmsg = MIDI_CTLCHG|chnl;
+		e.chnl = chnl;
+		e.ctrl = ctl;
+		e.cval = val;
+		seq->Broadcast(&e);
+	}
+}
+
+void InstrManager::PitchbendChange(int chnl, int v1, int v2)
+{
+	if (seq)
+	{
+		ControlEvent e;
+		e.type = SEQEVT_CONTROL;
+		e.mmsg = MIDI_PWCHG|chnl;
+		e.chnl = chnl;
+		e.ctrl = v1;
+		e.cval = v2;
+		seq->Broadcast(&e);
+	}
+}
+
+void InstrManager::AftertouchChange(int chnl, int val)
+{
+	if (seq)
+	{
+		ControlEvent e;
+		e.type = SEQEVT_CONTROL;
+		e.mmsg = MIDI_CHNAT|chnl;
+		e.chnl = chnl;
+		e.ctrl = val;
+		e.cval = 0;
+		seq->Broadcast(&e);
+	}
+}
+
+void InstrManager::ExclNoteOn(int index, Instrument *ip)
+{
+	index &= 0xff;
+	Instrument *old = exclNotes[index];
+	if (old)
+		old->Cancel();
+	exclNotes[index] = ip;
+}
+
+void InstrManager::ExclNoteOff(int index, Instrument *ip)
+{
+	index &= 0xff;
+	if (exclNotes[index] == ip)
+		exclNotes[index] = 0;
+}
+

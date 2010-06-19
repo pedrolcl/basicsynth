@@ -2,9 +2,7 @@
     GMSynthDLL - plug-in synthesis modulue
 ========================================================================
 
-NOTE: THIS IS UNTESTED CODE, FOR DEMONSTRATION AND EXPERIMENTATION
-
-GMSynth is an prototype for a DLL containing a complete MIDI-based synth module.
+GMSynth is a shared library (DLL) containing a complete MIDI-based synth module.
 The DLL has a C++ wrapper, but can also be invoked through a function call 
 interface from various programming languages, such as C, VB and C#.
 
@@ -12,33 +10,33 @@ See the API in GMSynthDLL.h for the function call list and C++ wrapper class.
 
 Typical use to play a MIDI SMF file would be something like...
 
-	HANDLE synth = GMSynthInit(mainWindow, 44100);
-	GMSynthLoadSoundBank(synth, "Sounds.sf2", 1, "Sounds");
-	GMSynthLoadSequence(synth, "Song.mid", "Sounds");
-	GMSynthGenerate(synth, "Song.wav");
+	GMSynthOpen(mainWindow, 44100);
+	GMSynthLoadSoundBank("Sounds.sf2", 1, "Sounds");
+	GMSynthLoadSequence("Song.mid", "Sounds", 0xffff);
+	GMSynthGenerate("Song.wav");
 	<< Wait for file complete - see below >>
 	GMSynthClose(synth);
 
 Typical use for live playing from a keyboard:
 
-	HANDLE synth = = 0;
-
 	StartSynth() {
-		synth = GMSynthInit(mainWindow, 44100);
-		GMSynthLoadSoundBank(synth, "Sounds.sf2", 1, "Sounds");
-		GMSynthMIDIKbdIn(synth, TRUE, device);
-		GMSynthStart(synth);
+		GMSynthOpen(mainWindow, 44100);
+		GMSynthLoadSoundBank("Sounds.sf2", 1, "Sounds");
+		GMSynthMIDIKbdIn(TRUE, deviceIn);
+		GMSynthStart(GMSYNTH_MODE_SEQUENCE, deviceOut);
 	}
 
 	StopSynth() {
-		GMSynthStop(synth);
-		GMSynthClose(synth);
+		GMSynthStop();
+		GMSynthClose();
 	}
 
-The first argument to GMSynthInit is used to set up the sound
+The first argument to GMSynthOpen is used to set up the sound
 output device. On Windows, this is a window handle to pass to
 the DirectSound functions and is usually the main application window.
-On Linux, this is the ALSA device name (e.g., "hw:0").
+On Linux, this is not used. The device argument on GMSynthStart is
+the platform specific device id. On Windows, this is a GUID, or NULL.
+On Linux, it is the ALSA device name (e.g., "hw:0").
 
 Sound generation is performed on a background thread.
 A callback function is used to receive various events. 
@@ -47,9 +45,9 @@ A callback function is used to receive various events.
 		<< send message to main thread >>
 	}
 
-	GMSynthSetCallback(synth, SynthEvent, samples, arg);
+	GMSynthSetCallback(SynthEvent, ms, arg);
 
-If 'samples' is non-zero, the callback is invoked every 'samples'
+If 'ms' is non-zero, the callback is invoked every ms milliseconds
 of output. This can be used to display the current time or to
 synchronize screen updates with the sound playback.
 

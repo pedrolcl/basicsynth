@@ -2,7 +2,7 @@
 // BasicSynth - Simple tone Synthesis instrument editor
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ void SoundBankEdit::ValueChanged(SynthWidget *wdg)
 // Not currently used...
 void SoundBankEdit::ListPitches(float bnum, float pnum)
 {
-	static char *pitltr[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
+	static const char *pitltr[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "Bb", "B" };
 	bsInt16 lo = 127;
 	bsInt16 hi = 0;
 
@@ -134,7 +134,7 @@ void SoundBankEdit::ListPitches(float bnum, float pnum)
 
 ///////////////// GM /////////////////////////////
 
-extern int SelectSoundBankPreset(GMManager *gm);
+extern int SelectSoundBankPreset(GMPlayer *gm);
 
 
 GMPlayerEdit::GMPlayerEdit()
@@ -149,7 +149,7 @@ GMPlayerEdit::~GMPlayerEdit()
 void GMPlayerEdit::SetInstrument(InstrConfig *ip)
 {
 	SynthEdit::SetInstrument(ip);
-	gm = (GMManager*)tone;
+	gm = (GMPlayer*)tone;
 }
 
 void GMPlayerEdit::GetParams()
@@ -179,7 +179,7 @@ void GMPlayerEdit::ValueChanged(SynthWidget *wdg)
 		gm->SetSoundFile(wdg->GetText());
 		theProject->SetChange(1);
 	}
-	else if (id == 15)
+	else if (id == 16)
 	{
 		if (SelectSoundBankPreset(gm))
 		{
@@ -190,17 +190,17 @@ void GMPlayerEdit::ValueChanged(SynthWidget *wdg)
 				wdg->SetText(gm->GetSoundFile());
 				Redraw(wdg);
 			}
-			wdg = mainGroup->FindIP(19);
+			wdg = mainGroup->FindIP(GMPLAYER_BANK);
 			if (wdg)
 			{
-				gm->GetParam(19, &val);
+				gm->GetParam(GMPLAYER_BANK, &val);
 				wdg->SetValue(val);
 				Redraw(wdg);
 			}
-			wdg = mainGroup->FindIP(20);
+			wdg = mainGroup->FindIP(GMPLAYER_PROG);
 			if (wdg)
 			{
-				gm->GetParam(20, &val);
+				gm->GetParam(GMPLAYER_PROG, &val);
 				wdg->SetValue(val);
 				Redraw(wdg);
 			}

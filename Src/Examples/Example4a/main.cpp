@@ -22,6 +22,7 @@
 #include "WaveFile.h"
 #include "EnvGenSeg.h"
 #include "GenWaveWT.h"
+#include "Filter.h"
 #include "Mixer.h"
 #include "SFFile.h"
 #include "DLSFile.h"
@@ -31,7 +32,7 @@
 #define snprintf _snprintf
 #endif
 
-char *opNames[] = 
+const char *opNames[] =
 {
 "0 startAddrsOffset",
 "1 endAddrsOffset",
@@ -96,9 +97,113 @@ char *opNames[] =
 "60 endOper"
 };
 
+const char *dstNames[] =
+{
+	"None",
+	"Pitch",
+	"Volume",
+	"Filter",
+	"Filt. Q",
+	"Pan",
+	"Chorus",
+	"Reverb",
+	"VibLFO-Pitch",
+	"ModLFO-Pitch",
+	"ModLFO-Volume",
+	"ModLFO-Filter",
+	"ModEnv-Pitch",
+	"ModEnv-Filter",
+	"VibLFO Rate",
+	"VibLFO Delay",
+	"ModLFO Rate",
+	"ModLFO Delay",
+	"EG1 Dly.",
+	"EG1 Atk.",
+	"EG1 Hold",
+	"EG1 Dec.",
+	"EG1 Sus.",
+	"EG1 Rel.",
+	"EG1 Key-Hold",
+	"EG1 Key-Dec.",
+	"EG1 Vel-Atk.",
+	"EG1 Shutdown",
+	"EG2 Dly.",
+	"EG2 Atk.",
+	"EG2 Hold",
+	"EG2 Dec.",
+	"EG2 Sus.",
+	"EG2 Rel.",
+	"EG2 Key-Hold",
+	"EG2 Key-Dec.",
+	"EG2 Vel-Atk.",
+	"Key Number",
+	"Velocity",
+	"Pitch Wheel",
+	"Channel Pressure",
+	"Key Pressure",
+	"Pitch Wheel Range",
+	"VibLFO",
+	"ModLFO",
+	"VolEG",
+	"Modeg"
+};
+
+static const char *SBDstName(short ndx)
+{
+	if (ndx >= 0 && ndx < SBGEN_SIZE)
+		return dstNames[ndx];
+	return "(dst)";
+}
+
+static char srcCC[40];
+static const char *SBSrcName(short ndx)
+{
+	if (ndx & SBGEN_CHCTL)
+	{
+		snprintf(srcCC, 40, "CC #%d", ndx & 0x7f);
+		return srcCC;
+	}
+
+	switch (ndx)
+	{
+	// internal unit generators
+	case SBGEN_NONE:
+		return "None";
+	case SBGEN_LFO1:
+		return "VibLFO";
+	case SBGEN_LFO2:
+		return "ModLFO";
+	case SBGEN_EG1:
+		return "VolEG";
+	case SBGEN_EG2:
+		return "ModEG";
+
+	// MIDI Channel voice message source
+	case SBGEN_KEYN:
+		return "Note-on Key";
+	case SBGEN_VELN:
+		return "Note-on Velocity";
+	case SBGEN_CHNLAT:
+		return "Channel pressure";
+	case SBGEN_PKEYAT:
+		return "Key pressure";
+	case SBGEN_PITCHWHL:
+		return "Pitch Wheel";
+
+	case SBGEN_RPN0:
+		return "Pit. Whl. Sens.";
+	}
+	return "Other";
+}
+
 static char opUndef[80];
 static const char *OpName(short ndx)
 {
+	if (ndx & 0x80)
+	{
+		snprintf(opUndef, 80, "CC #%d", ndx & 0x7f);
+		return opUndef;
+	}
 	if (ndx < 0 || ndx > 60)
 	{
 		snprintf(opUndef, 80, "%d undefined", ndx);
@@ -110,7 +215,7 @@ static const char *OpName(short ndx)
 static char modUndef[80];
 static const char *ModName(short ndx)
 {
-	if (ndx & 0x80) 
+	if (ndx & 0x80)
 	{
 		snprintf(modUndef, 80, "CC# %d", ndx & 0x7f);
 		return modUndef;
@@ -120,7 +225,7 @@ static const char *ModName(short ndx)
 		switch (ndx & 0x7f)
 		{
 		case 0:
-			return "No Controller";
+			return "None";
 		case 2:
 			return "Note-on velocity";
 		case 3:
@@ -139,6 +244,20 @@ static const char *ModName(short ndx)
 	}
 	snprintf(modUndef, 80, "Mod %04x", ndx);
 	return modUndef;
+}
+
+static char ctlUndef[80];
+static const char *CtlName(short ndx)
+{
+	if (ndx == 0)
+		return "None";
+
+	if (ndx & 0x80)
+	{
+		snprintf(ctlUndef, 80, "CC# %d", ndx & 0x7f);
+		return ctlUndef;
+	}
+	return ModName(ndx);
 }
 
 char opAmntBuf[40];
@@ -164,58 +283,111 @@ FrqValue FrqCents(FrqValue pc)
 
 void Dump(SBZone *zp)
 {
-	printf("  Zone %s\n", (const char *)zp->name);
-	printf("   Range: {%d,%d} {%d,%d} ex:%d\n", zp->lowKey, zp->highKey, zp->lowVel, zp->highVel, zp->exclNote);
-	printf("   Vol EG: A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f V=%6.3f\n",
-		zp->volEg.attack, zp->volEg.hold, zp->volEg.decay, 
-		zp->volEg.sustain, zp->volEg.release, zp->volAtten);
-	printf("         : A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f V=%6.3f\n",
+	printf("  Zone[%d] %s\n", zp->zoneNdx, (const char *)zp->name);
+	printf("   Range: key={%d,%d} vel={%d,%d} ex:%d\n",
+		zp->lowKey, zp->highKey, zp->lowVel, zp->highVel, zp->exclNote);
+	printf("   Tune: coarse=%d fine=%d key=%d vel=%d scale=%d\n",
+		zp->coarseTune, zp->fineTune, zp->fixedKey, zp->fixedVel, zp->scaleTune);
+	printf("   Vol EG: Dly=%6.3f Atk=%6.3f Hld=%6.3f Dec=%6.3f Sus=%6.3f Rel=%6.3f Vol=%6.3f\n",
+		zp->volEg.delay, zp->volEg.attack,
+		zp->volEg.hold, zp->volEg.decay,
+		zp->volEg.sustain, zp->volEg.release,
+		zp->initAtten);
+	float susval = zp->volEg.sustain;
+	if (zp->genFlags & SBGEN_SF2)
+	{
+		if (susval < 960)
+			susval = (960.0 - susval) / 960;
+		else
+			susval = 0;
+	}
+	else
+		susval *= 0.001;
+	printf("         : Dly=%6.3f Atk=%6.3f Hld=%6.3f Dec=%6.3f Sus=%6.3f Rel=%6.3f Vol=%6.3f\n",
+		SoundBank::EnvRate(zp->volEg.delay),
 		SoundBank::EnvRate(zp->volEg.attack),
 		SoundBank::EnvRate(zp->volEg.hold),
-		SoundBank::EnvRate(zp->volEg.decay), 
-		zp->volEg.sustain, 
+		SoundBank::EnvRate(zp->volEg.decay),
+		susval,
 		SoundBank::EnvRate(zp->volEg.release),
-		SoundBank::Attenuation(zp->volAtten));
-	printf("   Mod EG: A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f F=%6.3f\n",
-		zp->modEg.attack, zp->modEg.hold, zp->modEg.decay, 
-		zp->modEg.sustain, zp->modEg.release, zp->modEnvFrq);
-	printf("         : A=%6.3f H=%6.3f D=%6.3f S=%6.3f R=%6.3f\n",
+		SoundBank::Attenuation(zp->initAtten));
+	printf("   Mod EG: Dly=%6.3f Atk=%6.3f Hld=%6.3f Dec=%6.3f Sus=%6.3f Rel=%6.3f\n",
+		zp->modEg.delay, zp->modEg.attack,
+		zp->modEg.hold, zp->modEg.decay,
+		zp->modEg.sustain, zp->modEg.release);
+	printf("         : Dly=%6.3f Atk=%6.3f Hld=%6.3f Dec=%6.3f Sus=%6.3f Rel=%6.3f\n",
+		SoundBank::EnvRate(zp->modEg.delay),
 		SoundBank::EnvRate(zp->modEg.attack),
 		SoundBank::EnvRate(zp->modEg.hold),
-		SoundBank::EnvRate(zp->modEg.decay), 
-		zp->modEg.sustain, 
+		SoundBank::EnvRate(zp->modEg.decay),
+		zp->modEg.sustain * 0.001,
 		SoundBank::EnvRate(zp->modEg.release));
-	printf("   Vib LFO: F=%6.3f D=%6.3f F=%6.3f\n", zp->vibLfo.rate, zp->vibLfo.delay, zp->vibLfoFrq);
-	printf("   Mod LFO: F=%6.3f D=%6.3f F=%6.3f A=%6.3f\n", zp->modLfo.rate, zp->modLfo.delay, zp->modLfoFrq, zp->modLfoVol);
-	printf("   Sample sr=%5.1f rf=%5.3f chan=%d key=%d cents=%d loop{%d,%d}, end=%d pan=%1.3f mode=%d\n",
+	printf("         : ToPitch=%6.3f ToFilter=%6.3f\n", zp->modEnvFrq, zp->modEnvFlt);
+	printf("   Vib LFO: Frq=%6.3f (%6.3fHz) Dly=%6.3f (%6.3fsec) ToPitch=%6.3f\n",
+		zp->vibLfo.rate, SoundBank::Frequency(zp->vibLfo.rate),
+		zp->vibLfo.delay, SoundBank::EnvRate(zp->vibLfo.delay),
+		zp->vibLfoFrq);
+	printf("   Mod LFO: Frq=%6.3f (%6.3fHz) Dly=%6.3f (%6.3fsec) ToPitch=%6.3f ToFilter=%6.3f ToVol=%6.3f\n",
+		zp->modLfo.rate, SoundBank::Frequency(zp->modLfo.rate),
+		zp->modLfo.delay, SoundBank::EnvRate(zp->modLfo.delay),
+		zp->modLfoFrq, zp->modLfoFlt, zp->modLfoVol);
+	printf("   Pan: %6.3f\n", zp->pan);
+	printf("   Filter: Fc=%6.3f (%6.3f Hz) Q=%6.3f\n",
+		zp->filtFreq, SoundBank::Frequency(zp->filtFreq), zp->filtQ);
+	printf("   Sample: sr=%5.1f rf=%5.3f chan=%d key=%d cents=%d table{%d,%d} loop{%d,%d} mode=%d\n",
 		zp->rate, zp->recFreq, zp->chan, zp->keyNum, zp->cents,
-		zp->loopStart, zp->loopEnd, zp->tableEnd, zp->pan, zp->mode);
+		zp->tableStart, zp->tableEnd, zp->loopStart, zp->loopEnd, zp->mode);
 	SBModInfo *mi = 0;
-	while ((mi = zp->EnumModInfo(mi)) != 0)
+/*	while ((mi = zp->EnumIniInfo(mi)) != 0)
 	{
-		printf("   Mod: src=%s dst=%s trn=%d sa=%d val=%d\n", 
-			ModName(mi->srcOp), OpName(mi->dstOp),
-			mi->transOp, mi->srcAmntOp, mi->value);
+		printf("   Ini: src=%s dst=%s ctl=%s val=%f trn=%d \n",
+			SBSrcName(mi->srcOp), SBDstName(mi->dstOp),
+			SBSrcName(mi->ctlOp), mi->scale, mi->trnOp);
 	}
-	printf("   data 0x%08x %d\n", zp->sample, zp->sampleLen);
+*/	while ((mi = zp->EnumModInfo(mi)) != 0)
+	{
+		printf("   Mod: src=%s dst=%s ctl=%s val=%f trn=%d \n",
+			SBSrcName(mi->srcOp), SBDstName(mi->dstOp),
+			SBSrcName(mi->ctlOp), mi->scale, mi->trnOp);
+	}
+	printf("   data addr=0x%08x length=%d\n", zp->sample, zp->sample->sampleLen);
+}
+
+void Dump(SBZoneGroup *grp)
+{
+	printf("  Group %d: key={%d,%d} vel={%d,%d}\n", grp->index,
+		grp->lowKey, grp->highKey, grp->lowVel, grp->highVel);
+//	int key = grp->lowKey;
+//	while (key < grp->highKey)
+//	{
+//		SBZoneRef *ref = grp->map[key];
+//		while (ref)
+//		{
+//			printf("  key %d: Zone[%d] %s\n", key, ref->zone->zoneNdx, (const char *)ref->zone->name);
+//			ref = ref->next;
+//		}
+//		key++;
+//	}
 }
 
 void Dump(SBInstr *ip)
 {
 	printf(" Instrument '%s' bank=%d prog=%d\n", (const char*)ip->instrName, ip->bank, ip->prog);
-	printf("       fixK=%d fixV=%d\n", ip->fixedKey, ip->fixedVel);
 	SBModInfo *mi = 0;
 	while ((mi = ip->EnumModInfo(mi)) != 0)
 	{
-		printf("  Mod: src=%s dst=%s trn=%d sa=%d val=%d\n", 
-			ModName(mi->srcOp), OpName(mi->dstOp),
-			mi->transOp, mi->srcAmntOp, mi->value);
+		printf("   Mod: src=%s dst=%s ctl=%s val=%6.3f trn=%d \n",
+			SBSrcName(mi->srcOp), SBDstName(mi->dstOp),
+			SBSrcName(mi->ctlOp), mi->scale, mi->trnOp);
 	}
+	SBZoneGroup *grp = 0;
+	while ((grp = ip->EnumGroups(grp)) != 0)
+		Dump(grp);
 	SBZone *z = 0;
 	while ((z = ip->EnumZones(z)) != 0)
 		Dump(z);
-
 }
+
 
 void Dump(SoundBank *sb)
 {
@@ -223,7 +395,7 @@ void Dump(SoundBank *sb)
 	printf("Copy '%s'\n", (const char *)sb->info.szCopyright);
 	printf("Cmnt '%s'\n", (const char *)sb->info.szComment);
 	printf("Date '%s'\n", (const char *)sb->info.szDate);
-	printf("Vers %d.%d %d.%d\n", 
+	printf("Vers %d.%d %d.%d\n",
 		sb->info.wMajorFile, sb->info.wMinorFile,
 		sb->info.wMajorVer, sb->info.wMinorVer);
 
@@ -285,17 +457,18 @@ void Dump(SFFile *sf)
 			printf(" PBAG %d: GEN = %d:%d MOD = %d:%d\n", bagNdx1, genNdx1, genNdx2, modNdx1, modNdx2);
 			while (modNdx1 < modNdx2)
 			{
-				printf("  PMOD %d: srcOp[%d] = %s dstOp[%d] = %s amnt = %d\n", modNdx1, 
-					sf->pmod[modNdx1].sfModSrcOper, ModName(sf->pmod[modNdx1].sfModSrcOper), 
+				printf("  PMOD %d: srcOp[%02x]='%s' ctlOp[%02x]='%s' dstOp[%02x]='%s' amnt = %d\n", modNdx1,
+					sf->pmod[modNdx1].sfModSrcOper, ModName(sf->pmod[modNdx1].sfModSrcOper),
+					sf->pmod[modNdx1].sfModAmtSrcOper, CtlName(sf->pmod[modNdx1].sfModAmtSrcOper),
 					sf->pmod[modNdx1].sfModDestOper, OpName(sf->pmod[modNdx1].sfModDestOper),
 					(int)sf->pmod[modNdx1].modAmount);
 				modNdx1++;
 			}
 			while (genNdx1 < genNdx2)
 			{
-				printf("  PGEN %d: genOp[%d] = %s amnt = %d\n", genNdx1, 
+				printf("  PGEN %d: genOp[%d] = %s amnt = %s\n", genNdx1,
 					sf->pgen[genNdx1].sfGenOper, OpName(sf->pgen[genNdx1].sfGenOper),
-					sf->pgen[genNdx1].genAmount.shAmount);
+					OpAmount(sf->pgen[genNdx1]));
 				if (sf->pgen[genNdx1].sfGenOper == sfgInstrument)
 				{
 					int nn = sf->pgen[genNdx1].genAmount.wAmount;
@@ -310,29 +483,31 @@ void Dump(SFFile *sf)
 						igenNdx2 = sf->ibag[ibagNdx1+1].wGenNdx;
 						imodNdx1 = sf->ibag[ibagNdx1].wModNdx;
 						imodNdx2 = sf->ibag[ibagNdx1+1].wModNdx;
-						printf("   IBAG %d: GEN = %d:%d MOD = %d:%d\n", ibagNdx1, igenNdx1, igenNdx2, imodNdx1, imodNdx2);
+						printf("   IBAG %d: GEN=%d:%d MOD=%d:%d\n", ibagNdx1, igenNdx1, igenNdx2, imodNdx1, imodNdx2);
 						while (imodNdx1 < imodNdx2)
 						{
-							printf("    IMOD %d: srcOp[%d] = %s dstOp[%d] = %s amnt = %d\n", imodNdx1, 
-								sf->imod[imodNdx1].sfModSrcOper, OpName(sf->imod[imodNdx1].sfModSrcOper),
+							printf("    IMOD %d: srcOp[%02x]='%s' ctlOp[%02x]='%s' dstOp[%02x]='%s' amnt=%d\n", imodNdx1,
+								sf->imod[imodNdx1].sfModSrcOper, ModName(sf->imod[imodNdx1].sfModSrcOper),
+								sf->imod[imodNdx1].sfModAmtSrcOper, CtlName(sf->imod[imodNdx1].sfModAmtSrcOper),
 								sf->imod[imodNdx1].sfModDestOper, OpName(sf->imod[imodNdx1].sfModDestOper),
 								sf->imod[imodNdx1].modAmount);
 							imodNdx1++;
 						}
 						while (igenNdx1 < igenNdx2)
 						{
-							printf("    IGEN %d: genOp[%d] = %s amnt = %s\n", igenNdx1, 
-								sf->igen[igenNdx1].sfGenOper, OpName(sf->igen[igenNdx1].sfGenOper), 
+							printf("    IGEN %d: genOp[%d]='%s' amnt=%s\n", igenNdx1,
+								sf->igen[igenNdx1].sfGenOper, OpName(sf->igen[igenNdx1].sfGenOper),
 								OpAmount(sf->igen[igenNdx1]));
 							if (sf->igen[igenNdx1].sfGenOper == 53) // sampleID)
 							{
 								int id = sf->igen[igenNdx1].genAmount.wAmount;
 								memcpy(nameTemp, sf->shdr[id].achSampleName, 20);
-								printf("     SAMP: %d %s st=%d end=%d ls=%d le=%d sr=%d k=%d ty=%d lnk=%d\n", 
+								printf("     SAMP: %d %s st=%d end=%d ls=%d le=%d sr=%d k=%d ch=%d ty=%d lnk=%d\n",
 									id, nameTemp,
-									sf->shdr[id].dwStart, sf->shdr[id].dwEnd, 
-									sf->shdr[id].dwStartloop, sf->shdr[id].dwEndloop, 
+									sf->shdr[id].dwStart, sf->shdr[id].dwEnd,
+									sf->shdr[id].dwStartloop, sf->shdr[id].dwEndloop,
 									sf->shdr[id].dwSampleRate, sf->shdr[id].byOriginalKey,
+									sf->shdr[id].chCorrection,
 									sf->shdr[id].sfSampleType, sf->shdr[id].wSampleLink);
 							}
 							igenNdx1++;
@@ -535,9 +710,9 @@ void Dump(DLSArtInfo *art)
 	for (bsUint32 n = 0; n < art->connections; n++)
 	{
 		dlsConnection *blk = &art->info[n];
-		printf("      blk(%d) ctl=%d src=%x dst=%x xf=%x scl=%d\n              ", n,
-			blk->control, blk->source, 
-			blk->destination, blk->transform, blk->scale);
+		printf("      blk(%d) ctl=%d src=%x dst=%x xf=%x scl=%d (%7.4f)\n              ", n,
+			blk->control, blk->source,
+			blk->destination, blk->transform, blk->scale, (float) blk->scale / 65536.0);
 		DLSSource(blk->source);
 		if (blk->control != 0)
 		{
@@ -551,20 +726,20 @@ void Dump(DLSArtInfo *art)
 
 void Dump(DLSRgnInfo *rgn)
 {
-	printf("    Region %c grp=%d opt=%d key={%d,%d} vel={%d,%d} ex=%d\n", 
+	printf("    Region %c grp=%d opt=%d key={%d,%d} vel={%d,%d} ex=%d\n",
 		rgn->rgn2 ? '2' : '1',
-		rgn->rgnh.keyGroup, rgn->rgnh.options, 
+		rgn->rgnh.keyGroup, rgn->rgnh.options,
 		rgn->rgnh.rangeKey.low, rgn->rgnh.rangeKey.high,
 		rgn->rgnh.rangeVel.low, rgn->rgnh.rangeVel.high,
 		rgn->rgnh.exclusive);
 
-	printf("           atn=%d (%f) ft=%d (%f) opt=%d loop=%d key=%d\n", 
+	printf("           atn=%d (%f) ft=%d (%f) opt=%d loop=%d key=%d\n",
 		rgn->wsmp.attenuation, pow(10.0, (double)rgn->wsmp.attenuation / (200.0 * 65536.0)),
 		rgn->wsmp.fineTune, pow(2.0, (double)rgn->wsmp.fineTune / 1200.0),
 		rgn->wsmp.options,	rgn->wsmp.sampleLoops, rgn->wsmp.unityNote);
 	printf("           loop len=%d sz=%d st=%d ty=%d\n",
 		rgn->loop.length, rgn->loop.size, rgn->loop.start, rgn->loop.type);
-	printf("           ch=%d opt=%d pg=%d ti=%d\n", 
+	printf("           ch=%d opt=%d pg=%d ti=%d\n",
 		rgn->wlnk.channel, rgn->wlnk.options, rgn->wlnk.phaseGroup, rgn->wlnk.tableIndex);
 
 	DLSArtInfo *art = 0;
@@ -576,7 +751,7 @@ void Dump(DLSInsInfo *in)
 {
 	printf("  Instr: bnk=%d prg=%d m/d=%d\n",
 		in->GetBank(), in->GetProg(), in->IsDrum());
-	printf("     ID %08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n", 
+	printf("     ID %08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		in->id.data1, in->id.data2, in->id.data3,
 		in->id.data4[0], in->id.data4[1], in->id.data4[2], in->id.data4[3],
 		in->id.data4[4], in->id.data4[5], in->id.data4[6], in->id.data4[7]);
@@ -602,7 +777,7 @@ void Dump(DLSWaveInfo *wvi)
 	while ((is = wvi->info.EnumInfo(is)) != 0)
 		printf("      '%s'\n", (const char *)is->str);
 
-	printf("    ID %08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n", 
+	printf("    ID %08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		wvi->id.data1, wvi->id.data2, wvi->id.data3,
 		wvi->id.data4[0], wvi->id.data4[1], wvi->id.data4[2], wvi->id.data4[3],
 		wvi->id.data4[4], wvi->id.data4[5], wvi->id.data4[6], wvi->id.data4[7]);
@@ -614,7 +789,7 @@ void Dump(DLSWaveInfo *wvi)
 		wvi->wvfmt.bitsPerSamp,
 		wvi->wvfmt.blockAlign);
 
-	printf("    SAMP atn=%d (%f) ft=%d (%f) opt=%d loop=%d key=%d\n", 
+	printf("    SAMP atn=%d (%f) ft=%d (%f) opt=%d loop=%d key=%d\n",
 		wvi->wvsmp.attenuation, pow(10.0, (double)wvi->wvsmp.attenuation / (200.0 * 65536.0)),
 		wvi->wvsmp.fineTune, pow(2.0, (double)wvi->wvsmp.fineTune / 1200.0),
 		wvi->wvsmp.options,	wvi->wvsmp.sampleLoops, wvi->wvsmp.unityNote);
@@ -625,12 +800,12 @@ void Dump(DLSWaveInfo *wvi)
 void Dump(DLSFileInfo *dls)
 {
 	printf("DLS FILE: \n");
-	printf(" VER %d.%d.%d.%d\n", 
-		dls->vers.dwVersionMS >> 16, 
+	printf(" VER %d.%d.%d.%d\n",
+		dls->vers.dwVersionMS >> 16,
 		dls->vers.dwVersionMS & 0xffff,
 		dls->vers.dwVersionLS >> 16,
 		dls->vers.dwVersionLS & 0xffff);
-	printf(" DLID %08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n", 
+	printf(" DLID %08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n",
 		dls->id.data1, dls->id.data2, dls->id.data3,
 		dls->id.data4[0], dls->id.data4[1], dls->id.data4[2], dls->id.data4[3],
 		dls->id.data4[4], dls->id.data4[5], dls->id.data4[6], dls->id.data4[7]);
@@ -783,6 +958,8 @@ public:
 	}
 };
 
+float attenScale = 1.0;
+
 // simplified form of GMPlayer to dump samples
 class ZonePlayer
 {
@@ -791,24 +968,29 @@ private:
 	{
 	public:
 		SBZone *zone;
-		GenWaveWTLoop osc;
-		GenWaveWT  vib;
-		GenWaveWT  mod;
-		EnvGenSF   volEnv;  // volume envelope
-		EnvGenSF   modEnv;
-		Panner pan;
+		// Unit generators
+		GenWaveSB  osc;
+		GenWave32  vibLFO;
+		GenWave32  modLFO;
+		EnvGenSB   volEnv;
+		EnvGenSB   modEnv;
+		Panner     pan;
+		FilterIIR2p filt;
+		// summing nodes
+		FrqValue phsPC;
+		FrqValue fltPC;
+		AmpValue volCB;
+		bsInt16 filtOn;
 		bsInt32 vibDelay;
 		bsInt32 modDelay;
-		AmpValue vol;
 	};
 	SynthEnumList<ZonePlay> zoneList;
 	SBInstr *instr;
-	FrqValue frq;
 public:
 
 	ZonePlayer()
 	{
-		frq = 440;
+		instr = 0;
 	}
 
 	~ZonePlayer()
@@ -823,31 +1005,89 @@ public:
 
 	void Init(int pit, int vel, SBZone *zone)
 	{
-		frq = synthParams.GetFrequency(pit-12); 
 		ZonePlay *zp = zoneList.AddItem();
 		zp->zone = zone;
-		zp->osc.InitWTLoop(frq, zone->recFreq, zone->rate, 
-			zone->tableEnd, zone->loopStart, zone->loopEnd,
-			zone->mode, zone->sample->sample);
-		zp->volEnv.InitEnv(&zone->volEg, pit, vel);
-		zp->modEnv.InitEnv(&zone->modEg, pit, vel);
+
+		float smpl = 0;
+		if (zone->rate != synthParams.isampleRate)
+		{
+			double wsrCents = 1200.0 * SoundBank::log2((double)zone->rate/440.0);
+			double srCents = 1200.0 * SoundBank::log2((double)synthParams.sampleRate/440.0);
+			smpl = (float)(wsrCents - srCents);
+		}
+		FrqValue adjKey = (float)pit + zone->coarseTune - zone->keyNum;
+		FrqValue adjCents = zone->fineTune * 0.01;
+		zp->phsPC = (zone->scaleTune * (adjKey + adjCents)) - zone->cents + smpl;
+		zp->osc.InitSB(zone, SoundBank::GetPow2n1200(zp->phsPC));
+
+		zp->volCB = (zone->initAtten * attenScale) + SoundBank::posConcave[127-vel] * zone->velScale;
+
+		FrqValue km;
+		if (zone->genFlags & SBGEN_SF2)
+			km = FrqValue(60.0) - pit;
+		else //if (zone->genFlags & SBGEN_DLS)
+			km = (float)pit/128.0;
+
+		zp->volEnv.SetDelay(SoundBank::EnvRate(zone->volEg.delay));
+		zp->volEnv.SetAttack(SoundBank::EnvRate(zone->volEg.attack + ((float)vel/127.0) * zone->volEg.velAttack));
+		zp->volEnv.SetHold(SoundBank::EnvRate(zone->volEg.hold + (km * zone->volEg.keyHold)));
+		zp->volEnv.SetDecay(SoundBank::EnvRate(zone->volEg.decay + (km * zone->volEg.keyDecay)));
+		if (zone->genFlags & SBGEN_SF2)
+		{
+			if (zone->volEg.sustain < 960.0f)
+				zp->volEnv.SetSustain((960.0f - zone->volEg.sustain) / 960.0f);
+			else
+				zp->volEnv.SetSustain(0);
+		}
+		else
+			zp->volEnv.SetSustain(zone->volEg.sustain * 0.001);
+		zp->volEnv.SetRelease(SoundBank::EnvRate(zone->volEg.release));
+		zp->volEnv.SetSegment(0);
+
+		zp->modEnv.SetDelay(SoundBank::EnvRate(zone->modEg.delay));
+		zp->modEnv.SetAttack(SoundBank::EnvRate(zone->modEg.attack + (((float)vel/127.0) * zone->modEg.velAttack)));
+		zp->modEnv.SetHold(SoundBank::EnvRate(zone->modEg.hold + (km * zone->modEg.keyHold)));
+		zp->modEnv.SetDecay(SoundBank::EnvRate(zone->modEg.decay + (km * zone->modEg.keyDecay)));
+		if (zone->genFlags & SBGEN_SF2)
+			zp->modEnv.SetSustain(1.0 - (zone->modEg.sustain * 0.001f));
+		else
+			zp->modEnv.SetSustain(zone->modEg.sustain * 0.001f);
+		zp->modEnv.SetRelease(SoundBank::EnvRate(zone->modEg.release));
+		zp->modEnv.SetSegment(0);
+
+		zp->vibLFO.InitWT(SoundBank::Frequency(zone->vibLfo.rate), WT_SIN);
 		zp->vibDelay = (bsInt32) (zone->vibLfo.delay * synthParams.sampleRate);
+		zp->modLFO.InitWT(SoundBank::Frequency(zone->modLfo.rate), WT_SIN);
 		zp->modDelay = (bsInt32) (zone->modLfo.delay * synthParams.sampleRate);
-		zp->vib.InitWT(zone->vibLfo.rate, WT_SIN);
-		zp->mod.InitWT(zone->modLfo.rate, WT_SIN);
-		zp->pan.Set(panSqr, zone->pan);
-		zp->vol = zone->volAtten;
+
+		zp->pan.Set(panSqr, zone->pan / 500.0);
+
+		zp->fltPC = zone->filtFreq;
+		if (zp->fltPC < 13500)
+		{
+			zp->filtOn = 1;
+			zp->filt.CalcCoef(SoundBank::Frequency(zp->fltPC), SoundBank::Gain(zone->filtQ)/2.0);
+			zp->volCB += zone->filtQ / 2.0;
+		}
 	}
 
-	void Init(int pit, SBInstr *in)
+	void Init(int pit, SBInstr *instr)
 	{
-		frq = synthParams.GetFrequency(pit-12); 
-
-		SBZone *zone = 0;
-		while ((zone = in->EnumZones(zone)) != 0)
+		int vel = 100;
+		SBZoneGroup *grp = 0;
+		while ((grp = instr->EnumGroups(grp)) != 0)
 		{
-			if (zone->Match(pit, 64))
-				Init(pit, 64, zone);
+			if (grp->Match(pit, vel))
+			{
+				SBZoneRef *ref = grp->map[pit];
+				while (ref)
+				{
+					SBZone *zone = ref->zone;
+					if (zone->Match(pit, vel))
+						Init(pit, vel, zone);
+					ref = ref->next;
+				}
+			}
 		}
 	}
 
@@ -881,25 +1121,39 @@ public:
 		while ((zp = zoneList.EnumItem(zp)) != 0)
 		{
 			SBZone *zone = zp->zone;
-			FrqValue frqPC = zp->modEnv.Gen() * zone->modEnvFrq;
-			AmpValue ampCB = zp->vol + (1.0 - zp->volEnv.Gen()) * 960.0;
+			AmpValue volEG = zp->volEnv.Gen();
+			AmpValue modEG = zp->modEnv.Gen();
+			AmpValue vibLFO = 0;
+			AmpValue modLFO = 0;
 
-			if (zp->vibDelay == 0)
-				frqPC += zp->vib.Gen() * zone->vibLfoFrq;
-			else
-				zp->vibDelay--;
+			if (zp->vibDelay == 0 || --zp->vibDelay == 0)
+				vibLFO = zp->vibLFO.Gen();
 
-			if (zp->modDelay == 0)
+			if (zp->modDelay == 0 || --zp->modDelay == 0)
+				modLFO = zp->modLFO.Gen();
+
+			FrqValue phsPC = zp->phsPC
+			       + (vibLFO * zone->vibLfoFrq)
+				   + (modLFO * zone->modLfoFrq)
+				   + (modEG * zone->modEnvFrq);
+			zp->osc.UpdatePhaseIncr(SoundBank::GetPow2n1200(phsPC));
+			AmpValue out = zp->osc.Gen();
+
+			if (zp->filtOn )
 			{
-				AmpValue m = zp->mod.Gen();
-				frqPC += m * zone->modLfoFrq;
-				ampCB += m * zone->modLfoVol;
+				FrqValue fltPC = zp->fltPC + (modLFO * zone->modLfoFlt) + (modEG * zone->modEnvFlt);
+				if (fltPC != zp->fltPC)
+				{
+					zp->fltPC = fltPC;
+					zp->filt.CalcCoef(SoundBank::Frequency(fltPC),
+						SoundBank::Gain(zone->filtQ)/2.0);
+				}
+				out = zp->filt.Sample(out);
 			}
-			else
-				zp->modDelay--;
 
-			zp->osc.UpdateFrequency(frq * synthParams.GetCentsMult((int) frqPC));
-			AmpValue out = zp->osc.Gen() * synthParams.AttenCB((int)ampCB);
+			if (zp->volEnv.GetSegment() > 2)
+				volEG = SoundBank::Attenuation((1.0 - volEG) * 960.0);
+			out *= SoundBank::Attenuation(zp->volCB) * volEG;
 			outLft += out * zp->pan.panlft;
 			outRgt += out * zp->pan.panrgt;
 		}
@@ -907,7 +1161,7 @@ public:
 	}
 };
 
-char *wavePrefix = "";
+const char *wavePrefix = "";
 
 void PlayPreset(SoundBank *bnk, int bnkNum, int preNum, int mono)
 {
@@ -951,18 +1205,15 @@ void PlayPreset(SoundBank *bnk, int bnkNum, int preNum, int mono)
 	SBZone *zone = 0;
 	while ((zone = instr->EnumZones(zone)) != 0)
 	{
-		fprintf(stderr, "  zone %s, %d [%d,%d] [%d,%d] ch=%d len=%d\n", 
-			(const char *)zone->name, zone->keyNum, 
-			zone->lowKey, zone->highKey, zone->lowVel, zone->highVel, 
-			zone->chan, zone->sampleLen);
-		// There are soundfont files out there where the key number is not
-		// within the range of [low,high] (believe it or not)...
-		if (zone->keyNum < zone->lowKey || zone->keyNum > zone->highKey)
+		fprintf(stderr, "  zone %s, %d [%d,%d] [%d,%d] ch=%d len=%d\n",
+			(const char *)zone->name, zone->keyNum,
+			zone->lowKey, zone->highKey, zone->lowVel, zone->highVel,
+			zone->chan, zone->sample->sampleLen);
+		pit = zone->keyNum + zone->coarseTune;
+		if (pit < zone->lowKey || pit > zone->highKey)
 			pit = (zone->highKey + zone->lowKey) / 2;
-		else
-			pit = zone->keyNum;
 		vel = (zone->lowVel + zone->highVel) / 2;
-		dur = zone->sampleLen;
+		dur = zone->sample->sampleLen;
 		play.Reset();
 		play.Init(pit, vel, zone);
 		for (t = 0; t < dur; t++)
@@ -1006,8 +1257,7 @@ void usage()
 	fprintf(stderr, "     -w  = prefix to output file name\n");
 	fprintf(stderr, "     -l0 = don't preload samples\n");
 	fprintf(stderr, "     -l1 = preload all samples (default)\n");
-	fprintf(stderr, "     -l0 = don't normalize sample amplitude (default)\n");
-	fprintf(stderr, "     -l1 = normalize sample amplitude\n");
+	fprintf(stderr, "     -sn = scale attenuation by 'n'\n");
 	fprintf(stderr, "     -bn = only output bank #n, else all banks\n");
 	fprintf(stderr, "     -pn = only output patch #n, else all patches\n");
 	exit(1);
@@ -1020,7 +1270,6 @@ int main(int argc, char *argv[])
 		usage();
 
 	int preload = 1;
-	float scl = 0.0;
 	int doDump = 0;
 	char *fileName = argv[1];
 	char *waveFile = 0;
@@ -1063,7 +1312,7 @@ int main(int argc, char *argv[])
 				preload = 1;
 			break;
 		case 's':
-			scl = atof(ap);
+			attenScale = atof(ap);
 			break;
 		default:
 			fprintf(stderr, "Invalid argument: %s\n", argv[argn]);
@@ -1084,18 +1333,14 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		DLSFile df;
-		if (scl == 0.0)
-			scl = 1.0;
-		bnk = df.LoadSoundBank(fileName, preload, scl);
+		bnk = df.LoadSoundBank(fileName, preload);
 		if (doDump & 2)
 			Dump(df.GetInfo());
 	}
 	else
 	{
 		SFFile sounds;
-		if (scl == 0.0)
-			scl = 0.375;
-		bnk = sounds.LoadSoundBank(fileName, preload, scl);
+		bnk = sounds.LoadSoundBank(fileName, preload);
 		if (doDump & 2)
 			Dump(&sounds);
 	}
@@ -1104,6 +1349,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "No bank\n");
 		exit(1);
 	}
+	bnk->Optimize();
 	if (doDump)
 	{
 		if (doDump & 1)

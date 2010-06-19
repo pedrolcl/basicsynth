@@ -28,6 +28,7 @@ InstrManager instrMgr;
 Mixer theMixer;
 WaveOutDirect waveOut;
 Player thePlayer;
+MIDIControl midiCtrl;
 
 #include "MainDlg.h"
 
@@ -94,6 +95,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	instrMgr.AddType("MatrixSynth", MatrixSynth::MatrixSynthFactory, MatrixSynth::MatrixSynthEventFactory);
 	instrMgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
 	instrMgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
+	instrMgr.AddType("GMPlayer", GMPlayer::InstrFactory, GMPlayer::EventFactory);
+
 	InstrMapEntry *im = 0;
 	while ((im = instrMgr.EnumType(im)) != 0)
 		im->dumpTmplt = DestroyTemplate;

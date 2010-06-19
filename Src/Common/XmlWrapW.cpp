@@ -6,7 +6,7 @@
 // XmlWrapper for Windows MSXML
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ XmlSynthElem::~XmlSynthElem()
 void XmlSynthElem::Clear()
 {
 	pElem.Release();
-	delete nodeTag;		
+	delete nodeTag;
 	nodeTag = NULL;
 }
 
@@ -138,7 +138,7 @@ int XmlSynthElem::GetAttribute(char *attrName, short& val)
 	return rv;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, long& val)
+int XmlSynthElem::GetAttribute(const char *attrName, long& val)
 {
 	int rv = -1;
 	if (pElem)
@@ -157,7 +157,7 @@ int XmlSynthElem::GetAttribute(char *attrName, long& val)
 	return rv;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, float& val)
+int XmlSynthElem::GetAttribute(const char *attrName, float& val)
 {
 	int rv = -1;
 	if (pElem)
@@ -176,7 +176,7 @@ int XmlSynthElem::GetAttribute(char *attrName, float& val)
 	return rv;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, double& val)
+int XmlSynthElem::GetAttribute(const char *attrName, double& val)
 {
 	int rv = -1;
 	if (pElem)
@@ -195,7 +195,7 @@ int XmlSynthElem::GetAttribute(char *attrName, double& val)
 	return rv;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, char **val)
+int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 {
 	int rv = -1;
 	*val = NULL;
@@ -214,12 +214,12 @@ int XmlSynthElem::GetAttribute(char *attrName, char **val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, short val)
+int XmlSynthElem::SetAttribute(const char *attrName, short val)
 {
 	return SetAttribute(attrName, (long) val);
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, long val)
+int XmlSynthElem::SetAttribute(const char *attrName, long val)
 {
 	int rv = -1;
 	if (pElem)
@@ -232,7 +232,7 @@ int XmlSynthElem::SetAttribute(char *attrName, long val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, float val)
+int XmlSynthElem::SetAttribute(const char *attrName, float val)
 {
 	int rv = -1;
 	if (pElem)
@@ -245,7 +245,7 @@ int XmlSynthElem::SetAttribute(char *attrName, float val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, double val)
+int XmlSynthElem::SetAttribute(const char *attrName, double val)
 {
 	int rv = -1;
 	if (pElem)
@@ -258,7 +258,7 @@ int XmlSynthElem::SetAttribute(char *attrName, double val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, const char *val)
+int XmlSynthElem::SetAttribute(const char *attrName, const char *val)
 {
 	int rv = -1;
 	if (pElem)
@@ -351,7 +351,7 @@ XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag, 
 	return newElem;
 }
 
-XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
+XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag)
 {
 	XmlSynthElem *rootElem = new XmlSynthElem(this);
 	if (NewDoc(roottag, rootElem))
@@ -360,7 +360,7 @@ XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
 	return NULL;
 }
 
-XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag, XmlSynthElem *rootElem)
+XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *rootElem)
 {
 	if (!GetXmlDoc())
 	{
@@ -387,7 +387,7 @@ XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag, XmlSynthElem *rootElem)
 	return NULL;
 }
 
-XmlSynthElem *XmlSynthDoc::Open(char *fname)
+XmlSynthElem *XmlSynthDoc::Open(const char *fname)
 {
 	XmlSynthElem *rootElem = new XmlSynthElem(this);
 	if (Open(fname, rootElem))
@@ -396,13 +396,13 @@ XmlSynthElem *XmlSynthDoc::Open(char *fname)
 	return NULL;
 }
 
-XmlSynthElem *XmlSynthDoc::Open(char *fname, XmlSynthElem *rootElem)
+XmlSynthElem *XmlSynthDoc::Open(const char *fname, XmlSynthElem *rootElem)
 {
 	if (fname == NULL || strlen(fname) == 0)
 		return NULL;
 	if (!GetXmlDoc())
 	{
-		HRESULT hr; 
+		HRESULT hr;
 		CComVariant vname(fname);
 		VARIANT_BOOL bSucess = 0;
 		//pDoc->put_preserveWhiteSpace(VARIANT_TRUE);
@@ -418,7 +418,7 @@ XmlSynthElem *XmlSynthDoc::Open(char *fname, XmlSynthElem *rootElem)
 	return NULL;
 }
 
-int XmlSynthDoc::Save(char *fname)
+int XmlSynthDoc::Save(const char *fname)
 {
 	int rv = -1;
 	if (pDoc)

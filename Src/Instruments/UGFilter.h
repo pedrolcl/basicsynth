@@ -203,7 +203,10 @@ public:
 
 	void Recalc()
 	{
-		gen.InitRes(inputs[UGFLT_FRQ], 1.0, inputs[UGFLT_RES]);
+		gen.SetRes(inputs[UGFLT_RES]);
+		gen.SetFrequency(inputs[UGFLT_FRQ]);
+		gen.SetGain(1.0);
+		gen.CalcCoef();
 	}
 };
 

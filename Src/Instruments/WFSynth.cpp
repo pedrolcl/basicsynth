@@ -93,12 +93,12 @@ static InstrParamMap wfsynthParams[] =
 
 bsInt16 WFSynth::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
 }
 
 const char *WFSynth::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, wfsynthParams, sizeof(wfsynthParams)/sizeof(InstrParamMap));
 }
 
 WFSynth::WFSynth()

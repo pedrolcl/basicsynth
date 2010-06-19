@@ -66,7 +66,8 @@ public:
 		AmpValue f = egFilt->Gen();
 		if (--coefCount <= 0)
 		{
-			filt.Init(f, gain);
+			filt.SetFrequency(f);
+			filt.CalcCoef();
 			coefCount = coefRate;
 		}
 		return filt.Sample(in);
@@ -95,7 +96,8 @@ public:
 		AmpValue f = egFilt->Gen();
 		if (--coefCount <= 0)
 		{
-			filt.Init(f, gain);
+			filt.SetFrequency(f);
+			filt.CalcCoef();
 			coefCount = coefRate;
 		}
 		return filt.Sample(in);
@@ -129,7 +131,8 @@ public:
 		AmpValue f = egFilt->Gen();
 		if (--coefCount <= 0)
 		{
-			filt.Init(f, gain, res);
+			filt.SetFrequency(f);
+			filt.CalcCoef();
 			coefCount = coefRate;
 		}
 		return filt.Sample(in);
@@ -140,7 +143,7 @@ public:
 		if (bw < 1.0) // 1Hz
 			bw = 1.0;
 		if (initPhs >= 0)
-			filt.Init(egFilt->GetStart(), gain, bw);
+			filt.Init(egFilt->GetStart(), 1.0/bw, gain);
 		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
@@ -166,7 +169,8 @@ public:
 		AmpValue f = egFilt->Gen();
 		if (--coefCount <= 0)
 		{
-			filt.InitRes(f, gain, res);
+			filt.SetFrequency(f);
+			filt.CalcCoef();
 			coefCount = coefRate;
 		}
 		return filt.Sample(in);
@@ -176,7 +180,12 @@ public:
 		if (res >= 1.0)
 			res = 0.99999999;
 		if (initPhs >= 0)
-			filt.InitRes(egFilt->GetStart(), gain, res);
+		{
+			filt.SetRes(res);
+			filt.SetFrequency(egFilt->GetStart());
+			filt.SetGain(gain);
+			filt.CalcCoef();
+		}
 		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
@@ -244,6 +253,8 @@ private:
 	LFO lfoGen;
 	PitchBend pbGen;
 	PitchBendWT pbWT;
+	FrqValue frq;
+	FrqValue pwFrq;
 	AmpValue vol;
 	AmpValue sigMix;
 	AmpValue nzMix;

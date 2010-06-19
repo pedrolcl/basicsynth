@@ -16,25 +16,19 @@
         "Entry"
         {
         "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
-        "OwnerKey" = "8:_B2062C3CCBA74B84BE74FE880B688634"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
-        "OwnerKey" = "8:_4D3231EA3F7F4BF79EBC4B2F36FA4547"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
-        "OwnerKey" = "8:_2C6497B41C45450187BBCABB4943C66B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
         "OwnerKey" = "8:_0AF7BEA6B9424D5A9C12FA57911A3685"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
+        "OwnerKey" = "8:_79FCB3A3F4EA4DC892E131EBF5A572E8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
+        "OwnerKey" = "8:_B2062C3CCBA74B84BE74FE880B688634"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -45,14 +39,26 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_035E31A217FF4668B9A5426DB0590936"
+        "MsmKey" = "8:_00C1EECFB1ADACFBAD563DC99F94F7FF"
         "OwnerKey" = "8:_4D3231EA3F7F4BF79EBC4B2F36FA4547"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_08E13112CA40409084217050915F66E6"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_0AF7BEA6B9424D5A9C12FA57911A3685"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1E0A3EF585D17ED67EAABC88BA141E5B"
+        "OwnerKey" = "8:_79FCB3A3F4EA4DC892E131EBF5A572E8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -75,7 +81,37 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5FD0AA67202E4DC79E0A1302C99269CC"
+        "OwnerKey" = "8:_0AF7BEA6B9424D5A9C12FA57911A3685"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5FD0AA67202E4DC79E0A1302C99269CC"
+        "OwnerKey" = "8:_B2062C3CCBA74B84BE74FE880B688634"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5FD0AA67202E4DC79E0A1302C99269CC"
+        "OwnerKey" = "8:_67EF3CF920584C0C87B69F60F2582A3B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5FD0AA67202E4DC79E0A1302C99269CC"
+        "OwnerKey" = "8:_4D3231EA3F7F4BF79EBC4B2F36FA4547"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_67EF3CF920584C0C87B69F60F2582A3B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_79FCB3A3F4EA4DC892E131EBF5A572E8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -93,38 +129,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_976DA160A77140309D300D85B4A53372"
-        "OwnerKey" = "8:_B2062C3CCBA74B84BE74FE880B688634"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_976DA160A77140309D300D85B4A53372"
+        "MsmKey" = "8:_AC53E7F2DC4D44AB990E8D9E249FA745"
         "OwnerKey" = "8:_4D3231EA3F7F4BF79EBC4B2F36FA4547"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_976DA160A77140309D300D85B4A53372"
-        "OwnerKey" = "8:_2C6497B41C45450187BBCABB4943C66B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_976DA160A77140309D300D85B4A53372"
-        "OwnerKey" = "8:_0AF7BEA6B9424D5A9C12FA57911A3685"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_976DA160A77140309D300D85B4A53372"
-        "OwnerKey" = "8:_67EF3CF920584C0C87B69F60F2582A3B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9F4A50CEF3408CA3AE69E0F6DAF51CF9"
-        "OwnerKey" = "8:_2C6497B41C45450187BBCABB4943C66B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,13 +148,7 @@
         "Entry"
         {
         "MsmKey" = "8:_C07D88377FE8CA17F971DA7C2837FF4F"
-        "OwnerKey" = "8:_2C6497B41C45450187BBCABB4943C66B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C98A5BD08F45489C8B56EA260A7892BC"
-        "OwnerKey" = "8:_035E31A217FF4668B9A5426DB0590936"
+        "OwnerKey" = "8:_79FCB3A3F4EA4DC892E131EBF5A572E8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -165,14 +165,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E280EE29E01C4CE6A760635393562D27"
-        "OwnerKey" = "8:_976DA160A77140309D300D85B4A53372"
+        "MsmKey" = "8:_E65C713EDFF14A25855315B0FA887619"
+        "OwnerKey" = "8:_5FD0AA67202E4DC79E0A1302C99269CC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_EC6C9093743A4CC4A3DA1168616259F8"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EDDB864DC4C24D81921AEF72E4F5E769"
+        "OwnerKey" = "8:_AC53E7F2DC4D44AB990E8D9E249FA745"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -193,6 +199,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -209,6 +223,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -247,6 +269,46 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_08E13112CA40409084217050915F66E6"
+            {
+            "SourcePath" = "8:..\\MIDIPlayer\\res\\MIDIPlayer.ico"
+            "TargetName" = "8:MIDIPlayer.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_54F264DE26754972B1B09674B67C969B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1E0A3EF585D17ED67EAABC88BA141E5B"
+            {
+            "SourcePath" = "8:GMSynth.dll"
+            "TargetName" = "8:GMSynth.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_54F264DE26754972B1B09674B67C969B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -310,26 +372,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9F4A50CEF3408CA3AE69E0F6DAF51CF9"
-            {
-            "SourcePath" = "8:gdiplus.dll"
-            "TargetName" = "8:gdiplus.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_54F264DE26754972B1B09674B67C969B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B3BDDCB4981E4BEFB35625670FC7C81F"
             {
             "SourcePath" = "8:..\\..\\..\\Documents\\PulseWave5.jpg"
@@ -366,7 +408,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:TRUE"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -643,6 +685,20 @@
             "Folder" = "8:_6A87978105E44A3AB421928A15B10FEF"
             "WorkingFolder" = "8:_54F264DE26754972B1B09674B67C969B"
             "Icon" = "8:_50EF2FAC75BA4B80AF297D2C95866DFE"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5E7A3B3742F9434E8F832E168BE73802"
+            {
+            "Name" = "8:MIDIPlayer"
+            "Arguments" = "8:"
+            "Description" = "8:MIDI file player"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_79FCB3A3F4EA4DC892E131EBF5A572E8"
+            "Folder" = "8:_6A87978105E44A3AB421928A15B10FEF"
+            "WorkingFolder" = "8:_54F264DE26754972B1B09674B67C969B"
+            "Icon" = "8:_08E13112CA40409084217050915F66E6"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_77A7948011B449849BEFE2D36AA386BE"
@@ -1093,21 +1149,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_035E31A217FF4668B9A5426DB0590936"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_ATL_x86_x64.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_976DA160A77140309D300D85B4A53372"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5FD0AA67202E4DC79E0A1302C99269CC"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1121,11 +1163,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C98A5BD08F45489C8B56EA260A7892BC"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_AC53E7F2DC4D44AB990E8D9E249FA745"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_atl_x86_x64.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_ATL_x86_x64.msm"
                 "Properties"
                 {
                 }
@@ -1135,11 +1177,25 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E280EE29E01C4CE6A760635393562D27"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E65C713EDFF14A25855315B0FA887619"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EDDB864DC4C24D81921AEF72E4F5E769"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc90_atl_x86_x64.msm"
                 "Properties"
                 {
                 }
@@ -1259,6 +1315,34 @@
             "OutputConfiguration" = "8:Release|x64"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{43CC4C0D-622A-44C4-85B6-5E8E62BF978D}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_79FCB3A3F4EA4DC892E131EBF5A572E8"
+            {
+            "SourcePath" = "8:..\\..\\..\\Bin\\MIDIPlayer.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_54F264DE26754972B1B09674B67C969B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|Win32"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{71D18F7E-A873-4AF4-8615-E0654AA1153B}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

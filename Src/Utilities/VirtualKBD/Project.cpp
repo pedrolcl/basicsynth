@@ -90,6 +90,43 @@ int SynthProject::LoadSynth(XmlSynthElem *root, InstrManager& mgr)
 			if (mgr.LoadInstrLib(child))
 				errcnt++;
 		}
+		else if (child->TagMatch("sndbnk") || child->TagMatch("sf2") || child->TagMatch("dls"))
+		{
+			char *sbpath = 0;
+			child->GetContent(&sbpath);
+			if (sbpath)
+			{
+				if (FindOnPath(fullPath, sbpath))
+				{
+					char *name = 0;
+					short preload = 0;
+					float normalize = 1;
+					child->GetAttribute("name", &name);
+					child->GetAttribute("pre", preload);
+					if (child->GetAttribute("nrm", normalize))
+						normalize = 1.0;
+					SoundBank *bnk = 0;
+					if (SFFile::IsSF2File(fullPath))
+					{
+						SFFile sndfile;
+						bnk = sndfile.LoadSoundBank(fullPath, preload);
+					}
+					else if (DLSFile::IsDLSFile(fullPath))
+					{
+						DLSFile dls;
+						bnk = dls.LoadSoundBank(fullPath, preload);
+					}
+					if (bnk)
+					{
+						bnk->name = name;
+						bnk->Lock();
+						SoundBank::SoundBankList.Insert(bnk);
+					}
+					delete name;
+				}
+				delete sbpath;
+			}
+		}
 
 		sib = child->NextSibling();
 		delete child;

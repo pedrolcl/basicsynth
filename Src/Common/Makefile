@@ -20,6 +20,8 @@ OBJS=\
 	WaveFile.o \
 	SynthFileU.o \
 	SynthString.o \
+	SynthMutex.o \
+	SynthThread.o \
 	XmlWrapU.o \
 	XmlWrapN.o \
 	XmlWrapT.o \
@@ -105,6 +107,7 @@ Sequencer.o: \
 	$(BSINC)/SynthList.h \
 	$(BSINC)/SeqEvent.h \
 	$(BSINC)/Instrument.h \
+	$(BSINC)/SynthMutex.h \
 	$(BSINC)/Sequencer.h
 
 SequenceFile.o: \
@@ -165,6 +168,10 @@ XmlWrapU.o: XmlWrapU.cpp $(BSINC)/XmlWrap.h
 XmlWrapN.o: XmlWrapN.cpp $(BSINC)/XmlWrap.h
 
 SynthString.o: SynthString.cpp $(BSINC)/SynthString.h
+
+SynthMutex.o: SynthMutex.cpp $(BSINC)/SynthMutex.h
+
+SynthThread.o: SynthThread.cpp $(BSINC)/SynthThread.h
 
 Global.o: Global.cpp $(BSINC)/SynthDefs.h $(BSINC)/WaveTable.h
 

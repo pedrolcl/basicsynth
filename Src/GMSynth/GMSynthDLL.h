@@ -24,7 +24,6 @@
 # endif
 #endif
 #ifdef UNIX
-# define HANDLE long
 # define EXPORT
 #endif
 
@@ -60,6 +59,7 @@
 #define GMSYNTH_ERR_FILEOPEN  3
 #define GMSYNTH_ERR_BADID     4
 #define GMSYNTH_ERR_GENERATE  5
+#define GMSYNTH_ERR_SOUNDBANK 6
 
 /// Function to receive events
 typedef void (*GMSYNTHCB)(bsInt32 evtid, bsInt32 count, Opaque arg);
@@ -69,19 +69,21 @@ typedef void (*GMSYNTHCB)(bsInt32 evtid, bsInt32 count, Opaque arg);
 /// Wrapper class for GMSynthDlL.
 class EXPORT GMSynth
 {
-private:
-	void *synth;
-
 public:
-	GMSynth(HANDLE w);
+	GMSynth(Opaque w);
 	virtual ~GMSynth();
 
+	virtual void SetVolume(float db, float rv);
 	virtual void SetCallback(GMSYNTHCB cb, bsInt32 cbRate, Opaque arg);
-	virtual int LoadSoundBank(const char *alias, const char *fileName, int preload);
+	virtual void SetWaveDevice(Opaque dev);
+	virtual int Unload();
+	virtual int LoadSoundBank(const char *alias, const char *fileName, int preload, float scl);
 	virtual int GetMetaText(int id, char *txt, size_t len);
 	virtual int GetMetaData(int id, long *vals);
-	virtual int LoadSequence(const char *fileName, const char *sbnkName);
-	virtual int Start(int mode);
+	virtual int GetBanks(short *banks, size_t len);
+	virtual int GetPreset(short bank, short preset, char *txt, size_t len);
+	virtual int LoadSequence(const char *fileName, const char *sbnkName, unsigned short mask);
+	virtual int Start(int mode, void *dev);
 	virtual int Stop();
 	virtual int Pause();
 	virtual int Resume();
@@ -93,21 +95,24 @@ public:
 extern "C" {
 #endif
 
-HANDLE EXPORT GMSynthOpen(HANDLE w, bsInt32 sr);
-int EXPORT GMSynthClose(HANDLE gm);
-int EXPORT GMSynthLoadSoundBank(HANDLE gm, const char *fileName, int preload, const char *alias);
-int EXPORT GMSynthLoadSequence(HANDLE gm, const char *fileName, const char *sbnkName);
-int EXPORT GMSynthStart(HANDLE gm, int mode);
-int EXPORT GMSynthStop(HANDLE gm);
-int EXPORT GMSynthPause(HANDLE gm);
-int EXPORT GMSynthResume(HANDLE gm);
-int EXPORT GMSynthGenerate(HANDLE gm, const char *fileName);
-int EXPORT GMSynthMetaText(HANDLE gm, int id, char *txt, size_t len);
-int EXPORT GMSynthMetaData(HANDLE gm, int id, long *vals);
-int EXPORT GMSynthSetCallback(HANDLE gm, GMSYNTHCB cb, bsUint32 cbRate, Opaque arg);
-int EXPORT GMSynthMIDIKbdIn(HANDLE gm, int onoff, int device);
-int EXPORT GMSynthMIDIEvent(HANDLE gm, short mmsg, short val1, short val2);
-
+int EXPORT GMSynthOpen(Opaque w, bsInt32 sr);
+int EXPORT GMSynthClose();
+int EXPORT GMSynthUnload();
+int EXPORT GMSynthLoadSoundBank(const char *fileName, const char *alias, int preload, float scale);
+int EXPORT GMSynthLoadSequence(const char *fileName, const char *sbnkName, unsigned short mask);
+int EXPORT GMSynthStart(int mode, float start, float end, void *dev);
+int EXPORT GMSynthStop();
+int EXPORT GMSynthPause();
+int EXPORT GMSynthResume();
+int EXPORT GMSynthGenerate(const char *fileName);
+int EXPORT GMSynthMetaText(int id, char *txt, size_t len);
+int EXPORT GMSynthMetaData(int id, long *vals);
+int EXPORT GMSynthSetCallback(GMSYNTHCB cb, bsUint32 cbRate, Opaque arg);
+int EXPORT GMSynthMIDIKbdIn(int onoff, int device);
+int EXPORT GMSynthMIDIEvent(short mmsg, short val1, short val2);
+int EXPORT GMSynthSetVolume(float db, float rv);
+int EXPORT GMSynthGetBanks(short *banks, size_t len);
+int EXPORT GMSynthGetPreset(short bank, short preset, char *txt, size_t len);
 #ifdef __cplusplus
 // end extern "C"
 }

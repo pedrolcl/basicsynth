@@ -18,13 +18,18 @@
 #pragma comment(lib, "Winmm.lib")
 #include <dsound.h>
 #pragma comment(lib, "dsound.lib")
+#ifdef _MSC_VER
 #define snprintf sprintf_s
+#endif
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 #include <BasicSynth.h>
+#include <SynthThread.h>
 #include <Instruments.h>
 #include <SFFile.h>
 #include <DLSFile.h>

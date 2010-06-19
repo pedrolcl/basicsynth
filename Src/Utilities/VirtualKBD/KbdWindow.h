@@ -19,6 +19,7 @@ class KbdWindow :
 {
 private:
 	int lastKey;
+	int lastVel;
 	int octs;
 	int whtKeys;
 	int blkKeys;
@@ -35,6 +36,7 @@ public:
 	{
 		playing = 0;
 		lastKey = -1;
+		lastVel = 127;
 		octs = 1;
 		whtKeys = 7;
 		blkKeys = 5;
@@ -199,7 +201,7 @@ public:
 		rcLastKey = 0;
 		FindKey(pt);
 		OutputDebugString("Send key down\r\n");
-		::PostMessage(notifyWnd, WM_VKBD, VKBD_KEYDN, (LPARAM)lastKey);
+		::PostMessage(notifyWnd, WM_VKBD, VKBD_KEYDN, (LPARAM)((lastVel << 8)|lastKey));
 		return 0;
 	}
 
@@ -208,7 +210,7 @@ public:
 		playing = 0;
 		ReleaseCapture();
 		OutputDebugString("Send key up\r\n");
-		::PostMessage(notifyWnd, WM_VKBD, VKBD_KEYUP, (LPARAM)lastKey);
+		::PostMessage(notifyWnd, WM_VKBD, VKBD_KEYUP, (LPARAM)((lastVel << 8)|lastKey));
 		/*POINT pt;
 		pt.x = LOWORD(lParam);
 		pt.y = HIWORD(lParam);
@@ -227,7 +229,7 @@ public:
 			pt.x = LOWORD(lParam);
 			pt.y = HIWORD(lParam);
 			if (FindKey(pt))
-				::PostMessage(notifyWnd, WM_VKBD, VKBD_CHANGE, (LPARAM)lastKey);
+				::PostMessage(notifyWnd, WM_VKBD, VKBD_CHANGE, (LPARAM)((lastVel << 8)|lastKey));
 		}
 		return 0;
 	}
@@ -263,6 +265,12 @@ public:
 		//OutputDebugString(buf);
 		if (kdown != -1 && kdown != lastKey)
 		{
+			if (rcNewKey)
+			{
+				float range = (float) (rcNewKey->GetBottom() - rcNewKey->GetTop());
+				float kpos = pt.y - rcNewKey->GetTop();
+				lastVel = (int) (127.0 * kpos / range);
+			}
 			InvalidateLast();
 			lastKey = kdown;
 			rcLastKey = rcNewKey;

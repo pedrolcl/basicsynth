@@ -26,6 +26,9 @@
 // 21 - "Pink" Noise 1
 // 22 - "Pink" Noise 2
 // 23 - BUZZ
+// 24 - BUZZA
+// 25 - GenWaveDS
+// 26 - GenWaveDSB
 //
 // use: Example04 [duration [pitch [wtlength]]]
 //
@@ -45,16 +48,18 @@
 #include "GenNoise.h"
 #include "GenWaveWT.h"
 #include "GenWaveX.h"
-//#include "GenWave64.h"
+#include "GenWaveDSF.h"
+#include "GenWave64.h"
 
 WaveFile wvf;
 
 
-void Generate(float duration, GenUnit *wv, EnvGen *eg, AmpValue in = 1.0)
+AmpValue Generate(float duration, GenUnit *wv, EnvGen *eg, AmpValue in = 1.0)
 {
 	long totalSamples = (long) ((duration * synthParams.sampleRate) + 0.5);
 	AmpValue volume;
 	AmpValue value;
+	AmpValue peak = 0.0;
 
 	eg->Reset();
 
@@ -62,8 +67,11 @@ void Generate(float duration, GenUnit *wv, EnvGen *eg, AmpValue in = 1.0)
 	{
 		volume = eg->Gen();
 		value = wv->Sample(in);
+		if (value > peak)
+			peak = value;
 		wvf.Output1(value * volume);
 	}
+	return peak;
 }
 
 void GenerateVib(FrqValue duration, GenWave *wv, EnvGen *eg, AmpValue lfoAmp)
@@ -171,7 +179,7 @@ int main(int argc, char *argv[])
 	Silence(0.25);
 
 	/////////////////////////////////////////////////
-	// 3 - summation of sine waves
+	// 3 - fixed summation of sine waves
 	/////////////////////////////////////////////////
 	wv.InitWT(frequency, WT_SAW);
 	Generate(duration, &wv, &eg);
@@ -179,7 +187,7 @@ int main(int argc, char *argv[])
 	//GeneratePhaseVib(duration, &wv, &eg, lfoAmp);
 
 	/////////////////////////////////////////////////
-	// 4 - summation of sine waves using interpolation
+	// 4 - fixed summation of sine waves using interpolation
 	/////////////////////////////////////////////////
 	wvi.InitWT(frequency, WT_SAW);
 	Generate(duration, &wvi, &eg);
@@ -397,18 +405,54 @@ int main(int argc, char *argv[])
 	// 24 - BUZZ generator
 	/////////////////////////////////////////////////
 	GenWaveBuzz buzz;
-	buzz.InitBuzz(frequency, 16);
+	buzz.InitBuzz(frequency, 20);
 	Generate(duration, &buzz, &eg);
-	buzz.InitBuzz(frequency, 32);
+	buzz.InitBuzz(frequency, 100);
 	Generate(duration, &buzz, &eg);
-	buzz.InitBuzz(frequency, 48);
-	Generate(duration, &buzz, &eg);
-	buzz.InitBuzz(frequency/4, 16);
-	Generate(duration, &buzz, &eg);
-	buzz.InitBuzz(frequency/4, 32);
-	Generate(duration, &buzz, &eg);
-	buzz.InitBuzz(frequency/4, 48);
-	Generate(duration, &buzz, &eg);
+
+//	buzz.InitBuzz(frequency, 100);
+//	GenerateVib(duration, &buzz, &eg, lfoAmp);
+//	GeneratePhaseVib(duration, &buzz, &eg, lfoAmp);
+
+	Silence(0.25);
+
+	GenWaveBuzz2 buzz2;
+	buzz2.InitBuzz(frequency, 20);
+	Generate(duration, &buzz2, &eg);
+	buzz2.InitBuzz(frequency, 100);
+	Generate(duration, &buzz2, &eg);
+
+	Silence(0.25);
+
+	GenWaveBuzzA buzza;
+//	buzza.SetOscillatorA(new GenWaveI);
+//	buzza.SetOscillatorB(new GenWaveI);
+	buzza.InitBuzz(frequency, 20);
+	Generate(duration, &buzza, &eg);
+	buzza.InitBuzz(frequency, 100);
+	Generate(duration, &buzza, &eg);
+
+	Silence(0.25);
+	
+	GenWaveDS ds;
+	ds.InitDS(frequency, 0.5);
+	Generate(duration, &ds, &eg);
+	ds.InitDS(frequency, 0.95);
+	Generate(duration, &ds, &eg);
+
+	Silence(0.25);
+
+	GenWaveDSB gbz;
+	gbz.InitDSB(frequency, 1, 100, 0.5);
+	Generate(duration, &gbz, &eg);
+	gbz.InitDSB(frequency, 1, 100, 0.95);
+	Generate(duration, &gbz, &eg);
+
+	// Odd harmonics, like square wave
+	gbz.InitDSB(frequency, 2, 100, 0.5);
+	Generate(duration, &gbz, &eg);
+	gbz.InitDSB(frequency, 2, 100, 0.95);
+	Generate(duration, &gbz, &eg);
 
 	/////////////////////////////////////////////////
 	if (wvf.CloseWaveFile())

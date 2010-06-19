@@ -77,7 +77,6 @@ void ProjectFrame::RemoveItem()
 			{
 				CloseEditor(itm);
 				prjTree->RemoveNode(itm);
-				delete itm;
 				theProject->SetChange(1);
 			}
 		}
@@ -234,6 +233,7 @@ int ProjectFrame::NewProject()
 	if (!theProject)
 		return 0;
 
+	theProject->AddRef();
 	int rv = theProject->NewProject(path);
 	InitPlayer();
 	return rv;
@@ -258,6 +258,7 @@ int ProjectFrame::OpenProject(const char *fname)
 	if (!theProject)
 		return 0;
 
+	theProject->AddRef();
 	if (theProject->LoadProject(fname))
 	{
 		bsString msg;
@@ -265,6 +266,7 @@ int ProjectFrame::OpenProject(const char *fname)
 		msg += theProject->WhatHappened();
 		Alert(msg, "Ooops...");
 		prjTree->RemoveAll();
+		theProject->Release();
 		theProject = 0;
 		return 0;
 	}
@@ -287,6 +289,7 @@ int ProjectFrame::CloseProject(int query)
 		StopPlayer();
 		ClearPlayer();
 		prjTree->RemoveAll();
+		theProject->Release();
 		theProject = 0;
 	}
 	return 1;

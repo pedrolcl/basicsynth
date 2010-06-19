@@ -3,37 +3,37 @@
   <wdg id="-2" ty="label" filled="1" x="10" y="10" w="150" h="20" val="0" th="16" align="0" lbl="Sound Bank File" bold="1" fg="label" />
   <wdg id="2"  ty="label" filled="1" x="160" y="10" w="200" h="20" val="0" align="0" th="16" lbl="" bold="0" fg="label" bg="black" edit="1"/>
 
-  <wdg id="-16" ty="label" x="10" y="60" w="100" h="20" th="14" align="1" lbl="Enable" bold="1" fg="label" />
-  <wdg id="16" ip="21" ty="switchset" x="10" y="80" w="100" h="280" val="0" >
-    <wdg id="17" ty="pushswitch" x="0" y="0" w="90" h="25" val="4" lbl="Pitch Wheel" fg="btnlabel" />
-    <wdg id="18" ty="pushswitch" x="0" y="30" w="90" h="25" val="1" lbl="Vibrato LFO" fg="btnlabel" />
-    <wdg id="18" ty="pushswitch" x="0" y="60" w="90" h="25" val="272" lbl="Mod. LFO" fg="btnlabel" />
-    <wdg id="18" ty="pushswitch" x="0" y="90" w="90" h="25" val="2" lbl="Mod. Env." fg="btnlabel" />
-    <wdg id="18" ty="pushswitch" x="0" y="120" w="90" h="25" val="544" lbl="Mod. Wheel" fg="btnlabel" />
-    <wdg id="19" ty="pushswitch" x="0" y="150" w="90" h="25" val="2176" lbl="Expression" fg="btnlabel" />
-    <wdg id="20" ty="pushswitch" x="0" y="180" w="90" h="25" val="1088" lbl="Breath" fg="btnlabel" />
-    <wdg id="24" ty="pushswitch" x="0" y="210" w="90" h="25" val="4096" lbl="Mod. List" fg="btnlabel" />
-    <wdg id="25" ty="pushswitch" x="0" y="240" w="90" h="25" val="8192" lbl="Filter" fg="btnlabel" />
+<!--
+  <wdg id="-20" ty="label" x="10" y="60" w="100" h="20" th="14" align="1" lbl="Enable" bold="1" fg="label" />
+  <wdg id="20" ip="21" ty="switchset" x="10" y="80" w="100" h="280" val="0" >
+    <wdg id="21" ty="pushswitch" x="0" y="0" w="90" h="25" val="4" lbl="Pitch Wheel" fg="btnlabel" />
+    <wdg id="22" ty="pushswitch" x="0" y="30" w="90" h="25" val="1" lbl="Vibrato LFO" fg="btnlabel" />
+    <wdg id="23" ty="pushswitch" x="0" y="60" w="90" h="25" val="272" lbl="Mod. LFO" fg="btnlabel" />
+    <wdg id="24" ty="pushswitch" x="0" y="90" w="90" h="25" val="2" lbl="Mod. Env." fg="btnlabel" />
+    <wdg id="25" ty="pushswitch" x="0" y="120" w="90" h="25" val="544" lbl="Mod. Wheel" fg="btnlabel" />
+    <wdg id="26" ty="pushswitch" x="0" y="150" w="90" h="25" val="2176" lbl="Expression" fg="btnlabel" />
+    <wdg id="27" ty="pushswitch" x="0" y="180" w="90" h="25" val="1088" lbl="Breath" fg="btnlabel" />
+    <wdg id="28" ty="pushswitch" x="0" y="210" w="90" h="25" val="4096" lbl="Mod. List" fg="btnlabel" />
+    <wdg id="29" ty="pushswitch" x="0" y="240" w="90" h="25" val="8192" lbl="Filter" fg="btnlabel" />
   </wdg>
-  <wdg id="-3" ty="label" x="120" y="60" w="300" h="20" th="14" align="1" lbl="Local Override" bold="1" fg="label" />
-  <wdg id="3" ip="16" ty="switchset" x="120" y="80" w="300" h="25" val="0" >
-    <wdg id="4" ty="pushswitch" x="0" y="0" w="90" h="25" val="1" lbl="Volume" fg="btnlabel" />
-    <wdg id="6" ty="pushswitch" x="100" y="0" w="90" h="25" val="4" lbl="Pan" fg="btnlabel" />
-    <wdg id="5" ty="pushswitch" x="200" y="0" w="90" h="25" val="2" lbl="Patch" fg="btnlabel" />
+  -->
+  <wdg id="-3" ty="label" x="20" y="60" w="100" h="20" th="14" align="1" lbl="Internal" bold="1" fg="label" />
+  <wdg id="3" ip="16" ty="switchset" x="20" y="80" w="100" h="25" val="0" >
+    <wdg id="4" ty="pushswitch" x="0" y="0" w="90" h="25" val="16" lbl="Volume" fg="btnlabel" />
+    <wdg id="5" ty="pushswitch" x="0" y="30" w="90" h="25" val="4" lbl="Pan" fg="btnlabel" />
+    <wdg id="6" ty="pushswitch" x="0" y="60" w="90" h="25" val="1" lbl="Bank" fg="btnlabel" />
+    <wdg id="7" ty="pushswitch" x="0" y="90" w="90" h="25" val="2" lbl="Patch" fg="btnlabel" />
   </wdg>
-  <wdg id="-7" ty="group" x="120" y="110" w="300" h="130" >
-    <wdg id="8" ip="17" ty="baseknob" x="5" y="0" h="80" w="80" lo="0" hi="1" hiclr="volhi" loclr="vollo"/>
-    <wdg id="9" ty="label" x="5" y="85" h="20" w="80" filled="1" edit="1" val="0" fg="volume" bg="black"/>
+  <wdg id="-7" ty="group" x="120" y="80" w="390" h="130" >
+    <wdg id="-1" ty="label" x="100" y="0" w="50" h="20" lbl="Atten." fg="label" />
+    <wdg id="8" ip="19" ty="baseknob" x="100" y="25" h="50" w="50" lo="0" hi="1" hiclr="volhi" loclr="vollo"/>
+    <wdg id="9" ty="label" x="100" y="80" h="20" w="50" filled="1" edit="1" val="0" fg="volume" bg="black"/>
     <pair knb="8" lbl="9" />
 
-    <wdg id="22" ip="18" ty="baseknob" x="105" y="0" h="80" w="80" lo="-1" hi="1" hiclr="volhi" loclr="vollo"/>
-    <wdg id="23" ty="label" x="105" y="85" h="20" w="80" filled="1" edit="1" val="0" fg="volume" bg="black"/>
-    <pair knb="22" lbl="23" />
-
-    <wdg id="11" ty="label" x="200" y="5" w="50" h="20" lbl="Bank" fg="label" />
-    <wdg id="12" ty="label" x="200" y="30" w="50" h="20" lbl="Prog" fg="label" />
-    <wdg id="13" ip="19" ty="label" x="250" y="5" w="35" h="20" val="0" filled="1" edit="1" fmt="%3.0f" fg="label" bg="black" />
-    <wdg id="14" ip="20" ty="label" x="250" y="30" w="35" h="20" val="0" filled="1" edit="1" fmt="%3.0f" fg="label" bg="black" />
-    <wdg id="15" ty="pushbutton" x="215" y="60" w="70" h="25" lbl="Select" fg="btnlabel" />
+    <wdg id="12" ty="label" x="0" y="5" w="50" h="20" lbl="Bank" fg="label" />
+    <wdg id="13" ty="label" x="0" y="30" w="50" h="20" lbl="Prog" fg="label" />
+    <wdg id="14" ip="17" ty="label" x="50" y="5" w="35" h="20" val="0" filled="1" edit="1" fmt="%3.0f" fg="label" bg="black" />
+    <wdg id="15" ip="18" ty="label" x="50" y="30" w="35" h="20" val="0" filled="1" edit="1" fmt="%3.0f" fg="label" bg="black" />
+    <wdg id="16" ty="pushbutton" x="15" y="60" w="70" h="25" lbl="Select" fg="btnlabel" />
   </wdg>
 </layout>

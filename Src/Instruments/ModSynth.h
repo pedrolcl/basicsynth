@@ -2,7 +2,7 @@
 /// @file ModSynth.h BasicSynth Modular Synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -20,9 +20,9 @@
 
 struct ModSynthUGType
 {
-	char *name;
-	char *shortName;
-	char *longName;
+	const char *name;
+	const char *shortName;
+	const char *longName;
 	ModSynthUG *(*fn)();
 };
 

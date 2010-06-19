@@ -393,11 +393,10 @@ int MixerItem::SaveProperties(PropertyBox *pb)
 	if (chnls < 1)
 		chnls = 1;
 
-	ProjectItem *pi = prjTree->FirstChild(this);
-	while (pi)
+	ProjectItem *pi;
+	while ((pi = prjTree->FirstChild(this)) != NULL)
 	{
 		prjTree->RemoveNode(pi);
-		pi = prjTree->FirstChild(this);
 	}
 
 	int oldUnits = fxUnits;

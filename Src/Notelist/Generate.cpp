@@ -15,7 +15,7 @@
 // The stack is contained within the generator object.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@
 #include <ctype.h>
 #include <math.h>
 #include <BasicSynth.h>
-#include <MIDIDefs.h>
 #include "NLConvert.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -39,7 +38,7 @@ nlGenerate::nlGenerate()
 {
 	mainSeq = new nlSequence;
 	curSeq = mainSeq;
-	
+
 	InitStack();
 
 	for (int i = 0; i < MAXFGEN; i++)
@@ -69,7 +68,7 @@ nlGenerate::~nlGenerate()
 	Clear();
 }
 
-/// Clear all sync points and voices and the main sequence. 
+/// Clear all sync points and voices and the main sequence.
 void nlGenerate::Clear()
 {
 	nlSyncMark *smp;
@@ -238,8 +237,8 @@ nlSequence *nlGenerate::FindSequence(nlVarValue *id)
 	return NULL;
 }
 
-// AddNode appends a new script node to the 
-// current sequence. 
+// AddNode appends a new script node to the
+// current sequence.
 nlScriptNode *nlGenerate::AddNode(nlScriptNode *node)
 {
 	node->SetGen(this);
@@ -325,7 +324,7 @@ void nlGenerate::MarkTo(nlVarValue *v)
 }
 
 ///////////////////////////////////////////////////////////
-// Sequence - a sequence is a linked list of tokenized 
+// Sequence - a sequence is a linked list of tokenized
 // script. It can represent the main statement list, a
 // named sequence, or a branch from another node in the
 // main sequence (i.e. LOOP, IF...THEN or WHILE).
@@ -828,7 +827,7 @@ nlScriptNode *nlTempoNode::Exec()
 	nlScriptNode *ret = rate->Exec();
 	rate->GetValue(&t);
 	genPtr->SetTempo(b, 60.0 / t);
-	
+
 	return ret;
 }
 
@@ -849,7 +848,7 @@ nlScriptNode *nlTimeNode::Exec()
 }
 
 ///////////////////////////////////////////////////////////
-// MARK "id" - save the current time 
+// MARK "id" - save the current time
 ///////////////////////////////////////////////////////////
 
 nlScriptNode *nlMarkNode::Exec()
@@ -1183,12 +1182,12 @@ nlScriptNode *nlSetNode::Exec()
 
 ///////////////////////////////////////////////////////////
 // Expression - stack based calculator. The parser has
-// converted expressions to postfix notation (RPN). 
+// converted expressions to postfix notation (RPN).
 // Operands are pushed on the stack.
 // Operators pop the appropriate values from the stack,
 // perform the op, then push the result back on the stack.
 // The final result is popped from the stack
-// and becomes the value of the ExprNode object. 
+// and becomes the value of the ExprNode object.
 // Evaluation stops when a script node is encountered
 // that is not an operator or operand. This can in theory
 // be a problem if two expressions were to appear in series
@@ -1511,7 +1510,7 @@ nlScriptNode *nlInitFnNode::Exec()
 // modifies the actual duration of a note. This allows
 // for overlapping notes (legato) or spacing between notes
 // (staccto) while using the rhythm values to control note
-// start time alone. 
+// start time alone.
 ///////////////////////////////////////////////////////////
 
 nlScriptNode *nlArticNode::Exec()
@@ -1710,7 +1709,7 @@ nlScriptNode *nlMixerNode::Exec()
 
 	double params[6];
 	int argNdx = 0;
-	
+
 //  values are in the order fxunit , from , to , time , freq , wt ;
 	while (argNdx < 6 && np)
 	{
@@ -1810,7 +1809,7 @@ nlScriptNode *nlTrackNode::Exec()
 ///////////////////////////////////////////////////////////
 // [note] pitch, rhythm, volume, params.
 //
-// This is the node that does the work of generating a 
+// This is the node that does the work of generating a
 // sequencer note event. It first evaluates the pitch, rhythm,
 // volume and parameter values, then loops through the number
 // of values for the note. Start time and duration are calculated
@@ -1827,7 +1826,7 @@ nlScriptNode *nlNoteNode::Exec()
 		return NULL;
 
 	double totalDur = 0.0;
-	double remainDur;
+	double remainDur = 0.0;
 	double offsetDur = vox->curTime;
 
 	nlScriptNode *list = vox->pitch.Exec(next);
@@ -1879,7 +1878,7 @@ nlScriptNode *nlNoteNode::Exec()
 			vox->params[np].GetNextValue(&vox->lastParam[np]);
 			vox->paramVal[np] = vox->lastParam[np];
 		}
-		
+
 		if (sus)
 		{
 			// For a sustain, the first rhythm indicates total length.

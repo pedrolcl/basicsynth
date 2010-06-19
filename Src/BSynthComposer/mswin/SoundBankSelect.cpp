@@ -14,9 +14,9 @@ int SelectSoundBankPreset(SFPlayerInstr *instr)
 {
 	SoundBankSelect dlg;
 	float value;
-	instr->GetParam(16, &value);
+	instr->GetParam(SFPLAYER_BANK, &value);
 	dlg.bnkNum = (bsInt16) value;
-	instr->GetParam(17, &value);
+	instr->GetParam(SFPLAYER_PROG, &value);
 	dlg.insNum = (bsInt16) value;
 
 	dlg.fileID = instr->GetSoundFile();
@@ -26,29 +26,32 @@ int SelectSoundBankPreset(SFPlayerInstr *instr)
 	{
 		instr->SetSoundFile(dlg.fileID);
 		instr->SetInstrName(dlg.insName);
-		instr->SetParam(16, (float) dlg.bnkNum);
-		instr->SetParam(17, (float) dlg.insNum);
+		instr->SetParam(SFPLAYER_BANK, (float) dlg.bnkNum);
+		instr->SetParam(SFPLAYER_PROG, (float) dlg.insNum);
 		return 1;
 	}
 	return 0;
 }
 
-int SelectSoundBankPreset(GMManager *gm)
+int SelectSoundBankPreset(GMPlayer *gm)
 {
 	SoundBankSelect dlg;
 
 	float val;
 	dlg.fileID = gm->GetSoundFile();
-	gm->GetParam(19, &val);
+	gm->GetParam(GMPLAYER_BANK, &val);
 	dlg.bnkNum = (bsInt16) val;
-	gm->GetParam(20, &val);
+	gm->GetParam(GMPLAYER_PROG, &val);
 	dlg.insNum = (bsInt16) val;
 
 	if (dlg.DoModal() == IDOK)
 	{
 		gm->SetSoundFile(dlg.fileID);
-		gm->SetParam(19, (float) dlg.bnkNum);
-		gm->SetParam(20, (float) dlg.insNum);
+		gm->SetParam(GMPLAYER_BANK, (float) dlg.bnkNum);
+		gm->SetParam(GMPLAYER_PROG, (float) dlg.insNum);
+		SoundBank *sbnk = gm->GetSoundBank();
+		if (sbnk)
+			sbnk->GetInstr(dlg.bnkNum, dlg.insNum, 1);
 		return 1;
 	}
 	return 0;
@@ -88,11 +91,11 @@ LRESULT SoundBankSelect::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, B
 	{
 		int index = fileList.AddString(sb->name);
 		fileList.SetItemDataPtr(index, (void*)sb);
-		if (sb->name.Compare(fileID) == 0)
-			bnkSel = index;
+		//if (sb->name.Compare(fileID) == 0)
+		//	bnkSel = index;
 		sb = sb->next;
 	}
-
+	bnkSel = fileList.FindStringExact(0, fileID);
 	fileList.SetCurSel(bnkSel);
 	SwitchFile();
 
@@ -109,7 +112,7 @@ LRESULT SoundBankSelect::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bH
 		SBInstr *pre = GetInstr();
 		if (pre)
 		{
-			insNum = pre->instrNdx;
+			insNum = pre->prog;
 			insName = pre->instrName;
 		}
 	}
@@ -172,6 +175,7 @@ void SoundBankSelect::SwitchBank()
 	instrList.ResetContent();
 
 	int insSel = 0;
+	int index;
 	SoundBank *sb = GetFile();
 	if (sb)
 	{
@@ -183,13 +187,21 @@ void SoundBankSelect::SwitchBank()
 			{
 				if ((ins = sb->GetInstr(bank, n, 0)) != 0)
 				{
-					int index = instrList.AddString(ins->instrName);
+					index = instrList.AddString(ins->instrName);
 					instrList.SetItemDataPtr(index, ins);
-					if (n == insNum)
-						insSel = n;
 				}
 			}
-			instrList.SetCurSel(insSel);
+			// because the list is sorted, we have to search...
+			int count = instrList.GetCount();
+			for (index = 0; index < count; index++)
+			{
+				ins = (SBInstr *)instrList.GetItemDataPtr(index);
+				if (ins->prog == insNum)
+				{
+					instrList.SetCurSel(index);
+					break;
+				}
+			}
 		}
 	}
 }
@@ -222,7 +234,7 @@ int SoundBankSelect::GetInstrNum()
 {
 	SBInstr *ins = GetInstr();
 	if (ins)
-		return ins->instrNdx;
+		return ins->prog;
 	return -1;
 }
 

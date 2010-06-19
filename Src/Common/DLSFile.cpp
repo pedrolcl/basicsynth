@@ -4,7 +4,7 @@
 /// @file DLSFile.cpp MIDI file loader implementation.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////
@@ -15,14 +15,43 @@
 #include <SynthDefs.h>
 #include <WaveFile.h>
 #include <SynthList.h>
-#include <SFDefs.h>
 #include <SoundBank.h>
 #include <DLSFile.h>
+
+static bsUint16 Swap(bsUint16 n)
+{
+#if SYNTH_BIG_ENDIAN
+	return ((n << 8) & 0xff00) | ((n >> 8) & 0x00ff);
+#else
+	return n;
+#endif
+}
+
+static bsUint32 Swap(bsUint32 n)
+{
+#if SYNTH_BIG_ENDIAN
+	return ((n << 24) & 0xff000000)
+	     | ((n << 8)  & 0x00ff0000)
+	     | ((n >> 8)  & 0x0000ff00)
+	     | ((n >> 24) & 0x000000ff);
+#else
+	return n;
+#endif
+}
+
+static int ReadChunk(FileReadBuf& file, dlsChunk& chk)
+{
+	if (file.FileRead(&chk, 8) != 8)
+		return -1;
+	chk.cksz = Swap(chk.cksz);
+	if (chk.cksz & 1)
+		chk.cksz++;
+	return 0;
+}
 
 DLSFile::DLSFile()
 {
 	preload = 1;
-	atnScl = 1.0;
 }
 
 DLSFile::~DLSFile()
@@ -38,8 +67,7 @@ int DLSFile::IsDLSFile(const char *fname)
 		// read the RIFF chunk.
 		dlsChunk rchk;
 		rchk.ckid = 0;
-		file.FileRead(&rchk, 8);
-		if (rchk.ckid == DLS_RIFF_CHUNK)
+		if (ReadChunk(file, rchk) == 0 && rchk.ckid == DLS_RIFF_CHUNK)
 		{
 			// Read the format
 			bsInt32 id = 0;
@@ -52,10 +80,9 @@ int DLSFile::IsDLSFile(const char *fname)
 	return isDLS;
 }
 
-SoundBank *DLSFile::LoadSoundBank(const char *fname, int pre, float scl)
+SoundBank *DLSFile::LoadSoundBank(const char *fname, int pre)
 {
 	preload = pre;
-	atnScl = scl;
 
 	file.SetBufSize(0x10000);
 	if (file.FileOpen(fname))
@@ -65,8 +92,7 @@ SoundBank *DLSFile::LoadSoundBank(const char *fname, int pre, float scl)
 	rchk.ckid = 0;
 	rchk.cksz = 0;
 	// read the RIFF chunk.
-	file.FileRead(&rchk, 8);
-	if (rchk.ckid != DLS_RIFF_CHUNK)
+	if (ReadChunk(file, rchk) || rchk.ckid != DLS_RIFF_CHUNK)
 	{
 		file.FileClose();
 		return 0;
@@ -87,6 +113,7 @@ SoundBank *DLSFile::LoadSoundBank(const char *fname, int pre, float scl)
 	return sb;
 }
 
+
 int DLSFileInfo::Read(FileReadBuf& file, bsUint32 riffSize)
 {
 	dlsChunk chk;
@@ -94,7 +121,7 @@ int DLSFileInfo::Read(FileReadBuf& file, bsUint32 riffSize)
 	while (riffSize > 0 && err == 0)
 	{
 		// read the next chunk header
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			break;
 		riffSize -= 8;
 		if (chk.ckid == DLS_VERS_CHUNK)
@@ -154,7 +181,7 @@ int DLSWvplInfo::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		if (chk.ckid == DLS_LIST_CHUNK)
@@ -186,7 +213,7 @@ int DLSWaveInfo::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		switch (chk.ckid)
@@ -245,7 +272,7 @@ int DLSWaveInfo::ReadSamples(FileReadBuf& file, bsUint32 chksz)
 	filepos = file.FilePosition();
 
 	file.FileSkip(chksz);
-	sampsize = chksz / (wvfmt.bitsPerSamp / 8);
+	sampsize = chksz / (bsUint32) (wvfmt.bitsPerSamp / 8);
 	return 0;
 }
 
@@ -258,7 +285,7 @@ int DLSInsList::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		if (chk.ckid == DLS_LIST_CHUNK)
@@ -290,7 +317,7 @@ int DLSInsInfo::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		switch (chk.ckid)
@@ -343,7 +370,7 @@ int DLSRgnList::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		if (chk.ckid == DLS_LIST_CHUNK)
@@ -375,7 +402,7 @@ int DLSRgnInfo::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		switch (chk.ckid)
@@ -422,7 +449,7 @@ int DLSRgnInfo::Read(FileReadBuf& file, bsUint32 chksz)
 				/*char nmbuf[5];
 				memcpy(nmbuf, &fmt, 4);
 				nmbuf[4] = 0;
-				printf("List format %s\n", nmbuf);*/
+				//printf("List format %s\n", nmbuf);*/
 				file.FileSkip(chk.cksz - 4);
 			}
 			break;
@@ -443,7 +470,7 @@ int DLSArtList::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		if (chk.ckid == DLS_ART1_CHUNK || chk.ckid == DLS_ART2_CHUNK)
@@ -491,7 +518,7 @@ int DLSInfoList::Read(FileReadBuf& file, bsUint32 chksz)
 	dlsChunk chk;
 	while (chksz > 0 && err == 0)
 	{
-		if (file.FileRead(&chk, 8) != 8)
+		if (ReadChunk(file, chk))
 			return -1;
 		chksz -= 8;
 		if (chk.cksz > 0)
@@ -507,11 +534,11 @@ int DLSInfoList::Read(FileReadBuf& file, bsUint32 chksz)
 	return err;
 }
 
-int DLSInfoStr::Read(FileReadBuf& file, bsUint32 cksz)
+int DLSInfoStr::Read(FileReadBuf& file, bsInt32 cksz)
 {
 	//printf("  InfoStr(%d)\n", cksz);
 	char *s = (char *)malloc(cksz+1);
-	if ((bsUint32)file.FileRead(s, cksz) == cksz)
+	if (file.FileRead(s, cksz) == cksz)
 	{
 		s[cksz] = '\0';
 		while (--cksz >= 0)
@@ -527,22 +554,7 @@ int DLSInfoStr::Read(FileReadBuf& file, bsUint32 cksz)
 	return -1;
 }
 
-AmpValue DLSFile::DLSAttenuation(bsInt32 cb)
-{
-	return ((AmpValue) cb * atnScl) / 65536.0;
-}
-
-FrqValue DLSFile::DLSFrequency(bsInt32 pc)
-{
-	return 440.0 * pow(2.0, (((double)pc / 65536.0) - 6900.0) / 1200.0);
-}
-
-AmpValue DLSFile::DLSPercent(bsInt32 pct)
-{
-	return (AmpValue) pct / (1000.0 * 65536.0);
-}
-
-AmpValue DLSFile::DLSScale(bsInt32 scl)
+float DLSFile::DLSScale(bsInt32 scl)
 {
 	return (AmpValue) scl / 65536.0;
 }
@@ -591,6 +603,8 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 		if (instr == 0)
 			continue;
 
+		SBZoneGroup *grp = instr->AddGroup();
+
 		insIndx++;
 		instr->instrName = ins->info.GetInfo(DLS_INAM_CHUNK);
 
@@ -599,25 +613,60 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 		{
 			SBZone *zone = instr->AddZone();
 
+			// alter some defaults...
+			zone->vibLfo.rate = -851.3179; // 5Hz: pc = 1200 * log2(5/440) + 6900
+			zone->modLfo.rate = -851.3179;
+			zone->vibLfo.delay = -7972.6274; // 10ms: tc = 1200 * log2(0.01)
+			zone->modLfo.delay = -7972.6274;
+
 			zone->lowKey = rgn->rgnh.rangeKey.low;
 			zone->highKey = rgn->rgnh.rangeKey.high;
 			zone->lowVel = rgn->rgnh.rangeVel.low;
 			zone->highVel = rgn->rgnh.rangeVel.high;
 			zone->exclNote = (bsUint32) rgn->rgnh.keyGroup;
-			if (zone->exclNote)
-				zone->exclNote += insIndx << 8;
 
-			// chan == 0 -> right, chan == 1 -> left
-			zone->chan = (rgn->wlnk.channel & 2) ? 1 : 0;
-			if (rgn->wsmpValid)
+			// Connect to sample
+			DLSWaveInfo *wv = info.wvpl.FindWave(rgn->wlnk.tableIndex);
+			if (wv)
 			{
-				zone->keyNum = rgn->wsmp.unityNote;
-				zone->cents = rgn->wsmp.fineTune;
-				zone->volAtten = DLSScale(rgn->wsmp.attenuation);
-				zone->mode = rgn->wsmp.sampleLoops > 0;
-				zone->loopStart = rgn->loop.start;
-				zone->loopLen = rgn->loop.length;
+				dlsSample *wsmp;
+				dlsLoop *loop;
+				if (rgn->wsmpValid)
+				{
+					wsmp = &rgn->wsmp;
+					loop = &rgn->loop;
+				}
+				else
+				{
+					wsmp = &wv->wvsmp;
+					loop = &wv->loop;
+				}
+				zone->keyNum = wsmp->unityNote;
+				zone->cents = -wsmp->fineTune;
+				zone->initAtten = MapScale(SBGEN_VOLUME, wsmp->attenuation);
+				if (wsmp->sampleLoops == 0)
+					zone->mode = 0;
+				else if (loop->type == WLOOP_TYPE_FORWARD)
+					zone->mode = 1;
+				else if (loop->type == WLOOP_TYPE_RELEASE)
+					zone->mode = 3;
+				zone->rate = wv->wvfmt.sampleRate;
+				zone->loopStart = loop->start;
+				zone->loopLen = loop->length;
 				zone->loopEnd = zone->loopStart + zone->loopLen;
+				zone->tableEnd = wv->sampsize;
+				zone->sample = sbnk->GetSample(wv->index, 0);
+				zone->sampleNdx = wv->index;
+				zone->name = wv->info.GetInfo(DLS_INAM_CHUNK);
+				// validate loop points
+				if (zone->loopStart < 0)
+					zone->loopStart = 0;
+				else if (zone->loopStart >= zone->tableEnd)
+					zone->loopStart = zone->tableEnd;
+				if (zone->loopEnd < zone->loopStart)
+					zone->loopEnd = zone->loopStart;
+				else if (zone->loopEnd > zone->tableEnd)
+					zone->loopEnd = zone->tableEnd;
 			}
 
 			// Apply instrument articulation
@@ -630,245 +679,428 @@ SoundBank *DLSFile::BuildSoundBank(const char *fname)
 			while ((art = rgn->lart.EnumArt(art)) != 0)
 				ApplyArt(zone, art);
 
-			// Connect to sample
-			DLSWaveInfo *wv = info.wvpl.FindWave(rgn->wlnk.tableIndex);
-			if (wv)
+			if (rgn->wlnk.phaseGroup != 0 && !(rgn->wlnk.options & F_WAVELINK_PHASE_MASTER))
 			{
-				if (!rgn->wsmpValid)
+				// TODO: Set up a link to the phase master zone and take
+				// oscillator phase from that other zone at playback.
+				// find phase master and get tuning information
+/*				DLSInsInfo *ins2 = 0;
+				DLSRgnInfo *rgn2 = 0;
+				int found = 0;
+				while (!found && (ins2 = info.ins.EnumIns(ins2)) != 0)
 				{
-					// if we didn't see a wsmp chunk in the region,
-					// apply information from the wave chunk.
-					zone->cents = wv->wvsmp.fineTune;
-					zone->keyNum = wv->wvsmp.unityNote;
-					zone->volAtten = DLSScale(wv->wvsmp.attenuation);
-					zone->mode = wv->wvsmp.sampleLoops > 0;
-					zone->loopStart = wv->loop.start;
-					zone->loopLen = wv->loop.length;
-					zone->loopEnd = zone->loopStart + zone->loopLen;
-				}
-				zone->rate = wv->wvfmt.sampleRate;
-				zone->sample = sbnk->GetSample(wv->index, 0);
-				zone->sampleNdx = wv->index;
-				zone->sampleLen = wv->sampsize;
-				zone->tableEnd = wv->sampsize;
-				zone->name = wv->info.GetInfo(DLS_INAM_CHUNK);
-				zone->recFreq = synthParams.GetFrequency(zone->keyNum - 12);
-				if (zone->cents != 0)
-					zone->recFreq *= synthParams.GetCentsMult(-zone->cents);
-				zone->recPeriod = (bsInt32) (zone->rate / zone->recFreq);
+					rgn2 = 0;
+					while (!found && (rgn2 = ins->rgnlist.EnumRgn(rgn2)) != 0)
+					{
+						if (rgn->wlnk.phaseGroup == rgn2->wlnk.phaseGroup)
+						{
+							if (rgn2->wlnk.options & F_WAVELINK_PHASE_MASTER)
+							{
+								DLSWaveInfo *wv2 = info.wvpl.FindWave(rgn2->wlnk.tableIndex);
+								zone->rate = wv2->wvfmt.sampleRate;
+								if (rgn->wsmpValid)
+								{
+									zone->keyNum = rgn2->wsmp.unityNote;
+									zone->cents = -rgn2->wsmp.fineTune;
+								}
+								else
+								{
+									zone->keyNum = wv2->wvsmp.unityNote;
+									zone->cents = -wv2->wvsmp.fineTune;
+								}
+								// Replace articulations to DST_PITCH.
+								art = 0;
+								while ((art = rgn2->lart.EnumArt(art)) != 0)
+								{
+									dlsConnection *ci = art->info;
+									for (bsUint32 n = 0; n < art->connections; n++)
+									{
+										if (ci->destination == CONN_DST_PITCH)
+											AddModulator(zone, ci);
+										ci++;
+									}
+								}
+								found = 1;
+							}
+						}
+					}
+				}*/
 			}
-			zone->SetGenFlags();
+
+			// DLS2 2.11 - this is done after articulators since
+			// the spec says this overrides "any parameters in the articulation data"
+			/*if (rgn->wlnk.options & F_WAVELINK_MULTICHANNEL)
+			{
+				switch (rgn->wlnk.channel)
+				{
+				case 0: // left
+					zone->pan = = -500;
+					break;
+				case 1: // right
+					zone->pan = 500;
+					break;
+				case 6: // left of center
+					zone->pan = -200;
+					break;
+				case 7: // right of center
+					zone->pan = 200;
+					break;
+				}
+			}*/
+
+			zone->recCents = (zone->keyNum * 100) + zone->cents;
+			zone->recFreq = 440.0 * SoundBank::GetPow2n1200(zone->recCents - 6900);
+			zone->recPeriod = (bsInt32) (zone->rate / zone->recFreq);
+
+			grp->AddZone(zone);
 		}
 		instr->loaded = preload;
 	}
 
+	sbnk->Optimize();
 	return sbnk;
 }
 
 void DLSFile::ApplyArt(SBZone *zone, DLSArtInfo *art)
 {
-	SBModInfo *mi;
 	dlsConnection *ci = art->info;
+
 	for (bsUint32 n = 0; n < art->connections; n++)
 	{
+		float scale = DLSScale(ci->scale);
 		switch (ci->source)
 		{
 		case CONN_SRC_NONE:
 			switch (ci->destination)
 			{
-			case CONN_DST_ATTENUATION:
-				zone->volAtten = DLSScale(ci->scale);
+			case CONN_DST_RESERVED:
+			case CONN_DST_NONE:
+			case CONN_DST_PITCH:
 				break;
-
+			case CONN_DST_ATTENUATION:
+				if (scale < 0.0)
+					scale = -scale;
+				zone->initAtten = scale;
+				break;
 			case CONN_DST_EG1_DELAYTIME:
-				zone->volEg.delay = DLSScale(ci->scale);
+				zone->volEg.delay = scale;
 				break;
 			case CONN_DST_EG1_ATTACKTIME:
-				zone->volEg.attack = DLSScale(ci->scale);
+				zone->volEg.attack = scale;
 				break;
 			case CONN_DST_EG1_HOLDTIME:
-				zone->volEg.hold = DLSScale(ci->scale);
+				zone->volEg.hold = scale;
 				break;
 			case CONN_DST_EG1_DECAYTIME:
-				zone->volEg.decay = DLSScale(ci->scale);
+				zone->volEg.decay = scale;
 				break;
 			case CONN_DST_EG1_RELEASETIME:
-				zone->volEg.release = DLSScale(ci->scale);
+				zone->volEg.release = scale;
 				break;
 			case CONN_DST_EG1_SUSTAINLEVEL:
-				zone->volEg.sustain = DLSPercent(ci->scale);
+				zone->volEg.sustain = scale;
+				break;
+			case CONN_DST_EG1_RESERVED:
+				break;
+			case CONN_DST_EG1_SHUTDOWNTIME:
+				zone->volEg.shutdown = SoundBank::EnvRate(ci->scale);
 				break;
 
 			case CONN_DST_EG2_DELAYTIME:
-				zone->modEg.delay = DLSScale(ci->scale);
+				zone->modEg.delay = scale;
 				break;
 			case CONN_DST_EG2_ATTACKTIME:
-				zone->modEg.attack = DLSScale(ci->scale);
+				zone->modEg.attack = scale;
 				break;
 			case CONN_DST_EG2_HOLDTIME:
-				zone->modEg.hold = DLSScale(ci->scale);
+				zone->modEg.hold = scale;
 				break;
 			case CONN_DST_EG2_DECAYTIME:
-				zone->modEg.decay = DLSScale(ci->scale);
+				zone->modEg.decay = scale;
 				break;
 			case CONN_DST_EG2_RELEASETIME:
-				zone->modEg.release = DLSScale(ci->scale);
+				zone->modEg.release = scale;
 				break;
 			case CONN_DST_EG2_SUSTAINLEVEL:
-				zone->modEg.sustain = DLSPercent(ci->scale);
+				zone->modEg.sustain = scale;
+				break;
+			case CONN_DST_EG2_RESERVED:
 				break;
 
 			case CONN_DST_LFO_FREQUENCY:
-				zone->vibLfo.rate = DLSFrequency(ci->scale);
-				zone->modLfo.rate = zone->vibLfo.rate;
+				if (scale < -12000)
+					scale = -12000;
+				zone->modLfo.rate = scale;
+				break;
+			case CONN_DST_VIB_FREQUENCY:
+				if (scale < -12000)
+					scale = -12000;
+				zone->vibLfo.rate = scale;
 				break;
 			case CONN_DST_LFO_STARTDELAY:
-				zone->vibLfo.delay = DLSScale(ci->scale);
-				zone->modLfo.delay = zone->vibLfo.delay;
+				zone->modLfo.delay = scale;
 				break;
+			case CONN_DST_VIB_STARTDELAY:
+				zone->vibLfo.delay = scale;
+				break;
+
 			case CONN_DST_PAN:
-				zone->pan = DLSPercent(ci->scale);
+				zone->pan = scale;
 				break;
 			case CONN_DST_FLT_CUTOFF:
-				zone->filtFreq = DLSScale(ci->scale);
+				if (scale >= 5535 && scale <= 11921.0)
+				{
+					zone->genFlags |= SBGEN_FILTERX;
+					zone->filtFreq = scale;
+				}
 				break;
 			case CONN_DST_FLT_Q:
-				zone->filtQ = DLSScale(ci->scale);
+				if (scale >= 0 && scale <= 22.5)
+					zone->filtQ = scale;
 				break;
-			// default:
-			// SRC_NONE only can apply to known parameters
 			}
 			break;
 		case CONN_SRC_LFO:
-			switch (ci->destination)
+			if (ci->control == CONN_SRC_NONE)
 			{
-			case CONN_DST_PITCH:
-				zone->genFlags |= SBGEN_MODLFOF;
-				zone->vibLfoFrq = DLSScale(ci->scale);
-				break;
-			case CONN_DST_ATTENUATION:
-				zone->genFlags |= SBGEN_MODLFOA;
-				zone->modLfoVol = DLSAttenuation(ci->scale);
-				break;
+				if (ci->destination == CONN_DST_FLT_CUTOFF)
+				{
+					zone->modLfoFlt = scale;
+					zone->genFlags |= SBGEN_FILTERX|SBGEN_LFO2X;
+				}
+				else if (ci->destination == CONN_DST_GAIN)
+				{
+					zone->modLfoVol = scale;
+					zone->genFlags |= SBGEN_LFO2X;
+				}
+				else if (ci->destination == CONN_DST_PITCH)
+				{
+					zone->modLfoFrq = scale;
+					zone->genFlags |= SBGEN_LFO2X;
+				}
+				else
+					AddModulator(zone, ci);
 			}
+			else
+				AddModulator(zone, ci);
 			break;
+		case CONN_SRC_VIBRATO:
+			if (ci->control == CONN_SRC_NONE)
+			{
+				if (ci->destination == CONN_DST_PITCH)
+				{
+					zone->vibLfoFrq = scale;
+					zone->genFlags |= SBGEN_LFO1X;
+				}
+				else
+					AddModulator(zone, ci);
+			}
+			else
+				AddModulator(zone, ci);
+			break;
+		case CONN_SRC_EG2:
+			if (ci->control == CONN_SRC_NONE)
+			{
+				if (ci->destination == CONN_DST_FLT_CUTOFF)
+				{
+					zone->modEnvFlt = scale;
+					zone->genFlags |= SBGEN_FILTERX|SBGEN_EG2X;
+				}
+				else if (ci->destination == CONN_DST_PITCH)
+				{
+					zone->modEnvFrq = scale;
+					zone->genFlags |= SBGEN_EG2X;
+				}
+				else
+					AddModulator(zone, ci);
+			}
+			else
+				AddModulator(zone, ci);
+			break;
+
 		case CONN_SRC_KEYONVELOCITY:
 			switch (ci->destination)
 			{
 			case CONN_DST_ATTENUATION:
-				zone->velScale = DLSAttenuation(ci->scale);
+				zone->velScale = scale;
 				break;
 			case CONN_DST_EG1_ATTACKTIME:
-				zone->volEg.velAttack = DLSScale(ci->scale);
+				zone->volEg.velAttack = scale;
 				break;
 			case CONN_DST_EG2_ATTACKTIME:
-				zone->modEg.velAttack = DLSScale(ci->scale);
-				break;
-			default:
-				// add to other modulator list
-				// FIXME: change source/destination into SoundBank indexes
-				zone->genFlags |= SBGEN_MODLIST;
-				mi = zone->AddModInfo();
-				mi->srcOp = ci->source;
-				mi->dstOp = ci->destination;
-				mi->value = ci->scale;
-				mi->srcAmntOp = ci->control;
-				mi->transOp = ci->transform;
+				zone->modEg.velAttack = scale;
 				break;
 			}
 			break;
 
 		case CONN_SRC_KEYNUMBER:
-			// The DLS form of rate scaling is to take
-			// key 0 as a base and apply a full-range
-			// scale. We convert to SF2 form where
-			// the value represents a per-key adjustment
-			// with middle C as the reference point.
-			// So, we calculate the value for middle 'C'
-			// and then divide the full scale amount
-			// by the range of keys.
 			if (ci->destination == CONN_DST_EG1_DECAYTIME)
-			{
-				float km = DLSScale(ci->scale);
-				zone->volEg.attack += (60.0/128.0 * km);
-				zone->volEg.keyDecay = fabs(km/128.0);
-			}
+				zone->volEg.keyDecay = scale;
 			else if (ci->destination == CONN_DST_EG2_DECAYTIME)
-			{
-				float km = DLSScale(ci->scale);
-				zone->modEg.attack += (60.0/128.0 * km);
-				zone->modEg.keyDecay = fabs(km/128.0);
-			}
-			// else add to InitList?
+				zone->modEg.keyDecay = scale;
 			break;
 
 		case CONN_SRC_EG1:
-			if (ci->destination == CONN_DST_ATTENUATION)
-				zone->volEnvAmp = DLSScale(ci->scale);
+			if (ci->destination != CONN_DST_ATTENUATION)
+				AddModulator(zone, ci);
 			break;
-		case CONN_SRC_EG2:
-			if (ci->destination == CONN_DST_PITCH)
-			{
-				zone->genFlags |= SBGEN_MODENVF;
-				zone->modEnvFrq = DLSScale(ci->scale);
-			}
-			break;
+
 		case CONN_SRC_PITCHWHEEL:
-			// Set by RPN 0
+			if (ci->destination != CONN_DST_PITCH)
+				AddModulator(zone, ci);
 			break;
 		case CONN_SRC_CC1:
-			if (ci->destination == CONN_DST_PITCH)
-			{
-				zone->genFlags |= SBGEN_MODWHLF;
-				zone->mwfScale = DLSScale(ci->scale);
-			}
-			else if (ci->destination == CONN_DST_ATTENUATION)
-			{
-				zone->genFlags |= SBGEN_MODWHLA;
-				zone->mwaScale = DLSScale(ci->scale);
-			}
-			break;
-		case CONN_SRC_CC2:
-			if (ci->destination == CONN_DST_PITCH)
-			{
-				zone->genFlags |= SBGEN_BRTHFRQ;
-				zone->bthfScale = DLSScale(ci->scale);
-			}
-			else if (ci->destination == CONN_DST_ATTENUATION)
-			{
-				zone->genFlags |= SBGEN_BRTHAMP;
-				zone->bthaScale = DLSScale(ci->scale);
-			}
-			break;
-		case CONN_SRC_CC7:
-			// vol scale ?
-			break;
-		case CONN_SRC_CC10:
-			// pan scale ?
-			break;
-		case CONN_SRC_CC11:
-			if (ci->destination == CONN_DST_PITCH)
-			{
-				zone->genFlags |= SBGEN_EXPRFRQ;
-				zone->expfScale = DLSScale(ci->scale);
-			}
-			else if (ci->destination == CONN_DST_ATTENUATION)
-			{
-				zone->genFlags |= SBGEN_EXPRAMP;
-				zone->expaScale = DLSScale(ci->scale);
-			}
+			// this is considered a control, not a source.
+			// The CC value is normalized and multiplied
+			// by a scale appropriate to the destination
+			// then added to a scaled LFO output.
+			//AddModulator(zone, ci);
 			break;
 		default:
-			zone->genFlags |= SBGEN_MODLIST;
-			mi = zone->AddModInfo();
-			// FIXME: change source/destination into SoundBank indexes
-			mi->srcOp = ci->source;
-			mi->dstOp = ci->destination;
-			mi->srcAmntOp = ci->control;
-			mi->transOp = ci->transform;
-			mi->value = DLSScale(ci->scale);
+			AddModulator(zone, ci);
 			break;
 		}
 		ci++;
 	}
 }
+
+void DLSFile::AddModulator(SBModList *list, dlsConnection *ci)
+{
+	SBModInfo *mi = list->GetModInfo(MapSource(ci->source), MapSource(ci->control), MapDestination(ci->destination));
+	if (mi != NULL)
+	{
+		if (ci->scale == 0.0)
+		{
+			mi->Remove();
+			delete mi;
+			return;
+		}
+	}
+	else
+		mi = list->AddModInfo();
+	InitModulator(mi, ci);
+}
+
+void DLSFile::InitModulator(SBModInfo *mi, dlsConnection *ci)
+{
+	mi->srcOp = MapSource(ci->source);;
+	mi->srcNf = (ci->transform >> 10) & 0x3F;
+	mi->ctlOp = MapSource(ci->control);
+	mi->ctlNf = (ci->transform >> 4) & 0x3f;
+	mi->dstOp = MapDestination(ci->destination);;
+	mi->trnOp = 0;
+	mi->scale = MapScale(mi->dstOp, ci->scale);
+}
+
+float DLSFile::MapScale(short destination, bsInt32 scale)
+{
+	switch (destination)
+	{
+	case SBGEN_VOLUME:
+		if (scale < 0.0)
+			scale = -scale;
+		break;
+	case SBGEN_REVERB:
+		return DLSScale(scale) * 0.5;
+	}
+	return DLSScale(scale);
+}
+
+short DLSFile::MapDestination(short destination)
+{
+	switch (destination)
+	{
+	case CONN_DST_PITCH:
+		return SBGEN_PITCH;
+	case CONN_DST_ATTENUATION:
+		return SBGEN_VOLUME;
+	case CONN_DST_EG1_DELAYTIME:
+		return SBGEN_EG1DLY;
+	case CONN_DST_EG1_ATTACKTIME:
+		return SBGEN_EG1ATK;
+	case CONN_DST_EG1_HOLDTIME:
+		return SBGEN_EG1HOLD;
+	case CONN_DST_EG1_DECAYTIME:
+		return SBGEN_EG1DEC;
+	case CONN_DST_EG1_RELEASETIME:
+		return SBGEN_EG1REL;
+	case CONN_DST_EG1_SUSTAINLEVEL:
+		return SBGEN_EG1SUS;
+	case CONN_DST_EG2_DELAYTIME:
+		return SBGEN_EG2DLY;
+	case CONN_DST_EG2_ATTACKTIME:
+		return SBGEN_EG2ATK;
+	case CONN_DST_EG2_HOLDTIME:
+		return SBGEN_EG2HOLD;
+	case CONN_DST_EG2_DECAYTIME:
+		return SBGEN_EG2DEC;
+	case CONN_DST_EG2_RELEASETIME:
+		return SBGEN_EG2REL;
+	case CONN_DST_EG2_SUSTAINLEVEL:
+		return SBGEN_EG2SUS;
+	case CONN_DST_LFO_FREQUENCY:
+		return SBGEN_LFO1FRQ;
+	case CONN_DST_VIB_FREQUENCY:
+		return SBGEN_LFO2FRQ;
+	case CONN_DST_LFO_STARTDELAY:
+		return SBGEN_LFO1DLY;
+	case CONN_DST_VIB_STARTDELAY:
+		return SBGEN_LFO2DLY;
+	case CONN_DST_PAN:
+		return SBGEN_PAN;
+	case CONN_DST_FLT_CUTOFF:
+		return SBGEN_FILTER;
+	case CONN_DST_FLT_Q:
+		return SBGEN_FILTQ;
+	case CONN_DST_CHORUS:
+		return SBGEN_CHORUS;
+	case CONN_DST_REVERB:
+		return SBGEN_REVERB;
+	}
+	return SBGEN_NONE;
+}
+
+short DLSFile::MapSource(short source)
+{
+	switch (source)
+	{
+	case CONN_SRC_NONE:
+		return SBGEN_NONE;
+	case CONN_SRC_KEYONVELOCITY:
+		return SBGEN_VELN;
+	case CONN_SRC_KEYNUMBER:
+		return SBGEN_KEYN;
+	case CONN_SRC_LFO:
+		return SBGEN_LFO1;
+	case CONN_SRC_VIBRATO:
+		return SBGEN_LFO2;
+	case CONN_SRC_EG1:
+		return SBGEN_EG1;
+	case CONN_SRC_EG2:
+		return SBGEN_EG2;
+	case CONN_SRC_PITCHWHEEL:
+		return SBGEN_PITCHWHL;
+	case CONN_SRC_CHANNELPRESSURE:
+		return SBGEN_CHNLAT;
+	case CONN_SRC_POLYPRESSURE:
+		return SBGEN_PKEYAT;
+	case CONN_SRC_RPN0:
+		return SBGEN_RPN0;
+//	case CONN_SRC_RPN1:
+//		return SBGEN_RPN1;
+//	case CONN_SRC_RPN2:
+//		return SBGEN_RPN2;
+	case CONN_SRC_CC1:  // Modulation wheel
+	case CONN_SRC_CC7:  // Volume
+	case CONN_SRC_CC10: // Pan
+	case CONN_SRC_CC11: // Expression
+	case CONN_SRC_CC91: // Reverb
+	case CONN_SRC_CC93: // Chorus
+	default:
+		if (source & SBGEN_CHCTL)
+			return source;
+		break;
+	}
+	return SBGEN_NONE;
+}
+

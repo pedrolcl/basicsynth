@@ -309,6 +309,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\BuzzSynthEd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ChufferEd.cpp"
 				>
 			</File>
@@ -497,6 +501,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BuzzSynthEd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ChufferEd.h"
 				>
 			</File>
@@ -617,6 +625,10 @@
 			>
 			<File
 				RelativePath="..\Forms\AddSynthEd.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\Forms\BuzzSynthEd.xml"
 				>
 			</File>
 			<File

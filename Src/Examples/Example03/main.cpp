@@ -13,6 +13,10 @@
 // 7 - amplituded modulation
 // 8 - ring modulation
 // 9 - noise
+// 10 - pulse wave
+// 11 - discrete summation forumla
+// 12 - bandwidth version of #11
+// 13 - waveshaping
 //
 // use: Example03 [duration [pitch [volume]]]
 //
@@ -36,8 +40,7 @@ int main(int argc, char *argv[])
 {
 	int pitch = 48;  // Middle C
 	FrqValue duration = 1.0;
-	AmpValue peakAmp = 1.0;
-	AmpValue volume = 0.0;
+	AmpValue peakAmp = 0.707;
 	long n;
 
 	if (argc > 1)
@@ -49,6 +52,7 @@ int main(int argc, char *argv[])
 
 	InitSynthesizer();
 	FrqValue frequency = synthParams.GetFrequency(pitch);
+	int maxHarm = (int) (synthParams.sampleRate / (2.0 * frequency)) - 1;
 
 	WaveFile wf;
 	if (wf.OpenWaveFile("example03.wav", 1))
@@ -60,7 +64,7 @@ int main(int argc, char *argv[])
 	long numSounds = 9;
 
 	EnvGen eg;
-	eg.InitEG(0.707, duration, 0.1, 0.2);
+	eg.InitEG(peakAmp, duration, 0.1, 0.2);
 
 	long totalSamples = (long) ((synthParams.sampleRate * duration) + 0.5);
 
@@ -146,8 +150,34 @@ int main(int argc, char *argv[])
 	//printf("max amp=%1.8f, %i\n", posMax, wf.GetOOR());
 
 	/////////////////////////////////////////////////
-	// 2 - sawtooth wave
+	// 2 - sawtooth wave by summation
 	/////////////////////////////////////////////////
+	PhsAccum phs1 = 0;
+	PhsAccum phsIncr1 = synthParams.frqRad * frequency;
+	PhsAccum phsN;
+	scale = 1.5;
+
+	eg.Reset();
+	for (n = 0; n < totalSamples; n++)
+	{
+		value = 0;
+		phsN = phs1;
+		for (int p = 1; p <= maxHarm; p++) 
+		{
+			//phsN = fmod(phs1 * (double)p, twoPI);
+			value += sin(phsN) / (double)p;
+			if ((phsN += phs1) >= twoPI)
+				phsN -= twoPI;
+		}
+		if ((phs1 += phsIncr1) >= twoPI)
+			phs1 -= twoPI;
+		wf.Output1(eg.Gen() * value / scale);
+	}
+
+	/////////////////////////////////////////////////
+	// 2a - sawtooth wave by direct calculation
+	/////////////////////////////////////////////////
+
 	AmpValue sawIncr = (2 * frequency) / synthParams.sampleRate;
 	AmpValue sawValue = -1;
 	eg.Reset();
@@ -159,7 +189,7 @@ int main(int argc, char *argv[])
 	}
 
 	/////////////////////////////////////////////////
-	// 2a - inverse sawtooth wave
+	// 2b - inverse sawtooth wave
 	/////////////////////////////////////////////////
 	sawValue = 1;
 	eg.Reset();
@@ -211,6 +241,22 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	// 4 - square waves
 	/////////////////////////////////////////////////
+	phs1 = 0;
+	eg.Reset();
+	for (n = 0; n < totalSamples; n++)
+	{
+		value = 0;
+		phsN = phs1;
+		for (int p = 1; p <= maxHarm; p += 2) 
+		{
+			value += sin(phsN) / (double)p;
+			if ((phsN += (phs1+phs1)) >= twoPI)
+				phsN -= twoPI;
+		}
+		if ((phs1 += phsIncr1) >= twoPI)
+			phs1 -= twoPI;
+		wf.Output1(eg.Gen() * value);
+	}
 
 	PhsAccum sqPhase;
 	PhsAccum sqMidPoint;
@@ -388,6 +434,158 @@ int main(int argc, char *argv[])
 		wf.Output1(eg.Gen() * value);
 	}
 
+	/////////////////////////////////////////////////
+	// 10 - Pulse wave (BUZZ)
+	/////////////////////////////////////////////////
+	PhsAccum maxN = floor(synthParams.sampleRate / (2.0 * frequency) - 0.5) - 1;
+	PhsAccum phsIncrDen = (PI / synthParams.sampleRate) * frequency;
+	PhsAccum phsIncrNum = phsIncrDen * ((2.0 * maxN) + 1);
+	PhsAccum phsDen = 0.0;
+	PhsAccum phsNum = 0.0;
+	AmpValue2 ampScl = 1.0 / (2.0 * maxN);
+	AmpValue2 twoNp1 = (2.0 * maxN) + 1.0;
+
+	eg.Reset();
+	for (n = 0; n < totalSamples; n++) 
+	{
+		AmpValue den = sin(phsDen);
+		if (den == 0.0)
+			value = 1.0; // = ampScl * (((twoNp1 * cos(phsNum)) / cos(phsDen)) - 1);
+		else
+			value = ampScl * ((sin(phsNum) / den) - 1);
+		wf.Output1(eg.Gen() * value);
+		phsDen += phsIncrDen;
+		if (phsDen >= twoPI)
+			phsDen -= twoPI;
+		phsNum += phsIncrNum;
+		if (phsNum >= twoPI)
+			phsNum -= twoPI;
+	}
+
+	/////////////////////////////////////////////////
+	// 10a - Pulse wave (BUZZ)
+	// Variation of BUZZ that produces positive and negative peaks.
+	// The timbre is the same, and this is difficult to scale
+	// correctly, making the code above the preferred version.
+	/////////////////////////////////////////////////
+	phsDen = 0;
+	ampScl = 1.0 / maxN;
+	eg.Reset();
+	for (n = 0; n < totalSamples; n++) 
+	{
+		AmpValue den = sin(phsDen);
+		if (den != 0.0)
+			value = ampScl * sin(maxN * phsDen) * sin((maxN+1) * phsDen) / den;
+		else
+			value = 1.0;
+		wf.Output1(eg.Gen() * value);
+		phsDen += phsIncrDen;
+		if (phsDen >= twoPI)
+			phsDen -= twoPI;
+	}
+
+	/////////////////////////////////////////////////
+	// 11 - Dynamic spectrum using closed form with (N = INF)
+	/////////////////////////////////////////////////
+	AmpValue2 ampRatio;
+	for (ampRatio = 0.3; ampRatio < 1.0; ampRatio += 0.11)
+	{
+		PhsAccum phsIncr = synthParams.frqRad * frequency;
+		PhsAccum phsN = 0.0;
+		AmpValue2 ampTwo = ampRatio + ampRatio;
+		AmpValue2 ampSqrP1 = 1.0 + (ampRatio * ampRatio);
+		AmpValue2 ampSqrM1 = 1.0 - (ampRatio * ampRatio);
+
+		eg.Reset();
+		for (n = 0; n < totalSamples; n++) 
+		{
+			value = ampSqrM1 * sin(phsN) / (ampSqrP1 - (ampTwo * cos(phsN)));
+			wf.Output1(eg.Gen() * value);
+			phsN += phsIncr;
+			if (phsN >= twoPI)
+				phsN -= twoPI;
+		}
+	}
+
+	/////////////////////////////////////////////////
+	// 12 - Bandwidth limited version of 11
+	/////////////////////////////////////////////////
+	PhsAccum harm = floor(synthParams.sampleRate / (2.0 * frequency)) - 1;
+	FrqValue beta = frequency; // beta = 2*frequency for odd harmonics
+	for (ampRatio = 0.3; ampRatio < 1.0; ampRatio += 0.11)
+	{
+		PhsAccum phsIncr[5];
+		phsIncr[0] = synthParams.frqRad * frequency;
+		phsIncr[1] = synthParams.frqRad * (frequency-beta);
+		phsIncr[2] = synthParams.frqRad * (frequency+((harm+1)*beta));
+		phsIncr[3] = synthParams.frqRad * (frequency+(harm*beta));
+		phsIncr[4] = synthParams.frqRad * beta;
+
+		PhsAccum phsN[5];
+		phsN[0] = 0.0;
+		phsN[1] = 0.0;
+		phsN[2] = 0.0;
+		phsN[3] = 0.0;
+		phsN[4] = 0.0;
+
+		AmpValue2 ampTwo = ampRatio * 2;
+		AmpValue2 ampSqrP1 = 1.0 + (ampRatio * ampRatio);
+		AmpValue2 ampPowN = pow(ampRatio, harm+1);
+		ampScl = (1.0 - pow(ampRatio, 2.0)) / (1.0 - pow(ampRatio, (2*harm)+2));
+
+		eg.Reset();
+		for (n = 0; n < totalSamples; n++) 
+		{
+			AmpValue2 den = ampSqrP1 - (ampTwo * cos(phsN[4]));
+			if (den != 0.0)
+			{
+				AmpValue2 num = sin(phsN[0]) 
+				              - (ampRatio * sin(phsN[1]))
+				              - (ampPowN * (sin(phsN[2]) - (ampRatio * sin(phsN[3]))));
+				value = (AmpValue) (ampScl * num / den);
+			}
+			else
+				value = 1.0;
+			
+			wf.Output1(eg.Gen() * value);
+			for (int i = 0; i < 5; i++)
+			{
+				phsN[i] += phsIncr[i];
+				if (phsN[i] >= twoPI)
+					phsN[i] -= twoPI;
+			}
+		}
+	}
+
+	/////////////////////////////////////////////////
+	// 13 - Waveshaping
+	/////////////////////////////////////////////////
+	PhsAccum wsPhase = 0;
+	PhsAccum wsPhaseIncr = synthParams.frqRad * frequency;
+
+	AmpValue posClip;
+	AmpValue negClip;
+	AmpValue wsScale;
+
+	for (posClip = 0.3; posClip < 1.0; posClip += 0.2)
+	{
+		negClip = -posClip;
+		wsScale = 1.0 / posClip;
+		eg.Reset();
+		for (n = 0; n < totalSamples; n++) 
+		{
+			value = sinv(wsPhase);
+			if (value >= posClip)
+				value = 1.0;
+			else if (value <= negClip)
+				value = -1.0;
+			else
+				value *= wsScale;
+			if ((wsPhase += wsPhaseIncr) >= twoPI)
+				wsPhase -= twoPI;
+			wf.Output1(eg.Gen() * value);
+		}
+	}
 	wf.CloseWaveFile();
 
 	return 0;

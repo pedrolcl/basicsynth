@@ -13,7 +13,7 @@
 // and read from a table so that they can be localized.
 //
 // Copyright 2008,2009 Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@
 #include <ctype.h>
 #include <math.h>
 #include <BasicSynth.h>
-#include <MIDIDefs.h>
 #include "NLConvert.h"
 
 static int skiptoend[] = { T_ENDSTMT, T_END, -1 };
@@ -74,7 +73,7 @@ nlParser::~nlParser()
 /// below.
 //////////////////////////////////////////////////////////////////////
 
-int nlParser::Error(char *s, int *skiplist)
+int nlParser::Error(const char *s, int *skiplist)
 {
 	nlSyntaxErr errBuf;
 	errBuf.file = filename;
@@ -168,8 +167,8 @@ int nlParser::CheckEnd(int err)
 //////////////////////////////////////////////////////////////////////
 int nlParser::Parse()
 {
-	if (lexPtr == NULL 
-	 || genPtr == NULL 
+	if (lexPtr == NULL
+	 || genPtr == NULL
 	 || cvtPtr == NULL)
 	{
 		// you screwed up!
@@ -196,7 +195,7 @@ int nlParser::Score()
 
 // statement = include | system | script | write
 //           | version | tempo | middlec | initfn
-//           | mixer | map | maxparam 
+//           | mixer | map | maxparam
 //           | sequence | voice
 //           | var | set
 int nlParser::Statement()
@@ -486,7 +485,7 @@ int nlParser::Version()
 }
 
 // common method for parsing a single parameter: expr ';'
-int nlParser::Param1(char *whererr)
+int nlParser::Param1(const char *whererr)
 {
 	int err;
 	char msg[80];
@@ -549,7 +548,7 @@ int nlParser::Tempo()
 // mixer = 'mixer' {mixin | mixpan | mixsend | fxin | fxpan } ';'
 // mixer = 'mixer' mixfn (mixopt)? mixvals ';'
 // mixfn = 'in' | 'pan' | fxfn expr
-// fxfn = 'send' | 'fxin' | 'fxpan' 
+// fxfn = 'send' | 'fxin' | 'fxpan'
 // mixopt = 'ramp' | 'osc' | 'set'
 // mixvals = expr | {expr ','}*
 // values are in the order: [fxunit] , start , end , time , freq , wt
@@ -633,7 +632,7 @@ int nlParser::MaxParam()
 
 
 // map = 'map' id mapval (',' mapval)* ';'
-// mapval = mapexpr | '{' mapexpr (',' mapexpr)* '}' 
+// mapval = mapexpr | '{' mapexpr (',' mapexpr)* '}'
 int nlParser::Map()
 {
 	int err = 0;
@@ -953,7 +952,7 @@ int nlParser::Call()
 	return Param1("Call");
 }
 
-// notelist = 'begin' note* 'end' | note 
+// notelist = 'begin' note* 'end' | note
 int nlParser::Notelist()
 {
 	cvtPtr->DebugNotify(2, "Parse: NOTELIST");
@@ -1029,7 +1028,7 @@ int nlParser::Artic()
 
 // note = include | system | script | write
 //      | tempo | middlec | maxparam | map
-//      | inst | vol | chnl | time | mark | sync 
+//      | inst | vol | chnl | time | mark | sync
 //      | transpose | double | play | initfn | mixer
 //      | artic | param | loop | sus | tie
 //      | notespec | ';'
@@ -1308,7 +1307,7 @@ int nlParser::IfStmt()
 	return err;
 }
 
-// whilestmt = 'while' expr 'do' notelist 
+// whilestmt = 'while' expr 'do' notelist
 int nlParser::WhileStmt()
 {
 	int err = 0;
@@ -1474,7 +1473,7 @@ int nlParser::Term()
 	int nSavTok;
 	if (Factor())
 		return -1;
-	while (theToken == T_ADDOP 
+	while (theToken == T_ADDOP
 		|| theToken == T_SUBOP)
 	{
 		cvtPtr->DebugNotify(3, "Parse: Term");
@@ -1494,8 +1493,8 @@ int nlParser::Factor()
 	int nSavTok;
 	if (Value())
 		return -1;
-	while (theToken == T_MULOP 
-		|| theToken == T_DIVOP 
+	while (theToken == T_MULOP
+		|| theToken == T_DIVOP
 		|| theToken == T_EXPOP)
 	{
 		cvtPtr->DebugNotify(3, "Parse: FACTOR");
@@ -1651,7 +1650,7 @@ int nlParser::FnArgs(int nMax)
 
 long nlParser::PitVal(const char *pStr)
 {
-	//                        A   B  C  D  E  F  G 
+	//                        A   B  C  D  E  F  G
 	static long ltrpch[8] = { 9, 11, 0, 2, 4, 5, 7 };
 	int c = toupper(*pStr);
 	if (c == 'R')

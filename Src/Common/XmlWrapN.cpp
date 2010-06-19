@@ -3,7 +3,7 @@
 //
 // BasicSynth
 //
-// NULL XmlWrapper - dummy functions for systems that don't 
+// NULL XmlWrapper - dummy functions for systems that don't
 // load instruments and projects from XML files. This will
 // resolve references, but always returns error.
 //
@@ -12,7 +12,7 @@
 // method, and link in your object instead of this one.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
@@ -66,57 +66,57 @@ const char *XmlSynthElem::TagName()
 	return "";
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, short& val)
+int XmlSynthElem::GetAttribute(const char *attrName, short& val)
 {
 	val = 0;
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, long& val)
+int XmlSynthElem::GetAttribute(const char *attrName, long& val)
 {
 	val = 0;
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, float& val)
+int XmlSynthElem::GetAttribute(const char *attrName, float& val)
 {
 	val = 0.0;
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, double& val)
+int XmlSynthElem::GetAttribute(const char *attrName, double& val)
 {
 	val = 0.0;
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, char **val)
+int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 {
 	*val = 0;
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, short val)
+int XmlSynthElem::SetAttribute(const char *attrName, short val)
 {
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, long val)
+int XmlSynthElem::SetAttribute(const char *attrName, long val)
 {
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, float val)
+int XmlSynthElem::SetAttribute(const char *attrName, float val)
 {
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, double val)
+int XmlSynthElem::SetAttribute(const char *attrName, double val)
 {
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, const char *val)
+int XmlSynthElem::SetAttribute(const char *attrName, const char *val)
 {
 	return -1;
 }
@@ -152,7 +152,7 @@ XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 	return 0;
 }
 
-XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
+XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag)
 {
 	return 0;
 }

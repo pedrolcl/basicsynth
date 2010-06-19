@@ -2,7 +2,7 @@
 // BasicSynth - Base class for widgets used to edit instruments.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -115,10 +115,10 @@ int SynthWidget::Load(XmlSynthElem *elem)
 		show = v;
 	if (elem->GetAttribute("enable", v) == 0)
 		enable = v;
-	return 0; 
+	return 0;
 }
 
-int SynthWidget::GetColorAttribute(XmlSynthElem *elem, char *attr, wdgColor& clr)
+int SynthWidget::GetColorAttribute(XmlSynthElem *elem, const char *attr, wdgColor& clr)
 {
 	char *clrstr;
 	if (elem->GetAttribute(attr, &clrstr) == 0)

@@ -31,7 +31,7 @@
 
 WaveFile wvf;
 
-void Generate(FrqValue duration, GenUnit *wv, EnvGen *eg, GenUnit *fp)
+void Generate(FrqValue duration, GenUnit *wv, EnvGen *eg, GenUnit *fp, AmpValue vol = 1.0)
 {
 	long totalSamples = (long) (duration * synthParams.sampleRate);
 	AmpValue sig;
@@ -43,7 +43,7 @@ void Generate(FrqValue duration, GenUnit *wv, EnvGen *eg, GenUnit *fp)
 		sig = eg->Gen() * wv->Sample(1.0);
 		if (fp)
 			sig = fp->Sample(sig);
-		wvf.Output1(sig);
+		wvf.Output1(sig * vol);
 	}
 }
 
@@ -53,7 +53,6 @@ void Silence(FrqValue duration)
 	for (long n = 0; n < totalSamples; n++)
 		wvf.Output1(0);
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -81,11 +80,27 @@ int main(int argc, char *argv[])
 	EnvGen eg;
 	eg.InitEG(0.707, duration, 0.1, 0.2);
 
+	FrqValue q = 1;
+	FrqValue cu;
+	long nf;
+	int fn;
+
+	long fstep = 50;
+	FrqValue custep = 5000.0 / (float) fstep;
+	long sn = (long) (5.0 * synthParams.sampleRate) / fstep;
+
 	GenNoise nz;
-	FilterLP lpf;
-	FilterHP hpf;
-	FilterBP bpf;
+	FilterLP2 lpf;
+	FilterHP2 hpf;
+	FilterBP2 bpf;
 	AllPassFilter apf;
+	Reson resf;
+	FilterAvgN avgn;
+	DynFilterLP dynfilt;
+	FilterFIRn firn;
+	FilterIIR2 iir2;
+	FilterIIR2p iir2p;
+	FilterSV fsv;
 	GenWaveI wv;
 	wv.InitWT(frequency, WT_SAW); //WT_PLS);
 
@@ -94,25 +109,29 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	lpf.Init(0.0, 1.0);
 	Generate(duration, &nz, &eg, NULL);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 2 - low pass filter
 	/////////////////////////////////////////////////
 	//lpf.Init(cutoff, 3.0);
-	lpf.Init(cutoff, 1.0);
+	lpf.Init(cutoff, 0.0, 1.0);
 	Generate(duration, &nz, &eg, &lpf);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 3 - high pass filter
 	/////////////////////////////////////////////////
-	hpf.Init(cutoff, 0.7);
+	hpf.Init(cutoff, 0.0, 1.0);
 	Generate(duration, &nz, &eg, &hpf);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 4 - band pass filter
 	/////////////////////////////////////////////////
-	bpf.Init(cutoff, 1.0, 200.0);
+	bpf.Init(cutoff, 0.0, 1.0);
 	Generate(duration, &nz, &eg, &bpf);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 5 - allpass filter
@@ -127,25 +146,30 @@ int main(int argc, char *argv[])
 	// 6 - reference wave
 	/////////////////////////////////////////////////
 	Generate(duration, &wv, &eg, NULL);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 7 - low pass filter
 	/////////////////////////////////////////////////
-	lpf.Init(cutoff, 1.0);
+	lpf.Init(cutoff, 0.0, 1.0);
 	Generate(duration, &wv, &eg, &lpf);
+	lpf.Init(cutoff, 12.0, 0.7);
+	Generate(duration, &wv, &eg, &lpf);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 8 - high pass filter
 	/////////////////////////////////////////////////
-	hpf.Init(cutoff, 1.0);
+	hpf.Init(cutoff, 0.0, 1.0);
 	Generate(duration, &wv, &eg, &hpf);
+	Silence(0.1);
 
 	/////////////////////////////////////////////////
 	// 9-10 - band pass filters
 	/////////////////////////////////////////////////
-	bpf.Init(cutoff, 1.0, 200.0);
+	bpf.Init(cutoff, 0.0, 1.0);
 	Generate(duration, &wv, &eg, &bpf);
-	bpf.Init(cutoff, 1.0, 500.0);
+	bpf.Init(cutoff, 12.0, 1.0);
 	Generate(duration, &wv, &eg, &bpf);
 
 	Silence(0.5);
@@ -153,14 +177,22 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	// 11-14 - reson filters
 	/////////////////////////////////////////////////
-	Reson resf;
-	resf.InitRes(cutoff, 1.0, 0.9);
+	resf.SetGain(1.0);
+	resf.SetFrequency(cutoff);
+	resf.SetRes(0.8);
+	resf.CalcCoef();
 	Generate(duration, &wv, &eg, &resf);
-	resf.InitRes(cutoff, 1.0, 0.5);
+	resf.SetRes(0.9);
+	resf.CalcCoef();
+	resf.Reset(0);
 	Generate(duration, &wv, &eg, &resf);
-	resf.InitRes(cutoff, 1.0, 0.2);
+	resf.SetRes(0.99);
+	resf.CalcCoef();
+	resf.Reset(0);
 	Generate(duration, &wv, &eg, &resf);
-	resf.InitRes(0.0, 1.0, 0.7);
+	resf.SetRes(0.999);
+	resf.CalcCoef();
+	resf.Reset(0);
 	Generate(duration, &wv, &eg, &resf);
 
 	Silence(0.5);
@@ -174,7 +206,6 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	// 16 - Running average filter
 	/////////////////////////////////////////////////
-	FilterAvgN avgn;
 	avgn.InitFilter(4);
 	Generate(duration, &wv, &eg, &avgn);
 
@@ -183,7 +214,6 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	// 17 - Dynamic lowpass filter
 	/////////////////////////////////////////////////
-	DynFilterLP dynfilt;
 	dynfilt.InitFilter(100.0, 0.2, 4000.0, 0.4, 1000.0, 0.2, 100.0);
 	Generate(duration, &wv, &eg, &dynfilt);
 
@@ -192,17 +222,11 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	// 18 - Dynamic calculation of FIR LP filter
 	/////////////////////////////////////////////////
-	FilterFIRn firn;
-	float cu = 100.0;
+	cu = 100.0;
 	//firn.Init(129, NULL); // <== very sharp roll-off
 	firn.Init(49, NULL);  // <== a good compromise
 	//firn.Init(17, NULL);    // <== much faster to calculate
 	eg.InitEG(1.0, 5.0, 0.1, 0.1);
-	long fstep = 50;
-	float custep = 5000.0 / (float) fstep;
-	long sn = (long) (5.0 * synthParams.sampleRate) / fstep;
-	long nf;
-	int fn;
 	for (fn = 0; fn < fstep; fn++)
 	{
 		firn.CalcCoef(cu, 0);
@@ -230,7 +254,6 @@ int main(int argc, char *argv[])
 	/////////////////////////////////////////////////
 	// 20 - Dynamic calculation of IIR LP filter
 	/////////////////////////////////////////////////
-	FilterIIR2 iir2;
 	cu = 100.0;
 	eg.Reset();
 	for (fn = 0; fn < fstep; fn++)
@@ -242,11 +265,10 @@ int main(int argc, char *argv[])
 	}
 
 	/////////////////////////////////////////////////
-	// 21 - Dynamic calculation of IIR BP filter
+	// 21 - Dynamic calculation of IIR LP filter, vary Q
 	/////////////////////////////////////////////////
-	FilterIIR2p iir2p;
-	FrqValue q = 1;
 	cu = 100.0;
+	q = 1.0;
 	eg.Reset();
 	for (fn = 0; fn < fstep; fn++)
 	{
@@ -270,33 +292,33 @@ int main(int argc, char *argv[])
 		cu += custep;
 	}
 
-	/////////////////////////////////////////////////
-	// 23 Variable Reson LP filter
-	/////////////////////////////////////////////////
-	eg.Reset();
-	cu = 0.0;
-	custep = 1.0 / (float) fstep;
-	for (fn = 0; fn < fstep; fn++)
-	{
-		resf.InitRes(0.0, 1.0, cu);
-		for (nf = 0; nf < sn; nf++)
-			wvf.Output1(eg.Gen() * resf.Sample(nz.Gen()));
-		cu += custep;
-	}
+	Silence(0.5);
 
 	/////////////////////////////////////////////////
-	// 24 - Variable Reson HP filter
+	// 23 - State variable filter
 	/////////////////////////////////////////////////
-	eg.Reset();
-	custep = 1.0 / (float) fstep;
-	cu = 1.0 - custep;
-	for (fn = 0; fn < fstep; fn++)
-	{
-		resf.InitRes(synthParams.sampleRate / 2, 1.0, cu);
-		for (nf = 0; nf < sn; nf++)
-			wvf.Output1(eg.Gen() * resf.Sample(nz.Gen()));
-		cu -= custep;
-	}
+	eg.InitEG(0.707, duration, 0.1, 0.2);
+	fsv.InitFilter(250, 2, 0.3, 0.1, 0.5);
+	Generate(duration, &nz, &eg, &fsv);
+	fsv.InitFilter(250, 2, 0.1, 0.3, 0.5);
+	Generate(duration, &nz, &eg, &fsv);
+
+	fsv.InitFilter(500, 2, 0.3, 0.1, 0.5);
+	Generate(duration, &nz, &eg, &fsv);
+	fsv.InitFilter(500, 2, 0.1, 0.3, 0.5);
+	Generate(duration, &nz, &eg, &fsv);
+
+	fsv.InitFilter(500, 20, 0.2, 0.2, 0.3);
+	Generate(duration, &wv, &eg, &fsv);
+
+	fsv.InitFilter(500, 20, 0.3, 0.2, 0.2);
+	Generate(duration, &wv, &eg, &fsv);
+
+	Silence(0.5);
+	fsv.InitFilter(2000, 10, 1.0, 0.0, 0.0);
+	Generate(duration, &wv, &eg, &fsv);
+
+
 /****************************************************
 	Silence(0.5);
 	/////////////////////////////////////////////////

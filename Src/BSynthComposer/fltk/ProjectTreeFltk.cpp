@@ -9,9 +9,9 @@ static void treeCB(Fl_Widget *w, void *v)
 	if (index)
 		selItm = (ProjectItem*)b->data(index);
 	mainWnd->ItemSelected(selItm);
-	if (Fl::event_button2())
-		printf("Button 2\n");
-	if (Fl::event_clicks() > 0)
+	if (Fl::event_button() == FL_RIGHT_MOUSE)
+		printf("Button 2\n"); // TODO: context menu
+	if (Fl::event_button() == FL_LEFT_MOUSE && Fl::event_clicks() > 0)
 		mainWnd->ItemDoubleClick(selItm);
 }
 
@@ -35,7 +35,7 @@ void ProjectTreeFltk::RemoveAll()
 	{
 		ProjectItem *itm = (ProjectItem *)data(index);
 		data(index, 0);
-		delete itm;
+		itm->Release();
 	}
 	clear();
 }
@@ -113,6 +113,7 @@ void ProjectTreeFltk::AddNode(ProjectItem *itm, ProjectItem *sib)
 		index = size()+1;
 
 	insert(index, str, (void*)itm);
+	itm->AddRef();
 }
 
 void ProjectTreeFltk::RemoveNode(ProjectItem *itm)
@@ -121,7 +122,10 @@ void ProjectTreeFltk::RemoveNode(ProjectItem *itm)
 		return;
 	int index = FindItem(itm);
 	if (index)
+	{
 		remove(index);
+		itm->Release();
+	}
 }
 
 void ProjectTreeFltk::UpdateNode(ProjectItem *itm)
@@ -150,6 +154,13 @@ void ProjectTreeFltk::UpdateNode(ProjectItem *itm)
 
 void ProjectTreeFltk::MoveNode(ProjectItem *itm, ProjectItem *prev)
 {
+	if (!itm)
+		return;
+
+	itm->AddRef();
+	RemoveNode(itm);
+	AddNode(itm, prev);
+	itm->Release();
 }
 
 ProjectItem *ProjectTreeFltk::FirstChild(ProjectItem *itm)

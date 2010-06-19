@@ -71,7 +71,6 @@ public:
 	Sequencer seq;
 	Mixer mix;
 	InstrManager mgr;
-	MIDIControl midiCtl;
 	BSynthError err;
 	nlConverter cvt;
 
@@ -159,12 +158,9 @@ public:
 		im = mgr.AddType("SoundBank", SFPlayerInstr::SFPlayerInstrFactory, SFPlayerInstr::SFPlayerEventFactory);
 		im->paramToID = SFPlayerInstr::MapParamID;
 		im->dumpTmplt = DestroyTemplate;
-		im = mgr.AddType("GMPlayer", GMManager::InstrFactory, GMManager::EventFactory);
-		im->paramToID = GMManager::MapParamID;
-		im->paramToName = GMManager::MapParamName;
-		im->manufTmplt = GMManager::TmpltFactory;
-		im->dumpTmplt = GMManager::TmpltDump;
-		GMManager::midiCtrl = &midiCtl;
+		im = mgr.AddType("GMPlayer", GMPlayer::InstrFactory, GMPlayer::EventFactory);
+		im->paramToID = GMPlayer::MapParamID;
+		im->dumpTmplt = DestroyTemplate;
 	}
 
 	int LoadProject(char *prjFname)
@@ -253,16 +249,16 @@ public:
 						bsInt16 pre = 0;
 						float nrm = 1.0;
 						child->GetAttribute("pre", pre);
-						child->GetAttribute("nrm", nrm);
+						//child->GetAttribute("nrm", nrm);
 						if (SFFile::IsSF2File(file))
 						{
 							SFFile sndfile;
-							bnk = sndfile.LoadSoundBank(file, pre, nrm);
+							bnk = sndfile.LoadSoundBank(file, pre);
 						}
 						else if (DLSFile::IsDLSFile(file))
 						{
 							DLSFile sndfile;
-							bnk = sndfile.LoadSoundBank(file, pre, nrm);
+							bnk = sndfile.LoadSoundBank(file, pre);
 						}
 						if (bnk)
 						{
@@ -424,13 +420,13 @@ public:
 					{
 						chnlNode->GetAttribute("cn", chnl);
 						chnlNode->GetAttribute("bnk", val);
-						midiCtl.SetBank(chnl, val);
+						mgr.ProcessMessage(MIDI_CTLCHG|chnl, MIDI_CTRL_BANK, val);
 						chnlNode->GetAttribute("prg", val);
-						midiCtl.SetPatch(chnl, val);
+						mgr.ProcessMessage(MIDI_PRGCHG|chnl, val, 0);
 						chnlNode->GetAttribute("vol", vol);
-						midiCtl.SetVolume(chnl, vol);
+						mgr.ProcessMessage(MIDI_CTLCHG|chnl, MIDI_CTRL_VOL, val);
 						chnlNode->GetAttribute("pan", vol);
-						midiCtl.SetPan(chnl, vol);
+						mgr.ProcessMessage(MIDI_CTLCHG|chnl, MIDI_CTRL_PAN, val);
 					}
 					XmlSynthElem *n = chnlNode->NextSibling();
 					delete chnlNode;
@@ -651,7 +647,6 @@ public:
 			lastOOR = 0;
 			if (!silent)
 				seq.SetCB(Monitor, synthParams.isampleRate, (Opaque)this);
-			seq.SetController(&midiCtl);
 			int n = seq.Sequence(mgr);
 			pad = (long) (synthParams.isampleRate * tail);
 			while (pad-- > 0)

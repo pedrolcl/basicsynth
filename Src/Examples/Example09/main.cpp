@@ -3,6 +3,11 @@
 //
 // MIDI file loading and playback
 //
+// NOTE: This is deprecated since the MIDI functionality has been
+// moved into the main instrument manager and sequencer. The code
+// is left here since it is referenced in the BasicSynth book.
+// See example 9a for the new MIDI playback example.
+//
 // use: Example09 [-vn] infile.mid outfile.wav
 // -v = master volume level
 //
@@ -13,6 +18,7 @@
 #include <string.h>
 #include <math.h>
 #include "SynthDefs.h"
+#include "SynthMutex.h"
 #include "SynthString.h"
 #include "EnvGenSeg.h"
 #include "WaveFile.h"
@@ -24,6 +30,8 @@
 #include "SynthList.h"
 #include "XmlWrap.h"
 #include "SeqEvent.h"
+#include "MIDIDefs.h"
+#include "MIDIControl.h"
 #include "Instrument.h"
 #include "Sequencer.h"
 #include "MIDISequencer.h"
@@ -403,7 +411,7 @@ class DrumInstr : public MIDIInstrument
 public:
 	virtual void NoteOn(short key, short vel)
 	{
-		flt.InitRes(200.0, 0.5, 0.5);
+		flt.Init(200.0, 0.5, 0.5);
 		osc.InitWT(synthParams.GetFrequency(key-12), WT_SIN);
 		eg.InitADSR(0, 0.001, (AmpValue) vel / 127.0, 0.1, 0, 0.01, expSeg);
 	}

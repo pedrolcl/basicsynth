@@ -1,13 +1,13 @@
 ///////////////////////////////////////////////////////////
 /// @file ConverterSCO.h Notelist conversion for CSound scores
-// Example converter-derived class showing output to 
+// Example converter-derived class showing output to
 // a system other than BasicSynth. This produces output
 // in the form of a CSound score file.
 //
 // N.B.: This is for example only and is unsupported code.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ private:
 	FILE *fpOutput;
 	char *sconame;
 
-	char *SetExtension(char *name, char *ext);
+	char *SetExtension(const char *name, const char *ext);
 
 public:
 	nlConverterSCO();

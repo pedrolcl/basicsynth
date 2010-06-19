@@ -13,6 +13,7 @@ instrument property. (The BasicSynth book contains an in-depth description of in
 <p><a href="#_FM_Synthesis_Instrument">FM Synthesis Instrument</a></p>
 <p><a href="#_Additive_Synthesis_Instrument">Additive Synthesis Instrument</a></p>
 <p><a href="#_Subtractive_Synthesis_Instrument">Subtractive Synthesis Instrument</a></p>
+<p><a href="#_Buzz_Synthesis_Instrument">Subtractive Synthesis Instrument using BUZZ Oscillator</a></p>
 <p><a href="#_Wave_File_Playback">Wave File Playback Instrument</a></p>
 <p><a href="#_Matrix_Synthesis_Instrument">Matrix Synthesis Instrument</a></p>
 <p><a href="#_Chuffer_Instrument">Chuffer (Noise) Instrument</a></p>
@@ -1425,6 +1426,374 @@ For quickly changing filter frequencies this value should be small (0-10) to avo
 When the cutoff frequency changes slowly, setting the value to (50-100) can
 improve performance of the filter significantly without affecting sound quality.</p> 
 <br /><hr />
+<!--=============== BUZZ SYNTH START ======================-->
+
+<h2><a name="_Buzz_Synthesis_Instrument"></a>Subtractive Synthesis Instrument using BUZZ Oscillator</h2>
+<p>The BuzzSynth class
+defines a subtractive synthesis instrument using a "BUZZ" generator, i.e., a closed form
+of the Fourier series.The instrument includes two tone generators, each consisting of a buzz oscillator,
+volume envlope, resonant low pass filter, and modulation envelope. The envelope generators are
+five segments each. A LFO oscillator and pitch bend unit are applied to both sound generators.
+</p>
+<img src="BuzzSynthDiag.jpg" />
+<p>The BUZZ oscillator is defined by the series shown below. This series has a closed form, shown in the the third forumla.</p>
+<img src="buzzformula.jpg" />
+<p>In this series, <i>N</i> is the maximum partial with the amplitude of each partial set by <i>a<sup>k</sup></i>.
+When <i>a</i> is less than 1, the amplitude decreases exponentially for higher partials. 
+When <i>a</i> is greater than 1, the amplitude increases as the partial increases. 
+The parameter <i>Theta</i> represents the fundamental frequency and the ratio of <i>Theta</i> to <i>Beta</i> sets the frequency difference between adjacent partials. 
+For example, when <i>Theta = Beta</i>, all harmonics are included, but, when <i>Beta = 2 Theta</i>, only odd harmonics are included. 
+A wide variety of waveforms can be created by varying the three values of <i>N, a,</i> and <i>Beta</i>.</p>
+<p>The modulation envelope can be applied to the oscillator harmonic amplitude, and/or filter cutoff frequency. Each modulation destination has an enable flag and a
+scaling value. The output of the envelope is multiplied by the scaling value and then added to the respective input of the oscillator or filter. 
+Bit 0 (0x01) of the <i>mod</i> flags turns on modulation of the filter. Bit 1 (0x02) turns on modulation of the harmonic amplitude (<i>a</i>). Bit 4 (0x10) enables
+the filter. If this bit is not set, the oscillator signal is not passed through the filter. Bit 5 (0x20) causes the filter frequency to be calculated relative to the oscillator frequency. 
+In other words, the filter cutoff is the oscillator frequency plus the modulation frequence, and causes the filter cutoff to track the note pitch. When bit 5 is clear, the filter frequency is absolute. 
+Bit 8 (0x100) of the <i>mod</i> flags is used to enable the generator. When clear, the generator is turned off. Each of these flags can be set directly as synthesis parameters, but in the
+instrument file, the flags are combined into a single attribute (mod).</p>
+<p>The <i>BuzzSynth</i> instrument class is defined in <i>Src/Instruments/BuzzSynth.h</i>
+with the implementation in <i>Src/Instruments/BuzzSynth.cpp</i>. </p>
+<p>The XML format for the instrument is shown below.</p>
+
+<pre>
+&lt;instr id=&quot;&quot; type=&quot;BuzzSynth&quot; name=&quot; &quot;&gt;
+  &lt;gen gn=&quot;&quot; mod=&quot;&quot; vol=&quot;&quot; &gt;
+    &lt;osc frq=&quot;&quot; foffs=&quot;&quot; fr=&quot;&quot; harm=&quot;&quot; amp=&quot;&quot; aoffs=&quot;&quot; /&gt;
+    &lt;flt fc=&quot;&quot; foffs=&quot;&quot; q=&quot;&quot; /&gt;
+   &lt;egs rt0=&quot;&quot; lv0=&quot;&quot; rt1=&quot;&quot; lv1=&quot;&quot; rt2=&quot;&quot; lv2=&quot;&quot; rt3=&quot;&quot; ty=&quot;&quot; son=&quot;&quot; /&gt;
+   &lt;egm rt0=&quot;&quot; lv0=&quot;&quot; rt1=&quot;&quot; lv1=&quot;&quot; rt2=&quot;&quot; lv2=&quot;&quot; rt3=&quot;&quot; ty=&quot;&quot; son=&quot;&quot; /&gt;
+ &lt;/gen&gt; 
+ &lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot; amp=&quot;&quot; /&gt; 
+ &lt;pb frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot; amp=&quot;&quot; /&gt;
+&lt;/instr&gt;
+</pre>
+<p>The following table shows the parameter numbers and the
+equivalent XML tag and attribute values for the <i>BuzzSynth </i> instrument. The value of GN is the generator number (1 or 2) multiplied by 256. The <i>genx</i> name is either gen1 or gen2.</p>
+
+<table border="1" cellspacing="0" cellpadding="2">
+ <tr valign="top" style="background-color: Black; color: White;">
+   <td><p align="center"><b>Parameter</b></p></td>
+   <td><p align="center"><b>Tag</b></p></td>
+   <td><p align="center"><b>Attribute</b></p></td>
+   <td><p align="center"><b>Name</b><p></td>
+   <td><p align="center"><b>Use</b></p></td>
+  </tr>
+ <tr valign="top">
+  <td><p>GN</p></td>
+  <td><p>gen</p></td>
+  <td><p>gn</p></td>
+  <td><p>genx</p></td>
+  <td><p>Selects the generator (GN),  (gen1 or gen2).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+30</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>mod</p></td>
+  <td><p>genx.mod</p></td>
+  <td><p>Set modulator options for this generator. (See above) </p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+31</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>genx.fcon</p></td>
+  <td><p>Enable the filter.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+32</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>genx.fcrel</p></td>
+  <td><p>Filter frequency is relative to note frequency.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+33</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>genx.fcmod</p></td>
+  <td><p>Apply modulation envelope to filter frequency.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+34</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>genx.hmod</p></td>
+  <td><p>Apply modulation envelope to harmonic amplitude.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+35</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>genx.on</p></td>
+  <td><p>Enable this generator.</p></td>
+ </tr>
+
+<tr valign="top">
+  <td><p>GN+0</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>vol</p></td>
+  <td><p>genx.volume</p></td>
+  <td><p>Volume.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>5</p></td>
+  <td><p>osc</p></td>
+  <td><p>frq</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>Base frequency (set by note start parameters). </p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+1</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>fr</p></td>
+  <td><p>genx.fr</p></td>
+  <td><p>Frequency multiplier.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+2</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>amp</p></td>
+  <td><p>genx.amp</p></td>
+  <td><p>Harmonics amplitude (<i>a</i>).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+3</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>hscl</p></td>
+  <td><p>genx.hscl</p></td>
+  <td><p>Harmonics amplitude modulation scale.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+5</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>fc</p></td>
+  <td><p>genx.fc</p></td>
+  <td><p>Filter frequency base (semitones relative to oscillator frequency).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+6</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>fscl</p></td>
+  <td><p>genx.fscl</p></td>
+  <td><p>Filter envelope scale.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+7</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>q</p></td>
+  <td><p>genx.q</p></td>
+  <td><p>Filter resonance (Q).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+8</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>harm</p></td>
+  <td><p>genx.harm</p></td>
+  <td><p>Maximum harmonic number (N).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+9</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>hr</p></td>
+  <td><p>genx.hr</p></td>
+  <td><p>Harmonics ratio (Beta/Theta).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+10</p></td>
+  <td><p>egv</p></td>
+  <td><p>rt0</p></td>
+  <td><p>genx.egvr0</p></td>
+  <td><p>Volume envelope rate 0.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+11</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>lv0</p></td>
+  <td><p>genx.egvl0</p></td>
+  <td><p>Volume envelope level 0.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+12</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt1</p></td>
+  <td><p>genx.egvr1</p></td>
+  <td><p>Volume envelope rate 1.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+13</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>lv1</p></td>
+  <td><p>genx.egvl1</p></td>
+  <td><p>Volume envelope level 1.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+14</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt2</p></td>
+  <td><p>genx.egvr2</p></td>
+  <td><p>Volume envelope rate 2.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+15</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>lv2</p></td>
+  <td><p>genx.egvl2</p></td>
+  <td><p>Volume envelope level 2 (sustain).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+16</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt3</p></td>
+  <td><p>genx.egvr3</p></td>
+  <td><p>Volume envelope rate 3 (release).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+17</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>ty</p></td>
+  <td><p>genx.egvty</p></td>
+  <td><p>Volume curve type (0=linear,1=exponential).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+18</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>son</p></td>
+  <td><p>genx.egvon</p></td>
+  <td><p>Volume sustain on. (0=no sustain).</p></td>
+ </tr>
+
+ <tr valign="top">
+  <td><p>GN+20</p></td>
+  <td><p>egm</p></td>
+  <td><p>rt0</p></td>
+  <td><p>genx.rt0</p></td>
+  <td><p>Modulation envelope rate 0.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+21</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>lv0</p></td>
+  <td><p>genx.egml0</p></td>
+  <td><p>Modulation envelope level 0.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+22</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt1</p></td>
+  <td><p>genx.egmr1</p></td>
+  <td><p>Modulation envelope rate 1.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+23</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>lv1</p></td>
+  <td><p>genx.egml1</p></td>
+  <td><p>Modulation envelope level 1.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+24</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt2</p></td>
+  <td><p>genx.egmr2</p></td>
+  <td><p>Modulation envelope rate 2.</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+25</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>lv2</p></td>
+  <td><p>genx.egml2</p></td>
+  <td><p>Modulation envelope level 2 (sustain).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+26</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt3</p></td>
+  <td><p>genx.egmr3</p></td>
+  <td><p>Modulation envelope rate 3 (release).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+27</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>ty</p></td>
+  <td><p>genx.egmty</p></td>
+  <td><p>Modulation curve type (0=linear,1=exponential).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>GN+28</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>son</p></td>
+  <td><p>genx.egmon</p></td>
+  <td><p>Modulation sustain on. (0=no sustain).</p></td>
+ </tr>
+
+<tr valign="top">
+  <td><p>16</p></td>
+  <td><p>lfo</p></td>
+  <td><p>frq</p></td>
+  <td><p>lfofrq</p></td>
+  <td><p>LFO Frequency</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>17</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>wt</p></td>
+  <td><p>lfowt</p></td>
+  <td><p>LFO wavetable index</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>18</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>rt</p></td>
+  <td><p>lfoatk</p></td>
+  <td><p>LFO delay (attack rate)</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>19</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>amp</p></td>
+  <td><p>lfoamp</p></td>
+  <td><p>LFO amplitude (depth).</p></td>
+ </tr>
+ 
+ <tr valign="top">
+  <td><p>20</p></td>
+  <td><p>pb</p></td>
+  <td><p>pbamp</p></td>
+  <td><p>pbamp</p></td>
+  <td><p>Pitch bend WT amount</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>21</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>wt</p></td>
+  <td><p>pbwt</p></td>
+  <td><p>Pitch bend wavetable</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>22</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>pbdur</p></td>
+  <td><p>pbdur</p></td>
+  <td><p>Pitch bend WT rate (absolute or percent of duration).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>23</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>pbdly</p></td>
+  <td><p>pbdly</p></td>
+  <td><p>Pitch bend delay (seconds).</p></td>
+ </tr>
+ <tr valign="top">
+  <td><p>24</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>pbmode</p></td>
+  <td><p>pbmode</p></td>
+  <td><p>Pitch bend mode (0=relative duration, 1=absolute duration)</p></td>
+ </tr>
+</table>
+<br /><hr />
+
+<!--=============== WF SYNTH START ======================-->
 
 <h2><a name="_Wave_File_Playback"></a>Wave File Playback Instrument</h2>
 <p>The <i>WFSynth </i> instrument plays a wave file. The wave
@@ -2461,19 +2830,10 @@ to the left and right channels by setting the <i>left</i> and <i>right</i> param
 <h2><a name="_GM_Instrument"></a>General MIDI Instrument </h2>
 <p>The <i>GM </i> instrument emulates a MIDI wavetable synthesis keyboard instrument with downloadable sounds. The sound files may
 be loaded from either a SoundFont&reg; (SF2) or DLS sound bank. The present version of this instrument does not implement all possible features of
-the GM specification and sound bank player, but is sufficient to play most sound bank files based on recorded sounds. In particular, only some
-MIDI controller values are recognized and applied to the instrument.</p>
-<p>The instrument type name is <i>GMPlayer</i>, but the instrument is implemented using a combination of objects:
-<ul>
-<li>GM Manager</li>
-<li>GM Player</li>
-<li>MIDI Control </li>
-<li>SoundBank</li>
-</ul>
-The GM Manager maintains a list of all currently sounding notes for a give channel and patch and applies global instrument settings.
-Each note is sounded by an instance of the GM Player object. MIDI channel values (pitch bend, program, and controllers) are held in the common
-MIDI Control object. The wavetables are held as members of the SoundBank object.</p>
-<p>In order to play sounds using a GM sound bank, the sound bank must be added to the project. An instrument of type GMPlayer must be
+the GM specification and sound bank player, but is sufficient to play most sound bank files based on recorded sounds. In particular, modulators that
+override implied connections are ignored and only some MIDI controller values are recognized and applied to the instrument. </p>
+<p>The instrument type name is <i>GMPlayer</i>.
+In order to play sounds using a GM sound bank, the sound bank must be added to the project. An instrument of type GMPlayer must be
 added and configured to reference the sound bank. Specific sounds are selected using the MIDI bank and program values, or using
 the configuration values for the instrument. Multiple sound banks can be loaded and used by creating multiple GMPlayer instruments, one
 for each sound bank.</p>
@@ -2485,37 +2845,30 @@ vibrato LFO, pitch wheel and pitch bend envelope to determine the playback frequ
 note-on velocity, envelope and modulation LFO to determine the volume level. The modulation wheel adds to the levels
 for vibrato and tremolo.</p>
 <h3>Configuration<hr/></h3>
-<p>Because synthesis parameters are loaded from either the SoundBank object or received from the MIDI Control object,
-the GM instrument does not have configuration values for synthesis parameters. However, configuration values setable on the GM Manager
-can override the selection of the patch, volume and pan, and also enable or disable MIDI controller values for all instances of the instrument.</p>
+<p>Because synthesis parameters are loaded from either the sound bank or received from MIDI controls,
+the GM instrument does not have configuration values for synthesis parameters. However, configuration values setable on the instrument
+can override the MIDI bank and patch values. The volume, pan and effects controllers are usually routed to the mixer. Because some
+SoundFont and DLS presets have internal pan values that are important to the sound, the instrument can bypass the mixer inputs
+and supply channel volume and pan values directly. </p>
 <p>The <i>local</i> parameter can be used to override the default volume, pan and patch values for the instrument. 
 The following values can be added to control local override for the instrument.</p>
 <table border="1" cellspacing="0" cellpadding="4">
 <tr valign="top" style="background-color:Black;color:White;"><td>Override</td><td>Bit value</td></tr>
-<tr><td>Volume</td><td>1</td></tr>
+<tr><td>Bank</td><td>1</td></tr>
 <tr><td>Patch</td><td>2</td></tr>
 <tr><td>Pan</td><td>4</td></tr>
+<tr><td>Effects</td><td>8</td></tr>
+<tr><td>Volume</td><td>16</td></tr>
 </table>
-<p>The <i>flags</i> can be used to ignore MIDI controller values. If a bit is clear, the associated generator connection is forced off.
-The following values can be added to control enable of each generator.</p>
-<table border="1" cellspacing="0" cellpadding="4">
-<tr valign="top" style="background-color:Black;color:White;"><td>Function</td><td>Bit Value</td></tr>
-<tr><td>Vibrato to pitch</td><td>1</td></tr>
-<tr><td>Modulator envelope to pitch</td><td>2</td></tr>
-<tr><td>Pitch wheel to pitch</td><td>4</td></tr>
-<tr><td>Modulator LFO to pitch</td><td>16</td></tr>
-<tr><td>Modulator Wheel to pitch</td><td>32</td></tr>
-<tr><td>Breath control to pitch</td><td>64</td></tr>
-<tr><td>Expression control to pitch</td><td>128</td></tr>
-<tr><td>Modulator LFO to volume</td><td>256</td></tr>
-<tr><td>Modulator Wheel to volume</td><td>512</td></tr>
-<tr><td>Breath control to volume</td><td>1024</td></tr>
-<tr><td>Expression control to volume</td><td>2048</td></tr>
-<tr><td>Modulation list*</td><td>4096</td></tr>
-<tr><td>Filter</td><td>8192</td></tr>
-</table>
-<p>* Modulation list refers to a list of other modulators found in the sound bank and is not currently implemented.</p>
-
+<p>When the <i>bank</i> and <i>patch</i> flags are set, the values must be set using the bank and patch parameter values. 
+When unset, the current MIDI values are used. When the <i>volume</i>, <i>pan</i> or <i>effects</i> flags are clear, the 
+associated MIDI control value is not applied to the sound at the instrument level. These MIDI values are normally routed
+to the mixer and applying them at the instrument level would double their respective effects. When these flags are set, the
+MIDI controller values are applied by the instrument and the mixer input is bypassed.</p>
+<p>Attenuation scaling is used to compress the initial attenuation values found in the SF2 or DLS file. This is necessary
+for some files to compensate for the dynamic range of the original instrument. The scaling value is in db and represents 
+the dynamic range desired. For example, setting attenuation to 60dB causes attenation values to be compressed into
+a range of 0 to 60dB rather than the default range of 0 to 96dB.</p>
 <p>The following table shows the parameter ID numbers and the
 equivalent XML tag and attribute values for the GM instrument. </p>
 
@@ -2532,48 +2885,34 @@ equivalent XML tag and attribute values for the GM instrument. </p>
   <td><p>gm</p></td>
   <td><p>local</p></td>
   <td><p>local</p></td>
-  <td><p>Flags to control local override for volume and pan settings.</p></td>
+  <td><p>Flags to control local override for patch, volume and pan settings.</p></td>
  </tr>
  <tr valign="top">
   <td><p>17</p></td>
-  <td><p>&nbsp;</p></td>
-  <td><p>volume</p></td>
-  <td><p>volume</p></td>
-  <td><p>Volume level</p></td>
- </tr>
- <tr valign="top">
-  <td><p>18</p></td>
-  <td><p>&nbsp;</p></td>
-  <td><p>pan</p></td>
-  <td><p>pan</p></td>
-  <td><p>Pan setting.</p></td>
- </tr>
- <tr valign="top">
-  <td><p>19</p></td>
   <td><p>&nbsp;</p></td>
   <td><p>bank</p></td>
   <td><p>bank</p></td>
   <td><p>Patch bank number.</p></td>
  </tr>
  <tr valign="top">
-  <td><p>20</p></td>
+  <td><p>18</p></td>
   <td><p>&nbsp;</p></td>
   <td><p>prog</p></td>
   <td><p>prog</p></td>
   <td><p>Patch program number.</p></td>
  </tr>
  <tr valign="top">
-  <td><p>21</p></td>
+  <td><p>19</p></td>
   <td><p>&nbsp;</p></td>
-  <td><p>flags</p></td>
-  <td><p>flags</p></td>
-  <td>  <p>MIDI CC enable flags.</p></td>
+  <td><p>attn</p></td>
+  <td><p>attn</p></td>
+  <td>  <p>Attenuation scaling.</p></td>
  </tr>
 </table>
 <h3>XML Format<hr/></h3>
 <pre>
 &lt;instr id=&quot;&quot; type=&quot;GMPlayer&quot; name=&quot;&quot; desc=&quot;&quot;&gt;
-   &lt;gm local=&quot;1&quot; vol=&quot;1.000000&quot; pan=&quot;0.000000&quot; bank=&quot;0&quot; prog=&quot;0&quot; flags=&quot;16375&quot;&gt;
+   &lt;gm local=&quot;1&quot; bank=&quot;0&quot; prog=&quot;0&quot; atten=&quot;96&quot;&gt;
      Soundbank Name
    &lt;/gm&gt;
 &lt;/instr&gt;

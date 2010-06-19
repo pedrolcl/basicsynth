@@ -78,6 +78,7 @@ protected:
 	int bold;
 	int italic;
 	int align;
+	int shadow;
 	wdgRect lblRect;
 	void *psdata;
 

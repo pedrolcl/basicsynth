@@ -25,22 +25,25 @@ int SelectSoundBankPreset(SFPlayerInstr *instr)
 	return 0;
 }
 
-int SelectSoundBankPreset(GMManager *gm)
+int SelectSoundBankPreset(GMPlayer *gm)
 {
 	SoundBankSelect dlg;
 
 	float val;
 	dlg.fileID = gm->GetSoundFile();
-	gm->GetParam(18, &val);
+	gm->GetParam(GMPLAYER_BANK, &val);
 	dlg.bnkNum = (bsInt16) val;
-	gm->GetParam(19, &val);
+	gm->GetParam(GMPLAYER_PROG, &val);
 	dlg.preNum = (bsInt16) val;
 
-	if (dlg.DoModal())
+	if (dlg.DoModal() == IDOK)
 	{
 		gm->SetSoundFile(dlg.fileID);
-		gm->SetParam(18, (float) dlg.bnkNum);
-		gm->SetParam(19, (float) dlg.preNum);
+		gm->SetParam(GMPLAYER_BANK, (float) dlg.bnkNum);
+		gm->SetParam(GMPLAYER_PROG, (float) dlg.preNum);
+		SoundBank *sbnk = gm->GetSoundBank();
+		if (sbnk)
+			sbnk->GetInstr(dlg.bnkNum, dlg.preNum, 1);
 		return 1;
 	}
 	return 0;

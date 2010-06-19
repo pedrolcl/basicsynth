@@ -303,6 +303,8 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories="../../Include"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="NLConvert.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -311,6 +313,8 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories="../../Include"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="NLConvert.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -319,6 +323,8 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories="../../Include"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="NLConvert.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -327,24 +333,170 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories="../../Include"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="NLConvert.h"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ConverterSCO.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Generate.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Lex.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Parser.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="NLConvert.h"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

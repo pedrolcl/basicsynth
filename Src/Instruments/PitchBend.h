@@ -20,6 +20,7 @@
 /// three levels and two rates. Rate 1 is the time to
 /// transition from level 1 to level 2. Rate 2 is the time
 /// to transition from level 2 to level 3.
+/// (deprecated - PitchBendWT is more flexible)
 class PitchBend : public GenUnit
 {
 private:
@@ -88,13 +89,16 @@ public:
 	int Save(XmlSynthElem *elem);
 };
 
-/// Pitch bend generator #2.
+/// Pitch bend generator using a wave table.
 /// PitchBendWT scans a wavetable containing the pitch bend curve.
 /// The table is assumed to be normalized [-1,+1] and is multiplied
 /// by an amount value. If the signal frequency is set to non-zero,
-/// the amount value is taken to indicated pitch cents. This is converted
+/// the amount value is taken to indicate pitch cents. This is converted
 /// into a frequency range. If the signal frequency is set to zero,
-/// the depth value is 
+/// the depth value is absolute in Hz. The rate of table scanning may be
+/// absolute time in seconds, or a percent of the note duration.
+/// A delay time can specified as well, and is either absolute time
+/// or percent of note duration. When mode != 0, time values are absolute.
 class PitchBendWT : public GenUnit
 {
 private:
@@ -102,11 +106,15 @@ private:
 	PhsAccum indexIncr;
 	PhsAccum index;
 	FrqValue durSec;
+	FrqValue dlySec;
 	AmpValue depth;
 	AmpValue ampLvl;
 	AmpValue lastVal;
 	FrqValue sigFrq;
+	bsInt32  samples;
 	bsInt32  count;
+	bsInt32  delay;
+	int mode;            ///< 0 = percent, 1 = absolute sec.
 	int wtID;
 	int pbOn;
 
@@ -115,14 +123,18 @@ public:
 	virtual ~PitchBendWT();
 	void Copy(PitchBendWT *tp);
 	
-	void SetDuration(FrqValue d)    { durSec = d; count = (bsInt32) (d * synthParams.sampleRate); }
-	void SetDurationS(bsInt32 d)    { count = d; } // only used at runtime.
+	void SetDuration(FrqValue d)    { durSec = d; }
+	void SetDelay(FrqValue d)       { dlySec = d; }
+	void SetDurationS(bsInt32 d)    { count = samples = d; } // used at runtime.
 	void SetWavetable(int wt)       { wtID = wt; }
 	void SetLevel(AmpValue val)     { depth = val; pbOn = depth > 0; }
 	void SetSigFrq(FrqValue val)    { sigFrq = val; }
-	FrqValue GetDuration() { return durSec; }
-	int GetWavetable() { return wtID; }
-	AmpValue GetLevel() { return depth; }
+	void SetMode(int m)             { mode = m; }
+	FrqValue GetDuration()          { return durSec; }
+	FrqValue GetDelay()             { return dlySec; }
+	int GetWavetable()              { return wtID; }
+	AmpValue GetLevel()             { return depth; }
+	int GetMode()                   { return mode; }
 	int On() { return pbOn; }
 
 	void Init(int n, float *f);

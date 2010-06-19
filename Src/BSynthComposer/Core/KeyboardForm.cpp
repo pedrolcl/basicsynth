@@ -94,7 +94,11 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 	{
 	case 22: // volume
 		if (kbd)
-			kbd->SetVolume(wdg->GetValue());
+		{
+			float vol = wdg->GetValue();
+			kbd->SetVolume(vol);
+			theProject->mgr.SetVolume(kbd->GetChannel(), (short)(vol*127.0));
+		}
 		break;
 	case 25:
 		if (kbd)

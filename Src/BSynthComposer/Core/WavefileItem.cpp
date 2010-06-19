@@ -155,7 +155,6 @@ int WavefileList::AddItem()
 	if (!itm->ItemProperties())
 	{
 		prjTree->RemoveNode(itm);
-		delete itm;
 	}
 	else
 	{

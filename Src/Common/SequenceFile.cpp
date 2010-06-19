@@ -2,7 +2,7 @@
 /// @file SequenceFile.cpp Implementation of sequencer file loading routines.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -14,10 +14,13 @@
 #include <SynthString.h>
 #include <SynthList.h>
 #include <SynthFile.h>
+#include <SynthMutex.h>
 #include <Mixer.h>
 #include <WaveFile.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
 #include <Sequencer.h>
 #include <SequenceFile.h>
@@ -25,7 +28,7 @@
 // scan for the next parameter
 // we allow numbers and quoted character strings
 // with each parameter separated by white space.
-char *SequenceFile::NextParam(char *pin, char *pout)
+const char *SequenceFile::NextParam(const char *pin, char *pout)
 {
 	while (isspace(*pin))
 		pin++;
@@ -75,11 +78,11 @@ char *SequenceFile::NextParam(char *pin, char *pout)
 }
 
 // Parse a line from a memory buffer.
-int SequenceFile::ParseMem(char *linbuf)
+int SequenceFile::ParseMem(const char *linbuf)
 {
-	char *parg = linbuf;
+	const char *parg = linbuf;
 	bsInt16 argn = 0;
-	bsInt16 argmax;
+	bsInt16 argmax = P_USER;
 	int evtype;
 	int inum;
 	SeqEvent *evt = NULL;
@@ -184,7 +187,7 @@ int SequenceFile::ParseMem(char *linbuf)
 
 // Lines beginning with '//' or ; are comments.
 // Blank lines are also treated as comments.
-int SequenceFile::Comment(char *line)
+int SequenceFile::Comment(const char *line)
 {
 	while (isspace(*line))
 		line++;

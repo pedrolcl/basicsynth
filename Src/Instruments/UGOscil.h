@@ -229,14 +229,14 @@ public:
 	void InitDefault()
 	{
 		inputs[UGOSC_AMP] = 1.0;    // amp
-		inputs[UGOSC_FRQ] = 440.0;  // frq
-		inputs[UGOSC_MUL] = 0.0;    // num harmonics
+		inputs[UGOSC_FRQ] = 1.0;  // frq
+		inputs[UGOSC_MUL] = 10.0;    // num harmonics
 		inputs[UGOSC_MOD] = 0.0;    // mod
 	}
 
 	void Start()
 	{
-		gen.InitBuzz(FrqValue(inputs[UGOSC_FRQ]), (int)inputs[UGOSC_MUL]);
+		gen.InitBuzz(FrqValue(inputs[UGOSC_FRQ]), (bsInt32)inputs[UGOSC_MUL]);
 		anyChange = 0;
 	}
 
@@ -245,11 +245,8 @@ public:
 		if (anyChange & ((1<<UGOSC_FRQ)|(1<<UGOSC_MUL)))
 		{
 			gen.SetFrequency(inputs[UGOSC_FRQ]);
-			gen.SetHarmonics((int)inputs[UGOSC_MUL]);
+			gen.SetHarmonics((bsInt32)inputs[UGOSC_MUL]);
 			gen.Reset(-1);
-			// this produces a 'click' but we have to recalculate everything
-			// to reset the phase to get the correct frequency and spectrum...
-			//gen.InitBuzz(FrqValue(inputs[UGOSC_FRQ]), (int)inputs[UGOSC_MUL]);
 		}
 		if (anyChange & (1<<UGOSC_MOD))
 			gen.Modulate(inputs[UGOSC_MOD]);

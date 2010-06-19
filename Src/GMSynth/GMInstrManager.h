@@ -30,47 +30,37 @@ class GMInstrManager : public InstrManager
 protected:
 	AmpValue outLft;
 	AmpValue outRgt;
+	AmpValue outRvrb;
 	AmpValue masterVol;
-	GMManager *gm;
-	MIDIControl *mc;
+	AmpValue reverbMix;
+	Reverb2 reverb;
+	GMPlayer *gm;
 
 public:
 	GMInstrManager()
 	{
 		masterVol = 1.0;
-		InstrMapEntry *ime = AddType("GMPlayer",
-			GMManager::InstrFactory,
-			GMManager::EventFactory,
-			GMManager::TmpltFactory);
-		ime->dumpTmplt = GMManager::TmpltDump;
-		gm = new GMManager;
+		reverbMix = 0.1;
+		InstrMapEntry *ime = AddType("GMPlayer", GMPlayer::InstrFactory, GMPlayer::EventFactory);
+		gm = new GMPlayer;
 		AddInstrument(1, ime, gm);
+		gm->SetParam(16, GMPLAYER_LOCAL_PAN|GMPLAYER_LOCAL_FX|GMPLAYER_LOCAL_VOL);
 	}
 
 	~GMInstrManager()
 	{
-		InstrConfig *ime;
-		while ((ime = instList) != 0)
-		{
-			instList = ime->next;
-			delete ime;
-		}
 	}
 
-	void SetController(MIDIControl *p)
-	{
-		mc = p;
-		gm->SetMidiControl(mc);
-	}
-
-	void SetSoundBank(SoundBank *sb)
+	void SetSoundBank(SoundBank *sb, float scl)
 	{
 		gm->SetSoundBank(sb);
+		gm->SetParam(19, scl);
 	}
 
-	void SetVolume(AmpValue v)
+	void SetVolume(AmpValue v, AmpValue r)
 	{
 		masterVol = v;
+		reverbMix = r;
 	}
 
 	virtual void Clear()
@@ -80,12 +70,12 @@ public:
 
 	virtual Instrument *Allocate(bsInt16 inum)
 	{
-		return GMManager::InstrFactory(this, gm);
+		return GMPlayer::InstrFactory(this, gm);
 	}
 
 	virtual Instrument *Allocate(InstrConfig *in)
 	{
-		return GMManager::InstrFactory(this, gm);
+		return GMPlayer::InstrFactory(this, gm);
 	}
 
 	virtual void Deallocate(Instrument *ip)
@@ -95,44 +85,57 @@ public:
 
 	virtual SeqEvent *ManufEvent(bsInt16 inum)
 	{
-		return GMManager::EventFactory(gm);
+		return GMPlayer::EventFactory(gm);
 	}
 
 	virtual SeqEvent *ManufEvent(InstrConfig *in)
 	{
-		return GMManager::EventFactory(gm);
+		return GMPlayer::EventFactory(gm);
+	}
+
+	void ControlChange(int chnl, int ctl, int val)
+	{
+		InstrManager::ControlChange(chnl, ctl, val);
 	}
 
 	/// Start is called by the sequencer 
 	/// when the sequence starts.
 	virtual void Start()
 	{
+		InstrManager::Start();
 		outLft = 0;
 		outRgt = 0;
+		outRvrb = 0;
+		reverb.InitReverb(0.25, 1.0);
 	}
-	
+
 	/// Tick outputs the current sample.
 	virtual void Tick()
 	{
-		wvf->Output2(masterVol * outLft, masterVol * outRgt);
+		AmpValue rv = reverb.Sample(outRvrb) * reverbMix;
+		wvf->Output2(masterVol * (outLft + rv), masterVol * (outRgt + rv));
 		outLft = 0;
 		outRgt = 0;
+		outRvrb = 0;
 	}
 
-	/// FxSend sends values to an effects unit (TDB)
+	/// FxSend sends values to an effects unit
+	/// This only implements reverb (unit 0)
 	virtual void FxSend(int unit, AmpValue val)
 	{
-		// TODO: send to reverb/chorus
+		if (unit == 0)
+			outRvrb += val;
 	}
 
 	/// Output a mono sample
 	virtual void Output(int ch, AmpValue val)
 	{
+		val *= GetVolumeN(ch) * 0.5;
 		outLft += val;
 		outRgt += val;
 	}
 
-	/// Output a stereo mono sample
+	/// Output a stereo sample
 	virtual void Output2(int ch, AmpValue lft, AmpValue rgt)
 	{
 		outLft += lft;

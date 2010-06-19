@@ -197,19 +197,31 @@ public:
 
 	LRESULT OnKbd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if (activeInstr == NULL)
-			return 0;
-		if (genThreadH == INVALID_HANDLE_VALUE)
-			return 0;
+		PlayNote((int)wParam, (int)(lParam & 0xff), (lParam >> 8) & 0xff);
+		return 0;
+	}
+
+	void PlayNote(int e, int key, int vel)
+	{
+		if (activeInstr == NULL || genThreadH == INVALID_HANDLE_VALUE)
+			return;
+
+		if (e == VKBD_CHANGE)
+		{
+			PlayNote(VKBD_KEYUP, key, vel);
+			e = VKBD_KEYDN;
+		}
 
 		NoteEvent *evt = (NoteEvent*) instrMgr.ManufEvent(activeInstr);
 		//evt->SetParam(P_INUM, activeInstr->inum);
-		evt->SetParam(P_CHNL, 0);
-		evt->SetParam(P_START, 0);
-		evt->SetParam(P_DUR, 1.0);
-		evt->SetParam(P_VOLUME, 1.0);
-		evt->SetParam(P_PITCH, (float) lParam+12);
-		switch (wParam)
+		evt->SetChannel(0);
+		evt->SetStart(0);
+		evt->SetDuration(0);
+		evt->SetVolume(1.0);
+		evt->SetPitch(key);
+		evt->SetVelocity(vel);
+
+		switch (e)
 		{
 		case VKBD_KEYDN:
 			evt->type = SEQEVT_START;
@@ -218,12 +230,12 @@ public:
 		case VKBD_KEYUP:
 			evt->type = SEQEVT_STOP;
 			break;
-		case VKBD_CHANGE:
-			evt->type = SEQEVT_PARAM;
-			break;
+		//case VKBD_CHANGE:
+		//	evt->type = SEQEVT_PARAM;
+		//	break;
 		default:
 			//OutputDebugString("Kbd event is unknown...\r\n");
-			return 0;
+			return;
 		}
 		evt->evid = evtID;
 
@@ -232,8 +244,6 @@ public:
 		//OutputDebugString(buf);
 		thePlayer.AddEvent(evt);
 		// NB: player will delete event. Don't touch it after calling AddEvent!
-
-		return 0;
 	}
 
 	static DWORD WINAPI GenerateProc(LPVOID param)

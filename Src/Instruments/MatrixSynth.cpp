@@ -70,21 +70,6 @@ static InstrParamMap globParams[] =
 	{ "vol", P_VOLUME }
 };
 
-static const char *ParamNum(const char *str, int *val)
-{
-	while (!isdigit(*str))
-	{
-		if (*str == 0)
-			return str;
-		str++;
-	}
-	int n = 0;
-	while (isdigit(*str))
-		n = (n * 10) + (*str++ - '0');
-	*val = n;
-	return str;
-}
-
 bsInt16 MatrixSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	int ty = 0;
@@ -95,38 +80,28 @@ bsInt16 MatrixSynth::MapParamID(const char *name, Opaque tmplt)
 	if (*str == 'o' || *str == 'g')
 	{
 		ty = 1;
-		str = ParamNum(str+1, &gn);
+		str = InstrParamMap::ParamNum(str+1, &gn);
 		if (*str == '.')
 			str++;
-		pn = SearchParamID(str, genParams, sizeof(genParams)/sizeof(InstrParamMap));
+		pn = InstrParamMap::SearchParamID(str, genParams, sizeof(genParams)/sizeof(InstrParamMap));
 	}
 	else if (*name == 'e')
 	{
 		ty = 2;
-		str = ParamNum(str+1, &gn);
+		str = InstrParamMap::ParamNum(str+1, &gn);
 		if (*str == 's')
-			str = ParamNum(str+1, &sn);
+			str = InstrParamMap::ParamNum(str+1, &sn);
 		if (*str == '.')
 			str++;
-		pn = SearchParamID(str, envParams, sizeof(envParams)/sizeof(InstrParamMap));
+		pn = InstrParamMap::SearchParamID(str, envParams, sizeof(envParams)/sizeof(InstrParamMap));
 	}
 	else
 	{
-		return SearchParamID(name, globParams, sizeof(globParams)/sizeof(InstrParamMap));
+		return InstrParamMap::SearchParamID(name, globParams, sizeof(globParams)/sizeof(InstrParamMap));
 	}
 	if (pn >= 0)
 		return (ty << 11) + (gn << 8) + (sn << 3) + pn;
 	return -1;
-}
-
-static void FormatNum(bsInt16 n, char *pdig)
-{
-	if (n >= 100)
-		*pdig++ = (n / 100) + '0';
-	if (n >= 10)
-		*pdig++ = ((n / 10) % 10) + '0';
-	*pdig++ = (n % 10) + '0';
-	*pdig = '\0';
 }
 
 const char *MatrixSynth::MapParamName(bsInt16 id, Opaque tmplt)
@@ -135,7 +110,7 @@ const char *MatrixSynth::MapParamName(bsInt16 id, Opaque tmplt)
 
 	bsInt16 ty = (id >> 11) & 3;
 	if (ty == 0)
-		return SearchParamName(id, globParams, sizeof(globParams)/sizeof(InstrParamMap));
+		return InstrParamMap::SearchParamName(id, globParams, sizeof(globParams)/sizeof(InstrParamMap));
 
 	paramNameBuf = "";
 	char dig[6];
@@ -143,26 +118,26 @@ const char *MatrixSynth::MapParamName(bsInt16 id, Opaque tmplt)
 	if (ty == 1)
 	{
 		dig[0] = 'g';
-		FormatNum(gn, &dig[1]);
+		InstrParamMap::FormatNum(gn, &dig[1]);
 		paramNameBuf += dig;
 		paramNameBuf += '.';
-		paramNameBuf += SearchParamName(id & 0xff, genParams, sizeof(genParams)/sizeof(InstrParamMap));
+		paramNameBuf += InstrParamMap::SearchParamName(id & 0xff, genParams, sizeof(genParams)/sizeof(InstrParamMap));
 	}
 	else if (ty == 2)
 	{
 		dig[0] = 'e';
-		FormatNum(gn, &dig[1]);
+		InstrParamMap::FormatNum(gn, &dig[1]);
 		paramNameBuf += dig;
 		bsInt16 sn = (id >> 3) & 0x1f;
 		bsInt16 vn = id & 7;
 		if (vn > 1 && vn < 6)
 		{
 			dig[0] = 's';
-			FormatNum(sn, &dig[1]);
+			InstrParamMap::FormatNum(sn, &dig[1]);
 			paramNameBuf += dig;
 		}
 		paramNameBuf += '.';
-		paramNameBuf += SearchParamName(vn, envParams, sizeof(envParams)/sizeof(InstrParamMap));
+		paramNameBuf += InstrParamMap::SearchParamName(vn, envParams, sizeof(envParams)/sizeof(InstrParamMap));
 	}
 
 	return paramNameBuf;
@@ -282,6 +257,8 @@ void MatrixSynth::Start(SeqEvent *evt)
 
 void MatrixSynth::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+		return; // TODO: process controller changes
 	SetParams((VarParamEvent*)evt);
 	MatrixTone *tSig = gens;
 	MatrixTone *tEnd = &gens[MATGEN];

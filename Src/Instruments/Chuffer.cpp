@@ -76,12 +76,12 @@ static InstrParamMap chuffParams[] =
 
 bsInt16 Chuffer::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, chuffParams, sizeof(chuffParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, chuffParams, sizeof(chuffParams)/sizeof(InstrParamMap));
 }
 
 const char *Chuffer::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, chuffParams, sizeof(chuffParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, chuffParams, sizeof(chuffParams)/sizeof(InstrParamMap));
 }
 
 Chuffer::Chuffer()
@@ -243,6 +243,8 @@ void Chuffer::Start(SeqEvent *evt)
 
 void Chuffer::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+		return; // TODO: process controller changes
 	SetParams((VarParamEvent*)evt);
 	if (chpOn)
 		chpOsc.Reset(-1);

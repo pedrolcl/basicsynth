@@ -61,21 +61,6 @@ static InstrParamMap addsynthParams[] =
 	{ "wt",  2 }
 };
 
-static const char *ParamNum(const char *str, int *val)
-{
-	while (!isdigit(*str))
-	{
-		if (*str == 0)
-			return str;
-		str++;
-	}
-	int n = 0;
-	while (isdigit(*str))
-		n = (n * 10) + (*str++ - '0');
-	*val = n;
-	return str;
-}
-
 bsInt16 AddSynth::MapParamID(const char *name, Opaque tmplt)
 {
 	int pn = 0;
@@ -84,29 +69,19 @@ bsInt16 AddSynth::MapParamID(const char *name, Opaque tmplt)
 	const char *str = name;
 	if (*str == 'p')
 	{
-		str = ParamNum(str+1, &pn);
+		str = InstrParamMap::ParamNum(str+1, &pn);
 		pn++;
 		if (*str == '.')
 			str++;
 		if (*str == 's')
-			str = ParamNum(str+1, &sn);
+			str = InstrParamMap::ParamNum(str+1, &sn);
 		if (*str == '.')
 			str++;
 	}
-	vn = SearchParamID(str, addsynthParams, sizeof(addsynthParams)/sizeof(InstrParamMap));
+	vn = InstrParamMap::SearchParamID(str, addsynthParams, sizeof(addsynthParams)/sizeof(InstrParamMap));
 	if (vn >= 0)
 		return (pn << 8) + (sn << 4) + vn;
 	return -1;
-}
-
-static void FormatNum(bsInt16 n, char *pdig)
-{
-	if (n >= 100)
-		*pdig++ = (n / 100) + '0';
-	if (n >= 10)
-		*pdig++ = ((n / 10) % 10) + '0';
-	*pdig++ = (n % 10) + '0';
-	*pdig = '\0';
 }
 
 const char *AddSynth::MapParamName(bsInt16 id, Opaque tmplt)
@@ -118,11 +93,11 @@ const char *AddSynth::MapParamName(bsInt16 id, Opaque tmplt)
 	if (n)
 	{
 		dig[0] = 'p';
-		FormatNum(n, &dig[1]);
+		InstrParamMap::FormatNum(n, &dig[1]);
 		paramNameBuf += dig;
 		n = (id >> 4) & 0x0f;
 		dig[0] = 's';
-		FormatNum(n, &dig[1]);
+		InstrParamMap::FormatNum(n, &dig[1]);
 		paramNameBuf += dig;
 	}
 
@@ -209,6 +184,8 @@ void AddSynth::Start(SeqEvent *evt)
 
 void AddSynth::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+		return; // TODO: process controller changes
 	UpdateParams(evt, -1);
 }
 
@@ -221,17 +198,10 @@ void AddSynth::UpdateParams(SeqEvent *evt, float initPhs)
 	AddSynthPart *pSig = parts;
 	for (pSig = parts; pSig < pEnd; pSig++)
 	{
-		if (pSig->mul > 0)
-		{
-			FrqValue f = frq;
-			if (pSig->mul > 0)
-			{
-				f *= pSig->mul;
-				if (f >= nyquist)
-					f = 0;
-			}
-			pSig->osc.SetFrequency(f);
-		}
+		FrqValue f = frq * pSig->mul;
+		if (f >= nyquist)
+			f = 0;
+		pSig->osc.SetFrequency(f);
 		pSig->osc.Reset(initPhs);
 		pSig->env.Reset(initPhs);
 	}
@@ -252,7 +222,7 @@ void AddSynth::Stop()
 
 void AddSynth::Tick()
 {
-	PhsAccum phs;
+	PhsAccum phs = 0;
 	int lfoOn = lfoGen.On();
 	if (lfoOn)
 		phs = lfoGen.Gen() * synthParams.frqTI;

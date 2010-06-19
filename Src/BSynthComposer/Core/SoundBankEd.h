@@ -26,7 +26,7 @@ public:
 class GMPlayerEdit : public SynthEdit
 {
 private:
-	GMManager *gm;
+	GMPlayer *gm;
 
 public:
 	GMPlayerEdit();

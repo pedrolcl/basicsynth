@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 /// @file MixerControl.cpp Implementation of the MixerControl instrument.
 //
-// BasicSynth - Dynamic Mixer Control instrument 
+// BasicSynth - Dynamic Mixer Control instrument
 //
 // Performs dynamic control of the mixer. The following functions
 // are defined:
@@ -16,7 +16,7 @@
 // 9. Set effects channel pan level
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ VarParamEvent *MixerControl::AllocParams()
 	return (VarParamEvent *) MixerControlEventFactory(0);
 }
 
-static InstrParamMap mixControlParams[] = 
+static InstrParamMap mixControlParams[] =
 {
 	{ "in",   P_CHNL },
 	{ "from", P_MIX_FROM },
@@ -80,12 +80,12 @@ static InstrParamMap mixControlParams[] =
 
 bsInt16 MixerControl::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, mixControlParams, sizeof(mixControlParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, mixControlParams, sizeof(mixControlParams)/sizeof(InstrParamMap));
 }
 
 const char *MixerControl::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, mixControlParams, sizeof(mixControlParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, mixControlParams, sizeof(mixControlParams)/sizeof(InstrParamMap));
 }
 
 void MixerControl::Copy(MixerControl *tp)
@@ -176,7 +176,7 @@ void MixerControl::Tick()
 	if (tickCount < 0 || mix == 0)
 		return;
 	tickCount--;
-	float oscVal;
+	float oscVal = 0;
 	if (oscOn)
 		oscVal = (((osc.Gen() + 1.0) / 2) * swpRng) + swpOffs;
 	switch (func)

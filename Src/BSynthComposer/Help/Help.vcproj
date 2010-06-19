@@ -77,6 +77,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\images\buzzformula.jpg"
+				>
+			</File>
+			<File
+				RelativePath=".\images\BuzzSynthDiag.jpg"
+				>
+			</File>
+			<File
 				RelativePath=".\ChufferDiag.jpg"
 				>
 			</File>
@@ -230,6 +238,10 @@
 					Outputs="BSynthHelp.chm"
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\buzzsynthinstr.html"
+			>
 		</File>
 		<File
 			RelativePath=".\chufferinstr.html"

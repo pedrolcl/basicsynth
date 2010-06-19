@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 /// @file ModSynth.cpp Implementation of the ModSynth instrument.
 //
-// BasicSynth - Modular Synthesis instrument 
+// BasicSynth - Modular Synthesis instrument
 //
 // Maintains a list of unit generators and scans the list on each tick.
 // In general, each ug implements a wrapper around one of the BasicSynth
@@ -41,261 +41,261 @@
 // nodes have a name beginning with '@' and are never copied or saved.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #include "Includes.h"
 #include "ModSynth.h"
 
-UGParam oscilParams[] = 
+UGParam oscilParams[] =
 {
-	{ UGOSC_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f }, 
-	{ UGOSC_FRQ, UGP_ALL, "frequency", 0.0f, 20000.0f }, 
-	{ UGOSC_MUL, UGP_ALL, "multiple",  0.0f, 10.0f }, 
-	{ UGOSC_MOD, UGP_ALL, "modulate" }, 
-	{ UGOSC_WVT, UGP_ALL, "wavetable" }, 
-	{ 0, UGP_RUN, "in" },
-	{ -1, 0, 0 }
+	{ UGOSC_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f },
+	{ UGOSC_FRQ, UGP_ALL, "frequency", 0.0f, 20000.0f },
+	{ UGOSC_MUL, UGP_ALL, "multiple",  0.0f, 10.0f },
+	{ UGOSC_MOD, UGP_ALL, "modulate", 0.0f, 0.0f },
+	{ UGOSC_WVT, UGP_ALL, "wavetable", 0.0f, 0.0f },
+	{ 0, UGP_RUN, "in", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam oscil2Params[] = 
+UGParam oscil2Params[] =
 {
-	{ UGOSC_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f }, 
-	{ UGOSC_FRQ, UGP_ALL, "frequency", 0.0f, 20000.0f }, 
-	{ UGOSC_MUL, UGP_ALL, "multiple",  0.0f, 10.0f }, 
-	{ UGOSC_MOD, UGP_ALL, "modulate" }, 
-	{ UGOSC_WVT, UGP_ALL, "wavetable"  }, 
-	{ UGOSC_IOM, UGP_ALL, "iom", 0.0f, 50.0f }, 
-	{ 0, UGP_RUN, "in" },
-	{ -1, 0, 0 }
+	{ UGOSC_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f },
+	{ UGOSC_FRQ, UGP_ALL, "frequency", 0.0f, 20000.0f },
+	{ UGOSC_MUL, UGP_ALL, "multiple",  0.0f, 10.0f },
+	{ UGOSC_MOD, UGP_ALL, "modulate", 0.0f, 0.0f },
+	{ UGOSC_WVT, UGP_ALL, "wavetable", 0.0f, 0.0f  },
+	{ UGOSC_IOM, UGP_ALL, "iom", 0.0f, 50.0f },
+	{ 0, UGP_RUN, "in", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam buzzParams[] = 
+UGParam buzzParams[] =
 {
-	{ UGOSC_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f }, 
-	{ UGOSC_FRQ, UGP_ALL, "frequency", 0.0f, 20000.0f }, 
-	{ UGOSC_MUL, UGP_ALL, "harmonics" }, 
-	{ UGOSC_MOD, UGP_ALL, "modulate" }, 
-	{ 0, UGP_RUN, "in" },
-	{ -1, 0, 0 }
+	{ UGOSC_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f },
+	{ UGOSC_FRQ, UGP_ALL, "frequency", 0.0f, 20000.0f },
+	{ UGOSC_MUL, UGP_ALL, "harmonics", 0.0f, 0.0f },
+	{ UGOSC_MOD, UGP_ALL, "modulate", 0.0f, 0.0f },
+	{ 0, UGP_RUN, "in", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam noiseParams[] = 
+UGParam noiseParams[] =
 {
 	{ UGNZ_AMP, UGP_ALL, "amplitude", 0.0f, 1.0f },
 	{ UGNZ_RTE, UGP_ALL, "rate",      0.0f, 1.0f },
-	{ 0, UGP_RUN|UGP_DEF, "in" },
-	{ -1, 0, 0 }
+	{ 0, UGP_RUN|UGP_DEF, "in", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam envARParams[] =
 {
-	{ UGAR_INP, UGP_RUN, "in" },
-	{ UGAR_ATK, UGP_SAVE|UGP_LOAD|UGP_INIT, "attack" },
-	{ UGAR_SUS, UGP_SAVE|UGP_LOAD|UGP_INIT, "peak" },
-	{ UGAR_REL, UGP_SAVE|UGP_LOAD|UGP_INIT, "release" },
-	{ UGAR_SON, UGP_SAVE|UGP_LOAD|UGP_INIT, "sustain" },
-	{ UGAR_TYP, UGP_SAVE|UGP_LOAD|UGP_INIT, "curve" }, 
-	{ UGAR_FIX, UGP_SAVE|UGP_LOAD|UGP_INIT, "time" },
-	{ UGAR_SCL, UGP_SAVE|UGP_LOAD|UGP_INIT, "scale" },
-	{ -1, 0, 0 }
+	{ UGAR_INP, UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGAR_ATK, UGP_SAVE|UGP_LOAD|UGP_INIT, "attack", 0.0f, 0.0f },
+	{ UGAR_SUS, UGP_SAVE|UGP_LOAD|UGP_INIT, "peak", 0.0f, 0.0f },
+	{ UGAR_REL, UGP_SAVE|UGP_LOAD|UGP_INIT, "release", 0.0f, 0.0f },
+	{ UGAR_SON, UGP_SAVE|UGP_LOAD|UGP_INIT, "sustain", 0.0f, 0.0f },
+	{ UGAR_TYP, UGP_SAVE|UGP_LOAD|UGP_INIT, "curve", 0.0f, 0.0f },
+	{ UGAR_FIX, UGP_SAVE|UGP_LOAD|UGP_INIT, "time", 0.0f, 0.0f },
+	{ UGAR_SCL, UGP_SAVE|UGP_LOAD|UGP_INIT, "scale", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam envADSRParams[] =
 {
-	{ UGADSR_INP, UGP_RUN, "in" },
-	{ UGADSR_STL, UGP_SAVE|UGP_LOAD|UGP_INIT, "start" },
-	{ UGADSR_ATK, UGP_SAVE|UGP_LOAD|UGP_INIT, "attack" },
-	{ UGADSR_PKL, UGP_SAVE|UGP_LOAD|UGP_INIT, "peak" },
-	{ UGADSR_DEC, UGP_SAVE|UGP_LOAD|UGP_INIT, "decay" },
-	{ UGADSR_SUS, UGP_SAVE|UGP_LOAD|UGP_INIT, "sustain" },
-	{ UGADSR_REL, UGP_SAVE|UGP_LOAD|UGP_INIT, "release" },
-	{ UGADSR_END, UGP_SAVE|UGP_LOAD|UGP_INIT, "end" },
-	{ UGADSR_TYP, UGP_SAVE|UGP_LOAD|UGP_INIT, "curve" }, 
-	{ UGADSR_FIX, UGP_SAVE|UGP_LOAD|UGP_INIT, "time" }, 
-	{ UGADSR_SCL, UGP_SAVE|UGP_LOAD|UGP_INIT, "scale" },
-	{ -1, 0, 0 }
+	{ UGADSR_INP, UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGADSR_STL, UGP_SAVE|UGP_LOAD|UGP_INIT, "start", 0.0f, 0.0f },
+	{ UGADSR_ATK, UGP_SAVE|UGP_LOAD|UGP_INIT, "attack", 0.0f, 0.0f },
+	{ UGADSR_PKL, UGP_SAVE|UGP_LOAD|UGP_INIT, "peak", 0.0f, 0.0f },
+	{ UGADSR_DEC, UGP_SAVE|UGP_LOAD|UGP_INIT, "decay", 0.0f, 0.0f },
+	{ UGADSR_SUS, UGP_SAVE|UGP_LOAD|UGP_INIT, "sustain", 0.0f, 0.0f },
+	{ UGADSR_REL, UGP_SAVE|UGP_LOAD|UGP_INIT, "release", 0.0f, 0.0f },
+	{ UGADSR_END, UGP_SAVE|UGP_LOAD|UGP_INIT, "end", 0.0f, 0.0f },
+	{ UGADSR_TYP, UGP_SAVE|UGP_LOAD|UGP_INIT, "curve", 0.0f, 0.0f },
+	{ UGADSR_FIX, UGP_SAVE|UGP_LOAD|UGP_INIT, "time", 0.0f, 0.0f },
+	{ UGADSR_SCL, UGP_SAVE|UGP_LOAD|UGP_INIT, "scale", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam envSegNParams[] =
 {
-	{ UGEG_INP,  UGP_RUN, "in" },
-	{ UGEG_SEGN, UGP_SAVE|UGP_LOAD, "segments" },
-	{ UGEG_ST,   UGP_SAVE|UGP_LOAD|UGP_INIT, "start" },
-	{ UGEG_SUS,  UGP_SAVE|UGP_LOAD|UGP_INIT, "sustain" },
-	{ UGEG_SCL,  UGP_SAVE|UGP_LOAD|UGP_INIT, "scale" },
-	{ UGEG_SEGLVL(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.level" },
-	{ UGEG_SEGRTE(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.rate" },
-	{ UGEG_SEGTYP(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.curve" }, 
-	{ UGEG_SEGFIX(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.time" }, 
-	{ UGEG_SEGLVL(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.level" },
-	{ UGEG_SEGRTE(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.rate" },
-	{ UGEG_SEGTYP(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.curve" }, 
-	{ UGEG_SEGFIX(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.time" }, 
-	{ UGEG_SEGLVL(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.level" },
-	{ UGEG_SEGRTE(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.rate" },
-	{ UGEG_SEGTYP(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.curve" }, 
-	{ UGEG_SEGFIX(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.time" }, 
-	{ UGEG_SEGLVL(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.level" },
-	{ UGEG_SEGRTE(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.rate" },
-	{ UGEG_SEGTYP(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.curve" }, 
-	{ UGEG_SEGFIX(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.time" }, 
-	{ UGEG_SEGLVL(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.level" },
-	{ UGEG_SEGRTE(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.rate" },
-	{ UGEG_SEGTYP(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.curve" }, 
-	{ UGEG_SEGFIX(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.time" }, 
-	{ UGEG_SEGLVL(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.level" },
-	{ UGEG_SEGRTE(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.rate" },
-	{ UGEG_SEGTYP(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.curve" }, 
-	{ UGEG_SEGFIX(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.time" }, 
-	{ UGEG_SEGLVL(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.level" },
-	{ UGEG_SEGRTE(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.rate" },
-	{ UGEG_SEGTYP(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.curve" }, 
-	{ UGEG_SEGFIX(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.time" }, 
-	{ UGEG_SEGLVL(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.level" },
-	{ UGEG_SEGRTE(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.rate" },
-	{ UGEG_SEGTYP(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.curve" }, 
-	{ UGEG_SEGFIX(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.time" }, 
-	{ UGEG_SEGLVL(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.level" },
-	{ UGEG_SEGRTE(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.rate" },
-	{ UGEG_SEGTYP(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.curve" }, 
-	{ UGEG_SEGFIX(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.time" }, 
-	{ UGEG_SEGLVL(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.level" },
-	{ UGEG_SEGRTE(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.rate" },
-	{ UGEG_SEGTYP(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.curve" }, 
-	{ UGEG_SEGFIX(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.time" }, 
-	{ UGEG_SEGLVL(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.level" },
-	{ UGEG_SEGRTE(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.rate" },
-	{ UGEG_SEGTYP(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.curve" }, 
-	{ UGEG_SEGFIX(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.time" }, 
-	{ UGEG_SEGLVL(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.level" },
-	{ UGEG_SEGRTE(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.rate" },
-	{ UGEG_SEGTYP(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.curve" }, 
-	{ UGEG_SEGFIX(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.time" }, 
-	{ -1, 0, 0 }
+	{ UGEG_INP,  UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGEG_SEGN, UGP_SAVE|UGP_LOAD, "segments", 0.0f, 0.0f },
+	{ UGEG_ST,   UGP_SAVE|UGP_LOAD|UGP_INIT, "start", 0.0f, 0.0f },
+	{ UGEG_SUS,  UGP_SAVE|UGP_LOAD|UGP_INIT, "sustain", 0.0f, 0.0f },
+	{ UGEG_SCL,  UGP_SAVE|UGP_LOAD|UGP_INIT, "scale", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(0), UGP_SAVE|UGP_LOAD|UGP_INIT, "s0.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(1), UGP_SAVE|UGP_LOAD|UGP_INIT, "s1.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(2), UGP_SAVE|UGP_LOAD|UGP_INIT, "s2.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(3), UGP_SAVE|UGP_LOAD|UGP_INIT, "s3.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(4), UGP_SAVE|UGP_LOAD|UGP_INIT, "s4.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(5), UGP_SAVE|UGP_LOAD|UGP_INIT, "s5.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(6), UGP_SAVE|UGP_LOAD|UGP_INIT, "s6.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(7), UGP_SAVE|UGP_LOAD|UGP_INIT, "s7.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(8), UGP_SAVE|UGP_LOAD|UGP_INIT, "s8.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(9), UGP_SAVE|UGP_LOAD|UGP_INIT, "s9.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(10), UGP_SAVE|UGP_LOAD|UGP_INIT, "s10.time", 0.0f, 0.0f },
+	{ UGEG_SEGLVL(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.level", 0.0f, 0.0f },
+	{ UGEG_SEGRTE(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.rate", 0.0f, 0.0f },
+	{ UGEG_SEGTYP(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.curve", 0.0f, 0.0f },
+	{ UGEG_SEGFIX(11), UGP_SAVE|UGP_LOAD|UGP_INIT, "s11.time", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam filterParams1[] = 
+UGParam filterParams1[] =
 {
-	{ 0, UGP_GEN, "in" }, 
-	{ UGFLT_FRQ, UGP_ALL, "fc" }, 
-	{ UGFLT_GAIN, UGP_ALL, "gain" },
-	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr" },
-	{ -1, 0, 0 }
+	{ 0, UGP_GEN, "in", 0.0f, 0.0f },
+	{ UGFLT_FRQ, UGP_ALL, "fc", 0.0f, 0.0f },
+	{ UGFLT_GAIN, UGP_ALL, "gain", 0.0f, 0.0f },
+	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam filterParams2[] = 
+UGParam filterParams2[] =
 {
-	{ 0, UGP_GEN, "in" },
-	{ UGFLT_FRQ, UGP_ALL, "fc" },
-	{ UGFLT_RES, UGP_ALL, "res" },
-	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr" },
-	{ -1, 0, 0 }
+	{ 0, UGP_GEN, "in", 0.0f, 0.0f },
+	{ UGFLT_FRQ, UGP_ALL, "fc", 0.0f, 0.0f },
+	{ UGFLT_RES, UGP_ALL, "res", 0.0f, 0.0f },
+	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 // used for FIRn and Averaging filters
-UGParam filterParams3[] = 
+UGParam filterParams3[] =
 {
-	{ 0, UGP_GEN, "in" },
-	{ UGFLT_FRQ, UGP_ALL, "fc" },
-	{ UGFLT_ORD, UGP_INIT|UGP_SAVE|UGP_LOAD, "order" },
-	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr" },
-	{ UGFLT_LHP, UGP_INIT|UGP_SAVE|UGP_LOAD, "hp" },
-	{ -1, 0, 0 }
+	{ 0, UGP_GEN, "in", 0.0f, 0.0f },
+	{ UGFLT_FRQ, UGP_ALL, "fc", 0.0f, 0.0f },
+	{ UGFLT_ORD, UGP_INIT|UGP_SAVE|UGP_LOAD, "order", 0.0f, 0.0f },
+	{ UGFLT_CRT, UGP_INIT|UGP_SAVE|UGP_LOAD, "cr", 0.0f, 0.0f },
+	{ UGFLT_LHP, UGP_INIT|UGP_SAVE|UGP_LOAD, "hp", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam allpassParams[] =
 {
-	{ 0, UGP_RUN, "in" },
-	{ 1, UGP_ALL, "d" },
-	{ -1, 0, 0 }
+	{ 0, UGP_RUN, "in", 0.0f, 0.0f },
+	{ 1, UGP_ALL, "d", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam valOut[] = 
+UGParam valOut[] =
 {
-	{ UGOUT_INP, UGP_GEN, "in" },
-	{ UGOUT_LFT, UGP_GEN, "left" },
-	{ UGOUT_RGT, UGP_GEN, "right" },
-	{ UGOUT_VOL, UGP_ALL, "volume" },
-	{ UGOUT_PAN, UGP_ALL, "pan" },
-	{ UGOUT_PON, UGP_ALL, "pon" },
-	{ -1, 0, 0 }
+	{ UGOUT_INP, UGP_GEN, "in", 0.0f, 0.0f },
+	{ UGOUT_LFT, UGP_GEN, "left", 0.0f, 0.0f },
+	{ UGOUT_RGT, UGP_GEN, "right", 0.0f, 0.0f },
+	{ UGOUT_VOL, UGP_ALL, "volume", 0.0f, 0.0f },
+	{ UGOUT_PAN, UGP_ALL, "pan", 0.0f, 0.0f },
+	{ UGOUT_PON, UGP_ALL, "pon", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam valueParam[] = 
+UGParam valueParam[] =
 {
-	{ UGVAL_INP, UGP_GEN|UGP_INIT, "in" },
-	{ -1, 0, 0 }
+	{ UGVAL_INP, UGP_GEN|UGP_INIT, "in", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam calcParams[] = 
+UGParam calcParams[] =
 {
-	{ UGCALC_V1, UGP_ALL, "val1" },
-	{ UGCALC_V2, UGP_ALL, "val2" },
-	{ UGCALC_OP, UGP_ALL, "op" },
-	{ 0, UGP_RUN|UGP_DEF, "in" },
-	{ -1, 0, 0 }
+	{ UGCALC_V1, UGP_ALL, "val1", 0.0f, 0.0f },
+	{ UGCALC_V2, UGP_ALL, "val2", 0.0f, 0.0f },
+	{ UGCALC_OP, UGP_ALL, "op", 0.0f, 0.0f },
+	{ 0, UGP_RUN|UGP_DEF, "in", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-UGParam scaleParams[] = 
+UGParam scaleParams[] =
 {
-	{ UGSCL_INP, UGP_ALL, "in" },
-	{ UGSCL_OMX, UGP_ALL, "outmax" },
-	{ UGSCL_OMN, UGP_ALL, "outmin" },
-	{ UGSCL_IMX, UGP_ALL, "inmax" },
-	{ UGSCL_IMN, UGP_ALL, "inmin" },
-	{ -1, 0, 0 }
+	{ UGSCL_INP, UGP_ALL, "in", 0.0f, 0.0f },
+	{ UGSCL_OMX, UGP_ALL, "outmax", 0.0f, 0.0f },
+	{ UGSCL_OMN, UGP_ALL, "outmin", 0.0f, 0.0f },
+	{ UGSCL_IMX, UGP_ALL, "inmax", 0.0f, 0.0f },
+	{ UGSCL_IMN, UGP_ALL, "inmin", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam tableParams[] =
 {
-	{ UGTBL_NDX, UGP_ALL, "index" },
-	{ UGTBL_WVT, UGP_ALL, "wavetable" },
-	{ UGTBL_INT, UGP_ALL, "interp" },
-	{ -1, 0, 0 }
+	{ UGTBL_NDX, UGP_ALL, "index", 0.0f, 0.0f },
+	{ UGTBL_WVT, UGP_ALL, "wavetable", 0.0f, 0.0f },
+	{ UGTBL_INT, UGP_ALL, "interp", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam delayParams[] =
 {
-	{ UGDLY_INP, UGP_RUN, "in" },
-	{ UGDLY_DLY, UGP_INIT|UGP_SAVE|UGP_LOAD, "delay" },
-	{ UGDLY_DEC, UGP_INIT|UGP_SAVE|UGP_LOAD, "decay" },
-	{ UGDLY_VOL, UGP_ALL, "volume" },
-	{ -1, 0, 0 }
+	{ UGDLY_INP, UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGDLY_DLY, UGP_INIT|UGP_SAVE|UGP_LOAD, "delay", 0.0f, 0.0f },
+	{ UGDLY_DEC, UGP_INIT|UGP_SAVE|UGP_LOAD, "decay", 0.0f, 0.0f },
+	{ UGDLY_VOL, UGP_ALL, "volume", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam delayParamsV[] =
 {
-	{ UGDLY_INP, UGP_RUN, "in" },
-	{ UGDLY_DLY, UGP_INIT|UGP_SAVE|UGP_LOAD, "delay" },
-	{ UGDLY_DEC, UGP_INIT|UGP_SAVE|UGP_LOAD, "decay" },
-	{ UGDLY_VOL, UGP_ALL, "volume" },
-	{ UGDLY_VRT, UGP_ALL, "vrt" },
-	{ -1, 0, 0 }
+	{ UGDLY_INP, UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGDLY_DLY, UGP_INIT|UGP_SAVE|UGP_LOAD, "delay", 0.0f, 0.0f },
+	{ UGDLY_DEC, UGP_INIT|UGP_SAVE|UGP_LOAD, "decay", 0.0f, 0.0f },
+	{ UGDLY_VOL, UGP_ALL, "volume", 0.0f, 0.0f },
+	{ UGDLY_VRT, UGP_ALL, "vrt", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam flangerParams[] =
 {
-	{ UGFLNG_INP, UGP_RUN, "in" },
-	{ UGFLNG_LVL, UGP_INIT|UGP_SAVE|UGP_LOAD, "level" },
-	{ UGFLNG_MIX, UGP_INIT|UGP_SAVE|UGP_LOAD, "mix" },
-	{ UGFLNG_FB,  UGP_INIT|UGP_SAVE|UGP_LOAD, "feedback" },
-	{ UGFLNG_CTR, UGP_INIT|UGP_SAVE|UGP_LOAD, "center" },
-	{ UGFLNG_DPTH,UGP_INIT|UGP_SAVE|UGP_LOAD, "depth" },
-	{ UGFLNG_SWP, UGP_INIT|UGP_SAVE|UGP_LOAD, "sweep" },
-	{ -1, 0, 0 }
+	{ UGFLNG_INP, UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGFLNG_LVL, UGP_INIT|UGP_SAVE|UGP_LOAD, "level", 0.0f, 0.0f },
+	{ UGFLNG_MIX, UGP_INIT|UGP_SAVE|UGP_LOAD, "mix", 0.0f, 0.0f },
+	{ UGFLNG_FB,  UGP_INIT|UGP_SAVE|UGP_LOAD, "feedback", 0.0f, 0.0f },
+	{ UGFLNG_CTR, UGP_INIT|UGP_SAVE|UGP_LOAD, "center", 0.0f, 0.0f },
+	{ UGFLNG_DPTH,UGP_INIT|UGP_SAVE|UGP_LOAD, "depth", 0.0f, 0.0f },
+	{ UGFLNG_SWP, UGP_INIT|UGP_SAVE|UGP_LOAD, "sweep", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
 UGParam reverbParams[] =
 {
-	{ UGRVB_INP, UGP_RUN, "in" },
-	{ UGRVB_VOL, UGP_INIT|UGP_SAVE|UGP_LOAD, "volume" },
-	{ UGRVB_RVT, UGP_INIT|UGP_SAVE|UGP_LOAD, "rtime" },
-	{ -1, 0, 0 }
+	{ UGRVB_INP, UGP_RUN, "in", 0.0f, 0.0f },
+	{ UGRVB_VOL, UGP_INIT|UGP_SAVE|UGP_LOAD, "volume", 0.0f, 0.0f },
+	{ UGRVB_RVT, UGP_INIT|UGP_SAVE|UGP_LOAD, "rtime", 0.0f, 0.0f },
+	{ -1, 0, 0, 0.0f, 0.0f }
 };
 
-ModSynthUGType ugTypes[] = 
+ModSynthUGType ugTypes[] =
 {
 	{ "OSCIL",    "Osc", "Wavetable Oscillator", UGOscil::Construct },
 	{ "OSCILI",   "OscI", "Wavetable Oscillator (Interpolation)", UGOscilI::Construct },
@@ -360,7 +360,7 @@ bsInt16 ModSynth::MapParamID(const char *name, Opaque tmplt)
 	buf[127] = 0;
 	char *inp = strchr(buf, '.');
 	if (inp == NULL)
-		inp = "in";
+		inp = (char*)"in";
 	else
 		*inp++ = 0;
 	ModSynthUG *ug = ms->FindUnit(buf);
@@ -450,6 +450,8 @@ void ModSynth::Start(SeqEvent *evt)
 
 void ModSynth::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+		return; // TODO: process controller changes
 	SetParams((VarParamEvent *)evt);
 }
 
@@ -568,7 +570,7 @@ void ModSynth::Copy(ModSynth *tp)
 	ModSynthUG *ugOld;
 	numUnits = tp->numUnits;
 	maxID = tp->maxID;
-	
+
 	// don't copy the head (in params) or tail (out samples)
 	for (ugOld = tp->head.next; ugOld != &tp->tail; ugOld = ugOld->next)
 	{
@@ -680,7 +682,7 @@ ModSynthUG *ModSynth::FindUnit(bsInt16 id)
 void ModSynth::MoveUnit(ModSynthUG *ug, ModSynthUG *before)
 {
 	if (ug && before
-	 && ug != &head && ug != &tail 
+	 && ug != &head && ug != &tail
 	 && before != &head)
 	{
 		ug->Remove();
@@ -748,7 +750,7 @@ void ModSynth::Connect(ModSynthUG *ug, const char *dst)
 	buf[127] = 0;
 	char *inp = strchr(buf, '.');
 	if (inp == NULL)
-		inp = "in";
+		inp = (char*)"in";
 	else
 		*inp++ = 0;
 
@@ -861,6 +863,7 @@ int ModSynth::SaveConnect(XmlSynthElem *parent, ModSynthUG *ug)
 	XmlSynthElem *child;
 	ModSynthConn *con;
 	con = ug->ConnectList(0);
+	const char *nm = ug->GetName();
 	while (con)
 	{
 		if (con->ug)

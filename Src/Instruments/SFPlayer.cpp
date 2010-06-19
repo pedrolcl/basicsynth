@@ -154,25 +154,48 @@ void SFPlayerInstr::ClearZoneList(SFGen *gen)
 SFGen *SFPlayerInstr::BuildZoneList(int pit, int vel)
 {
 	SFGen *list = 0;
-	SBZone *zone = 0;
-	while ((zone = instr->EnumZones(zone)) != 0)
+	SBZoneGroup *grp = 0;
+	while ((grp = instr->EnumGroups(grp)) != 0)
 	{
-		if (zone->Match(pit, vel))
+		if (grp->Match(pit, vel))
 		{
-			SFGen *gen = new SFGen;
-			gen->osc.InitWTLoop(frq, zone->recFreq, zone->rate, zone->tableEnd, 
-				zone->loopStart, zone->loopEnd, zone->mode, zone->sample->sample);
-			gen->pan.Set(panSqr, zone->pan);
-			if (list)
-				list->Insert(gen);
-			list = gen;
-			if (zone->lowKey < keyLo)
-				keyLo = zone->lowKey;
-			if (zone->highKey > keyHi)
-				keyHi = zone->highKey;
+			SBZone *zone;
+			SBZoneRef *ref = grp->map[pit];
+			while (ref)
+			{
+				zone = ref->zone;
+				if (zone->Match(pit, vel))
+				{
+					SFGen *gen = new SFGen;
+					gen->CalcPhsIncr(pit, zone);
+					gen->osc.InitSB(zone, SoundBank::GetPow2n1200(gen->phsPC));
+					gen->pan.Set(panSqr, zone->pan);
+					if (list)
+						list->Insert(gen);
+					list = gen;
+					if (zone->lowKey < keyLo)
+						keyLo = zone->lowKey;
+					if (zone->highKey > keyHi)
+						keyHi = zone->highKey;
+				}
+				ref = ref->next;
+			}
 		}
 	}
 	return list;
+}
+
+void SFGen::CalcPhsIncr(int pit, SBZone *zone)
+{
+	FrqValue adjKey = FrqValue(pit + zone->coarseTune - zone->keyNum);
+	FrqValue adjCents = zone->fineTune * 0.01;
+	phsPC = FrqValue(zone->scaleTune) * (adjKey + adjCents) - zone->cents;
+	if (zone->rate != synthParams.isampleRate)
+	{
+		double wsrCents = 1200.0 * SoundBank::log2((double)zone->rate/440.0);
+		double srCents = 1200.0 * SoundBank::log2((double)synthParams.sampleRate/440.0);
+		phsPC += (float)(wsrCents - srCents);
+	}
 }
 
 /// Start playing a note.
@@ -185,6 +208,7 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 	frq = params->frq;
 	chnl = params->chnl;
 	vol  = params->vol;
+	pwFrq = im->GetPitchbendC(chnl);
 
 	SetParams(params);
 
@@ -204,18 +228,33 @@ void SFPlayerInstr::Start(SeqEvent *evt)
 	volEnv.Reset(0);
 	FrqValue fmFrq = frq * fmCM;
 	oscfm.InitWT(fmFrq, WT_SIN);
-	fmAmp = fmFrq * fmIM;
-	fmOn = fmAmp > 0;
+//	fmAmp = fmFrq * fmIM;
+//	fmOn = fmAmp > 0;
+	if (fmIM > 0)
+	{
+		fmAmp = 1200.0 * SoundBank::log2(fmCM + fmIM);
+		fmOn = 1;
+	}
+	else
+	{
+		fmAmp = 0;
+		fmOn = 0;
+	}
 	modEnv.Reset(0);
-	vibLFO.SetSigFrq(frq);
 	vibLFO.Reset(0);
-	pbWT.SetSigFrq(frq);
 	pbWT.SetDurationS(params->duration);
 	pbWT.Reset(0);
 }
 
 void SFPlayerInstr::Param(SeqEvent *evt)
 {
+	if (evt->type == SEQEVT_CONTROL)
+	{
+		ControlEvent *cevt = (ControlEvent *)evt;
+		if ((cevt->mmsg & MIDI_EVTMSK) == MIDI_PWCHG)
+			pwFrq = im->GetPitchbendC(chnl);
+		return;
+	}
 	VarParamEvent *params = (VarParamEvent *)evt;
 	SetParams((VarParamEvent*)evt);
 
@@ -245,12 +284,21 @@ void SFPlayerInstr::Param(SeqEvent *evt)
 		}
 
 		frq = params->frq;
-		vibLFO.SetSigFrq(frq);
 		oscfm.SetFrequency(frq * fmCM);
 		oscfm.Reset(-1);
 	}
-	fmAmp = frq * fmCM * fmIM;
-	fmOn = fmAmp > 0;
+//	fmAmp = frq * fmCM * fmIM;
+//	fmOn = fmAmp > 0;
+	if (fmIM > 0)
+	{
+		fmAmp = 1200.0 * SoundBank::log2(fmCM + fmIM);
+		fmOn = 1;
+	}
+	else
+	{
+		fmAmp = 0;
+		fmOn = 0;
+	}
 	vibLFO.Reset(-1);
 	pbWT.Reset(-1);
 }
@@ -270,15 +318,15 @@ void SFPlayerInstr::Stop()
 /// Produce the next sample.
 void SFPlayerInstr::Tick()
 {
-	FrqValue newFrq = frq;
+	FrqValue modFrq = pwFrq;
 	AmpValue ampVal = vol * volEnv.Gen();
 
 	if (fmOn)
-		newFrq += oscfm.Gen() * modEnv.Gen() * fmAmp;
+		modFrq += oscfm.Gen() * modEnv.Gen() * fmAmp;
 	if (vibLFO.On())
-		newFrq += vibLFO.Gen();
+		modFrq += vibLFO.Gen() * 100.0;
 	if (pbWT.On())
-		newFrq += pbWT.Gen();
+		modFrq += pbWT.Gen() * 100.0;
 
 	AmpValue genOut;
 	AmpValue oscValR = 0.0;
@@ -286,7 +334,7 @@ void SFPlayerInstr::Tick()
 	SFGen *gen = genList;
 	while (gen)
 	{
-		gen->osc.UpdateFrequency(newFrq);
+		gen->osc.UpdatePhaseIncr(SoundBank::GetPow2n1200(gen->phsPC + modFrq));
 		genOut = gen->osc.Gen();
 		oscValR += gen->pan.panrgt * genOut;
 		oscValL += gen->pan.panlft * genOut;
@@ -301,7 +349,7 @@ void SFPlayerInstr::Tick()
 		SFGen *gen = xfdList;
 		while (gen)
 		{
-			gen->osc.UpdateFrequency(newFrq);
+			gen->osc.UpdatePhaseIncr(SoundBank::GetPow2n1200(gen->phsPC + modFrq));
 			genOut = gen->osc.Gen();
 			oscValR2 += gen->pan.panrgt * genOut;
 			oscValL2 += gen->pan.panlft * genOut;
@@ -636,12 +684,12 @@ static InstrParamMap sfPlayerParams[] =
 
 bsInt16 SFPlayerInstr::MapParamID(const char *name, Opaque tmplt)
 {
-	return SearchParamID(name, sfPlayerParams, sizeof(sfPlayerParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamID(name, sfPlayerParams, sizeof(sfPlayerParams)/sizeof(InstrParamMap));
 }
 
 const char *SFPlayerInstr::MapParamName(bsInt16 id, Opaque tmplt)
 {
-	return SearchParamName(id, sfPlayerParams, sizeof(sfPlayerParams)/sizeof(InstrParamMap));
+	return InstrParamMap::SearchParamName(id, sfPlayerParams, sizeof(sfPlayerParams)/sizeof(InstrParamMap));
 }
 
 

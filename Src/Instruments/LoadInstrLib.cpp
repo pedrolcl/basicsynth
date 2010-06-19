@@ -42,7 +42,7 @@ InstrConfig *LoadInstr(InstrManager& mgr, XmlSynthElem *instr)
 	return mgr.LoadInstr(instr);
 }
 
-bsInt16 SearchParamID(const char *name, InstrParamMap *map, int n)
+bsInt16 InstrParamMap::SearchParamID(const char *name, InstrParamMap *map, int n)
 {
 	int hi = n - 1;
 	int lo = 0;
@@ -62,7 +62,7 @@ bsInt16 SearchParamID(const char *name, InstrParamMap *map, int n)
 	return -1;
 }
 
-const char *SearchParamName(bsInt16 id, InstrParamMap *map, int count)
+const char *InstrParamMap::SearchParamName(bsInt16 id, InstrParamMap *map, int count)
 {
 	for (int index = 0; index < count; index++)
 	{
@@ -72,3 +72,29 @@ const char *SearchParamName(bsInt16 id, InstrParamMap *map, int count)
 	}
 	return "";
 }
+
+const char *InstrParamMap::ParamNum(const char *str, int *val)
+{
+	while (!isdigit(*str))
+	{
+		if (*str == 0)
+			return str;
+		str++;
+	}
+	int n = 0;
+	while (isdigit(*str))
+		n = (n * 10) + (*str++ - '0');
+	*val = n;
+	return str;
+}
+
+void InstrParamMap::FormatNum(bsInt16 n, char *pdig)
+{
+	if (n >= 100)
+		*pdig++ = (n / 100) + '0';
+	if (n >= 10)
+		*pdig++ = ((n / 10) % 10) + '0';
+	*pdig++ = (n % 10) + '0';
+	*pdig = '\0';
+}
+

@@ -6,7 +6,7 @@
 // String class implementation
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 #include <string.h>
 #include <SynthString.h>
 
-char *bsString::nulStr = "";
+const char *bsString::nulStr = "";
 
 char *bsString::Allocate(size_t n)
 {
@@ -194,7 +194,7 @@ int bsString::FindReverse(int start, int ch)
 
 size_t bsString::SubString(bsString& out, int start, size_t len)
 {
-	if (len < 0 || len > curLen)
+	if (len > curLen)
 		len = curLen;
 	if (start < 0)
 		start = 0;
@@ -204,7 +204,7 @@ size_t bsString::SubString(bsString& out, int start, size_t len)
 	{
 		char *p1 = &theStr[start];
 		char *p2 = out.theStr;
-		while (len > 0)
+		while (len > 0 && start++ < (int)curLen)
 		{
 			*p2++ = *p1++;
 			len--;
@@ -213,6 +213,31 @@ size_t bsString::SubString(bsString& out, int start, size_t len)
 		*p2 = 0;
 	}
 	return out.curLen;
+}
+
+int bsString::SplitPath(bsString& base, bsString& file, int inclSep)
+{
+	if (curLen == 0)
+	{
+		base = NULL;
+		file = NULL;
+		return 0;
+	}
+	int slash = FindReverse(0, '\\');
+	if (slash < 0)
+	{
+		if ((slash = FindReverse(0, '/')) < 0)
+			slash = Find(0, ':');
+	}
+	if (slash >= 0)
+	{
+		SubString(base, 0, slash + (inclSep ? 1 : 0));
+		SubString(file, slash+1, -1);
+		return 2;
+	}
+	base = NULL;
+	file = theStr;
+	return 1;
 }
 
 void bsString::Attach(char *str, int cl, int ml)

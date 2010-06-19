@@ -2,7 +2,7 @@
 /// @file ModSynthUG.h Interface and template class for ModSynth unit generators
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #define MODSYNTH_UG_H
 
 // These values allow for 64 inputs per gen, and 1024 gens per instrument.
-// That should be enough... 
+// That should be enough...
 #define UGID_SHIFT 6
 #define UGID_MASK 0x3F
 
@@ -42,7 +42,7 @@ class UGParam
 public:
 	short index;
 	short when;
-	char *name;
+	const char *name;
 	float minval;
 	float maxval;
 };
@@ -71,7 +71,7 @@ public:
 };
 
 /// ModSynthUG is the interface to any unit generator
-/// that is part of the ModSynth instrument. This is 
+/// that is part of the ModSynth instrument. This is
 /// a pure-virtual base class.
 class ModSynthUG : public SynthList<ModSynthUG>
 {
@@ -170,8 +170,8 @@ public:
 	virtual const char *GetName() { return name; }
 	virtual void SetName(const char *n) { name = n; }
 	virtual int MatchName(const char *n)
-	{ 
-		return name.CompareNC(n) == 0; 
+	{
+		return name.CompareNC(n) == 0;
 	}
 
 	virtual void SetInput(short index, float val)

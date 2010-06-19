@@ -6,7 +6,7 @@
 // Sequencer code that is not inline
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
@@ -15,12 +15,15 @@
 #include <math.h>
 #include <SynthDefs.h>
 #include <SynthString.h>
+#include <SynthMutex.h>
 #include <WaveTable.h>
 #include <WaveFile.h>
 #include <Mixer.h>
 #include <SynthList.h>
 #include <XmlWrap.h>
 #include <SeqEvent.h>
+#include <MIDIDefs.h>
+#include <MIDIControl.h>
 #include <Instrument.h>
 #include <Sequencer.h>
 
@@ -73,7 +76,7 @@ void SeqTrack::AddEvent(SeqEvent *evt)
 //////////////////////////// SEQUENCER ////////////////////////////
 
 Sequencer::Sequencer()
-{ 
+{
 	state = seqOff;
 	playing = false;
 	pausing = false;
@@ -83,10 +86,13 @@ Sequencer::Sequencer()
 	tickCount = 0;
 	tickWrap = 0;
 	tickArg = 0;
+	tickRes = (bsInt32) (synthParams.sampleRate * 0.0005);
 	wrapCount = 0;
-	cntrlMgr = 0;
+	//cntrlMgr = 0;
 	instMgr = 0;
 	globEventID = 0;
+	maxNote = 1000;
+	evtActive = 0;
 
 	track = new SeqTrack(0);
 
@@ -110,7 +116,8 @@ Sequencer::Sequencer()
 	actTail->flags = SEQ_AE_KEEP;
 	actHead->Insert(actTail);
 
-	CreateMutex();
+	critMutex.Create();
+	pauseSignal.Create();
 }
 
 Sequencer::~Sequencer()
@@ -121,12 +128,11 @@ Sequencer::~Sequencer()
 	delete actHead;
 	delete actTail;
 	delete track;
-	DestroyMutex();
 	globEventID = 0;
 }
 
 // Add the event to the sequence sorted by start time.
-// The caller is responsible for setting valid values 
+// The caller is responsible for setting valid values
 // for inum, start, duration, type and eventid.
 void Sequencer::AddEvent(SeqEvent *evt)
 {
@@ -159,9 +165,9 @@ void Sequencer::AddImmediate(SeqEvent *evt)
 	if (evt == 0)
 		return;
 
-	EnterCritical();
+	critMutex.Enter();
 	immTail->InsertBefore(evt);
-	LeaveCritical();
+	critMutex.Leave();
 }
 
 // Multi-mode sequencer can play live, sequence, loop tracks or any combination.
@@ -173,15 +179,17 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 	if (track == 0)
 		return 0;
 
+	im.SetSequencer(this);
+
 	SeqEvent *imm = 0;
 	SeqEvent *evt = 0;
 	SeqTrack *tp = 0;
 	int trkActive = 0;
-	int evtActive = 0;
+	evtActive = 0;
 
 	seqTick = startTime;
 	track->LoopCount(1);
-	track->Start(seqTick);
+	track->Start(seqTick, tickRes);
 
 	instMgr = &im;
 	instMgr->Start();
@@ -202,13 +210,13 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 		if (live)
 		{
 			// in-line message peek/get
-			EnterCritical();
+			critMutex.Enter();
 			imm = immHead->next;
 			if (imm != immTail)
 				imm->Remove();
 			else
 				imm = NULL;
-			LeaveCritical();
+			critMutex.Leave();
 			if (imm)
 			{
 				ProcessEvent(imm, 0);
@@ -228,11 +236,11 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 			}
 		}
 
-		// invoke all active instruments for one sample
+		// invoke all active instruments for tickRes samples
 		evtActive = Tick();
 
 		// When we have reached the end of the sequence
-		// AND all events have finished, 
+		// AND all events have finished,
 		// OR, we have hit the last time caller wanted,
 		// we can quit. N.B. this can leave active events!
 		if (once)
@@ -248,11 +256,13 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 	// active, we do clean-up here. We don't bother with Stop or IsFinished
 	// since we are no longer generating samples.
 	ClearActive();
-	
+
 	state = seqOff;
 
 	if (tickCB)
 		tickCB(wrapCount, tickArg);
+
+	im.SetSequencer(NULL);
 
 	return seqTick; // in case the caller wants to know how long we played...
 }
@@ -266,13 +276,15 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 	if (track == 0)
 		return 0;
 
+	im.SetSequencer(this);
+
 	SeqEvent *evt = 0;
 	int trkActive = 0;
 	int evtActive = 0;
 
 	seqTick = startTime;
 	track->LoopCount(1);
-	track->Start(seqTick);
+	track->Start(seqTick, tickRes);
 
 	instMgr = &im;
 	instMgr->Start();
@@ -292,11 +304,11 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 			ProcessEvent(evt, SEQ_AE_TM);
 		trkActive = track->Tick();
 
-		// invoke all active instruments for one sample
+		// invoke all active instruments for tickRes samples
 		evtActive = Tick();
 
 		// When we have reached the end of the sequence
-		// AND all events have finished, 
+		// AND all events have finished,
 		// OR, we have hit the last time caller wanted,
 		// we can quit. N.B. this can leave active events!
 		if ((!trkActive && !evtActive)
@@ -315,6 +327,8 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 	if (tickCB)
 		tickCB(wrapCount, tickArg);
 
+	im.SetSequencer(NULL);
+
 	return seqTick; // in case the caller wants to know how long we played...
 }
 
@@ -325,18 +339,19 @@ bsUint32 Sequencer::Play(InstrManager& im)
 		return 0;
 
 	instMgr = &im;
+	im.SetSequencer(this);
 
 	SeqEvent *evt;
 
 	ClearActive();
 
-	EnterCritical();
+	critMutex.Enter();
 	while ((evt = immHead->next) != immTail)
 	{
 		evt->Remove();
 		evt->Destroy();
 	}
-	LeaveCritical();
+	critMutex.Leave();
 
 	state = seqPlay;
 	seqTick = 0;
@@ -346,13 +361,13 @@ bsUint32 Sequencer::Play(InstrManager& im)
 	while (playing)
 	{
 		// in-line message peek/get
-		EnterCritical();
+		critMutex.Enter();
 		evt = immHead->next;
 		if (evt != immTail)
 			evt->Remove();
 		else
 			evt = NULL;
-		LeaveCritical();
+		critMutex.Leave();
 		if (evt)
 		{
 			ProcessEvent(evt, 0);
@@ -367,23 +382,25 @@ bsUint32 Sequencer::Play(InstrManager& im)
 
 	state = seqOff;
 
+	im.SetSequencer(NULL);
+
 	return seqTick;
 }
 
-/// Reset the sequencer.
-/// Reset should be called to clean up any memory before filling in a new sequence. 
+// Reset the sequencer.
+// Reset should be called to clean up any memory before filling in a new sequence.
 void Sequencer::Reset()
 {
 	SeqEvent *evt;
 	ClearActive();
 
-	EnterCritical();
+	critMutex.Enter();
 	while ((evt = immHead->next) != immTail)
 	{
 		evt->Remove();
 		evt->Destroy();
 	}
-	LeaveCritical();
+	critMutex.Leave();
 
 	track->Reset();
 	SeqTrack *tp;
@@ -421,52 +438,77 @@ int Sequencer::Tick()
 			return 0;
 	}
 
-	if (cntrlMgr)
-		cntrlMgr->Tick();
-
-	int actCount = 0;
-	ActiveEvent *act = actHead->next;
-	while (act != actTail)
+	int actCount;
+	bsInt32 tickBlk = tickRes;
+	do
 	{
-		actCount++;
-		if (act->ison == SEQ_AE_ON)
+		//if (cntrlMgr)
+		//	cntrlMgr->Tick();
+		actCount = 0;
+		Instrument *ins;
+		ActiveEvent *act = actHead->next;
+		while (act != actTail)
 		{
-			act->ip->Tick();
-			if ((act->flags & SEQ_AE_TM) && --act->count == 0)
+			actCount++;
+			ins = act->ip;
+			if (act->ison == SEQ_AE_ON)
 			{
-				act->ip->Stop();
-				act->ison = SEQ_AE_REL;
-				//printf("Stop Note for event %d\n", act->evid);
-			}
-			act = act->next;
-		}
-		else if (act->ison == SEQ_AE_REL)
-		{
-			if (act->ip->IsFinished())
-			{
-				//printf("Remove Note for event %d\n", act->evid);
-				instMgr->Deallocate(act->ip);
-				ActiveEvent *p = act->Remove();
-				delete act;
-				act = p;
-			}
-			else
-			{
-				act->ip->Tick();
+				// duration not yet reached or note-off not signaled
+				ins->Tick();
+				if ((act->flags & SEQ_AE_TM) && --act->count == 0)
+				{
+					// duration finished
+					ins->Stop();
+					act->ison = SEQ_AE_REL;
+					//printf("Stop Note for event %d\n", act->evid);
+				}
 				act = act->next;
 			}
+			else if (act->ison == SEQ_AE_REL)
+			{
+				// in release
+				if (ins->IsFinished())
+				{
+					//printf("Remove Note for event %d\n", act->evid);
+					instMgr->Deallocate(ins);
+					ActiveEvent *p = act->Remove();
+					delete act;
+					act = p;
+					actCount--;
+				}
+				else
+				{
+					ins->Tick();
+					act = act->next;
+				}
+			}
 		}
-	}
-	instMgr->Tick();
+		instMgr->Tick();
 
-	seqTick++;
-	if (tickCB && ++tickCount >= tickWrap)
-	{
-		tickCB(++wrapCount, tickArg);
-		tickCount = 0;
-	}
+		seqTick++;
+		if (tickCB && ++tickCount >= tickWrap)
+		{
+//#if _WIN32 && _DEBUG
+//			char buf[80];
+//			sprintf_s(buf, 80, "Tick %d active = %d\r\n", seqTick, actCount);
+//			OutputDebugString(buf);
+//#endif
+			tickCB(++wrapCount, tickArg);
+			tickCount = 0;
+		}
+	} while (--tickBlk > 0);
 
 	return actCount;
+}
+
+void Sequencer::Broadcast(SeqEvent *evt)
+{
+	ActiveEvent *act;
+	for (act = actHead->next; act != actTail; act = act->next)
+	{
+		if (act->chnl == evt->chnl)
+			act->ip->Param(evt);
+	}
 }
 
 void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
@@ -506,10 +548,30 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 			break;
 		/// FALTHROUGH on RESTART event no longer playing
 	case SEQEVT_START:
+		if (++evtActive > maxNote)
+		{
+			// This is for MIDI, or other live playback,
+			// where the instruments are not "well behaved."
+			for (act = actHead->next; act != actTail; act = act->next)
+			{
+				if (act->ison == SEQ_AE_REL)
+					break;
+			}
+			// if no notes in release, remove oldest
+			if (act == actTail)
+				act = actHead->next;
+			if (act != actTail) // sanity check
+			{
+				instMgr->Deallocate(act->ip);
+				act->Remove();
+				delete act;
+				evtActive--;
+			}
+		}
 		// Start an instrument. The instrument manager must
 		// locate the instrument by id (inum) and return
 		// a valid instance. We then initialize the instrument
-		// by passing the event structure. 
+		// by passing the event structure.
 		if ((act = new ActiveEvent) == NULL)
 		{
 			playing = false;
@@ -519,15 +581,13 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 		act->evid = evt->evid;
 		act->ison = SEQ_AE_ON;
 		act->count = evt->duration;
+		act->chnl = evt->chnl;
 		if ((flags & SEQ_AE_TM) && act->count == 0)
 			act->count = 1;
 		act->flags = flags;
 
 		// assume: allocate should not fail, even if inum is invalid...
-		if (evt->im)
-			act->ip = instMgr->Allocate(evt->im);
-		else
-			act->ip = instMgr->Allocate(evt->inum);
+		act->ip = instMgr->Allocate(evt);
 		if (act->ip != 0)
 			act->ip->Start(evt);
 		else	// ...except if we are out of memory, so give up now.
@@ -540,7 +600,7 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 			if (tp->Track() == tevt->trkNo)
 			{
 				tp->LoopCount(tevt->loopCount);
-				tp->Start(0);
+				tp->Start(0, tickRes);
 				break;
 			}
 		}
@@ -557,8 +617,14 @@ void Sequencer::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 		}
 		break;
 	case SEQEVT_CONTROL:
-		if (cntrlMgr)
-			cntrlMgr->ProcessEvent(evt, flags);
+		instMgr->ProcessEvent(evt, flags);
+		break;
+	case SEQEVT_CANCEL:
+		for (act = actHead->next; act != actTail; act = act->next)
+		{
+			if (act->chnl == evt->chnl)
+				act->ip->Cancel();
+		}
 		break;
 	}
 }
@@ -567,7 +633,7 @@ void Sequencer::Wait()
 {
 	SeqState was = state;
 	state = seqPaused;
-	Sleep();
+	pauseSignal.Wait();
 	state = was;
 }
 
@@ -577,7 +643,7 @@ void Sequencer::Halt()
 	if (pausing)
 	{
 		pausing = false;
-		Wakeup();
+		pauseSignal.Wakeup();
 	}
 }
 
@@ -620,127 +686,3 @@ bsUint32 SequencerCB::Play(InstrManager& im)
 	Notify(SEQEVT_SEQSTOP, 0);
 	return seqTick;
 }
-
-/////////// Sequencer platform-dependent code //////////////////////
-
-#if _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOGDI
-#define NOUSER
-#include <windows.h>
-
-void Sequencer::CreateMutex()
-{
-	CRITICAL_SECTION *cs = new CRITICAL_SECTION;
-	::InitializeCriticalSection(cs);
-	critMutex = (void*)cs;
-	pauseSignal = (void*)CreateEvent(NULL, FALSE, 0, NULL);
-}
-
-void Sequencer::DestroyMutex()
-{
-	CRITICAL_SECTION *cs = (CRITICAL_SECTION*)critMutex;
-	if (cs)
-	{
-		::DeleteCriticalSection(cs);
-		delete cs;
-	}
-	CloseHandle((HANDLE)pauseSignal);
-	pauseSignal = 0;
-}
-
-inline void Sequencer::EnterCritical()
-{
-	::EnterCriticalSection((CRITICAL_SECTION*)critMutex);
-}
-
-inline void Sequencer::LeaveCritical()
-{
-	::LeaveCriticalSection((CRITICAL_SECTION*)critMutex);
-}
-
-inline void Sequencer::Sleep()
-{
-#ifdef _DEBUG
-	OutputDebugString("Sequencer paused\r\n");
-#endif
-	::WaitForSingleObject((HANDLE)pauseSignal, (DWORD)-1);
-#ifdef _DEBUG
-	OutputDebugString("Sequencer wakeup\r\n");
-#endif
-}
-
-inline void Sequencer::Wakeup()
-{
-	::SetEvent((HANDLE)pauseSignal);
-}
-
-#endif
-
-#if UNIX
-#include <sys/types.h>
-#include <pthread.h>
-
-struct pthread_event
-{
-	pthread_mutex_t m;
-	pthread_cond_t  c;
-};
-
-void Sequencer::CreateMutex()
-{
-	pthread_mutex_t *cs = new pthread_mutex_t;
-	pthread_mutex_init(cs, NULL);
-	critMutex = (void*)cs;
-	pthread_event *e = new pthread_event;
-	pthread_mutex_init(&e->m, NULL);
-	pthread_cond_init(&e->c, NULL);
-	pauseSignal = (void*)e;
-}
-
-void Sequencer::DestroyMutex()
-{
-	pthread_mutex_t *cs = (pthread_mutex_t*)critMutex;
-	if (cs)
-	{
-		pthread_mutex_destroy(cs);
-		delete cs;
-		critMutex = 0;
-	}
-	pthread_event *e = (pthread_event*)pauseSignal;
-	if (e)
-	{
-		pthread_cond_destroy(&e->c);
-		pthread_mutex_destroy(&e->m);
-		delete e;
-		pauseSignal = 0;
-	}
-}
-
-inline void Sequencer::EnterCritical()
-{
-	pthread_mutex_lock((pthread_mutex_t*)critMutex);
-}
-
-inline void Sequencer::LeaveCritical()
-{
-	pthread_mutex_unlock((pthread_mutex_t*)critMutex);
-}
-
-void Sequencer::Sleep()
-{
-	pthread_event *e = (pthread_event*)pauseSignal;
-	pthread_mutex_lock(&e->m);
-    pthread_cond_wait(&e->c, &e->m);
-	pthread_mutex_unlock(&e->m);
-}
-
-void Sequencer::Wakeup()
-{
-	pthread_event *e = (pthread_event*)pauseSignal;
-	pthread_mutex_lock(&e->m);
-	pthread_cond_signal(&e->c);
-	pthread_mutex_unlock(&e->m);
-}
-#endif
-

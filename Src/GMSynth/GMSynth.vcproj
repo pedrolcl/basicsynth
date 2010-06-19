@@ -46,7 +46,7 @@
 				AdditionalIncludeDirectories="..\..\Include; ..\Instruments"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMSYNTH_EXPORTS"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="2"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"

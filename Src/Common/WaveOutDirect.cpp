@@ -86,8 +86,7 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
 			newDev = 0;
 		if (newDev)
 		{
-			dirSndObj->Release();
-			dirSndObj = 0;
+			Shutdown();
 		}
 	}
 	if (dirSndObj == NULL)
@@ -154,6 +153,9 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
 		return -1;
 
 	nextWrite = 0;
+	//TIMECAPS tc;
+	//timeGetDevCaps(&tc, sizeof(tc));
+
 	// when we must wait, we wait 1/4 of a block length
 	// ms = leadtm * 0.25 * 1000
 	pauseTime = (DWORD) (leadtm * 250.0f);
@@ -205,6 +207,10 @@ void WaveOutDirect::Shutdown()
 // NB: we always leave this function with a portion of the
 // buffer locked. Since samples are going directly to the buffer,
 // it is imperative to do that.
+// This next flag controls whether the code sleeps or spins when the
+// buffer is full. Depending on the CPU load, it might be better to 
+// spin because we might not get the CPU back when we want it.
+#define SLEEP_WHEN_BLOCKED 1
 int WaveOutDirect::FlushOutput()
 {
 	DWORD m, pl;
@@ -242,7 +248,9 @@ int WaveOutDirect::FlushOutput()
 		dirSndBuf->GetCurrentPosition(&pl, NULL);
 		while (pl < m)
 		{
+#if SLEEP_WHEN_BLOCKED
 			Sleep(pauseTime);
+#endif
 			dirSndBuf->GetCurrentPosition(&pl, NULL);
 		}
 		dirSndBuf->Lock(nextWrite, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
@@ -256,7 +264,9 @@ int WaveOutDirect::FlushOutput()
 		dirSndBuf->GetCurrentPosition(&pl, NULL);
 		while (pl > blkLen)
 		{
+#if SLEEP_WHEN_BLOCKED
 			Sleep(pauseTime);
+#endif
 			dirSndBuf->GetCurrentPosition(&pl, NULL);
 		}
 		dirSndBuf->Lock(nextWrite, blkLen, &startLock, &sizeLock, NULL, NULL, 0);

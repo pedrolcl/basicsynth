@@ -377,16 +377,25 @@ void SwitchWidget::Paint(DrawContext dc)
 			lblFmt.SetAlignment(StringAlignmentFar);
 		lblFmt.SetLineAlignment(StringAlignmentCenter);
 		Font lblFont(&lblff, lblHeight, lblStyle, UnitPixel);
+		int textLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lbl, -1, 0, 0);
+		wchar_t *wtext = new wchar_t[textLen];
+		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lbl, -1, wtext, (int)textLen);
+		if (shadow)
+		{
+			SolidBrush blk(Color::Black);
+			RectF sr;
+			sr.X = rcf.X + shadow;
+			sr.Y = rcf.Y + shadow;
+			sr.Width = rcf.Width;
+			sr.Height = rcf.Height;
+			gr->DrawString(wtext, -1, &lblFont, sr, &lblFmt, &blk);
+		}
 		ARGB c;
 		if (enable)
 			c = fgClr;
 		else
 			c = 0x80000000;
 		SolidBrush br(c);
-		int textLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lbl, -1, 0, 0);
-		wchar_t *wtext = new wchar_t[textLen];
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lbl, -1, wtext, (int)textLen);
-		gr->DrawString(wtext, -1, &lblFont, rcf, &lblFmt, &br);
 		gr->DrawString(wtext, -1, &lblFont, rcf, &lblFmt, &br);
 		delete wtext;
 	}

@@ -105,10 +105,9 @@ int LibfileItem::RemoveItem()
 	ProjectItem *instr = 0;
 	while ((instr = prjTree->FirstChild(this)) != 0)
 	{
-		prjTree->RemoveNode(instr);
 		if (instr->GetType() == PRJNODE_INSTR)
 			((InstrItem*)instr)->RemoveInstr();
-		delete instr;
+		prjTree->RemoveNode(instr);
 	}
 	return 1;
 }

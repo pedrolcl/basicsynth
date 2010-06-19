@@ -1,5 +1,5 @@
 
-char *midiMsgName[8] = 
+const char *midiMsgName[8] =
 {
 	"NOTE OFF",
 	"NOTE ON",
@@ -11,7 +11,7 @@ char *midiMsgName[8] =
 	"SYSTEM"
 };
 
-char *midiSysName[16] = 
+const char *midiSysName[16] =
 {
 	"SYSTEM EXCLUSIVE",
 	"TIME CODE",
@@ -31,19 +31,19 @@ char *midiSysName[16] =
 	"RESET/META DATA"
 };
 
-char *midiCCName[128] =
+const char *midiCCName[128] =
 {
-/* 0*/	"BANK SELECT", "MOD WHEEL", "BREATH", "", 
+/* 0*/	"BANK SELECT", "MOD WHEEL", "BREATH", "",
 /* 4*/	"FOOT", "PORTAMENTO TIME", "DATA ENTRY MSB", "VOLUME",
-/* 8*/	"BALANCE", "", "PAN", "EXPRESSION", 
+/* 8*/	"BALANCE", "", "PAN", "EXPRESSION",
 /*12*/	"EFFECT 1", "EFFECT 2", "", "",
 /*16*/	"GENERAL PURPOSE 1", "GENERAL PURPOSE 2", "GENERAL PURPOSE 3", "GENERAL PURPOSE 4",
 /*20*/	"", "", "", "",
 /*24*/	"", "", "", "",
 /*28*/	"", "", "", "",
-/*32*/	"BANK SELECT LSB", "MOD WHEEL LSB", "BREATH LSB", "", 
+/*32*/	"BANK SELECT LSB", "MOD WHEEL LSB", "BREATH LSB", "",
 /*36*/	"FOOT LSB", "PORTAMENTO TIME LSB", "DATA ENTRY LSB", "VOLUME LSB",
-/*40*/	"BALANCE LSB", "", "PAN LSB", "EXPRESSION LSB", 
+/*40*/	"BALANCE LSB", "", "PAN LSB", "EXPRESSION LSB",
 /*44*/	"EFFECT 1 LSB", "EFFECT 2 LSB", "", "",
 /*48*/	"GENERAL PURPOSE 1 LSB", "GENERAL PURPOSE 2 LSB", "GENERAL PURPOSE 3 LSB", "GENERAL PURPOSE 4 LSB",
 /*52*/  "", "", "", "",

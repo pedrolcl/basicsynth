@@ -58,7 +58,7 @@ void MIDIControlEd::GetParams()
 
 void MIDIControlEd::LoadValues()
 {
-	MIDIControl *ctl = &theProject->prjMidiCtrl;
+	MIDIControl *ctl = &theProject->mgr;
 	SynthWidget *wdg;
 	int chnl;
 	int ndx;
@@ -120,18 +120,18 @@ void MIDIControlEd::ValueChanged(SynthWidget *wdg)
 		ndx = id % 100;
 		if (ndx == 99)
 		{
-			if (SelectSoundBankPreset(sbFile, &theProject->prjMidiCtrl, chnl-1))
+			if (SelectSoundBankPreset(sbFile, &theProject->mgr, chnl-1))
 			{
 				wdg = mainGroup->FindID(chnl * 100);
 				if (wdg)
 				{
-					wdg->SetValue(theProject->prjMidiCtrl.GetBank(chnl-1));
+					wdg->SetValue(theProject->mgr.GetBank(chnl-1));
 					Redraw(wdg);
 				}
 				wdg = mainGroup->FindID((chnl * 100) + 1);
 				if (wdg)
 				{
-					wdg->SetValue(theProject->prjMidiCtrl.GetPatch(chnl-1));
+					wdg->SetValue(theProject->mgr.GetPatch(chnl-1));
 					Redraw(wdg);
 				}
 			}
@@ -141,11 +141,11 @@ void MIDIControlEd::ValueChanged(SynthWidget *wdg)
 			ccn = midiCCNum[ndx];
 			bsInt16 val = (bsInt16) wdg->GetValue();
 			if (ccn < 128)
-				theProject->prjMidiCtrl.SetCC(chnl-1, ccn, val);
+				theProject->mgr.SetCC(chnl-1, ccn, val);
 			else if (ccn == 128)
-				theProject->prjMidiCtrl.SetBank(chnl-1, val);
+				theProject->mgr.SetBank(chnl-1, val);
 			else if (ccn == 129)
-				theProject->prjMidiCtrl.SetPatch(chnl-1, val);
+				theProject->mgr.SetPatch(chnl-1, val);
 		}
 		theProject->SetChange(1);
 		break;

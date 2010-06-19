@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -76,6 +76,7 @@ protected:
 	int leaf;
 	int change;
 	int actions;
+	int refcnt;
 	void *psdata;
 
 public:
@@ -88,10 +89,24 @@ public:
 		leaf = 1;
 		change = 0;
 		actions = 0;
+		refcnt = 0;
 	}
 
-	virtual ~ProjectItem() 
+	virtual ~ProjectItem()
 	{
+	}
+
+	inline int AddRef()
+	{
+		return ++refcnt;
+	}
+
+	inline int Release()
+	{
+		int r = --refcnt;
+		if (r == 0)
+			delete this;
+		return r;
 	}
 
 	/// Indicates the item is a leaf (bottom node of the tree).
@@ -192,7 +207,7 @@ public:
 		useThis = 1;
 		loaded = 0;
 		actions = ITM_ENABLE_EDIT
-			    | ITM_ENABLE_PROPS 
+			    | ITM_ENABLE_PROPS
 				| ITM_ENABLE_REM;
 	}
 	virtual int ItemActions();
@@ -283,7 +298,7 @@ public:
 	inline short GetDebug() { return dbgLevel; }
 
 	virtual int CopyItem();
-	
+
 	ScoreError* EnumErrors(ScoreError *e);
 	void AddError(nlSyntaxErr *e);
 	void ClearErrors();
@@ -306,14 +321,14 @@ public:
 		xmlChild = "text";
 		name = "Text Files";
 		leaf = 0;
-		actions  = ITM_ENABLE_NEW 
+		actions  = ITM_ENABLE_NEW
 				 | ITM_ENABLE_ADD
 				 | ITM_ENABLE_PROPS
 				 | ITM_ENABLE_SAVE;
 	}
 	virtual FileItem *NewChild()
-	{ 
-		return new FileItem(PRJNODE_TEXTFILE); 
+	{
+		return new FileItem(PRJNODE_TEXTFILE);
 	}
 	virtual const char *FileSpec()
 	{
@@ -336,7 +351,7 @@ public:
 class NotelistList : public FileList
 {
 public:
-	NotelistList() : FileList(PRJNODE_NOTELIST) 
+	NotelistList() : FileList(PRJNODE_NOTELIST)
 	{
 		xmlChild = "score";
 		name = "Notelists";
@@ -345,8 +360,8 @@ public:
 
 	int Convert(nlConverter& cvt);
 	virtual FileItem *NewChild()
-	{ 
-		return (FileItem*) new NotelistItem; 
+	{
+		return (FileItem*) new NotelistItem;
 	}
 };
 
@@ -354,7 +369,7 @@ public:
 class SeqList : public FileList
 {
 public:
-	SeqList() : FileList(PRJNODE_SEQLIST) 
+	SeqList() : FileList(PRJNODE_SEQLIST)
 	{
 		xmlChild = "seq";
 		name = "Sequences";
@@ -364,8 +379,8 @@ public:
 	int LoadSequences(InstrManager *mgr, Sequencer *seq);
 
 	virtual FileItem *NewChild()
-	{ 
-		return new FileItem(PRJNODE_SEQFILE); 
+	{
+		return new FileItem(PRJNODE_SEQFILE);
 	}
 };
 
@@ -373,7 +388,7 @@ public:
 class ScriptList : public FileList
 {
 public:
-	ScriptList() : FileList(PJRNODE_SCRIPTLIST) 
+	ScriptList() : FileList(PJRNODE_SCRIPTLIST)
 	{
 		xmlChild = "script";
 		name = "Script Files";
@@ -381,8 +396,8 @@ public:
 	}
 
 	virtual FileItem *NewChild()
-	{ 
-		return new FileItem(PRJNODE_SCRIPT); 
+	{
+		return new FileItem(PRJNODE_SCRIPT);
 	}
 
 	int LoadScripts(nlConverter& cvt);
@@ -596,7 +611,7 @@ public:
 		amps = 0;
 		phs = 0;
 		sumParts = 1;
-		actions = ITM_ENABLE_EDIT 
+		actions = ITM_ENABLE_EDIT
 			    | ITM_ENABLE_PROPS
 				| ITM_ENABLE_COPY
 				| ITM_ENABLE_REM;
@@ -739,7 +754,7 @@ public:
 	inline AmpValue GetVol() { return vol; }
 	inline AmpValue GetPan() { return pan; }
 	inline AmpValue GetSend(int ndx) { return (ndx < nchnl) ? send[ndx] : 0.0; }
-	
+
 	void SetVol(AmpValue v, int imm = 0);
 	void SetPan(AmpValue p, int imm = 0);
 	void SetSend(int ndx, AmpValue v, int imm = 0);
@@ -922,7 +937,7 @@ public:
 		mixEdit = 0;
 		editX = 0;
 		editY = 0;
-		actions = ITM_ENABLE_EDIT 
+		actions = ITM_ENABLE_EDIT
 			    | ITM_ENABLE_PROPS;
 	}
 
@@ -948,7 +963,7 @@ public:
 	short GetMixerEffects() { return fxUnits; }
 	void SetMixerInputs(int num, int keep);
 	void SetMixerEffects(int num, int keep);
-	
+
 	void SetChannelOn(int ndx, short on, int imm = 0);
 	short GetChannelOn(int ndx);
 	void SetChannelVol(int ndx, AmpValue vol, int imm = 0);
@@ -1015,7 +1030,7 @@ public:
 	inline double GetTailOut() { return tailOut; }
 	inline void SetSampleFmt(short f) { sampleFmt = f; }
 	inline short GetSampleFmt() { return sampleFmt; }
-	
+
 	WaveOut *GetOutput();
 	WaveOut *InitOutput();
 	int CloseOutput(WaveOut *wvout, Mixer *mix);
@@ -1038,7 +1053,7 @@ private:
 	long wtUser;
 	long newSize;
 	int loaded;
-	
+
 	WavetableItem *AddWavetable(int ndx);
 
 public:
@@ -1112,7 +1127,7 @@ public:
 		head.Insert(&tail);
 	}
 
-	~PathList() 
+	~PathList()
 	{
 		RemoveAll();
 	}
@@ -1176,7 +1191,6 @@ public:
 	SoundBankList *sblInfo;
 	PathList      *libPath;
 	MidiItem      *midiInfo;
-	MIDIControl   prjMidiCtrl;
 	MIDIInput     prjMidiIn;
 
 	Mixer mix;
@@ -1189,6 +1203,23 @@ public:
 		leaf = 0;
 		Init();
 		actions = ITM_ENABLE_PROPS;
+	}
+
+	~SynthProject() 
+	{
+		synthInfo->Release();
+		nlInfo->Release();
+		seqInfo->Release();
+		txtInfo->Release();
+		scriptInfo->Release();
+		mixInfo->Release();
+		instrInfo->Release();
+		wvoutInfo->Release();
+		wfInfo->Release();
+		libInfo->Release();
+		sblInfo->Release();
+		libPath->Release();
+		midiInfo->Release();
 	}
 
 	inline void SetAuthor(const char *s) { author = s; }
@@ -1225,7 +1256,7 @@ public:
 
 	void GetProjectPath(bsString& path)
 	{
-		path = prjPath; 
+		path = prjPath;
 	}
 
 	void GetProjectDir(bsString& path)
@@ -1234,7 +1265,7 @@ public:
 	}
 
 	int FindOnPath(bsString& fullPath, const char *fname);
-	int FindForm(bsString& fullPath, char *fname);
+	int FindForm(bsString& fullPath, const char *fname);
 
 	virtual int ItemProperties();
 	virtual int LoadProperties(PropertyBox *pb);

@@ -19,15 +19,21 @@
 /// is set by the current duration value, not actual time. Thus
 /// it implements a "step" input recording.
 /// 
+/// The "changeNew" flag controls how a slide across the keys
+/// is processed. When changeNew is true, the old note is stopped
+/// and a new note is started. When false, the new note is
+/// sent to the currently playing note as a parameter change.
 class KeyboardWidget : public SynthWidget
 {
 private:
 	int lastKey;
 	int baseKey;
+	int lastVel;
 	int octs;
 	int whtKeys;
 	int blkKeys;
 	int playing;
+	int changeNew;
 	wdgRect *rcWhite;
 	wdgRect *rcBlack;
 	wdgRect *rcLastKey;
@@ -95,6 +101,11 @@ public:
 		curChnl = n;
 	}
 
+	int GetChannel()
+	{
+		return curChnl;
+	}
+
 	void SetDuration(float d)
 	{
 		curRhythm = (int) d;
@@ -104,6 +115,11 @@ public:
 	void SetVolume(float v)
 	{
 		curVol = v;
+	}
+
+	float GetVolume()
+	{
+		return curVol;
 	}
 
 	void SetRecord(int on)
@@ -123,7 +139,7 @@ public:
 
 	void CopyNotes();
 
-	void PlayNote(int key, int e);
+	void PlayNote(int key, int e, int vel);
 };
 
 #endif

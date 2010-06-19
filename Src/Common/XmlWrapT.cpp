@@ -6,7 +6,7 @@
 // TinyXML XmlWrapper - see: www.sourceforge.net/projects/tinyxml
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ const char *XmlSynthElem::TagName()
 	return "";
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, short& val)
+int XmlSynthElem::GetAttribute(const char *attrName, short& val)
 {
 	if (pElem)
 	{
@@ -132,7 +132,7 @@ int XmlSynthElem::GetAttribute(char *attrName, short& val)
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, long& val)
+int XmlSynthElem::GetAttribute(const char *attrName, long& val)
 {
 	if (pElem)
 	{
@@ -147,7 +147,7 @@ int XmlSynthElem::GetAttribute(char *attrName, long& val)
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, float& val)
+int XmlSynthElem::GetAttribute(const char *attrName, float& val)
 {
 	if (pElem)
 	{
@@ -159,7 +159,7 @@ int XmlSynthElem::GetAttribute(char *attrName, float& val)
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, double& val)
+int XmlSynthElem::GetAttribute(const char *attrName, double& val)
 {
 	if (pElem)
 	{
@@ -170,7 +170,7 @@ int XmlSynthElem::GetAttribute(char *attrName, double& val)
 	return -1;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, char **val)
+int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 {
 	if (pElem)
 	{
@@ -186,7 +186,7 @@ int XmlSynthElem::GetAttribute(char *attrName, char **val)
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, short val)
+int XmlSynthElem::SetAttribute(const char *attrName, short val)
 {
 	if (pElem)
 	{
@@ -196,7 +196,7 @@ int XmlSynthElem::SetAttribute(char *attrName, short val)
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, long val)
+int XmlSynthElem::SetAttribute(const char *attrName, long val)
 {
 	if (pElem)
 	{
@@ -206,7 +206,7 @@ int XmlSynthElem::SetAttribute(char *attrName, long val)
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, float val)
+int XmlSynthElem::SetAttribute(const char *attrName, float val)
 {
 	if (pElem)
 	{
@@ -216,7 +216,7 @@ int XmlSynthElem::SetAttribute(char *attrName, float val)
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, double val)
+int XmlSynthElem::SetAttribute(const char *attrName, double val)
 {
 	if (pElem)
 	{
@@ -226,7 +226,7 @@ int XmlSynthElem::SetAttribute(char *attrName, double val)
 	return -1;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, const char *val)
+int XmlSynthElem::SetAttribute(const char *attrName, const char *val)
 {
 	if (pElem)
 	{
@@ -301,12 +301,12 @@ XmlSynthElem *XmlSynthDoc::CreateElement(XmlSynthElem *parent, const char *tag)
 	return parent->AddChild(tag);
 }
 
-XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag)
+XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag)
 {
 	return NewDoc(roottag, 0);
 }
 
-XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag, XmlSynthElem *root)
+XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *root)
 {
 	doc = new TiXmlDocument;
 	if (doc)
@@ -330,12 +330,12 @@ XmlSynthElem *XmlSynthDoc::NewDoc(char *roottag, XmlSynthElem *root)
 	return 0;
 }
 
-XmlSynthElem *XmlSynthDoc::Open(char *fname)
+XmlSynthElem *XmlSynthDoc::Open(const char *fname)
 {
 	return Open(fname, 0);
 }
 
-XmlSynthElem *XmlSynthDoc::Open(char *fname, XmlSynthElem* root)
+XmlSynthElem *XmlSynthDoc::Open(const char *fname, XmlSynthElem* root)
 {
 	doc = new TiXmlDocument;
 	doc->SetTabSize(0);
@@ -349,7 +349,7 @@ XmlSynthElem *XmlSynthDoc::Open(char *fname, XmlSynthElem* root)
 	return 0;
 }
 
-int XmlSynthDoc::Save(char *fname)
+int XmlSynthDoc::Save(const char *fname)
 {
 	if (doc && fname)
 	{

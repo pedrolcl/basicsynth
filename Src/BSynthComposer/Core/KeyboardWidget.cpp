@@ -2,7 +2,7 @@
 // BasicSynth - Widget that displays a piano keyboard.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@ KeyboardWidget::KeyboardWidget()
 {
 	playing = 0;
 	lastKey = -1;
+	lastVel = 127;
 	baseKey = 12;
 	octs = 0;
 	whtKeys = 7;
@@ -31,6 +32,7 @@ KeyboardWidget::KeyboardWidget()
 	recording = 0;
 	recGroup = 0;
 	useSharps = 0;
+	changeNew = true;
 	recHead = new RecNote(0,0,0);
 	recTail = new RecNote(0,0,0);
 	recHead->Insert(recTail);
@@ -56,7 +58,7 @@ int KeyboardWidget::Load(XmlSynthElem *elem)
 }
 
 void KeyboardWidget::SetOctaves(int n)
-{ 
+{
 	if (n < 1)
 		n = 1;
 	octs = n;
@@ -173,14 +175,14 @@ int KeyboardWidget::BtnDown(int x, int y, int ctrl, int shift)
 	playing = 1;
 	FindKey(x, y);
 	form->Redraw(this);
-	PlayNote(lastKey+baseKey, KEY_DOWN);
+	PlayNote(lastKey+baseKey, KEY_DOWN, lastVel);
 	return 1;
 }
 
 int KeyboardWidget::BtnUp(int x, int y, int ctrl, int shift)
 {
 	playing = 0;
-	PlayNote(lastKey+baseKey, KEY_UP);
+	PlayNote(lastKey+baseKey, KEY_UP, lastVel);
 	if (rcLastKey)
 	{
 		InvalidateLast();
@@ -197,7 +199,7 @@ int KeyboardWidget::MouseMove(int x, int y, int ctrl, int shift)
 	{
 		if (FindKey(x, y))
 		{
-			PlayNote(lastKey+baseKey, KEY_CHANGE);
+			PlayNote(lastKey+baseKey, KEY_CHANGE, lastVel);
 			form->Redraw(this);
 		}
 		return 1;
@@ -233,6 +235,12 @@ int KeyboardWidget::FindKey(int x, int y)
 	}
 	if (kdown != -1 && kdown != lastKey)
 	{
+		if (rcNewKey)
+		{
+			float range = (float) (rcNewKey->GetBottom() - rcNewKey->GetTop());
+			float kpos = y - rcNewKey->GetTop();
+			lastVel = (int) (127.0 * kpos / range);
+		}
 		InvalidateLast();
 		lastKey = kdown;
 		rcLastKey = rcNewKey;
@@ -248,10 +256,17 @@ void KeyboardWidget::InvalidateLast()
 		upd.Combine(*rcLastKey);
 }
 
-void KeyboardWidget::PlayNote(int key, int e)
+void KeyboardWidget::PlayNote(int key, int e, int vel)
 {
 	if (selectInstr == NULL || theProject == NULL)
 		return;
+
+	if (e == KEY_CHANGE && changeNew)
+	{
+		// stop last note
+		PlayNote(key, KEY_UP, vel);
+		e = KEY_DOWN;
+	}
 
 	// activeInstr keeps track of which instrument started the note.
 	// We need to keep playing on the same instrument until a Key up happens,
@@ -265,9 +280,14 @@ void KeyboardWidget::PlayNote(int key, int e)
 	evt->SetDuration((bsInt32) (synthParams.sampleRate * curDur));
 	evt->SetVolume(curVol);
 	evt->SetPitch(key);
+	evt->SetVelocity(vel);
 
 	switch (e)
 	{
+	case KEY_CHANGE:
+		// change current note
+		evt->SetType(SEQEVT_PARAM);
+		break;
 	case KEY_DOWN:
 		evtID = (evtID + 1) & 0x7FFFFFFF;
 		evt->SetType(SEQEVT_START);
@@ -275,9 +295,6 @@ void KeyboardWidget::PlayNote(int key, int e)
 	case KEY_UP:
 		evt->SetType(SEQEVT_STOP);
 		activeInstr = 0;
-		break;
-	case KEY_CHANGE:
-		evt->SetType(SEQEVT_PARAM);
 		break;
 	default:
 		//OutputDebugString("Kbd event is unknown...\r\n");
@@ -308,8 +325,8 @@ void KeyboardWidget::ClearNotes()
 
 void KeyboardWidget::PitchString(int pit, bsString& str)
 {
-	static char *pitchLtrsS[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-	static char *pitchLtrsF[] = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
+	static const char *pitchLtrsS[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+	static const char *pitchLtrsF[] = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
 	if (useSharps)
 		str += pitchLtrsS[pit%12];
 	else
@@ -333,10 +350,10 @@ void KeyboardWidget::NumberString(int num, bsString& str)
 
 void KeyboardWidget::CopyNotes()
 {
-	char *comma = ", ";
-	char *semi  = ";\r\n";
-	char *obrack = "{";
-	char *cbrack = "}";
+	const char *comma = ", ";
+	const char *semi  = ";\r\n";
+	const char *obrack = "{";
+	const char *cbrack = "}";
 
 	int groupCount = 0;
 	RecNote *note;

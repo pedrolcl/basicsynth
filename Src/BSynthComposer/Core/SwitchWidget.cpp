@@ -215,6 +215,8 @@ int SwitchWidget::Load(XmlSynthElem *elem)
 		bold = 1;
 	if (elem->GetAttribute("italic", th) == 0 && th)
 		italic = 1;
+	if (elem->GetAttribute("shadow", th) == 0)
+		shadow = th;
 
 	return 0;
 }

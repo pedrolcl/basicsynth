@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -230,7 +230,7 @@ public:
 			return id->Compare(data);
 		return 0;
 	}
-	
+
 	void SetData(ImageData *id)
 	{
 		data = id;
@@ -355,7 +355,7 @@ typedef int (*WGCallback)(SynthWidget *wdg, void *arg);
 /// A widget has a display area (rectangle), style, colors, and
 /// widget specific parameters. Widgets are arranged in a heirarchy
 /// with the GroupWidget the base class for aggregates. Widgets within
-/// a group have a position relative to the position of the group in 
+/// a group have a position relative to the position of the group in
 /// the form file, but are given an absolute position as they are loaded.
 ///
 /// A widget that handles mouse interaction must implement the BtnDn(), BtnUp(),
@@ -513,7 +513,7 @@ public:
 	/// Load parameters.
 	/// @param elem XML node containing position and options
 	virtual int Load(XmlSynthElem *elem);
-	static int GetColorAttribute(XmlSynthElem *elem, char *attr, wdgColor& clr);
+	static int GetColorAttribute(XmlSynthElem *elem, const char *attr, wdgColor& clr);
 	static unsigned int HexDig(int ch);
 };
 
@@ -550,7 +550,7 @@ protected:
 	SynthWidget *EnumList(WGCallback cb, void *arg);
 
 public:
-	WidgetGroup(); 
+	WidgetGroup();
 	virtual ~WidgetGroup();
 
 	virtual void SetArea(wdgRect& r);

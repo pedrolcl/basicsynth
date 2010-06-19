@@ -2,7 +2,7 @@
 /// @file FMSynth.h BasicSynth FM Synthesis instrument
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ private:
 
 	AmpValue CalcPhaseMod(AmpValue amp, FrqValue mult);
 	void LoadEG(XmlSynthElem *elem, EnvDef& eg);
-	XmlSynthElem *SaveEG(XmlSynthElem *parent, char *tag, EnvDef& eg);
+	XmlSynthElem *SaveEG(XmlSynthElem *parent, const char *tag, EnvDef& eg);
 
 public:
 	FMSynth();

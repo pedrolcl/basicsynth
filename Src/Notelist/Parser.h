@@ -2,7 +2,7 @@
 /// @file Parser.h Definition of the notelist nlParser class.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 
 /// @brief Notelist parser.
 /// @details The parser is used by nlConvert to parse the Notelist script.
-/// This is a recursive descent parser, with each parse node typically 
+/// This is a recursive descent parser, with each parse node typically
 /// represented as a member function. To extend the parser, add a function
 /// and also a generator node to nlGenerate.
 class nlParser
@@ -79,8 +79,8 @@ public:
 		octMiddleC = n;
 	}
 
-	int Param1(char *where);
-	int Error(char *s, int *skiplist);
+	int Param1(const char *where);
+	int Error(const char *s, int *skiplist);
 	int SkipTo(int *skiplist);
 	int SkipBlock();
 	int CheckEnd(int err);

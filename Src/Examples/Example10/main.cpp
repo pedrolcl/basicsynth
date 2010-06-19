@@ -1,20 +1,23 @@
 ///////////////////////////////////////////////////////////
 // BasicSynth - Example 10 (Chapters 18-23)
 // Instruments test
-// 
+//
 // ToneInstr
 // SubSynth
 // AddSynth
 // FMSynth
 // MatixSynth
 // WFSynth
+// Chuffer
+// ModSynth
+// BuzzSynth
 //
 // use: example10 [instrlib.xml]
 //
 // If no instrlib file is indicated, the file data.xml must exist in the current directory.
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -77,7 +80,7 @@ static void DestroyTemplate(Opaque tp)
 
 int main(int argc, char *argv[])
 {
-#if defined(_WINDOWS)
+#if defined(USE_MSXML)
 	CoInitialize(0);
 #endif
 
@@ -112,6 +115,7 @@ int main(int argc, char *argv[])
 	inMgr.AddType("WFSynth", WFSynth::WFSynthFactory, WFSynth::WFSynthEventFactory);
 	inMgr.AddType("Chuffer", Chuffer::ChufferFactory, Chuffer::ChufferEventFactory);
 	inMgr.AddType("ModSynth", ModSynth::ModSynthFactory, ModSynth::ModSynthEventFactory);
+	inMgr.AddType("BuzzSynth", BuzzSynth::InstrFactory, BuzzSynth::EventFactory);
 	InstrMapEntry *ime = 0;
 	while ((ime = inMgr.EnumType(ime)) != 0)
 		ime->dumpTmplt = DestroyTemplate;
@@ -168,6 +172,7 @@ int main(int argc, char *argv[])
 
 	///////////////////////////////////////////////////////////////
 	// Code to test instrument save functions...
+#define TEST_SAVE_INSTR 1
 #ifdef TEST_SAVE_INSTR
 	doc.NewDoc("instrlib", &rootNode);
 	InstrConfig *inc = inMgr.EnumInstr(0);
@@ -181,14 +186,18 @@ int main(int argc, char *argv[])
 			elem.SetAttribute("id", inc->inum);
 			elem.SetAttribute("type", ime->itype);
 			elem.SetAttribute("name", inc->GetName());
-			elem.SetAttribute("desc", ime->GetDesc());
+			elem.SetAttribute("desc", inc->GetDesc());
 			ip->Save(&elem);
 		}
 		inc = inMgr.EnumInstr(inc);
 	}
-	bsString outxml;
-	outxml = "_";
-	outxml += fname;
+	bsString outxml(fname);
+	bsString outbase;
+	bsString outfile;
+	outxml.SplitPath(outbase, outfile, 1);
+	outxml = outbase;
+	outxml += '_';
+	outxml += outfile;
 	doc.Save((char *) (const char *)outxml);
 #endif
 	///////////////////////////////////////////////////////////////

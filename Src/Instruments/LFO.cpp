@@ -21,7 +21,7 @@
 LFO::LFO()
 {
 	osc.InitWT(3.5, WT_SIN);
-	atk.InitSeg(0, 0, 0.1);
+	//atk.InitSeg(0, 0, 1.0);
 	atkRt = 0.1;
 	depth = 0;
 	sigFrq = 0;
@@ -67,18 +67,15 @@ void LFO::Init(int n, float *f)
 		InitLFO(f[0], (int)f[1], f[2], f[3], 1.0);
 }
 
+// if signal frequency set, treat depth
+// as a value in cents deviation.
 void LFO::Reset(float initPhs)
 {
 	if (initPhs == 0)
-	{
 		atk.InitSeg(atkRt, 0.0, 1.0);
-		//atk.SetRate(atkRt);
-		//atk.SetStart(0.0);
-		//atk.SetLevel(1.0);
-	}
 	else
 		atk.Reset(initPhs);
-	if (sigFrq)
+	if (sigFrq != 0)
 	{
 		//FrqValue f1 = sigFrq * FrqValue(pow(2.0, depth / 12.0));
 		FrqValue f1 = sigFrq * synthParams.GetCentsMult((int)(depth * 100.0));

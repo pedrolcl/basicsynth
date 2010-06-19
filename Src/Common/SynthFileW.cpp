@@ -6,7 +6,7 @@
 // File I/O implementation for Windows API
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////
@@ -153,19 +153,21 @@ int FileReadBuf::ReadCh()
 int FileReadBuf::FileSkip(int n)
 {
 	int skip = 0;
-	inpos += n;
-	if (inpos > inread)
+	int newpos = (int)inpos + n;
+	if (newpos > (int)inread)
 	{
-		skip = inpos - inread;
+		skip = newpos - (int)inread;
 		inpos = 0;
 		inread = 0;
 	}
-	else if (inpos < 0)
+	else if (newpos < 0)
 	{
-		skip = inpos;
+		skip = newpos;
 		inpos = 0;
 		inread = 0;
 	}
+	else
+        inpos = (DWORD)newpos;
 	doneAll = 0;
 	DWORD ret = SetFilePointer(fh, (LONG) skip, NULL, FILE_CURRENT);
 	if (ret == INVALID_SET_FILE_POINTER)
