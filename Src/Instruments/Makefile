@@ -3,6 +3,7 @@ include ../BasicSynth.cfg
 OBJS=\
 LoadInstrLib.o \
 AddSynth.o \
+BuzzSynth.o \
 Chuffer.o \
 FMSynth.o \
 GMPlayer.o \
@@ -27,6 +28,8 @@ clean:
 	-@rm $(INSTLIB)
 
 AddSynth.cpp: AddSynth.h Includes.h
+
+BuzzSynth.cpp: BuzzSynth.h Includes.h
 
 Chuffer.cpp: Chuffer.h Includes.h
 

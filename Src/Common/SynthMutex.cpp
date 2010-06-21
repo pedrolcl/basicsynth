@@ -42,14 +42,12 @@ void SynthMutex::Destroy()
 
 void SynthMutex::Enter()
 {
-	if (mtx)
-		::EnterCriticalSection((CRITICAL_SECTION*)mtx);
+	::EnterCriticalSection((CRITICAL_SECTION*)mtx);
 }
 
 void SynthMutex::Leave()
 {
-	if (mtx)
-		::LeaveCriticalSection((CRITICAL_SECTION*)mtx);
+	::LeaveCriticalSection((CRITICAL_SECTION*)mtx);
 }
 
 
@@ -114,14 +112,12 @@ void SynthMutex::Destroy()
 
 void SynthMutex::Enter()
 {
-	if (mtx)
-		pthread_mutex_lock((pthread_mutex_t*)mtx);
+	pthread_mutex_lock((pthread_mutex_t*)mtx);
 }
 
 void SynthMutex::Leave()
 {
-	if (mtx)
-		pthread_mutex_unlock((pthread_mutex_t*)mtx);
+	pthread_mutex_unlock((pthread_mutex_t*)mtx);
 }
 
 void SynthSignal::Create()

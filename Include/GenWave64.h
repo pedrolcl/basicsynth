@@ -19,7 +19,7 @@
 #define two40 (65536.0 * 65536.0 * 256.0)
 #define two32 (65536.0 * 65536.0)
 
-#ifdef GCC32
+#ifdef GCC
 #define round64 0x8000000000LLU
 typedef long long int64;
 #endif

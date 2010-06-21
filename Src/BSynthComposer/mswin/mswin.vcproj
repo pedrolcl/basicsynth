@@ -54,7 +54,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;../../../OpenSource/WTL80"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -231,7 +231,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;../../../OpenSource/WTL80"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"

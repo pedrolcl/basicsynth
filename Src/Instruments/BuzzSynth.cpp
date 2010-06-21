@@ -184,7 +184,7 @@ void BuzzSynth::Start(SeqEvent *evt)
 		modOn |= 2;
 		pbWT.Reset(0);
 	}
-	pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+	pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
 }
 
 void BuzzSynth::Param(SeqEvent *evt)
@@ -193,7 +193,7 @@ void BuzzSynth::Param(SeqEvent *evt)
 	{
 		ControlEvent *cevt = (ControlEvent *)evt;
 		if ((cevt->mmsg & MIDI_EVTMSK) == MIDI_PWCHG)
-			pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+			pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
 		return; // TODO: process controller changes
 	}
 	SetParams((VarParamEvent *)evt);

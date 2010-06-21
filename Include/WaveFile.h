@@ -118,9 +118,17 @@ public:
 	/// @param vright right channel sample
 	virtual void Output2(AmpValue vleft, AmpValue vright) = 0;
 
+	/// Get number of out-of-range samples
 	virtual long GetOOR()  = 0;
+	/// Reset number of out-of-range samples
 	virtual void ClrOOR() = 0;
 
+	/// Stop the sound output.
+	virtual void Stop() = 0;
+	/// Restart sound output.
+	virtual void Restart() = 0;
+	/// Shutdown the device buffer.
+	virtual void Shutdown() = 0;
 };
 
 /// Base class for sample output. Samples are
@@ -271,6 +279,14 @@ public:
 	/// Get the number of out-of-range samples
 	virtual long GetOOR() { return sampleOOR; }
 	virtual void ClrOOR() { sampleOOR = 0; }
+
+	/// Stop the sound output.
+	virtual void Stop() { }
+	/// Restart sound output.
+	virtual void Restart() { nxtSamp = samples; }
+	/// Shutdown the device buffer.
+	virtual void Shutdown() { }
+
 };
 
 /// Wave output class for 16-bit PCM sample output.

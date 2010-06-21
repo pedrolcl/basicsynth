@@ -41,6 +41,11 @@ ProjectOptions::ProjectOptions()
 #if defined(_WIN32) && _WIN32
 	dsoundHWND = 0;
 	waveID = 0;
+	HMODULE h = LoadLibrary("dsound.dll");
+	if (h)
+		pDirectSoundEnumerate = (tDirectSoundEnumerate)GetProcAddress(h, "DirectSoundEnumerateA");
+	if (pDirectSoundEnumerate == NULL)
+		MessageBox(HWND_DESKTOP, "Cannot locate dsound.dll.", "Sorry...", MB_OK);
 #endif
 }
 
@@ -93,7 +98,7 @@ static BOOL CALLBACK FindWaveDevice(LPGUID lpGUID,
 
 #if defined(WIN32_REGISTRY) && WIN32_REGISTRY
 #include <ShlObj.h>
-#include <dsound.h>
+//#include <dsound.h>
 
 class RegKey
 {
@@ -269,7 +274,8 @@ void ProjectOptions::Load()
 	SynthProject::NormalizePath(defLibDir);
 	SynthProject::NormalizePath(defWaveIn);
 	SynthProject::NormalizePath(formsDir);
-	DirectSoundEnumerate(FindWaveDevice, NULL);
+	if (pDirectSoundEnumerate)
+		pDirectSoundEnumerate(FindWaveDevice, NULL);
 }
 
 void ProjectOptions::Save()
@@ -305,7 +311,8 @@ void ProjectOptions::Save()
 	rk.SetValue("Height", frmHeight);
 	rk.SetValue("Maximize", frmMax);
 	rk.Close();
-	DirectSoundEnumerate(FindWaveDevice, NULL);
+	if (pDirectSoundEnumerate)
+		pDirectSoundEnumerate(FindWaveDevice, NULL);
 }
 
 #else
@@ -436,7 +443,8 @@ void ProjectOptions::Load()
 	SynthProject::NormalizePath(defWaveIn);
 	SynthProject::NormalizePath(formsDir);
 #if _WIN32
-	DirectSoundEnumerate(FindWaveDevice, NULL);
+	if (pDirectSoundEnumerate)
+		pDirectSoundEnumerate(FindWaveDevice, NULL);
 #endif
 }
 
@@ -482,7 +490,8 @@ void ProjectOptions::Save()
 		fclose(fp);
 	}
 #if _WIN32
-	DirectSoundEnumerate(FindWaveDevice, NULL);
+	if (pDirectSoundEnumerate)
+		pDirectSoundEnumerate(FindWaveDevice, NULL);
 #endif
 }
 

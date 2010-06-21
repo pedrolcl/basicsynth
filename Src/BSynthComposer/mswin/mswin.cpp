@@ -26,7 +26,6 @@ SynthAppModule _Module;
 
 const GUID DSDEVID_DefaultPlayback = {0xdef00000, 0x9c6d, 0x47ed, 0xaa, 0xf1, 0x4d, 0xda, 0x8f, 0x2b, 0x5c, 0x03};
 
-
 int Run(LPTSTR cmd = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
 	CMessageLoop theLoop;

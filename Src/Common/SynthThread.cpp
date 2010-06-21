@@ -32,12 +32,17 @@ static DWORD WINAPI Startup(LPVOID param)
 	return (DWORD) ((SynthThread *)param)->ThreadProc();
 }
 
-int SynthThread::StartThread()
+int SynthThread::StartThread(int pri)
 {
+	int winpri = THREAD_PRIORITY_NORMAL;
+	if (pri == 1)
+		winpri = THREAD_PRIORITY_ABOVE_NORMAL;
+	else if (pri > 1)
+		winpri = THREAD_PRIORITY_TIME_CRITICAL;
 	info->thrdH = CreateThread(NULL, 0, Startup, this, CREATE_SUSPENDED, &info->thrdID);
 	if (info->thrdH != INVALID_HANDLE_VALUE)
 	{
-		SetThreadPriority(info->thrdH, /*THREAD_PRIORITY_TIME_CRITICAL*/THREAD_PRIORITY_ABOVE_NORMAL);
+		SetThreadPriority(info->thrdH, winpri);
 		ResumeThread(info->thrdH);
 		Sleep(0);
 		return 0;
@@ -71,9 +76,16 @@ int SynthThread::WaitThread()
 	info->thrdID = 0;
 	return 0;
 }
+
+void SynthThread::ShortWait()
+{
+	Sleep(1);
+}
+
 #endif
 
 #ifdef UNIX
+#include <unistd.h>
 #include <sys/types.h>
 #include <pthread.h>
 
@@ -100,12 +112,19 @@ static void *Startup(void *param)
 	return 0;
 }
 
-int SynthThread::StartThread()
+int SynthThread::StartThread(int pri)
 {
+	pthread_attr_t tattr;
+	sched_param param;
+	pthread_attr_init(&tattr);
+	param.sched_priority = pri;
+	pthread_attr_setschedparam(&tattr, &param);
+
 	pthread_mutex_init(&info->thrdGuard, NULL);
 	pthread_mutex_lock(&info->thrdGuard);
 	int err = pthread_create(&info->thrdID, NULL, Startup, this);
 	pthread_mutex_unlock(&info->thrdGuard);
+	pthread_attr_destroy(&tattr);
 	return err;
 }
 
@@ -128,6 +147,12 @@ int SynthThread::WaitThread()
 	info->thrdID = 0;
 	return 0;
 }
+
+void SynthThread::ShortWait()
+{
+	usleep(1000);
+}
+
 #endif
 
 SynthThread::SynthThread()

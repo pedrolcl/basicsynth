@@ -277,6 +277,7 @@ protected:
 	bsInt32 tickRes;
 	bsInt32 maxNote;    ///< maximum number of active notes
 	bsInt32 evtActive;  ///< number of active notes
+	bsInt32 trkActive;  ///< number of active tracks
 	Opaque  tickArg;
 	bsInt32 wrapCount;
 
@@ -290,19 +291,9 @@ protected:
 	SynthMutex critMutex;
 	SynthSignal pauseSignal;
 
-//	void *critMutex;
-//	void *pauseSignal;
-
 	InstrManager* instMgr;
 
 	SeqState state;
-
-//	void CreateMutex();
-//	void DestroyMutex();
-//	inline void EnterCritical();
-//	inline void LeaveCritical();
-//	void Sleep();
-//	void Wakeup();
 
 	virtual void ProcessEvent(SeqEvent *evt, bsInt16 flags);
 	virtual int Tick();

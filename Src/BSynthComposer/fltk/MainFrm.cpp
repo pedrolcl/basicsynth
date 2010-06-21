@@ -139,9 +139,7 @@ void MainFrame::Generate(int autostart, int todisk)
 {
 	int wasPlaying = StopPlayer();
 	GenerateDlg *dlg = new GenerateDlg(todisk);
-	dlg->show();
-	if (autostart)
-		dlg->OnStart(1);
+	dlg->Run(autostart);
 	if (wasPlaying)
 		StartPlayer();
 }
@@ -341,6 +339,7 @@ PropertyBox *MainFrame::CreatePropertyBox(ProjectItem *pi, int type)
 		pb = (PropertyBox *) new ProjectPropertiesDlg();
 		break;
 	case PRJNODE_MIXER:
+		StopPlayer();
 		pb = (PropertyBox *) new MixerSetupDlg(pi);
 		break;
 	case PRJNODE_REVERB:

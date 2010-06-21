@@ -1,109 +1,6 @@
 #include "globinc.h"
-#ifdef UNIX
-#include <pthread.h>
-#endif
 #include "MainFrm.h"
 
-long GenerateDlg::playFrom;
-long GenerateDlg::playTo;
-long GenerateDlg::playLive = 0;
-
-
-#if _WIN32
-static CRITICAL_SECTION genDlgGuard;
-HANDLE genThreadH;
-DWORD  genThreadID;
-
-static void GenDlgLock()
-{
-	EnterCriticalSection(&genDlgGuard);
-}
-static void GenDlgUnlock()
-{
-	LeaveCriticalSection(&genDlgGuard);
-}
-
-static DWORD WINAPI GenerateProc(void* param)
-{
-	try
-	{
-		theProject->Generate(!GenerateDlg::playLive, GenerateDlg::playFrom, GenerateDlg::playTo);
-	}
-	catch(...)
-	{
-	}
-	prjGenerate->Finished();
-	ExitThread(0);
-	return 0;
-}
-
-int GenerateDlg::StartThread()
-{
-	InitializeCriticalSection(&genDlgGuard);
-	genThreadH = CreateThread(NULL, 0, GenerateProc, NULL, CREATE_SUSPENDED, &genThreadID);
-	if (genThreadH == INVALID_HANDLE_VALUE)
-		return -1;
-	ResumeThread(genThreadH);
-	return 0;
-}
-
-void GenerateDlg::EndThread()
-{
-	WaitForSingleObject(genThreadH, 10000);
-	DeleteCriticalSection(&genDlgGuard);
-}
-
-#endif
-
-#ifdef UNIX
-static pthread_mutex_t genDlgGuard;
-static pthread_t genThreadID;
-
-// use a mutex to sync threads. 
-// could possibly use pthread_barrier_* ?
-
-static void GenDlgLock()
-{
-	pthread_mutex_lock(&genDlgGuard);
-}
-
-static void GenDlgUnlock()
-{
-	pthread_mutex_unlock(&genDlgGuard);
-}
-
-static void *GenerateProc(void *param)
-{
-	// synchronize with the main thread...
-	GenDlgLock();
-	GenDlgUnlock();
-	try
-	{
-		theProject->Generate(!GenerateDlg::playLive, GenerateDlg::playFrom, GenerateDlg::playTo);
-	}
-	catch (...)
-	{
-	}
-	prjGenerate->Finished();
-	pthread_exit((void*)0);
-	return 0;
-}
-
-int GenerateDlg::StartThread()
-{
-	pthread_mutex_init(&genDlgGuard, NULL);
-	GenDlgLock();
-	int err = pthread_create(&genThreadID, NULL, GenerateProc, 0);
-	GenDlgUnlock();
-	return err;
-}
-
-void GenerateDlg::EndThread()
-{
-	pthread_join(genThreadID, NULL); 
-	pthread_mutex_destroy(&genDlgGuard);
-}
-#endif
 
 static void FormatTime(Fl_Input *wdg, long secs)
 {
@@ -154,6 +51,8 @@ static void PauseCB(Fl_Widget *wdg, void *arg)
 GenerateDlg::GenerateDlg(int live) : Fl_Window(100, 100, 600, 320, "Generate")
 {
 	playLive = live;
+	playFrom = 0;
+	playTo = 0;
 	prjGenerate = static_cast<GenerateWindow*>(this);
 
 	lastTime = 0;
@@ -218,36 +117,39 @@ GenerateDlg::GenerateDlg(int live) : Fl_Window(100, 100, 600, 320, "Generate")
 	resizable(0);
 	resize((Fl::w() - w()) / 2, (Fl::h() - h()) / 2, w(), h());
 	set_modal();
+
+	dlgLock.Create();
 }
 
 GenerateDlg::~GenerateDlg()
 {
 	prjGenerate = 0;
+	dlgLock.Destroy();
 }
 
 void GenerateDlg::AddMessage(const char *s)
 {
-	GenDlgLock();
+	dlgLock.Enter();
 	lastMsg += s;
 	lastMsg += '\n';
-	GenDlgUnlock();
+	dlgLock.Leave();
 	Fl::awake((void*)4);
 }
 
 void GenerateDlg::UpdateTime(long tm)
 {
-	GenDlgLock();
+	dlgLock.Enter();
 	lastTime = tm;
-	GenDlgUnlock();
+	dlgLock.Leave();
 	Fl::awake((void*)3);
 }
 
 void GenerateDlg::UpdatePeak(AmpValue lft, AmpValue rgt)
 {
-	GenDlgLock();
+	dlgLock.Enter();
 	lftPeak = lft;
 	rgtPeak = rgt;
-	GenDlgUnlock();
+	dlgLock.Leave();
 	// FLTK seems to drop messages, (at least under Windows)
 	// so we only send the message after UpdateTime...
 	//Fl::awake((void*)2);
@@ -264,8 +166,24 @@ int GenerateDlg::WasCanceled()
 	return canceled;
 }
 
+void GenerateDlg::Run(int autoStart)
+{
+	set_modal();
+	show();
+	if (autoStart)
+		OnStart(autoStart);
+	else
+	{
+		closed = 0;
+		while (!closed)
+			Fl::wait();
+	}
+	Fl::delete_widget(this);
+}
+
 void GenerateDlg::OnStart(int autoStart)
 {
+
 	canceled = 0;
 	Fl_Text_Buffer *msgbuf = msgInp->buffer();
 	msgbuf->append("---------- Start ----------\n");
@@ -291,7 +209,11 @@ void GenerateDlg::OnStart(int autoStart)
 	lftMax = 0;
 	rgtMax = 0;
 	FormatPeak();
-	StartThread();
+	theProject->StartTime(playFrom);
+	theProject->EndTime(playTo);
+	theProject->PlayMode(playLive);
+	theProject->Start();
+//	StartThread();
 	stopBtn->activate();
 	pauseBtn->activate();
 	startBtn->deactivate();
@@ -303,7 +225,7 @@ void GenerateDlg::OnStart(int autoStart)
 		{
 			if (msg == (void*)1)
 				break;
-			GenDlgLock();
+			dlgLock.Enter();
 			//if (msg == (void*)2)
 			//	FormatPeak();
 			if (msg == (void*)3)
@@ -316,10 +238,10 @@ void GenerateDlg::OnStart(int autoStart)
 				msgbuf->append(lastMsg);
 				lastMsg = "";
 			}
-			GenDlgUnlock();
+			dlgLock.Leave();
 		}
 	}
-	EndThread();
+	theProject->WaitThread();
 	char buf[100];
 	snprintf(buf, 100, "Peak: [%.6f, %.6f]\n-------- Finished ---------\n", lftMax, rgtMax);
 	msgbuf->append(buf);
@@ -327,8 +249,8 @@ void GenerateDlg::OnStart(int autoStart)
 	pauseBtn->deactivate();
 	startBtn->activate();
 	closeBtn->activate();
-	if (autoStart)
-		Fl::delete_widget(this);
+//	if (autoStart)
+//		Fl::delete_widget(this);
 }
 
 void GenerateDlg::OnStop()
@@ -348,7 +270,8 @@ void GenerateDlg::OnPause()
 
 void GenerateDlg::OnClose()
 {
-	Fl::delete_widget(this);
+//	Fl::delete_widget(this);
+	closed = 1;
 }
 
 void GenerateDlg::FormatPeak()

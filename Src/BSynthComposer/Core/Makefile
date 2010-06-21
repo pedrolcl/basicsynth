@@ -5,6 +5,7 @@ CPPFLAGS+=-I$(BSDIR)/Src/Notelist
 
 OBJS=\
 AddSynthEd.o \
+BuzzSynthEd.o \
 ChufferEd.o \
 EnvelopeWidget.o \
 FileItem.o \
@@ -54,6 +55,8 @@ clean:
 	-@rm $(CORELIB)
 
 AddSynthEd.cpp: ComposerGlobal.h ComposerCore.h SynthEdit.h AddSynthEd.h
+
+BuzzSynthEd.cpp: ComposerGlobal.h ComposerCore.h SynthEdit.h BuzzSynthEd.h
 
 ChufferEd.cpp: ComposerGlobal.h ComposerCore.h SynthEdit.h ChufferEd.h
 

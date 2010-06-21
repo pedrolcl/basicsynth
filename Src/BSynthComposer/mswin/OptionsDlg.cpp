@@ -62,7 +62,9 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	}
 	midiDev.SetCurSel(midiDevNo);
 
-    DirectSoundEnumerate(DSDevEnum, &waveDev);
+    //DirectSoundEnumerate(DSDevEnum, &waveDev);
+	if (prjOptions.pDirectSoundEnumerate)
+		prjOptions.pDirectSoundEnumerate(DSDevEnum, &waveDev);
 	if (prjOptions.waveDevice[0])
 		waveDev.SelectString(-1, prjOptions.waveDevice);
 	else

@@ -364,7 +364,10 @@ void MixerEdit::ValueChanged(SynthWidget *wdg)
 	if (id == 6)
 	{
 		SetParams();
+		int kbdon = prjFrame->StopPlayer();
 		mixItem->InitMixer();
+		if (kbdon)
+			prjFrame->StartPlayer();
 		return;
 	}
 	if (id == 7)
@@ -374,7 +377,10 @@ void MixerEdit::ValueChanged(SynthWidget *wdg)
 	}
 	if (id == 8)
 	{
+		int kbdon = prjFrame->StopPlayer();
 		mixItem->ResetMixer();
+		if (kbdon)
+			prjFrame->StartPlayer();
 		return;
 	}
 

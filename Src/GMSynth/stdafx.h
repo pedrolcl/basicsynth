@@ -16,8 +16,6 @@
 #define MMNODRV
 #include <Mmsystem.h>
 #pragma comment(lib, "Winmm.lib")
-#include <dsound.h>
-#pragma comment(lib, "dsound.lib")
 #ifdef _MSC_VER
 #define snprintf sprintf_s
 #endif

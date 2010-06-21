@@ -64,7 +64,7 @@ void ToneBase::Start(SeqEvent *evt)
 		pbGen.Reset(0);
 	if (pbWT.On())
 		pbWT.Reset(0);
-	pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+	pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
 }
 
 void ToneBase::Param(SeqEvent *evt)
@@ -73,7 +73,7 @@ void ToneBase::Param(SeqEvent *evt)
 	{
 		ControlEvent *cevt = (ControlEvent *)evt;
 		if ((cevt->mmsg & MIDI_EVTMSK) == MIDI_PWCHG)
-			pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+			pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
 	}
 	else if (evt->type == SEQEVT_PARAM)
 	{

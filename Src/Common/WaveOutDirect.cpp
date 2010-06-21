@@ -9,20 +9,29 @@
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
 
-#include <windows.h>
-#include <dsound.h>
 #include <math.h>
 #include <SynthDefs.h>
 #include <WaveFile.h>
 #include <WaveOutDirect.h>
 
+tDirectSoundCreate WaveOutDirect::pDirectSoundCreate;
+
 WaveOutDirect::WaveOutDirect()
 {
+	if (pDirectSoundCreate == NULL)
+	{
+		HMODULE h = LoadLibrary("dsound.dll");
+		if (h)
+		{
+			pDirectSoundCreate = (tDirectSoundCreate)GetProcAddress(h, "DirectSoundCreate");
+		}
+	}
 	dirSndObj = 0;
 	dirSndBuf = 0;
 	lastDev = 0;
 
 	nextWrite = 0;
+	latency = 0.02;
 	numBlk = 4;
 	blkLen = 0;
 	bufLen = 0;
@@ -59,21 +68,33 @@ void WaveOutDirect::Restart()
 	if (dirSndBuf)
 	{
 		// Lock the first block
+		ClearBuffer();
 		dirSndBuf->SetCurrentPosition(0);
 		dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
 		nxtSamp = (SampleValue*)startLock;
 		endSamp = nxtSamp + sampleMax;
 		nextWrite = 0;
 		outState = 1;
-#ifdef _DEBUG
-		if (nxtSamp == 0)
-			OutputDebugString("nxtSamp == NULL\r\n");
-#endif
 	}
 }
 
-int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
+void WaveOutDirect::ClearBuffer()
 {
+	if (dirSndBuf)
+	{
+		if (dirSndBuf->Lock(0, bufLen, &startLock, &sizeLock, NULL, NULL, 0) == S_OK)
+		{
+			memset(startLock, 0, sizeLock);
+			dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
+		}
+	}
+}
+
+int WaveOutDirect::CreateSoundBuffer(HWND w, GUID *dev)
+{
+	if (pDirectSoundCreate == NULL)
+		return -1;
+
 	int newDev = 1;
 	if (dirSndObj)
 	{
@@ -105,10 +126,11 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
 		}
 
 		HRESULT hr;
-		hr = DirectSoundCreate(dev, &dirSndObj, NULL);
+		//hr = DirectSoundCreate(dev, &dirSndObj, NULL);
+		hr = pDirectSoundCreate(dev, &dirSndObj, NULL);
 		if (hr == S_OK)
 		{
-			hr = dirSndObj->SetCooperativeLevel(w, DSSCL_NORMAL);
+			hr = dirSndObj->SetCooperativeLevel(w, DSSCL_PRIORITY);
 			if (hr != S_OK)
 			{
 				dirSndObj->Release();
@@ -135,7 +157,7 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
     wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
 	wf.cbSize = 0;
 
-	sampleMax = (bsInt32) ((synthParams.sampleRate * leadtm) * (FrqValue)wf.nChannels);
+	sampleMax = (bsInt32) ((synthParams.sampleRate * latency) * (FrqValue)wf.nChannels);
 	if (sampleMax & 1)
 		sampleMax++;
 	blkLen = sampleMax * 2; // two bytes per sample
@@ -152,23 +174,23 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, float leadtm, GUID *dev)
 	if (dirSndObj->CreateSoundBuffer(&dsbd, &dirSndBuf, NULL) != S_OK)
 		return -1;
 
-	nextWrite = 0;
-	//TIMECAPS tc;
-	//timeGetDevCaps(&tc, sizeof(tc));
+	ClearBuffer();
 
+	nextWrite = 0;
 	// when we must wait, we wait 1/4 of a block length
-	// ms = leadtm * 0.25 * 1000
-	pauseTime = (DWORD) (leadtm * 250.0f);
+	// ms = latency * 0.25 * 1000
+	pauseTime = (DWORD) (latency * 250.0f);
 
 	return 0;
 }
 
 int WaveOutDirect::Setup(HWND w, float leadtm, int nb, GUID *dev)
 {
-	if (nb < 3)
-		nb = 3;
-	numBlk = nb;
-	if (CreateSoundBuffer(w, leadtm, dev))
+	if ((numBlk = nb) < 3)
+		numBlk = 3;
+	if ((latency = leadtm) < 0.02f)
+		latency = 0.02f;
+	if (CreateSoundBuffer(w, dev))
 		return -1;
 
 	// Lock the first block
@@ -188,11 +210,7 @@ void WaveOutDirect::Shutdown()
 {
 	if (dirSndBuf)
 	{
-		if (outState != 0)
-		{
-			dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-			dirSndBuf->Stop();
-		}
+		Stop();
 		dirSndBuf->Release();
 		dirSndBuf = 0;
 	}
@@ -276,98 +294,104 @@ int WaveOutDirect::FlushOutput()
 	}
 	nxtSamp = (SampleValue*)startLock;
 	endSamp = nxtSamp + sampleMax;
-#ifdef _DEBUG
-	if (nxtSamp == 0)
-		OutputDebugString("nxtSamp == NULL\r\n");
-#endif
 	return 0;
 }
 
 /////////////////////////////////////////////////////////
 
+WaveOutDirectI::WaveOutDirectI()
+{
+	latency = 0.020;
+	numBlk = 2;
+}
+
 int WaveOutDirectI::Setup(HWND w, float leadtm, int nb, GUID *dev)
 {
-	if (nb < 3)
-		nb = 3;
-	numBlk = nb;
-	if (CreateSoundBuffer(w, leadtm, dev))
+	float total = leadtm * (float)nb;
+	if (total < 0.08f)
+		latency = 0.01f;
+	else
+		latency = 0.02f;
+	numBlk = (int) (total / latency);
+	if (numBlk < 4)
+		numBlk = 4;
+	if (CreateSoundBuffer(w, dev))
 		return -1;
 	AllocBuf(sampleMax, 2);
+
+	dirSndBuf->SetCurrentPosition(0);
+	dirSndBuf->Play(0, 0, DSBPLAY_LOOPING);
+
 	return 0;
+}
+
+void WaveOutDirectI::Stop()
+{
+	if (dirSndBuf)
+		dirSndBuf->Stop();
 }
 
 void WaveOutDirectI::Restart()
 {
 	if (dirSndBuf)
-		outState = 1;
+	{
+		ClearBuffer();
+		dirSndBuf->SetCurrentPosition(0);
+		dirSndBuf->Play(0, 0, DSBPLAY_LOOPING);
+		nextWrite = 0;
+		nxtSamp = samples;
+	}
 }
 
 int WaveOutDirectI::FlushOutput()
 {
-	DWORD m, pl;
-	switch (outState)
-	{
-	case 0:
-		// suspended state...
-		Sleep(pauseTime*4);
-		break;
-	case 1:
-		// Initial write. Start playback
-		dirSndBuf->SetCurrentPosition(0);
-		dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
-		memcpy(startLock, samples, blkLen);
-		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-		dirSndBuf->Play(0, 0, DSBPLAY_LOOPING);
-		nextWrite = blkLen;
-		outState = 2;
-		break;
-	case 2:
-		// Filling to end of buffer
-		dirSndBuf->Lock(nextWrite, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
-		memcpy(startLock, samples, blkLen);
-		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-		nextWrite += blkLen;
-		if (nextWrite >= bufLen)
-		{
-			nextWrite = 0;
-			outState = 3;
-		}
-		break;
-	case 3:
-		// wait for playback to move ahead of write position
-		m = nextWrite + blkLen;
-		dirSndBuf->GetCurrentPosition(&pl, NULL);
-		if (pl >= nextWrite)
-		{
-			while (pl < m)
-			{
-				Sleep(pauseTime);
-				dirSndBuf->GetCurrentPosition(&pl, NULL);
-			}
-		}
-		dirSndBuf->Lock(nextWrite, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
-		memcpy(startLock, samples, blkLen);
-		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-		nextWrite = m;
-		if (nextWrite >= lastBlk)
-			outState = 4;
-		break;
-	case 4:
-		// wait for position to wrap to first block
-		dirSndBuf->GetCurrentPosition(&pl, NULL);
-		while (pl > blkLen)
-		{
-			Sleep(pauseTime);
-			dirSndBuf->GetCurrentPosition(&pl, NULL);
-		}
-		dirSndBuf->Lock(nextWrite, blkLen, &startLock, &sizeLock, NULL, NULL, 0);
-		memcpy(startLock, samples, blkLen);
-		dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-		nextWrite = 0;
-		outState = 3;
-		break;
-	}
+	DWORD pl, wr;
 
+	BYTE *wrBuf = (BYTE*)samples;
+	DWORD wrPos = nextWrite;
+	DWORD toWrite = blkLen;
+	DWORD writeNow;
+	DWORD toSleep = 4;
+	while (1)
+	{
+		dirSndBuf->GetCurrentPosition(&pl, &wr);
+		if (pl < wrPos)
+			writeNow = (pl + bufLen) - wrPos;
+		else
+			writeNow = pl - wrPos;
+		if (writeNow > toWrite)
+			writeNow = toWrite;
+		if (writeNow > 0)
+		{
+			void *start1 = 0;
+			void *start2 = 0;
+			DWORD size1 = 0;
+			DWORD size2 = 0;
+			if (dirSndBuf->Lock(wrPos, writeNow, &start1, &size1, &start2, &size2, 0) != S_OK)
+				break;
+			memcpy(start1, wrBuf, size1);
+			toWrite -= size1;
+			wrBuf += size1;
+			wrPos += size1;
+			if (start2 != NULL)
+			{
+				memcpy(start2, wrBuf, size2);
+				toWrite -= size2;
+				wrBuf += size2;
+				wrPos += size2;
+			}
+			dirSndBuf->Unlock(start1, size1, start2, size2);
+			if (wrPos >= bufLen)
+				wrPos -= bufLen;
+		}
+		if (toWrite > 0)
+			Sleep(toSleep);
+		else
+			break;
+	}
+	nextWrite += blkLen;
+	if (nextWrite >= bufLen)
+		nextWrite = 0;
 	nxtSamp = samples;
 	return 0;
 }

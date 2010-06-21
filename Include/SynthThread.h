@@ -29,7 +29,7 @@ public:
 	/// Start the thread.
 	/// This will invoke ThreadProc() on the new thread.
 	/// @return 0 on success, -1 on failure
-	virtual int StartThread();
+	virtual int StartThread(int pri = 0);
 
 	/// Stop the thread.
 	/// This will kill the thread; brutal, not recommended.
@@ -45,6 +45,9 @@ public:
 	/// Derive a class from this one and implement ThreadProc().
 	/// @return exit code
 	virtual int ThreadProc();
+
+	/// Delay minimum amount.
+	virtual void ShortWait();
 };
 
 #endif

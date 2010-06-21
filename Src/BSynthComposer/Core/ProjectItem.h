@@ -1157,7 +1157,7 @@ public:
 /// The synthesis project.
 /// There is exactly one of these whenever a project is open
 /// and it is referenced by the global variable theProject.
-class SynthProject : public ProjectItem
+class SynthProject : public ProjectItem, public SynthThread
 {
 private:
 	bsString author;
@@ -1165,6 +1165,9 @@ private:
 	bsString prjPath;
 	bsString prjDir;
 	float latency;
+	bsInt32 playFrom;
+	bsInt32 playTo;
+	bsInt32 playMode;  ///< 0 = to disk, 1 = sequence live, 2 = keyboard
 	bsString lastError;
 	bsString wvInPath;
 
@@ -1175,7 +1178,9 @@ private:
 	static void SeqCallback(bsInt32 count, Opaque arg);
 	void UpdateGenerator(bsInt32 count);
 	int GenerateSequence(nlConverter& cvt);
-	int GenerateToFile(long from, long to);
+	int GenerateToFile();
+	int Generate();
+	int Play();
 
 public:
 	SynthItem     *synthInfo;
@@ -1197,6 +1202,7 @@ public:
 	InstrManager mgr;
 	Sequencer seq;
 	nlConverter *cvtActive;
+	WaveOut *wop;    ///< Sound device when playing live.
 
 	SynthProject() : ProjectItem(PRJNODE_PROJECT)
 	{
@@ -1238,14 +1244,18 @@ public:
 	int NewProject(const char *fname = 0);
 	int LoadProject(const char *fname);
 	int SaveProject(const char *fname = 0);
-	int Generate(int todisk, long from, long to);
-	int Play();
 	int IsPlaying();
 	int PlayEvent(SeqEvent *evt);
 	int Start();
 	int Stop();
 	int Pause();
 	int Resume();
+	int ThreadProc();
+	int SetupSoundDevice(float latency);
+
+	void StartTime(bsInt32 t) { playFrom = t; }
+	void EndTime(bsInt32 t)   { playTo = t; }
+	void PlayMode(bsInt32 m)  { playMode = m; }
 
 	void SetProjectPath(const char *path)
 	{

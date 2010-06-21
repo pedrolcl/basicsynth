@@ -21,14 +21,15 @@ private:
 	long lastTime;
 	int canceled;
 	int genAuto;
+	static long playFrom;
+	static long playTo;
+	static int  playLive;
 
 	AmpValue lftPeak;
 	AmpValue rgtPeak;
 	AmpValue lftMax;
 	AmpValue rgtMax;
-	CRITICAL_SECTION guard;
-	HANDLE genThreadH;
-	DWORD  genThreadID;
+	SynthMutex dlgLock;
 
 	void EnableOK(int e, int c);
 	long GetTimeValue(int id);
@@ -37,29 +38,21 @@ private:
 	void SetButtonImage(int ctrl, int imgid);
 
 public:
-	static long playFrom;
-	static long playTo;
-	static int  playLive;
-
 	GenerateDlg(int a = 0, int pl = -1)
 	{
 		genAuto = a;
-		genThreadID = 0;
-		genThreadH = 0;
 		lastTime = 0;
 		canceled = 0;
 		if (pl >= 0)
 			playLive = pl;
-		InitializeCriticalSection(&guard);
+		dlgLock.Create();
 	}
 
 	~GenerateDlg()
 	{
 		prjGenerate = 0;
-		DeleteCriticalSection(&guard);
+		dlgLock.Destroy();
 	}
-
-	static DWORD WINAPI GenerateDlg::GenerateProc(LPVOID param);
 
 	virtual void AddMessage(const char *s);
 	virtual void UpdateTime(long tm);

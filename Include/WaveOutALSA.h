@@ -58,7 +58,7 @@ public:
 	
 	/// Setup for output.
 	/// @param device name of the sound device ("default" usually works fine.)
-	/// @param leadtm lead time in seconds
+	/// @param leadtm lead time in seconds (latency)
 	/// @param nb number of blocks to allocate in the driver (>0)
 	/// @returns 0 on success, < 0 for error
 	int Setup(char *device, float leadtm, int nb=1)

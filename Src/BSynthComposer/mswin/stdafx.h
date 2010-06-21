@@ -16,18 +16,9 @@
 #define _RICHEDIT_VER	0x0200
 
 #include <atlbase.h>
-//#include <atlstr.h>
+// This is the base WTL include, by default in BasicSynth\OpenSource\WTL
+// download from http://sourceforge.net/projects/wtl/ if needed
 #include <atlapp.h>
-
-class SynthAppModule : public CAppModule
-{
-public:
-	HWND mainWnd;
-	char ProductName[80];
-	GUID *waveID;
-};
-
-extern SynthAppModule _Module;
 
 #include <atlwin.h>
 
@@ -44,8 +35,20 @@ extern SynthAppModule _Module;
 #include <Mmsystem.h>
 #pragma comment(lib, "Winmm.lib")
 #include <Mmreg.h>
-#include <dsound.h>
-#pragma comment(lib, "dsound.lib")
+//#include <dsound.h>
+//#pragma comment(lib, "dsound.lib")
+// dsound.h and dsound.lib are now only included with the DirectX SDK.
+// We only need two functions from dsound.lib, so we will dynamically load them.
+class SynthAppModule : public CAppModule
+{
+public:
+	HWND mainWnd;
+	char ProductName[80];
+	GUID *waveID;
+};
+
+extern SynthAppModule _Module;
+
 #include <gdiplus.h>
 using namespace Gdiplus;
 #pragma comment(lib, "gdiplus.lib")
@@ -86,6 +89,7 @@ using namespace Gdiplus;
 #include <stdio.h>
 #include <math.h>
 #include <BasicSynth.h>
+#include <SynthThread.h>
 #include <Player.h>
 #include <WaveOutDirect.h>
 #include <Instruments.h>

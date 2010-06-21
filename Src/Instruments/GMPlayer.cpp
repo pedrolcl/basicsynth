@@ -585,9 +585,9 @@ void GMPlayer::GMPlayerZone::Initialize(bsInt16 ch, bsInt16 key, bsInt16 vel)
 	{
 		if (dynFilter > 0)
 			genFlags |= SBGEN_FILTERD;
-		fcFlt = initFilter;
+		fcFlt = (bsInt16)initFilter;
 		gainQ = SoundBank::Gain(zone->filtQ)/2.0f;
-		filt.CalcCoef(SoundBank::Frequency(initFilter), gainQ);
+		filt.CalcCoef(SoundBank::Frequency((bsInt16)initFilter), gainQ);
 		filt.Reset();
 		// Reduce amplitude for High 'Q' values. 
 		// See DLS 2.2, sec 1.5.2

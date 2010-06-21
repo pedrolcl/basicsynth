@@ -68,6 +68,7 @@ int KeyboardForm::Start()
 			startStop->SetState(1);
 			Redraw(startStop);
 		}
+		theProject->PlayMode(2);
 		return theProject->Start();
 	}
 	return 0;
@@ -123,7 +124,10 @@ void KeyboardForm::ValueChanged(SynthWidget *wdg)
 		if (theProject)
 		{
 			if (wdg->GetState())
+			{
+				theProject->PlayMode(2);
 				theProject->Start();
+			}
 			else
 				theProject->Stop();
 		}

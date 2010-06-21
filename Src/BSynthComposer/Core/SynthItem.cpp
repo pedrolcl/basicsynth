@@ -197,7 +197,6 @@ int MidiItem::Load(XmlSynthElem *node)
 {
 	short chnl;
 	bsInt16 val;
-	AmpValue vol;
 
 	XmlSynthElem *chnlNode = node->FirstChild();
 	while (chnlNode)
@@ -209,10 +208,10 @@ int MidiItem::Load(XmlSynthElem *node)
 			theProject->mgr.SetBank(chnl, val);
 			chnlNode->GetAttribute("prg", val);
 			theProject->mgr.SetPatch(chnl, val);
-			chnlNode->GetAttribute("vol", vol);
-			theProject->mgr.SetVolume(chnl, vol);
-			chnlNode->GetAttribute("pan", vol);
-			theProject->mgr.SetPan(chnl, vol);
+			chnlNode->GetAttribute("vol", val);
+			theProject->mgr.SetVolume(chnl, val);
+			chnlNode->GetAttribute("pan", val);
+			theProject->mgr.SetPan(chnl, val);
 		}
 		XmlSynthElem *n = chnlNode->NextSibling();
 		delete chnlNode;
@@ -239,8 +238,8 @@ int MidiItem::Save(XmlSynthElem *node)
 		chnlNode->SetAttribute("cn", chnl);
 		chnlNode->SetAttribute("bnk", theProject->mgr.GetBank(chnl));
 		chnlNode->SetAttribute("prg", theProject->mgr.GetPatch(chnl));
-		chnlNode->SetAttribute("vol", theProject->mgr.GetVolumeN(chnl));
-		chnlNode->SetAttribute("pan", theProject->mgr.GetPanN(chnl));
+		chnlNode->SetAttribute("vol", theProject->mgr.GetVolume(chnl));
+		chnlNode->SetAttribute("pan", theProject->mgr.GetPan(chnl));
 		delete chnlNode;
 	}
 

@@ -40,8 +40,8 @@ using namespace Gdiplus;
 #pragma comment(lib, "Winmm.lib")
 #include <Mmreg.h>
 
-#include <dsound.h>
-#pragma comment(lib, "dsound.lib")
+//#include <dsound.h>
+//#pragma comment(lib, "dsound.lib")
 
 #include <stdlib.h>
 #include <math.h>

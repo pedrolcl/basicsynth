@@ -92,6 +92,7 @@ Sequencer::Sequencer()
 	instMgr = 0;
 	globEventID = 0;
 	maxNote = 1000;
+	trkActive = 0;
 	evtActive = 0;
 
 	track = new SeqTrack(0);
@@ -184,7 +185,7 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 	SeqEvent *imm = 0;
 	SeqEvent *evt = 0;
 	SeqTrack *tp = 0;
-	int trkActive = 0;
+	trkActive = 0;
 	evtActive = 0;
 
 	seqTick = startTime;
@@ -279,8 +280,8 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 	im.SetSequencer(this);
 
 	SeqEvent *evt = 0;
-	int trkActive = 0;
-	int evtActive = 0;
+	trkActive = 0;
+	evtActive = 0;
 
 	seqTick = startTime;
 	track->LoopCount(1);
@@ -442,8 +443,6 @@ int Sequencer::Tick()
 	bsInt32 tickBlk = tickRes;
 	do
 	{
-		//if (cntrlMgr)
-		//	cntrlMgr->Tick();
 		actCount = 0;
 		Instrument *ins;
 		ActiveEvent *act = actHead->next;
@@ -488,7 +487,7 @@ int Sequencer::Tick()
 		seqTick++;
 		if (tickCB && ++tickCount >= tickWrap)
 		{
-//#if _WIN32 && _DEBUG
+//#if _MSC_VER && _DEBUG
 //			char buf[80];
 //			sprintf_s(buf, 80, "Tick %d active = %d\r\n", seqTick, actCount);
 //			OutputDebugString(buf);

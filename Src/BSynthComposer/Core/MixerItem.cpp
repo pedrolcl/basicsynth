@@ -12,7 +12,7 @@
 
 void MixerItem::InitMixer()
 {
-	int kbdon = theProject->Stop();
+//	int kbdon = theProject->Stop();
 	if (mixChnl < 1)
 		SetMixerInputs(1, 0);
 
@@ -26,19 +26,16 @@ void MixerItem::InitMixer()
 	short fxn;
 	for (fxn = 0; fxn < fxUnits; fxn++)
 		effects[fxn]->InitMixer();
-	if (kbdon)
-		theProject->Start();
+//	if (kbdon)
+//		theProject->Start();
 }
 
 void MixerItem::ResetMixer()
 {
-	int kbdon = theProject->Stop();
 	theProject->mix.Reset();
 	int fxn;
 	for (fxn = 0; fxn < fxUnits; fxn++)
 		effects[fxn]->Reset();
-	if (kbdon)
-		theProject->Start();
 }
 
 void MixerItem::SetMasterVol(AmpValue lft, AmpValue rgt, int imm)
@@ -372,8 +369,6 @@ int MixerItem::LoadProperties(PropertyBox *pb)
 
 int MixerItem::SaveProperties(PropertyBox *pb)
 {
-	int play = theProject->Stop();
-
 	long chnls = 0;
 	short panl = 0;
 	short pant = 0;
@@ -448,8 +443,6 @@ int MixerItem::SaveProperties(PropertyBox *pb)
 	}
 
 	theProject->SetChange(1);
-	if (play)
-		theProject->Start();
 
 	return 1;
 }

@@ -187,12 +187,12 @@ int XmlSynthElem::GetAttribute(char *attrName, char **val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, short val)
+int XmlSynthElem::SetAttribute(const char *attrName, short val)
 {
 	return SetAttribute(attrName, (long) val);
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, long val)
+int XmlSynthElem::SetAttribute(const char *attrName, long val)
 {
 	int rv = -1;
 	if (pElem)
@@ -205,12 +205,12 @@ int XmlSynthElem::SetAttribute(char *attrName, long val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, float val)
+int XmlSynthElem::SetAttribute(const char *attrName, float val)
 {
 	return SetAttribute(attrName, (double) val);
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, double val)
+int XmlSynthElem::SetAttribute(const char *attrName, double val)
 {
 	int rv = -1;
 	if (pElem)
@@ -223,7 +223,7 @@ int XmlSynthElem::SetAttribute(char *attrName, double val)
 	return rv;
 }
 
-int XmlSynthElem::SetAttribute(char *attrName, const char *val)
+int XmlSynthElem::SetAttribute(const char *attrName, const char *val)
 {
 	int rv = -1;
 	if (pElem)

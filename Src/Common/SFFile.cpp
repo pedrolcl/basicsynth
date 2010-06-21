@@ -875,9 +875,9 @@ void SFFile::BuildInstrument(SBZoneGroup *grp, int n, int pbagNdx, int gbagNdx)
 			zone->pan = loclZone[sfgPan].shAmount;
 			zone->chorus = loclZone[sfgChorusEffectsSend].shAmount;
 			zone->reverb = loclZone[sfgReverbEffectsSend].shAmount;
-			zone->scaleTune = (FrqValue)loclZone[sfgScaleTuning].wAmount;
-			zone->fineTune = (FrqValue)loclZone[sfgFineTune].wAmount;
-			zone->coarseTune = (FrqValue)loclZone[sfgCoarseTune].wAmount;
+			zone->scaleTune = loclZone[sfgScaleTuning].wAmount;
+			zone->fineTune = loclZone[sfgFineTune].wAmount;
+			zone->coarseTune = loclZone[sfgCoarseTune].wAmount;
 
 			if (zone->vibLfo.rate < -12000)
 				zone->vibLfo.rate = -12000;

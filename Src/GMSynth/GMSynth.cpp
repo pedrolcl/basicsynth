@@ -45,7 +45,7 @@ private:
 	bsInt32 endTime;
 
 #ifdef _WIN32
-	WaveOutDirect wvd;
+	WaveOutDirectI wvd;
 	HWND wavWnd;
 	GUID wavDevice;
 #endif

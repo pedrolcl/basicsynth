@@ -1,6 +1,7 @@
 include ../../BasicSynth.cfg
 
 CPPFLAGS+=-I$(BSDIR)/Src/Notelist -I../Core -DPOSIX=1
+ALSA=-lasound
 
 OBJS=\
 main.o \
@@ -22,7 +23,7 @@ CORELIB=../Lib/core.a
 fltk: $(OBJS) $(CMNLIB) $(NLLIB) $(INSTLIB) $(CORELIB)
 	$(CPP) $(XMLLIB) $(CPPFLAGS) -o $@ $(OBJS) \
 		$(CORELIB) -lfltk -lfltk_images \
-		$(NLLIB) $(INSTLIB) $(CMNLIB) -lasound -lm
+		$(NLLIB) $(INSTLIB) $(CMNLIB) $(ALSA) -lm
 		
 clean:
 	-rm $(OBJS)

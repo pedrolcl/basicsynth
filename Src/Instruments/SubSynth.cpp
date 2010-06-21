@@ -167,7 +167,7 @@ void SubSynth::Param(SeqEvent *evt)
 	{
 		ControlEvent *cevt = (ControlEvent *)evt;
 		if ((cevt->mmsg & MIDI_EVTMSK) == MIDI_PWCHG)
-			pwFrq = (frq * synthParams.GetCentsMult(im->GetPitchbendC(chnl))) - frq;
+			pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
 		return; // TODO: process controller changes
 	}
 	SetParams((VarParamEvent *)evt);

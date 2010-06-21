@@ -26,6 +26,10 @@
 
 #ifndef _WAVEOUTDIRECT_H
 #define _WAVEOUTDIRECT_H 1
+#include <dsoundintf.h>
+typedef 
+HRESULT (WINAPI *tDirectSoundCreate)(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+
 
 /// Sound output to DAC.
 /// Ths class uses uses the Windows DirectSound buffer
@@ -40,10 +44,13 @@
 class WaveOutDirect : public WaveOutBuf
 {
 protected:
+	static tDirectSoundCreate pDirectSoundCreate;
+
 	IDirectSound *dirSndObj;
 	IDirectSoundBuffer *dirSndBuf;
 	GUID *lastDev;
 
+	float latency;
 	DWORD numBlk;
 	DWORD nextWrite;
 	DWORD blkLen;
@@ -54,7 +61,8 @@ protected:
 	DWORD pauseTime;
 	int outState;
 
-	int CreateSoundBuffer(HWND w, float leadtm, GUID *dev);
+	int CreateSoundBuffer(HWND w, GUID *dev);
+	void ClearBuffer();
 
 public:
 	WaveOutDirect();
@@ -64,13 +72,13 @@ public:
 	/// @param leadtm block length in seconds
 	/// @param nb number of blocks (>=3)
 	/// @param dev GUID for device, NULL to use primary device
-	int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
+	virtual int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
 	/// Stop the sound output.
-	void Stop();
+	virtual void Stop();
 	/// Restart sound output.
-	void Restart();
+	virtual void Restart();
 	/// Destroy the DirectSound buffer.
-	void Shutdown();
+	virtual void Shutdown();
 	/// Flush output.
 	/// This overrides the base class method and is the point
 	/// where we need to switch to another block in the sound
@@ -87,17 +95,19 @@ public:
 /// Samples are put into a local buffer then
 /// copied during FlushOutput. This is safer
 /// since we always have a valid buffer to 
-/// write into. It also allows stopping and
-/// resarting the playback, although you will
-/// loose samples if you do that.
+/// write into. More important, we can reduce
+/// latency down to just above the minimum
+/// DirectSound value of 20ms.
 class WaveOutDirectI : public WaveOutDirect
 {
 public:
 	WaveOutDirectI();
 	/// @copydoc WaveOutDirect::Setup
-	int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
+	virtual int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
+	/// @copydoc WaveOutDirect::Stop
+	virtual void Stop();
 	/// @copydoc WaveOutDirect::Restart
-	void Restart();
+	virtual void Restart();
 	/// @copydoc WaveOutDirect::FlushOutput
 	virtual int FlushOutput();
 };

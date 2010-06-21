@@ -27,7 +27,6 @@ extern CAppModule _Module;
 
 #include <atlwin.h>
 #include <atlctrls.h>
-#include <dsound.h>
 #include <math.h>
 #include <BasicSynth.h>
 #include <Player.h>

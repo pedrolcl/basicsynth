@@ -12,22 +12,6 @@ long GenerateDlg::playFrom;
 long GenerateDlg::playTo;
 int  GenerateDlg::playLive;
 
-DWORD WINAPI GenerateDlg::GenerateProc(LPVOID param)
-{
-	int err;
-	try
-	{
-		err = theProject->Generate(!playLive, playFrom, playTo);
-	}
-	catch(...)
-	{
-		err = -1;
-	}
-	prjGenerate->Finished();
-	ExitThread((DWORD)err);
-	return 0;
-}
-
 LRESULT GenerateDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	CenterWindow();
@@ -69,15 +53,22 @@ LRESULT GenerateDlg::OnStart(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHa
 		{
 			playFrom = GetTimeValue(IDC_PLAY_FROM);
 			playTo  = GetTimeValue(IDC_PLAY_TO);
+			theProject->StartTime(playFrom);
+			theProject->EndTime(playTo);
+			lastTime = playFrom;
 		}
 		else
 		{
-			playFrom = 0;
-			playTo = 0;
+			theProject->StartTime(0);
+			theProject->EndTime(0);
+			lastTime = 0;
 		}
 	}
+	else
+		lastTime = 0;
+	theProject->PlayMode(playLive);
+
 	lastMsg = "";
-	lastTime = playFrom;
 	FormatTime(tm, lastTime);
 	lftPeak = 0;
 	rgtPeak = 0;
@@ -86,24 +77,14 @@ LRESULT GenerateDlg::OnStart(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHa
 	FormatPeak();
 	prjGenerate = static_cast<GenerateWindow*>(this);
 
-	// start thread
-	genThreadH = CreateThread(NULL, 0, GenerateProc, NULL, CREATE_SUSPENDED, &genThreadID);
-	if (genThreadH == INVALID_HANDLE_VALUE)
-		ed.AppendText("Cannot create playback thread.\r\n");
-	else
-	{
-		if (!SetThreadPriority(genThreadH, THREAD_PRIORITY_HIGHEST))
-			OutputDebugString("Can't up priority\r\n");
-		ResumeThread(genThreadH);
-		CheckDlgButton(IDC_PAUSE, BST_UNCHECKED);
-		EnableOK(0, 1);
-	}
+	theProject->Start();
+	EnableOK(0, 1);
 	return 0;
 }
 
 LRESULT GenerateDlg::OnStop(WORD cd, WORD wID, HWND hwnd, BOOL& bHandled)
 {
-	EnterCriticalSection(&guard);
+	dlgLock.Enter();
 	lastMsg += "*Cancel*\r\n";
 	ed.AppendText(lastMsg);
 	lastMsg = "";
@@ -116,7 +97,7 @@ LRESULT GenerateDlg::OnStop(WORD cd, WORD wID, HWND hwnd, BOOL& bHandled)
 	catch(...)
 	{
 	}
-	LeaveCriticalSection(&guard);
+	dlgLock.Leave();
 	return 0;
 }
 
@@ -134,40 +115,28 @@ LRESULT GenerateDlg::OnPause(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHa
 
 LRESULT GenerateDlg::OnGenFinished(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	DWORD code = 0;
-	if (genThreadH != INVALID_HANDLE_VALUE)
-	{
-		try 
-		{
-			WaitForSingleObject(genThreadH, 10000);
-		} 
-		catch (...) 
-		{
-		}
-		GetExitCodeThread(genThreadH, &code);
-		CloseHandle(genThreadH);
-		genThreadH = INVALID_HANDLE_VALUE;
-	}
+	theProject->WaitThread();
 	prjGenerate = 0;
 	char pk[1024];
 	snprintf(pk, 1024, "Peak: [%.3f, %.3f]\r\n-------- Finished ---------\r\n", lftMax, rgtMax);
 	ed.AppendText(pk);
-	EnableOK(1, 0);
 	prjFrame->GenerateFinished();
-	if (code == 0 && genAuto)
+	if (genAuto)
 		EndDialog(IDOK);
+	else
+		EnableOK(1, 0);
 	return 0;
 }
 
 LRESULT GenerateDlg::OnUpdateMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	EnterCriticalSection(&guard);
+	dlgLock.Enter();
 	if (lastMsg.Length() != 0)
 	{
 		ed.AppendText(lastMsg);
 		lastMsg = "";
 	}
-	LeaveCriticalSection(&guard);
+	dlgLock.Leave();
 	return 0;
 }
 
@@ -254,10 +223,10 @@ long GenerateDlg::GetTimeValue(int id)
 
 void GenerateDlg::AddMessage(const char *s)
 {
-	EnterCriticalSection(&guard);
+	dlgLock.Enter();
 	lastMsg += s;
 	lastMsg += "\r\n";
-	LeaveCriticalSection(&guard);
+	dlgLock.Leave();
 	PostMessage(WM_GENMSG, 0, 0);
 }
 

@@ -6,6 +6,8 @@
 #endif
 #if defined(_WIN32) && _WIN32
 #define WIN32_REGISTRY 1
+typedef BOOL (CALLBACK *LPDSENUMCALLBACKA)(LPGUID, LPCSTR, LPCSTR, LPVOID);
+typedef HRESULT (WINAPI *tDirectSoundEnumerate)(LPDSENUMCALLBACKA pDSEnumCallback, LPVOID pContext);
 #endif
 
 class ProjectOptions
@@ -41,6 +43,7 @@ public:
 #if defined(_WIN32) && _WIN32
 	HWND dsoundHWND;
 	GUID *waveID;
+	tDirectSoundEnumerate pDirectSoundEnumerate;
 #endif
 
 	ProjectOptions();

@@ -34,15 +34,13 @@
 // BasicSynth Includes
 ///////////////////////////////////
 #include <BasicSynth.h>
-#if !NO_LIVE_PLAY
-# if _WIN32
-#  include <dsound.h>
-#  include <WaveOutDirect.h>
-# endif
-# if UNIX
-#  include <WaveOutALSA.h>
-#  include <alsa/asoundlib.h>
-# endif
+#include <SynthThread.h>
+#if _WIN32
+#include <WaveOutDirect.h>
+#endif
+#if UNIX
+#include <WaveOutALSA.h>
+#include <alsa/asoundlib.h>
 #endif
 #include <Instruments.h>
 #include <NLConvert.h>

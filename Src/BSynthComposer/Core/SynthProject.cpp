@@ -51,6 +51,10 @@ void SynthProject::Init()
 	libPath = 0;
 	change = 0;
 	cvtActive = 0;
+	wop = 0;
+	playFrom = 0;
+	playTo = 0;
+	playMode = 0;
 
 	prjMidiIn.SetSequenceInfo(&seq, &mgr);
 	prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
@@ -687,10 +691,11 @@ int SynthProject::GenerateSequence(nlConverter& cvt)
 	return err;
 }
 
-int SynthProject::GenerateToFile(long from, long to)
+int SynthProject::GenerateToFile()
 {
 	if (!wvoutInfo)
 		return -1;
+	mixInfo->InitMixer();
 	mix.Reset();
 	mgr.Init(&mix, wvoutInfo->GetOutput());
 
@@ -712,12 +717,168 @@ int SynthProject::GenerateToFile(long from, long to)
 	if (prjGenerate)
 		prjGenerate->AddMessage("Start sequencer...");
 	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
-	seq.Sequence(mgr, from*synthParams.isampleRate, to*synthParams.isampleRate);
+	seq.Sequence(mgr, playFrom*synthParams.isampleRate, playTo*synthParams.isampleRate);
 	seq.SetCB(0, 0, 0);
 	wvoutInfo->CloseOutput(wvOut, &mix);
 
 	// reset in case of dynamic mixer control changes
 	mixInfo->InitMixer();
+	if (prjGenerate)
+		prjGenerate->Finished();
+	return 0;
+}
+
+int SynthProject::Generate()
+{
+	mixInfo->InitMixer();
+
+	if (SetupSoundDevice(prjOptions.playBuf))
+		return -1;
+	mgr.Init(&mix, wop);
+
+	nlConverter cvt;
+	cvt.SetInstrManager(&mgr);
+	cvt.SetSequencer(&seq);
+	cvt.SetSampleRate(synthParams.sampleRate);
+
+	if (GenerateSequence(cvt))
+		return -1;
+
+	if (prjGenerate)
+		prjGenerate->AddMessage("Start sequencer...");
+	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
+
+	// For now, if MIDI is currently active, allow playing along
+	// with the sequence. This might need to be changed to a separate
+	// option.
+	SeqState ss = seqSeqOnce;
+	if (prjMidiIn.IsOn())
+		ss |= seqPlay;
+
+	// Generate the output...
+	bsInt32 fromSamp = playFrom * synthParams.isampleRate;
+	bsInt32 toSamp = playTo * synthParams.isampleRate;
+	if (seq.GetTrackCount() > 1 || ss & seqPlay)
+		seq.SequenceMulti(mgr, fromSamp, toSamp, ss);
+	else // optimal single track playback
+		seq.Sequence(mgr, fromSamp, toSamp);
+	seq.SetCB(0, 0, 0);
+
+	AmpValue lv, rv;
+	long pad;
+	if (wvoutInfo)
+	{
+		pad = (long) (wvoutInfo->GetTailOut() * synthParams.sampleRate);
+		while (pad-- > 0)
+		{
+			mix.Out(&lv, &rv);
+			wop->Output2(lv, rv);
+		}
+	}
+
+	// Drain all output by filling the output buffer with zeros.
+	lv = 0;
+	rv = 0;
+	pad = (long) (synthParams.sampleRate * prjOptions.playBuf) * 4;
+	while (pad-- > 0)
+		wop->Output2(lv, rv);
+
+	wop->Shutdown();
+	delete wop;
+	wop = NULL;
+
+	// re-initialize in case of dynamic mixer control changes
+	mixInfo->InitMixer();
+	if (prjGenerate)
+		prjGenerate->Finished();
+
+	return 0;
+}
+
+// Start live playback from keyboard (virtual and/or MIDI).
+// This runs as a background thread. (See Start/Stop below)
+int SynthProject::Play()
+{
+	if (SetupSoundDevice(prjOptions.playBuf))
+		return 0;
+	mix.Reset();
+	mgr.Init(&mix, wop);
+	seq.SetCB(0, 0, 0);
+	seq.Play(mgr);
+//	wop->Stop();
+	wop->Shutdown();
+	delete wop;
+	wop = 0;
+	return 1;
+}
+
+int SynthProject::ThreadProc()
+{
+	int ret = -1;
+	switch (playMode)
+	{
+	case 0:
+		ret = GenerateToFile();
+		break;
+	case 1:
+		ret = Generate();
+		break;
+	case 2:
+		ret = Play();
+		break;
+	}
+	return ret;
+}
+
+int SynthProject::Start()
+{
+	if (seq.GetState() == seqOff)
+		StartThread(3);
+	return seq.GetState() != seqOff;
+}
+
+int SynthProject::Stop()
+{
+	SeqState wasRunning = seq.GetState();
+	if (wasRunning != seqOff)
+	{
+		seq.Halt();
+		WaitThread();
+	}
+	return wasRunning != seqOff;
+}
+
+// Pause sequencer playback. First signal the sequencer
+// and then halt the live output buffer. It's important
+// to wait for the sequencer to enter the pause
+// state before stopping output. Otherwise you can get
+// into a deadlock where the sequencer is waiting on the
+// output buffer.
+int SynthProject::Pause()
+{
+	if (seq.GetState() != seqPaused)
+	{
+		seq.Pause();
+		while (seq.GetState() != seqPaused)
+			ShortWait();
+		if (wop)
+			wop->Stop();
+		return 1;
+	}
+	return 0;
+}
+
+// Resume sequencer playback. First restart the output
+// buffer then signal the sequencer to continue.
+int SynthProject::Resume()
+{
+	if (seq.GetState() == seqPaused)
+	{
+		if (wop)
+			wop->Restart();
+		seq.Resume();
+		return 1;
+	}
 	return 0;
 }
 

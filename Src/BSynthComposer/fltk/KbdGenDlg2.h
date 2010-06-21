@@ -92,7 +92,11 @@ private:
 	bsString lastMsg;
 	long lastTime;
 	int canceled;
-	int genAuto;
+	int closed;
+	long playFrom;
+	long playTo;
+	long playLive;
+	SynthMutex dlgLock;
 
 	AmpValue lftPeak;
 	AmpValue rgtPeak;
@@ -121,16 +125,13 @@ public:
 	GenerateDlg(int live);
 	~GenerateDlg();
 
-	static long playLive;
-	static long playFrom;
-	static long playTo;
-
 	virtual void AddMessage(const char *s);
 	virtual void UpdateTime(long tm);
 	virtual void UpdatePeak(AmpValue lft, AmpValue rgt);
 	virtual void Finished();
 	virtual int WasCanceled();
 
+	void Run(int autoStart);
 	void OnStart(int autoStart);
 	void OnStop();
 	void OnPause();

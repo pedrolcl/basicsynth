@@ -26,7 +26,7 @@
 CAppModule _Module;
 InstrManager instrMgr;
 Mixer theMixer;
-WaveOutDirect waveOut;
+WaveOutDirectI waveOut;
 Player thePlayer;
 MIDIControl midiCtrl;
 

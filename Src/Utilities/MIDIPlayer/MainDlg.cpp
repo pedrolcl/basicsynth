@@ -2,6 +2,9 @@
 #include "resource.h"
 #include "MainDlg.h"
 
+typedef BOOL (CALLBACK *LPDSENUMCALLBACKA)(LPGUID, LPCSTR, LPCSTR, LPVOID);
+typedef HRESULT (WINAPI *tDirectSoundEnumerate)(LPDSENUMCALLBACKA pDSEnumCallback, LPVOID pContext);
+
 static BOOL CALLBACK DSDevEnum(LPGUID lpGUID, 
              LPCTSTR lpszDesc,
              LPCTSTR lpszDrvName, 
@@ -66,7 +69,14 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 	// fill-in the list of WAV devices and select default
 	CWindow cb = GetDlgItem(IDC_WAV_DEVICE);
-    DirectSoundEnumerate(DSDevEnum, &cb);
+	HMODULE h = LoadLibrary("dsound.dll");
+	tDirectSoundEnumerate pDirectSoundEnumerate = NULL;
+	if (h)
+		pDirectSoundEnumerate = (tDirectSoundEnumerate)GetProcAddress(h, "DirectSoundEnumerateA");
+	if (pDirectSoundEnumerate == NULL)
+		MessageBox("Cannot locate dsound.dll.", "Sorry...", MB_OK|MB_ICONSTOP);
+	else
+		pDirectSoundEnumerate(DSDevEnum, &cb);
 	cb.SendMessage(CB_SETCURSEL, 0, 0);
 
 	// Load the saved file names
@@ -301,12 +311,9 @@ LRESULT CMainDlg::OnBnClickedPlay(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 	int sel = SendDlgItemMessage(IDC_WAV_DEVICE, CB_GETCURSEL);
 	if (sel != CB_ERR)
 		dev = (void *)SendDlgItemMessage(IDC_WAV_DEVICE, CB_GETITEMDATA, (WPARAM)sel);
-//	int mode = GMSYNTH_MODE_SEQUENCE;
-//	if (IsDlgButtonChecked(IDC_KBD_ON) || IsDlgButtonChecked(IDC_MIDI_ON))
-//		mode = GMSYNTH_MODE_SEQPLAY;
 
 	running = 1;
-	GMSynthStart(GMSYNTH_MODE_SEQPLAY, 0, 0, dev);
+	GMSynthStart(GMSYNTH_MODE_SEQUENCE, 0, 0, dev);
 	return 0;
 }
 

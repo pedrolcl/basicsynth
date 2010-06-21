@@ -36,7 +36,7 @@ int SelectSoundBankPreset(GMPlayer *gm)
 	gm->GetParam(GMPLAYER_PROG, &val);
 	dlg.preNum = (bsInt16) val;
 
-	if (dlg.DoModal() == IDOK)
+	if (dlg.DoModal())
 	{
 		gm->SetSoundFile(dlg.fileID);
 		gm->SetParam(GMPLAYER_BANK, (float) dlg.bnkNum);

@@ -15,6 +15,7 @@
 #endif
 
 #include <BasicSynth.h>
+#include <SynthThread.h>
 #include <SynthString.h>
 #include <Instruments.h>
 #include <NLConvert.h>

@@ -159,7 +159,7 @@ protected:
 		AmpValue modVal = envMod.Gen();
 		if (modOn & BUZZ_MFILT)
 		{
-			FrqValue fc = fltFreq * synthParams.GetCentsMult(fltBase + (modVal * fltScl));
+			FrqValue fc = fltFreq * synthParams.GetCentsMult((int)(fltBase + (modVal * fltScl)));
 			if (fc != fltLast)
 				flt.CalcCoef(fltLast = fc, fltQ);
 		}
