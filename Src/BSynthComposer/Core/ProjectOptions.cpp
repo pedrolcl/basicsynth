@@ -32,7 +32,7 @@ ProjectOptions::ProjectOptions()
 	midiDevice = -1;
 	memset(midiDeviceName, 0, MAX_PATH);
 	memset(waveDevice, 0, MAX_PATH);
-	playBuf = 0.02;
+	playBuf = 0.1;
 	frmLeft = 0;
 	frmTop = 0;
 	frmWidth = 1024;

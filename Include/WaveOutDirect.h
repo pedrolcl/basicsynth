@@ -27,8 +27,6 @@
 #ifndef _WAVEOUTDIRECT_H
 #define _WAVEOUTDIRECT_H 1
 #include <dsoundintf.h>
-typedef 
-HRESULT (WINAPI *tDirectSoundCreate)(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
 
 
 /// Sound output to DAC.
@@ -44,11 +42,7 @@ HRESULT (WINAPI *tDirectSoundCreate)(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, 
 class WaveOutDirect : public WaveOutBuf
 {
 protected:
-	static tDirectSoundCreate pDirectSoundCreate;
-
-	IDirectSound *dirSndObj;
 	IDirectSoundBuffer *dirSndBuf;
-	GUID *lastDev;
 
 	float latency;
 	DWORD numBlk;
@@ -65,6 +59,7 @@ protected:
 	void ClearBuffer();
 
 public:
+
 	WaveOutDirect();
 	~WaveOutDirect();
 	/// Setup the sound output buffer.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="BasicSynth Composer">
+		<Project filename="fltk.cbp" active="1">
+			<Depends filename="../Core/Core.cbp" />
+		</Project>
+		<Project filename="../Core/Core.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>

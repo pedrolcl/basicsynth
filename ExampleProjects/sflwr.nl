@@ -13,7 +13,7 @@ begin
 	channel 0;
 	vol 120;
 	artic percent, param;
-	'write "Voice 0 intro.";
+	'write "Voice 0 intro. " :: curTime;
 	R, 1;
 	loop 2
 	begin
@@ -24,7 +24,7 @@ begin
 		{E2, B2, E3, F3, G3}, {%8, %8, %8, %8, %8}, {90, 92, 94, 96, 98}, {110, 90, 90, 110, 90}, 2;
 	end
 	vol 100;
-	'write "Voice 0 first theme";
+	'write "Voice 0 first theme " :: curTime;
 	loop 2
 	begin
 		{A2, E2, A2, G2, F2}, %8, 90, 110, 2;
@@ -36,7 +36,7 @@ begin
 	{G, A, B}, {%4, %4, %4}, 90, 110;
 	{A, B, C3}, {%2, %2, %1}, 90, 110, {2, 1.8, 1.4}; 
 	
-	'write "Voice 0 second theme";
+	'write "Voice 0 second theme " :: curTime;
 	{D3, F3}, {%2, %8}, 85, 110, 1.8;
 	{E3, A3}, {%2, %8};
 	{E3, E4}, {%2, %8};
@@ -49,7 +49,7 @@ begin
 	{F2, F, G, A}, {%4, %8, %8, %8};
 	{E, E1, F, G}, {%4, %8, %8, %8};
 
-	'write "Voice 0 development1";
+	'write "Voice 0 development1 " :: curTime;
 	{A1, A2}, {(%4+%8), %4}, 90, 110;
 	{A1, A2}, {%4, (%4+%8)};
 	{A1, A2, E2}, {%4, %4, %8};
@@ -61,7 +61,7 @@ begin
 	{E2, B1, E1}, {%4, %8, %4};
 	{E2, E2, F2, G2}, {%4, %8, %8, %8};
 
-	'write "; Voice 0 development2";
+	'write "Voice 0 development2 " :: curTime;
 	{A1, A2}, {%4+%8, %4};
 	{A1, A2}, {%4, %4+%8};
 	{A1, A2, E2}, {%4, %4, %8};
@@ -75,7 +75,7 @@ begin
 	{D2, E2, F2, E2, F2}, %8;
 	{G2, F2, G2}, {%8, %4, %4},  90, 110, {1.8, 2.0, 2.1};
 
-	'write "Voice 0 recap";
+	'write "Voice 0 recap " :: curTime;
 	loop 3
 	begin
 		{A2, E2, A2, G2, F2}, %8, 90, 110, 2.2;
@@ -188,7 +188,7 @@ begin
 	[F3, A3, F4, A4, F5], [%8, %8], 60, 120;
 	[G3, B3, G4, B4, G5], [%8, %8], 60, 120;
 
-	'write "; Voice 1 First Theme ";
+	'write "; Voice 1 First Theme " :: curTime;
 	loop 2
 	begin
 		[E4, G4, A4, C5], %16, 55, 90, 1.0, 0.6;
@@ -231,9 +231,9 @@ begin
 	[D4, E4, B4, D5], %2, 55, 100;
 	[D4, E4, C5, E5], %1, 55, 100;
 
-	'write "; Voice 1 Second theme";
+	'write "; Voice 1 Second theme " :: curTime;
 	R, (55*%8);
-	'write "; Voice 1 development1";
+	'write "; Voice 1 development1 " :: curTime;
 	[A4, C5], [%16, %16], 50, 90;
 	[A4, C5], [%8, %8], 50, 90;
 	[A4, C5], [%16, %16], 50, 90;
@@ -258,7 +258,7 @@ begin
 	[E4, G4], [%8, %8], 50, 110;
 	R, (7*%8);
 
-	'write "; Voice 1 development2";
+	'write "; Voice 1 development2 " :: curTime;
 	[A4, C5], [%16, %16], 50, 90;
 	[A4, C5], [%8, %8], 50, 90;
 	[A4, C5], [%16, %16], 50, 90;
@@ -331,7 +331,7 @@ begin
 	[F6, A6], [%4, %4], 50, 110;
 	[G6, B6], [%4, %4], 50, 110;
 
-	'write "; Voice 1 recap";
+	'write "Voice 1 recap " :: curTime;
 	loop 3
 	begin
 		[E4, G4, A4, C5], %16, 55, 90, 1.2, 0.8;

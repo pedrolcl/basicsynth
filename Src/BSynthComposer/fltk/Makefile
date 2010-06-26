@@ -20,14 +20,16 @@ WvtableSelectDlg.o
 
 CORELIB=../Lib/core.a
 
-fltk: $(OBJS) $(CMNLIB) $(NLLIB) $(INSTLIB) $(CORELIB)
-	$(CPP) $(XMLLIB) $(CPPFLAGS) -o $@ $(OBJS) \
+fltk: $(BSBIN)/bsynthcomposer
+
+$(BSBIN)/bsynthcomposer: $(OBJS) $(CMNLIB) $(NLLIB) $(INSTLIB) $(CORELIB)
+	$(CPP) $(XMLLIB) $(CPPFLAGS) -o $(BSBIN)/bsynthcomposer $(OBJS) \
 		$(CORELIB) -lfltk -lfltk_images \
 		$(NLLIB) $(INSTLIB) $(CMNLIB) $(ALSA) -lm
 		
 clean:
 	-rm $(OBJS)
-	-rm fltk
+	-rm $(BSBIN)/bsynthcomposer
 
 FormEditorFltk.o: \
 	FormEditorFltk.cpp \

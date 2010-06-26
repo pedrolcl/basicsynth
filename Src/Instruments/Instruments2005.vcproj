@@ -6,7 +6,6 @@
 	ProjectGUID="{E3932F06-DA1D-42A8-95AB-B3469B90F26F}"
 	RootNamespace="Instruments"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -432,6 +431,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BuzzSynth.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Chuffer.cpp"
 				>
 			</File>
@@ -491,6 +494,10 @@
 			>
 			<File
 				RelativePath=".\AddSynth.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BuzzSynth.h"
 				>
 			</File>
 			<File

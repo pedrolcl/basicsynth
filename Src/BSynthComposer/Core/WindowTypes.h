@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ typedef void* DrawContext;
 /// GenerateWindow defines the interface for wave file generation dialog.
 /// This dialog provides feedback to the user during wave file generation.
 /// This does not have to be a "window" but could write output to the
-/// console, or to a log file. The WasCanceled() function allows the 
+/// console, or to a log file. The WasCanceled() function allows the
 /// wave file generator to poll the user to cancel the generation.
 class GenerateWindow
 {
@@ -109,7 +109,7 @@ public:
 	virtual void SetSelection(SelectInfo& sel) = 0;
 };
 
-/// FormEditor specializes EditorView for editing instruments and 
+/// FormEditor specializes EditorView for editing instruments and
 /// anything else that uses a WidgetForm to display the editor.
 class FormEditor : public EditorView
 {
@@ -217,13 +217,13 @@ public:
 /// of the ProjectFrame functionality is implemted in this class.
 /// Platform specific functions are pure-virtual and must be
 /// implemented by the platform dependent code. A typical implementation
-/// passes menu/toolbar callbacks to one of the base class functions. 
+/// passes menu/toolbar callbacks to one of the base class functions.
 class ProjectFrame
 {
 public:
 	//////////////////////Platform independent ///////////////////////////////
-	char *prjFileTypes;
-	char *prjFileExt;
+	const char *prjFileTypes;
+	const char *prjFileExt;
 
 	ProjectFrame();
 	virtual ~ProjectFrame();

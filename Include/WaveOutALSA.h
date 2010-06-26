@@ -63,6 +63,13 @@ public:
 	/// @returns 0 on success, < 0 for error
 	int Setup(char *device, float leadtm, int nb=1)
 	{
+		if (leadtm == 0.0)
+		{
+			leadtm = 0.005;
+			nb = 1;
+		}
+		else if (nb < 1)
+			nb = 1;
 		if (AllocBuf((long)(leadtm * synthParams.sampleRate) * 2, 2))
 			return -1;
 		

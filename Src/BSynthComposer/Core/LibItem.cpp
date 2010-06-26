@@ -2,7 +2,7 @@
 // BasicSynth - Project item that represents a library
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -210,7 +210,7 @@ int LibfileItem::SaveProperties(PropertyBox *pb)
 		if (iip)
 		{
 			InstrMapEntry *instType = inc->instrType;
-			Opaque tp;
+			Opaque tp = 0;
 			if (instType->manufTmplt)
 				tp = instType->manufTmplt(0);
 			else if (instType->manufInstr)

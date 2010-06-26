@@ -2,7 +2,7 @@
 // BasicSynth - Editor for wavetables.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ void WavetableEdit::GetParams()
 		saveSum = wi->GetSum();
 		saveGibbs = wi->GetGibbs();
 	}
-	
+
 	wav = (WaveWidget *)mainGroup->FindID(199);
 
 	int ndx;
@@ -56,9 +56,9 @@ void WavetableEdit::GetParams()
 		}
 		if (ndx < numParts)
 		{
-			double amp;
-			double phs;
-			bsInt32 mul;
+			double amp = 0;
+			double phs = 0;
+			bsInt32 mul = 0;
 			wi->GetPart(ndx, mul, amp, phs);
 			savebuf[mul-1].on = 1;
 			savebuf[mul-1].amp = amp;
@@ -144,9 +144,9 @@ void WavetableEdit::LoadValues()
 		wav->SetWaveType(sumParts);
 	}
 
-	bsInt32 mul;
-	double amp;
-	double phs;
+	bsInt32 mul = 0;
+	double amp = 0;
+	double phs = 0;
 	int ndx;
 	int parts = wi->GetParts();
 	for (ndx = 0; ndx < parts; ndx++)

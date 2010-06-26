@@ -154,11 +154,11 @@ struct GMInstrParam
 //"Acoustic Bass","Electric Bass(finger)","Electric Bass(pick)","Fretless Bass","Slap Bass","Slap Bass","Synth Bass","Synth Bass",
 // SOLO STRINGS
 //"Violin","Viola","Cello","Contrabass","Tremolo Strings","Pizzicato Strings","Orchestral Strings","Timpani",
-//  ENSEMBLE 
+//  ENSEMBLE
 //"String Ensemble 1","String Ensemble 2","SynthStrings 1","SynthStrings 2","Choir Aahs","Voice Oohs","Synth Voice","Orchestra Hit",
 //BRASS
 //"Trumpet","Trombone","Tuba","Muted Trumpet","French Horn","Brass Section","SynthBrass 1","SynthBrass 2",
-//  REED 
+//  REED
 //"Soprano Sax","Alto Sax","Tenor Sax","Baritone Sax","Oboe","English Horn","Bassoon","Clarinet",
 //PIPE
 //"Piccolo","Flute","Recorder","Pan Flute","Blown Bottle","Skakuhachi","Whistle","Ocarina",
@@ -278,7 +278,7 @@ public:
 		carOsc.SetFrequency(bendVal);
 		carOsc.Reset(-1);
 	}
-	
+
 	virtual int IsFinished()
 	{
 		if (carEG.IsFinished())
@@ -385,7 +385,7 @@ public:
 		osc.SetFrequency(bendVal);
 		osc.Reset(-1);
 	}
-	
+
 	virtual int IsFinished()
 	{
 		return env.IsFinished();
@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
 	InitSynthesizer();
 
 	char *inFile = NULL;
-	char *outFile = "example09.wav";
+	const char *outFile = "example09.wav";
 	AmpValue vol = 1.0;
 	if (argc > 1)
 	{

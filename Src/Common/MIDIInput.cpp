@@ -2,7 +2,7 @@
 /// @file MIDIInput.cpp Midi keyboard (or other) input handler.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -332,14 +332,14 @@ void *MIDIInput::MidiInputRaw(void *param)
 
 void MIDIInput::MidiInALSA()
 {
-	snd_rawmidi_drain(midiIn); 
+	snd_rawmidi_drain(midiIn);
 
 	unsigned char inb;
 	unsigned char mmsg = 0;
 	unsigned char val[2];
-	int  valCount = 0;
-	int seCnt;
-	int seXrun;
+	int valCount = 0;
+	bsUint32 seCnt;
+	bsUint32 seXrun;
 
 	while (1)
 	{
@@ -430,7 +430,7 @@ int MIDIInput::Stop()
 	if (!midiOn)
 		return 0;
 	pthread_cancel(midiThreadID);
-	pthread_join(midiThreadID, NULL); 
+	pthread_join(midiThreadID, NULL);
 	snd_rawmidi_drain(midiIn);
 	snd_rawmidi_close(midiIn);
 	midiIn = 0;

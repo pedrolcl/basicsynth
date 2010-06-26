@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 	CoInitialize(0);
 #endif
 
-	char *fname = "data.xml";
+	const char *fname = "data.xml";
 	if (argc > 1)
 		fname = argv[1];
 

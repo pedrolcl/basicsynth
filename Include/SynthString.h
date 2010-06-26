@@ -36,7 +36,7 @@ public:
 		curLen = 0;
 	}
 
-	bsString(char *s)
+	bsString(const char *s)
 	{
 		theStr = NULL;
 		maxLen = 0;

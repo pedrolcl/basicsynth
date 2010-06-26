@@ -150,10 +150,9 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 	GetDlgItemText(IDC_DEF_COPYRIGHT, prjOptions.defCopyright, MAX_PATH);
 
 	char buf[40];
+	buf[0] = '\0';
 	GetDlgItemText(IDC_LATENCY, buf, 40);
 	prjOptions.playBuf = atof(buf);
-	if (prjOptions.playBuf < 0.02)
-		prjOptions.playBuf = 0.02;
 
 	prjOptions.midiDevice = SendDlgItemMessage(IDC_MIDI_IN, CB_GETCURSEL);
 	if (prjOptions.midiDevice == CB_ERR)

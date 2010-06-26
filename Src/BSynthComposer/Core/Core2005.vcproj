@@ -303,6 +303,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\BuzzSynthEd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ChufferEd.cpp"
 				>
 			</File>
@@ -491,6 +495,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BuzzSynthEd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ChufferEd.h"
 				>
 			</File>
@@ -614,6 +622,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Forms\BuzzSynthEd.xml"
+				>
+			</File>
+			<File
 				RelativePath="..\Forms\ChufferEd.xml"
 				>
 			</File>
@@ -626,7 +638,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Forms\GMPlayerEd.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\Forms\KeyboardEd.xml"
+				>
+			</File>
+			<File
 				RelativePath="..\Forms\MatrixSynthEd.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\Forms\MIDIControlEd.xml"
 				>
 			</File>
 			<File

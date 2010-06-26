@@ -799,7 +799,8 @@ int SynthProject::Generate()
 // This runs as a background thread. (See Start/Stop below)
 int SynthProject::Play()
 {
-	if (SetupSoundDevice(prjOptions.playBuf))
+	// select minimum latency
+	if (SetupSoundDevice(0.0f))
 		return 0;
 	mix.Reset();
 	mgr.Init(&mix, wop);

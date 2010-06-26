@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_13AAF7540ADDB0E58CE93EB3DA1971BE"
+        "OwnerKey" = "8:_5F68FCE69DE64D299BD3C12F0150A6AE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_20211666AA4C4383B41E8C064AC2118D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -29,12 +35,6 @@
         {
         "MsmKey" = "8:_26B2C25B55634A6CB4438E94BDB71915"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2F4E79EE4794E1E93EDDC400186A6146"
-        "OwnerKey" = "8:_5F68FCE69DE64D299BD3C12F0150A6AE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -69,56 +69,44 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_635ADA24996B4475BB00164E76423D58"
-        "OwnerKey" = "8:_20211666AA4C4383B41E8C064AC2118D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_635ADA24996B4475BB00164E76423D58"
-        "OwnerKey" = "8:_CB81CC6AAA2A45C98BAB09E314CF6374"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_635ADA24996B4475BB00164E76423D58"
-        "OwnerKey" = "8:_78FDCD45BC2E49C0849A84D764DDA15D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_635ADA24996B4475BB00164E76423D58"
-        "OwnerKey" = "8:_5F68FCE69DE64D299BD3C12F0150A6AE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_635ADA24996B4475BB00164E76423D58"
-        "OwnerKey" = "8:_4A209455386A4AB5AC67493818EC4932"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7741DDB30AF72FE5E9AEAA2A59FC6DDE"
-        "OwnerKey" = "8:_5F68FCE69DE64D299BD3C12F0150A6AE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7741DDB30AF72FE5E9AEAA2A59FC6DDE"
-        "OwnerKey" = "8:_CF7805DFB3F24862B6812DC79AC5BDED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_78FDCD45BC2E49C0849A84D764DDA15D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A8BBBBCAEA6942B28E0C502018F8FAA1"
-        "OwnerKey" = "8:_635ADA24996B4475BB00164E76423D58"
+        "MsmKey" = "8:_8B137CF568DE49789177B37D43B4720D"
+        "OwnerKey" = "8:_8C7088E1A00B48A5AA814AC77D9639E6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C7088E1A00B48A5AA814AC77D9639E6"
+        "OwnerKey" = "8:_20211666AA4C4383B41E8C064AC2118D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C7088E1A00B48A5AA814AC77D9639E6"
+        "OwnerKey" = "8:_CB81CC6AAA2A45C98BAB09E314CF6374"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C7088E1A00B48A5AA814AC77D9639E6"
+        "OwnerKey" = "8:_78FDCD45BC2E49C0849A84D764DDA15D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C7088E1A00B48A5AA814AC77D9639E6"
+        "OwnerKey" = "8:_5F68FCE69DE64D299BD3C12F0150A6AE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C7088E1A00B48A5AA814AC77D9639E6"
+        "OwnerKey" = "8:_4A209455386A4AB5AC67493818EC4932"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -141,12 +129,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CF7805DFB3F24862B6812DC79AC5BDED"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D4D9949692FB48CFBF2B8D985A89DB15"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -155,12 +137,6 @@
         {
         "MsmKey" = "8:_D61C71C80E7B704BDDC362E4C1F39E92"
         "OwnerKey" = "8:_20211666AA4C4383B41E8C064AC2118D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D61C71C80E7B704BDDC362E4C1F39E92"
-        "OwnerKey" = "8:_CF7805DFB3F24862B6812DC79AC5BDED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -304,6 +280,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_13AAF7540ADDB0E58CE93EB3DA1971BE"
+            {
+            "SourcePath" = "8:gdiplus.dll"
+            "TargetName" = "8:gdiplus.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_705423A5F49F469AB5DBBC3121FA3577"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_26B2C25B55634A6CB4438E94BDB71915"
             {
             "SourcePath" = "8:..\\WaveformExplorer\\res\\WaveformExplorer.ico"
@@ -322,26 +318,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F4E79EE4794E1E93EDDC400186A6146"
-            {
-            "SourcePath" = "8:gdiplus.dll"
-            "TargetName" = "8:gdiplus.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_705423A5F49F469AB5DBBC3121FA3577"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_46C0449BC5314D04922C3232534D55F0"
@@ -402,26 +378,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7741DDB30AF72FE5E9AEAA2A59FC6DDE"
-            {
-            "SourcePath" = "8:DSOUND.dll"
-            "TargetName" = "8:DSOUND.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_705423A5F49F469AB5DBBC3121FA3577"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ACCBCF97A76543C5843E1776A1F6BE08"
@@ -753,20 +709,6 @@
             "Folder" = "8:_3D48DEF8FDE04A0C8F6806D91989D8F6"
             "WorkingFolder" = "8:"
             "Icon" = "8:_46C0449BC5314D04922C3232534D55F0"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A1FFA470DC464A45A74D1CBAD7D12E70"
-            {
-            "Name" = "8:MIDIPlayer"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_CF7805DFB3F24862B6812DC79AC5BDED"
-            "Folder" = "8:_3D48DEF8FDE04A0C8F6806D91989D8F6"
-            "WorkingFolder" = "8:_705423A5F49F469AB5DBBC3121FA3577"
-            "Icon" = "8:"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_C293939B8E8D41A4896C25F4F14D2CAB"
@@ -1203,11 +1145,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_635ADA24996B4475BB00164E76423D58"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8B137CF568DE49789177B37D43B4720D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1217,11 +1159,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A8BBBBCAEA6942B28E0C502018F8FAA1"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8C7088E1A00B48A5AA814AC77D9639E6"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -1369,34 +1311,6 @@
             "OutputConfiguration" = "8:Release|Win32"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{43CC4C0D-622A-44C4-85B6-5E8E62BF978D}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_CF7805DFB3F24862B6812DC79AC5BDED"
-            {
-            "SourcePath" = "8:..\\..\\..\\Bin\\MIDIPlayer.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_705423A5F49F469AB5DBBC3121FA3577"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:Release|Win32"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{71D18F7E-A873-4AF4-8615-E0654AA1153B}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

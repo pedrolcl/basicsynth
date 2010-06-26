@@ -14,22 +14,92 @@
 #include <WaveFile.h>
 #include <WaveOutDirect.h>
 
-tDirectSoundCreate WaveOutDirect::pDirectSoundCreate;
+#if !USE_SDK_DSOUND
+CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, 0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0};
+IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60};
+#endif
+typedef HRESULT (WINAPI *tDirectSoundCreate)(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+
+class ManageDirectSound
+{
+public:
+	tDirectSoundCreate pDirectSoundCreate;
+	IDirectSound *dirSndObj;
+	GUID *lastDev;
+
+	ManageDirectSound()
+	{
+		dirSndObj = NULL;
+		lastDev = NULL;
+		HMODULE h = LoadLibrary("dsound.dll");
+		if (h)
+			pDirectSoundCreate = (tDirectSoundCreate)GetProcAddress(h, "DirectSoundCreate");
+	}
+	~ManageDirectSound()
+	{
+		if (dirSndObj != NULL)
+		{
+			dirSndObj->Release();
+			dirSndObj = NULL;
+		}
+		if (lastDev)
+			delete lastDev;
+	}
+
+	int Create(HWND w, GUID *dev)
+	{
+		int newDev = 1;
+		if (dirSndObj)
+		{
+			if (lastDev && dev)
+			{
+				if (memcmp(lastDev, dev, sizeof(GUID)) == 0)
+					newDev = 0;
+			}
+			else if (!lastDev && !dev)
+				newDev = 0;
+			if (newDev)
+			{
+				dirSndObj->Release();
+				dirSndObj = NULL;
+			}
+		}
+		if (dirSndObj == NULL)
+		{
+			if (dev)
+			{
+				if (!lastDev)
+					lastDev = new GUID;
+				memcpy(lastDev, dev, sizeof(GUID));
+			}
+			else
+			{
+				if (lastDev)
+					delete lastDev;
+				lastDev = 0;
+			}
+
+			HRESULT hr;
+			hr = pDirectSoundCreate(dev, &dirSndObj, NULL);
+			if (hr != S_OK)
+				return -1;
+			hr = dirSndObj->SetCooperativeLevel(w, DSSCL_PRIORITY);
+			if (hr != S_OK)
+			{
+				dirSndObj->Release();
+				dirSndObj = NULL;
+				return -1;
+			}
+		}
+		return 0;
+	}
+};
+
+static ManageDirectSound dsObj;
 
 WaveOutDirect::WaveOutDirect()
 {
-	if (pDirectSoundCreate == NULL)
-	{
-		HMODULE h = LoadLibrary("dsound.dll");
-		if (h)
-		{
-			pDirectSoundCreate = (tDirectSoundCreate)GetProcAddress(h, "DirectSoundCreate");
-		}
-	}
-	dirSndObj = 0;
 	dirSndBuf = 0;
-	lastDev = 0;
-
 	nextWrite = 0;
 	latency = 0.02;
 	numBlk = 4;
@@ -45,12 +115,95 @@ WaveOutDirect::WaveOutDirect()
 
 WaveOutDirect::~WaveOutDirect()
 {
+	Shutdown();
+}
+
+void WaveOutDirect::ClearBuffer()
+{
 	if (dirSndBuf)
-		dirSndBuf->Release();
-	if (dirSndObj)
-		dirSndObj->Release();
-	if (lastDev)
-		delete lastDev;
+	{
+		if (dirSndBuf->Lock(0, bufLen, &startLock, &sizeLock, NULL, NULL, 0) == S_OK)
+		{
+			memset(startLock, 0, sizeLock);
+			dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
+		}
+	}
+}
+
+int WaveOutDirect::CreateSoundBuffer(HWND w, GUID *dev)
+{
+	// Release the old buffer if needed
+	Shutdown();
+
+	if (dsObj.Create(w, dev))
+		return -1;
+
+	WAVEFORMATEX wf;
+	wf.wFormatTag = WAVE_FORMAT_PCM;
+	wf.nChannels = 2;
+    wf.nSamplesPerSec = synthParams.isampleRate;
+	wf.nBlockAlign = wf.nChannels * 2;
+    wf.wBitsPerSample = 16;
+    wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
+	wf.cbSize = 0;
+
+	sampleMax = (bsInt32) ((synthParams.sampleRate * latency) * (FrqValue)wf.nChannels);
+	if (sampleMax & 1)
+		sampleMax++;
+	blkLen = sampleMax * 2; // two bytes per sample
+	bufLen = blkLen * numBlk;
+	lastBlk = bufLen - blkLen;
+
+	DSBUFFERDESC dsbd;
+	dsbd.dwSize = sizeof(dsbd);
+	dsbd.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS; 
+	dsbd.dwBufferBytes = bufLen;
+	dsbd.dwReserved = 0; 
+	dsbd.lpwfxFormat = &wf;
+	
+	if (dsObj.dirSndObj->CreateSoundBuffer(&dsbd, &dirSndBuf, NULL) != S_OK)
+		return -1;
+
+	ClearBuffer();
+
+	nextWrite = 0;
+	// when we must wait, we wait 1/4 of a block length
+	// ms = latency * 0.25 * 1000
+	pauseTime = (DWORD) (latency * 250.0f);
+
+	dsObj.dirSndObj->AddRef();
+
+	return 0;
+}
+
+int WaveOutDirect::Setup(HWND w, float leadtm, int nb, GUID *dev)
+{
+	if (leadtm == 0.0)
+	{
+		latency = 0.02f;
+		numBlk = 3;
+	}
+	else
+	{
+		latency = leadtm;
+		if ((numBlk = nb) < 3)
+			numBlk = 3;
+	}
+
+	if (CreateSoundBuffer(w, dev))
+		return -1;
+
+	// Lock the first block
+	if (dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0) != S_OK)
+		return -1;
+	outState = 1;
+	channels = 2;
+	samples = (SampleValue *) startLock;
+	nxtSamp = samples;
+	endSamp = nxtSamp + sampleMax;
+	ownBuf = 0;
+
+	return 0;
 }
 
 void WaveOutDirect::Stop()
@@ -78,134 +231,6 @@ void WaveOutDirect::Restart()
 	}
 }
 
-void WaveOutDirect::ClearBuffer()
-{
-	if (dirSndBuf)
-	{
-		if (dirSndBuf->Lock(0, bufLen, &startLock, &sizeLock, NULL, NULL, 0) == S_OK)
-		{
-			memset(startLock, 0, sizeLock);
-			dirSndBuf->Unlock(startLock, sizeLock, 0, 0);
-		}
-	}
-}
-
-int WaveOutDirect::CreateSoundBuffer(HWND w, GUID *dev)
-{
-	if (pDirectSoundCreate == NULL)
-		return -1;
-
-	int newDev = 1;
-	if (dirSndObj)
-	{
-		if (lastDev && dev)
-		{
-			if (memcmp(lastDev, dev, sizeof(GUID)) == 0)
-				newDev = 0;
-		}
-		else if (!lastDev && !dev)
-			newDev = 0;
-		if (newDev)
-		{
-			Shutdown();
-		}
-	}
-	if (dirSndObj == NULL)
-	{
-		if (dev)
-		{
-			if (!lastDev)
-				lastDev = new GUID;
-			memcpy(lastDev, dev, sizeof(GUID));
-		}
-		else
-		{
-			if (lastDev)
-				delete lastDev;
-			lastDev = 0;
-		}
-
-		HRESULT hr;
-		//hr = DirectSoundCreate(dev, &dirSndObj, NULL);
-		hr = pDirectSoundCreate(dev, &dirSndObj, NULL);
-		if (hr == S_OK)
-		{
-			hr = dirSndObj->SetCooperativeLevel(w, DSSCL_PRIORITY);
-			if (hr != S_OK)
-			{
-				dirSndObj->Release();
-				dirSndObj = NULL;
-				return -1;
-			}
-		}
-	}
-
-	if (dirSndBuf)
-	{
-		dirSndBuf->Stop();
-		// in case the format has changed, we release the old buffer.
-		dirSndBuf->Release();
-		dirSndBuf = 0;
-	}
-
-	WAVEFORMATEX wf;
-	wf.wFormatTag = WAVE_FORMAT_PCM;
-	wf.nChannels = 2;
-    wf.nSamplesPerSec = synthParams.isampleRate;
-	wf.nBlockAlign = wf.nChannels * 2;
-    wf.wBitsPerSample = 16;
-    wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
-	wf.cbSize = 0;
-
-	sampleMax = (bsInt32) ((synthParams.sampleRate * latency) * (FrqValue)wf.nChannels);
-	if (sampleMax & 1)
-		sampleMax++;
-	blkLen = sampleMax * 2; // two bytes per sample
-	bufLen = blkLen * numBlk;
-	lastBlk = bufLen - blkLen;
-
-	DSBUFFERDESC dsbd;
-	dsbd.dwSize = sizeof(dsbd);
-	dsbd.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS; 
-	dsbd.dwBufferBytes = bufLen;
-	dsbd.dwReserved = 0; 
-	dsbd.lpwfxFormat = &wf;
-	
-	if (dirSndObj->CreateSoundBuffer(&dsbd, &dirSndBuf, NULL) != S_OK)
-		return -1;
-
-	ClearBuffer();
-
-	nextWrite = 0;
-	// when we must wait, we wait 1/4 of a block length
-	// ms = latency * 0.25 * 1000
-	pauseTime = (DWORD) (latency * 250.0f);
-
-	return 0;
-}
-
-int WaveOutDirect::Setup(HWND w, float leadtm, int nb, GUID *dev)
-{
-	if ((numBlk = nb) < 3)
-		numBlk = 3;
-	if ((latency = leadtm) < 0.02f)
-		latency = 0.02f;
-	if (CreateSoundBuffer(w, dev))
-		return -1;
-
-	// Lock the first block
-	if (dirSndBuf->Lock(0, blkLen, &startLock, &sizeLock, NULL, NULL, 0) != S_OK)
-		return -1;
-	outState = 1;
-	channels = 2;
-	samples = (SampleValue *) startLock;
-	nxtSamp = samples;
-	endSamp = nxtSamp + sampleMax;
-	ownBuf = 0;
-
-	return 0;
-}
-
 void WaveOutDirect::Shutdown()
 {
 	if (dirSndBuf)
@@ -213,11 +238,7 @@ void WaveOutDirect::Shutdown()
 		Stop();
 		dirSndBuf->Release();
 		dirSndBuf = 0;
-	}
-	if (dirSndObj)
-	{
-		dirSndObj->Release();
-		dirSndObj = 0;
+		dsObj.dirSndObj->Release();
 	}
 	outState = 0;
 }
@@ -301,20 +322,22 @@ int WaveOutDirect::FlushOutput()
 
 WaveOutDirectI::WaveOutDirectI()
 {
-	latency = 0.020;
-	numBlk = 2;
+	latency = 0.015f;
+	numBlk = 3;
 }
 
 int WaveOutDirectI::Setup(HWND w, float leadtm, int nb, GUID *dev)
 {
-	float total = leadtm * (float)nb;
-	if (total < 0.08f)
-		latency = 0.01f;
+	if (leadtm == 0.0f)
+	{
+		latency = 0.010f;
+		numBlk = 3;
+	}
 	else
-		latency = 0.02f;
-	numBlk = (int) (total / latency);
-	if (numBlk < 4)
-		numBlk = 4;
+	{
+		latency = leadtm;
+		numBlk = nb;
+	}
 	if (CreateSoundBuffer(w, dev))
 		return -1;
 	AllocBuf(sampleMax, 2);

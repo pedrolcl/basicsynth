@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="FLTK" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="bsynthcomposerd" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gccDebug\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D_WIN32" />
+					<Add option="-DDEBUG" />
+					<Add option="-DWINDOWS" />
+					<Add option="-DGCC" />
+					<Add option="-DUSE_TINYXML" />
+					<Add directory="$(#BSHOME)\Include" />
+					<Add directory="$(#BSHOME)\Src\Instruments" />
+					<Add directory="$(#BSHOME)\Src\Notelist" />
+					<Add directory="$(#fltk)" />
+				</Compiler>
+				<Linker>
+					<Add library="..\Lib\CoreD.a" />
+					<Add library="$(#BSHOME)\Lib\InstrumentsD.a" />
+					<Add library="$(#BSHOME)\Lib\NotelistD.a" />
+					<Add library="$(#BSHOME)\Lib\CommonD.a" />
+					<Add library="$(#FLTK)\lib\libfltk.a" />
+					<Add library="$(#FLTK)\lib\libfltk_images.a" />
+					<Add library="$(#FLTK)\lib\libfltk_jpeg.a" />
+					<Add library="winmm" />
+					<Add library="wsock32" />
+					<Add library="comctl32" />
+					<Add library="uuid" />
+					<Add library="ole32" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="$(#BSHOME)\Bin\bsynthcomposer" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gccRelease\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-D_WIN32" />
+					<Add option="-DDEBUG" />
+					<Add option="-DWINDOWS" />
+					<Add option="-DGCC" />
+					<Add option="-DUSE_TINYXML" />
+					<Add directory="$(#BSHOME)\Include" />
+					<Add directory="$(#BSHOME)\Src\Instruments" />
+					<Add directory="$(#BSHOME)\Src\Notelist" />
+					<Add directory="$(#fltk)" />
+				</Compiler>
+				<Linker>
+					<Add library="..\Lib\Core.a" />
+					<Add library="$(#BSHOME)\Lib\Instruments.a" />
+					<Add library="$(#BSHOME)\Lib\Notelist.a" />
+					<Add library="$(#BSHOME)\Lib\Common.a" />
+					<Add library="$(#FLTK)\lib\libfltk.a" />
+					<Add library="$(#FLTK)\lib\libfltk_images.a" />
+					<Add library="$(#FLTK)\lib\libfltk_jpeg.a" />
+					<Add library="winmm" />
+					<Add library="wsock32" />
+					<Add library="comctl32" />
+					<Add library="uuid" />
+					<Add library="ole32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="`fltk-config --cxxflags`" />
+			<Add directory="..\Core" />
+		</Compiler>
+		<Unit filename="FormEditorFltk.cpp" />
+		<Unit filename="FormEditorFltk.h" />
+		<Unit filename="KbdGenDlg.h" />
+		<Unit filename="KbdGenDlg2.cpp" />
+		<Unit filename="KbdGenDlg2.h" />
+		<Unit filename="MainFrm.cpp" />
+		<Unit filename="MainFrm.h" />
+		<Unit filename="MainMenu.cpp" />
+		<Unit filename="MainMenu.h" />
+		<Unit filename="OptionsDlg.cpp" />
+		<Unit filename="OptionsDlg.h" />
+		<Unit filename="ProjectTreeFltk.cpp" />
+		<Unit filename="ProjectTreeFltk.h" />
+		<Unit filename="ProjectTreeFlu.h" />
+		<Unit filename="PropertiesDlgFltk.cpp" />
+		<Unit filename="PropertiesDlgFltk.h" />
+		<Unit filename="SoundBankSelectFltk.cpp" />
+		<Unit filename="SoundBankSelectFltk.h" />
+		<Unit filename="SynthProjectFltk.cpp" />
+		<Unit filename="SynthWidgetFltk.cpp" />
+		<Unit filename="TabsView.cpp" />
+		<Unit filename="TabsView.h" />
+		<Unit filename="TextEditorFltk.cpp" />
+		<Unit filename="TextEditorFltk.h" />
+		<Unit filename="WvtableSelectDlg.cpp" />
+		<Unit filename="WvtableSelectDlg.h" />
+		<Unit filename="globinc.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

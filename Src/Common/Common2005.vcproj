@@ -6,7 +6,6 @@
 	ProjectGUID="{BB4A5654-F24B-476F-A7B3-0A5D129E9076}"
 	RootNamespace="Common"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -342,7 +341,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SynthMutex.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SynthString.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SynthThread.cpp"
 				>
 			</File>
 			<File
@@ -437,6 +444,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Include\GenWave64.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\GenWaveDSF.h"
 				>
 			</File>
 			<File

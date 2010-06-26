@@ -2,14 +2,14 @@
 /// @file GMSynthDLL.cpp General MIDI Synthesizer
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 
 #ifdef UNIX
-typedef struct _GUID 
+typedef struct _GUID
 {
     unsigned long  Data1;
     unsigned short Data2;
@@ -21,7 +21,7 @@ typedef struct _GUID
 #endif
 #endif
 
-static const GUID GMSYNTH_MAGIC  = 
+static const GUID GMSYNTH_MAGIC  =
 { 0x2d257162, 0x432b, 0x438d, { 0xbd, 0x5e, 0x86, 0x9a, 0xbb, 0x7, 0x3a, 0x3c } };
 
 /// Structure to hold global information.
@@ -79,7 +79,7 @@ public:
 		wavWnd = (HWND)w;
 #endif
 #ifdef UNIX
-		SetWaveDevice("hw:0");
+		SetWaveDevice((void*)"hw:0");
 #endif
 	}
 
@@ -120,7 +120,7 @@ static GMSynthDLL *theSynth;
 static int openCount = 0;
 
 /////////////////////////////////////////////////////////////////////
-// C++ Wrapper 
+// C++ Wrapper
 ////////////////////////////////////////////////////////////////////
 
 GMSynth::GMSynth(Opaque w)
@@ -338,7 +338,7 @@ int EXPORT GMSynthResume()
 {
 	if (CheckHandle())
 		return GMSYNTH_ERR_BADHANDLE;
-	
+
 	return theSynth->Resume();
 }
 
@@ -405,7 +405,7 @@ int EXPORT GMSynthGetPreset(short bank, short preset, char *txt, size_t len)
 // Start/stop track
 
 // end extern "C"
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////
 // Component implementation
@@ -434,7 +434,7 @@ void GMSynthDLL::OnEvent(bsInt16 evtid, const SeqEvent *evt)
 		NoteEvent *nevt;
 //		ControlEvent *cevt;
 		TrackEvent *tevt;
-		bsInt16 uevt;
+		bsInt16 uevt = 0;
 		bsInt32 val = 0;
 		switch (evtid)
 		{
@@ -478,6 +478,8 @@ void GMSynthDLL::OnEvent(bsInt16 evtid, const SeqEvent *evt)
 		case SEQEVT_PARAM:
 		case SEQEVT_RESTART:
 			return;
+        default:
+            return;
 		}
 		usrCB(uevt, val, usrArg);
 	}
@@ -602,7 +604,7 @@ int GMSynthDLL::Pause()
 		// or the sequencer can get stuck attempting to write
 		// to the DirectSound/ALSA buffer!
 		while (seq.GetState() != seqPaused)
-			Sleep(0);
+			ShortWait();
 		wvd.Stop();
 	}
 	return GMSYNTH_NOERROR;
@@ -702,7 +704,7 @@ int GMSynthDLL::GetMetaText(int id, char *txt, size_t len)
 	case GMSYNTH_META_SBKVER:
 		if (sbnk)
 			snprintf(txt, len, "%d.%d.%d.%d",
-				sbnk->info.wMajorFile, sbnk->info.wMinorFile, 
+				sbnk->info.wMajorFile, sbnk->info.wMinorFile,
 				sbnk->info.wMajorVer, sbnk->info.wMinorVer);
 		break;
 	default:
@@ -827,10 +829,10 @@ void GMSynthDLL::SetCallback(GMSYNTHCB cb, bsInt32 cbRate, void *arg)
 ////////////////////////////////////////////////////////////////
 
 #ifdef _WIN32
-void GMSynthDLL::SetWaveDevice(void *w) 
-{ 
+void GMSynthDLL::SetWaveDevice(void *w)
+{
 	if (w)
-		memcpy(&wavDevice, w, sizeof(GUID)); 
+		memcpy(&wavDevice, w, sizeof(GUID));
 	else
 		memset(&wavDevice, 0, sizeof(GUID));
 }
@@ -845,7 +847,7 @@ void GMSynthDLL::OpenWaveDevice()
 
 #ifdef UNIX
 
-void GMSynthDLL::SetWaveDevice(void *w) 
+void GMSynthDLL::SetWaveDevice(void *w)
 {
 	if (wavDevice)
 		free(wavDevice);
