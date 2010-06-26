@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="8.00"
 	Name="scintilla"
 	ProjectGUID="{C526D4BD-B441-4D41-9F28-DF4AFC48226A}"
 	RootNamespace="scintilla"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -93,6 +92,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -169,6 +171,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -251,6 +256,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -330,6 +338,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
