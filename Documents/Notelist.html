@@ -757,6 +757,28 @@ The NOTE keyword can also be used to indicate a note.</p>
 
 <p>See the examples above for information on NOTE statements.</p>
 
+<h3><a name="option">OPTION</a></h3>
+
+<p>Syntax: option <i>optname</i> {ON|OFF};</p>
+
+<p>The OPTION statement sets one of three global options.</p>
+<ol>
+<li>frequency</li>
+<li>voldb</li>
+<li>velocity</li>
+</ol>
+<p>Normally the first parameter of a NOTE statement is interpreted as a pitch. Setting the FREQUECNY option
+ON treats the value as the actual note frequency in Hz.</p>
+
+<p>Normally volume values are normalized linear amplitude values. Setting the VOLDB option
+ON treats the volume value as a decibel value. A value of 100 is mapped to 0dB (a linear
+amplitude value of 1.0) while a value of 0 is mapped to -100dB (i.e. 100dB attenuation). </p>
+
+<p>Normally the note volume is scaled and multiplied by the voice volume value. When the VELOCITY option
+is ON, the note volume is passed to the instrument as the MIDI note-on velocity value and the voice value
+is normalized (0-1) and passed as the volume level. When the VELOCITY option is OFF, the note-on velocity
+is set to 127.</p>
+
 <h3>PLAY</h3>
 
 <p>Syntax: play <i>sequence</i>;</p>

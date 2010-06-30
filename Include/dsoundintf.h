@@ -92,7 +92,7 @@ struct IDirectSound
     virtual HRESULT __stdcall Compact() = 0;
     virtual HRESULT __stdcall GetSpeakerConfig(LPDWORD pdwSpeakerConfig) = 0;
     virtual HRESULT __stdcall SetSpeakerConfig(DWORD dwSpeakerConfig) = 0;
-    virtual HRESULT __stdcall Initialize(LPCGUID pcGuidDevice) = 0;
+    virtual HRESULT __stdcall Initialize(const GUID *pcGuidDevice) = 0;
 };
 
 struct IDirectSoundBuffer

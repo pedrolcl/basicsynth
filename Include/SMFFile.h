@@ -277,7 +277,9 @@ protected:
 	/// Process channel messages.
 	void ChnlMessage(bsUint16 msg);
 	
-	/// Read a string and store as a bsString.
+	/// Read a string and append to str
+	/// @param str output string
+	/// @len length to read
 	void ReadString(bsString& str, bsUint32 len)
 	{
 		while (len-- > 0)
@@ -446,7 +448,7 @@ public:
 	/// @param seq Sequencer object
 	/// @param map instrument map 
 	/// @param sb SoundBank (optional)
-	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0, bsInt16 mask = 0xff);
+	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0, bsUint16 mask = 0xffff);
 
 	/// Determine how many notes are on each channel.
 	/// This is only valid after calling GenerateSeq.

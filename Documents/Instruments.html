@@ -1444,13 +1444,21 @@ When <i>a</i> is greater than 1, the amplitude increases as the partial increase
 The parameter <i>Theta</i> represents the fundamental frequency and the ratio of <i>Theta</i> to <i>Beta</i> sets the frequency difference between adjacent partials. 
 For example, when <i>Theta = Beta</i>, all harmonics are included, but, when <i>Beta = 2 Theta</i>, only odd harmonics are included. 
 A wide variety of waveforms can be created by varying the three values of <i>N, a,</i> and <i>Beta</i>.</p>
-<p>The modulation envelope can be applied to the oscillator harmonic amplitude, and/or filter cutoff frequency. Each modulation destination has an enable flag and a
+<p>The modulation envelope can be applied to the oscillator harmonic amplitude (<i>a</i>) and/or filter cutoff frequency. Each modulation destination has an enable flag and a
 scaling value. The output of the envelope is multiplied by the scaling value and then added to the respective input of the oscillator or filter. 
 Bit 0 (0x01) of the <i>mod</i> flags turns on modulation of the filter. Bit 1 (0x02) turns on modulation of the harmonic amplitude (<i>a</i>). Bit 4 (0x10) enables
 the filter. If this bit is not set, the oscillator signal is not passed through the filter. Bit 5 (0x20) causes the filter frequency to be calculated relative to the oscillator frequency. 
 In other words, the filter cutoff is the oscillator frequency plus the modulation frequence, and causes the filter cutoff to track the note pitch. When bit 5 is clear, the filter frequency is absolute. 
 Bit 8 (0x100) of the <i>mod</i> flags is used to enable the generator. When clear, the generator is turned off. Each of these flags can be set directly as synthesis parameters, but in the
-instrument file, the flags are combined into a single attribute (mod).</p>
+instrument file, the flags are combined into a single attribute (mod). The <em>mod</em> attribute is a decimal (base 10) value, calculated as the sum of:</p>
+<ul>
+<li>Filter modulation = 1</li>
+<li>Harm. modulation = 2</li>
+<li>Filter enable = 16</li>
+<li>Filter relative = 32</li>
+<li>Enable = 256</li>
+</ul>
+<p>If the <em>mod</em> value is less than 256, the oscillator will be turned off.</p>
 <p>The <i>BuzzSynth</i> instrument class is defined in <i>Src/Instruments/BuzzSynth.h</i>
 with the implementation in <i>Src/Instruments/BuzzSynth.cpp</i>. </p>
 <p>The XML format for the instrument is shown below.</p>
@@ -1460,8 +1468,8 @@ with the implementation in <i>Src/Instruments/BuzzSynth.cpp</i>. </p>
   &lt;gen gn=&quot;&quot; mod=&quot;&quot; vol=&quot;&quot; &gt;
     &lt;osc frq=&quot;&quot; foffs=&quot;&quot; fr=&quot;&quot; harm=&quot;&quot; amp=&quot;&quot; aoffs=&quot;&quot; /&gt;
     &lt;flt fc=&quot;&quot; foffs=&quot;&quot; q=&quot;&quot; /&gt;
-   &lt;egs rt0=&quot;&quot; lv0=&quot;&quot; rt1=&quot;&quot; lv1=&quot;&quot; rt2=&quot;&quot; lv2=&quot;&quot; rt3=&quot;&quot; ty=&quot;&quot; son=&quot;&quot; /&gt;
-   &lt;egm rt0=&quot;&quot; lv0=&quot;&quot; rt1=&quot;&quot; lv1=&quot;&quot; rt2=&quot;&quot; lv2=&quot;&quot; rt3=&quot;&quot; ty=&quot;&quot; son=&quot;&quot; /&gt;
+    &lt;egv rt0=&quot;&quot; lv0=&quot;&quot; rt1=&quot;&quot; lv1=&quot;&quot; rt2=&quot;&quot; lv2=&quot;&quot; rt3=&quot;&quot; ty=&quot;&quot; son=&quot;&quot; /&gt;
+    &lt;egm rt0=&quot;&quot; lv0=&quot;&quot; rt1=&quot;&quot; lv1=&quot;&quot; rt2=&quot;&quot; lv2=&quot;&quot; rt3=&quot;&quot; ty=&quot;&quot; son=&quot;&quot; /&gt;
  &lt;/gen&gt; 
  &lt;lfo frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot; amp=&quot;&quot; /&gt; 
  &lt;pb frq=&quot;&quot; wt=&quot;&quot; rt=&quot;&quot; amp=&quot;&quot; /&gt;
@@ -1483,7 +1491,7 @@ equivalent XML tag and attribute values for the <i>BuzzSynth </i> instrument. Th
   <td><p>gen</p></td>
   <td><p>gn</p></td>
   <td><p>genx</p></td>
-  <td><p>Selects the generator (GN),  (gen1 or gen2).</p></td>
+  <td><p>Selects the generator (GN),  (gen1 or gen2). The xml file uses 0 or 1 for <i>gn.</i></p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+30</p></td>
@@ -1545,16 +1553,16 @@ equivalent XML tag and attribute values for the <i>BuzzSynth </i> instrument. Th
  <tr valign="top">
   <td><p>GN+1</p></td>
   <td><p>&nbsp;</p></td>
-  <td><p>fr</p></td>
-  <td><p>genx.fr</p></td>
-  <td><p>Frequency multiplier.</p></td>
+  <td><p>fscl</p></td>
+  <td><p>&nbsp;</p></td>
+  <td><p>Offset in cents added to oscillator base frequency. E.G., if <em>fscl</em> is 1200 the oscillator will sound 1 octave above the note pitch.</p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+2</p></td>
   <td><p>&nbsp;</p></td>
   <td><p>amp</p></td>
   <td><p>genx.amp</p></td>
-  <td><p>Harmonics amplitude (<i>a</i>).</p></td>
+  <td><p>Harmonics amplitude base.(<i>a</i>).</p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+3</p></td>
@@ -1568,14 +1576,14 @@ equivalent XML tag and attribute values for the <i>BuzzSynth </i> instrument. Th
   <td><p>&nbsp;</p></td>
   <td><p>fc</p></td>
   <td><p>genx.fc</p></td>
-  <td><p>Filter frequency base (semitones relative to oscillator frequency).</p></td>
+  <td><p>Filter frequency base (cents relative to note pitch, or absolute cents above C0).</p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+6</p></td>
   <td><p>&nbsp;</p></td>
   <td><p>fscl</p></td>
   <td><p>genx.fscl</p></td>
-  <td><p>Filter envelope scale.</p></td>
+  <td><p>Filter envelope scale in cents.</p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+7</p></td>
@@ -1587,16 +1595,16 @@ equivalent XML tag and attribute values for the <i>BuzzSynth </i> instrument. Th
  <tr valign="top">
   <td><p>GN+8</p></td>
   <td><p>&nbsp;</p></td>
-  <td><p>harm</p></td>
-  <td><p>genx.harm</p></td>
-  <td><p>Maximum harmonic number (N).</p></td>
+  <td><p>fr</p></td>
+  <td><p>genx.hr</p></td>
+  <td><p>Harmonics ratio (<em>Beta/Theta</em>). A value of 1 produces all harmonics, 2 odd harmonics, etc.</p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+9</p></td>
   <td><p>&nbsp;</p></td>
-  <td><p>hr</p></td>
-  <td><p>genx.hr</p></td>
-  <td><p>Harmonics ratio (Beta/Theta).</p></td>
+  <td><p>harm</p></td>
+  <td><p>genx.harm</p></td>
+  <td><p>Maximum harmonic number (<em>N</em>).</p></td>
  </tr>
  <tr valign="top">
   <td><p>GN+10</p></td>
