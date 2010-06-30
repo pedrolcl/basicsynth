@@ -180,6 +180,9 @@ bsUint32 Sequencer::SequenceMulti(InstrManager& im, bsUint32 startTime, bsUint32
 	if (track == 0)
 		return 0;
 
+	if (tickRes == 0)
+		tickRes = (bsInt32) (synthParams.sampleRate * 0.0005);
+
 	im.SetSequencer(this);
 
 	SeqEvent *imm = 0;
@@ -277,6 +280,9 @@ bsUint32 Sequencer::Sequence(InstrManager& im, bsUint32 startTime, bsUint32 endT
 	if (track == 0)
 		return 0;
 
+	if (tickRes == 0)
+		tickRes = (bsInt32) (synthParams.sampleRate * 0.0005);
+
 	im.SetSequencer(this);
 
 	SeqEvent *evt = 0;
@@ -338,6 +344,9 @@ bsUint32 Sequencer::Play(InstrManager& im)
 {
 	if (state != seqOff)
 		return 0;
+
+	if (tickRes == 0)
+		tickRes = (bsInt32) (synthParams.sampleRate * 0.0005);
 
 	instMgr = &im;
 	im.SetSequencer(this);

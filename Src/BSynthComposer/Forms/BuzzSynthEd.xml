@@ -6,7 +6,7 @@
     <wdg id="0" ip="291" ty="lamp" x="5" y="5" w="120" h="20" th="16" lbl="Oscil. I" fg="hdr" bold="1" italic="1" shadow="1" hi="glmphi" lo="glmplo" />
     <wdg id="101" ty="group" x="5" y="30" w="120" h="510" bord="1" fr="grpft" bg="grpbk">
       <wdg id="1" ty="label" x="5" y="5" w="50" h="15" lbl="Freq+" bold="0" fg="label" />
-      <wdg id="2" ip="257" ty="baseknob" x="5" y="25" h="50" w="50" lo="-48" hi="48" val="0" hiclr="freqhi" loclr="freqlo" />
+      <wdg id="2" ip="257" ty="baseknob" x="5" y="25" h="50" w="50" lo="-48" hi="48" scl="100" prec="2" val="0" hiclr="freqhi" loclr="freqlo" />
       <wdg id="3" ty="label" x="5" y="80" w="50" h="15" th="12" filled="1" edit="1" val="1" fg="freq" bg="black"/>
 
       <wdg id="4" ty="label" x="60" y="5" w="50" h="15" lbl="Vol." bold="0" fg="label" />
@@ -30,11 +30,11 @@
       <wdg id="15" ty="label" x="60" y="280" w="50" h="15" th="12" filled="1" edit="1" val="0" fg="mod" bg="black"/>
 
       <wdg id="10" ty="label" x="5" y="305" w="50" h="15" lbl="Fc" bold="0" fg="label" />
-      <wdg id="11" ip="261" ty="baseknob" x="5" y="325" h="50" w="50" lo="0" hi="96" val="1" hiclr="freqhi" loclr="freqlo" />
+      <wdg id="11" ip="261" ty="baseknob" x="5" y="325" h="50" w="50" lo="0" hi="96" scl="100" prec="2" val="1" hiclr="freqhi" loclr="freqlo" />
       <wdg id="12" ty="label" x="5" y="380" w="50" h="15" th="12" filled="1" edit="1" val="1200" fg="freq" bg="black"/>
 
       <wdg id="16" ty="label" x="60" y="305" w="50" h="15" lbl="Fc+" bold="0" fg="label" />
-      <wdg id="17" ip="262" ty="baseknob" x="60" y="325" h="50" w="50" lo="-48" hi="48" val="1" hiclr="freqhi" loclr="freqlo" />
+      <wdg id="17" ip="262" ty="baseknob" x="60" y="325" h="50" w="50" lo="-48" hi="48" scl="100" prec="2" val="0" hiclr="freqhi" loclr="freqlo" />
       <wdg id="18" ty="label" x="60" y="380" w="50" h="15" th="12" filled="1" edit="1" val="0" fg="freq" bg="black"/>
 
       <wdg id="19" ty="label" x="60" y="405" w="50" h="15" lbl="Q" bold="0" fg="label" />
@@ -154,7 +154,7 @@
     <wdg id="0" ip="547" ty="lamp" x="5" y="5" w="120" h="20" th="16" lbl="Oscil. II" fg="hdr" bold="1" italic="1" shadow="1" hi="glmphi" lo="glmplo" />
     <wdg id="501" ty="group" x="5" y="30" w="120" h="510" bord="1" fr="grpft" bg="grpbk">
       <wdg id="1" ty="label" x="5" y="5" w="50" h="15" lbl="Freq+" bold="0" fg="label" />
-      <wdg id="2" ip="513" ty="baseknob" x="5" y="25" h="50" w="50" lo="-120" hi="120" val="1" hiclr="freqhi" loclr="freqlo" />
+      <wdg id="2" ip="513" ty="baseknob" x="5" y="25" h="50" w="50" lo="-120" hi="120" scl="100" prec="2" val="1" hiclr="freqhi" loclr="freqlo" />
       <wdg id="3" ty="label" x="5" y="80" w="50" h="15" th="12" filled="1" edit="1" val="1" fg="freq" bg="black"/>
 
       <wdg id="4" ty="label" x="60" y="5" w="50" h="15" lbl="Vol." bold="0" fg="label" />
@@ -178,11 +178,11 @@
       <wdg id="15" ty="label" x="60" y="280" w="50" h="15" th="12" filled="1" edit="1" val="0" fg="mod" bg="black"/>
 
       <wdg id="10" ty="label" x="5" y="305" w="50" h="15" lbl="Fc" bold="0" fg="label" />
-      <wdg id="11" ip="517" ty="baseknob" x="5" y="325" h="50" w="50" lo="-120" hi="120" val="0" hiclr="freqhi" loclr="freqlo" />
+      <wdg id="11" ip="517" ty="baseknob" x="5" y="325" h="50" w="50" lo="0" hi="96" scl="100" prec="2" val="0" hiclr="freqhi" loclr="freqlo" />
       <wdg id="12" ty="label" x="5" y="380" w="50" h="15" th="12" filled="1" edit="1" val="" fg="freq" bg="black"/>
 
       <wdg id="16" ty="label" x="60" y="305" w="50" h="15" lbl="Fc+" bold="0" fg="label" />
-      <wdg id="17" ip="518" ty="baseknob" x="60" y="325" h="50" w="50" lo="-120" hi="120" val="1" hiclr="freqhi" loclr="freqlo" />
+      <wdg id="17" ip="518" ty="baseknob" x="60" y="325" h="50" w="50" lo="-48" hi="48" scl="100" prec="2" val="1" hiclr="freqhi" loclr="freqlo" />
       <wdg id="18" ty="label" x="60" y="380" w="50" h="15" th="12" filled="1" edit="1" val="0" fg="freq" bg="black"/>
 
       <wdg id="19" ty="label" x="60" y="405" w="50" h="15" lbl="Q" bold="0" fg="label" />

@@ -235,6 +235,8 @@ int ToneBase::SetParams(VarParamEvent *params)
 	frq = params->frq;
 	chnl = params->chnl;
 	vol  = params->vol;
+	if (params->noteonvel > 0)
+		vol *= ((float)params->noteonvel / 127.0);
 	osc->SetFrequency(frq);
 	lfoGen.SetSigFrq(frq);
 	pbGen.SetFrequency(frq);

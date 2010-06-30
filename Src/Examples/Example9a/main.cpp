@@ -32,9 +32,11 @@ extern const char *midiSysName[16];
 
 void useage()
 {
+	fprintf(stderr, "MIDI File Player\n");
 	fprintf(stderr, "use: example9a [-gn] [-vn] [-s] [-d] soundbank midifile wavefile\n");
-	fprintf(stderr, "    -gn = GM level n=1 or n=2 (default 1), n=0 use bank select as is\n");
 	fprintf(stderr, "    -vn = master volume level, default 1.0\n");
+	fprintf(stderr, "    -nn = maximum voices, default 32\n");
+//	fprintf(stderr, "    -gn = GM level n=1 or n=2 (default 1), n=0 use bank select as is\n");
 	fprintf(stderr, "    -s  = don't print info or time\n");
 	fprintf(stderr, "    -d  = dump MIDI event list to console\n");
 	exit(1);
@@ -59,6 +61,7 @@ int main(int argc, char *argv[])
 	bsString midFile;
 	bsString sbFile;
 	bsString wavFile;
+	int maxNotes = 32;
 	AmpValue vol = 2.0;
 
 	WaveFile wvf;
@@ -85,6 +88,8 @@ int main(int argc, char *argv[])
 			dump = 1;
 		else if (ap[1] == 'g')
 			gmbank = atoi(&ap[2]);
+		else if (ap[1] == 'n')
+			maxNotes = atoi(&ap[2]);
 		else
 			useage();
 		argn++;
@@ -189,6 +194,7 @@ int main(int argc, char *argv[])
 	GMPlayer *instr = new GMPlayer;
 	//instr->SetSoundFile(sb->name);
 	instr->SetSoundBank(sb);
+	instr->SetParam(GMPLAYER_FLAGS, (float)(GMPLAYER_LOCAL_PAN|GMPLAYER_LOCAL_VOL));
 
 	// Add it as template to the available instrument list.
 	InstrConfig *inc = inmgr.AddInstrument(0, ime, instr);
@@ -197,11 +203,11 @@ int main(int argc, char *argv[])
 		map[i].inc = inc;
 		// The bank and patch params can be used to send
 		// the preset number to the instrument in the START event.
-		map[i].bnkParam = 17;
-		map[i].preParam = 18;
+		map[i].bnkParam = GMPLAYER_BANK;
+		map[i].preParam = GMPLAYER_PROG;
 	}
 
-	smf.GenerateSeq(&seq, &map[0], sb);
+	smf.GenerateSeq(&seq, &map[0], sb, 0xffff);
 	nchnls = smf.GetChannelMap(chnls);
 	if (nchnls == 0)
 	{
@@ -224,6 +230,7 @@ int main(int argc, char *argv[])
 	seq.SetCB(GenCallback, synthParams.isampleRate, 0);
 	genTime = 0;
 	time(&clkTime);
+	seq.SetMaxNotes(maxNotes);
 	seq.Sequence(inmgr, 0, 0);
 	wvf.CloseWaveFile();
 

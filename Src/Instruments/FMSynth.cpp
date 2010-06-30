@@ -284,6 +284,8 @@ int FMSynth::SetParams(VarParamEvent *evt)
 {
 	int err = 0;
 	vol = evt->vol;
+	if (evt->noteonvel > 0)
+		vol *= ((float)evt->noteonvel / 127.0);
 	frq = evt->frq;
 	chnl = evt->chnl;
 	bsInt16 *id = evt->idParam;

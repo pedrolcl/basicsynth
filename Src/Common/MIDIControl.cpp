@@ -33,6 +33,7 @@ MIDIChannelStatus::MIDIChannelStatus()
 
 void MIDIChannelStatus::Reset()
 {
+	memset(no, 0, sizeof(no));
 	memset(cc, 0, sizeof(cc));
 	memset(at, 0, sizeof(at));
 	bank = channel == 9 ? 128 : 0;
@@ -68,7 +69,7 @@ void MIDIControl::ProcessEvent(SeqEvent *evt, bsInt16 flags)
 	ProcessMessage(cevt->mmsg, cevt->ctrl, cevt->cval);
 }
 
-void MIDIControl::ProcessMessage(short mm, short ctl, short val)
+void MIDIControl::ProcessMessage(short mm, short v1, short v2)
 {
 	short msg = mm & 0xf0;
 	short chnl = mm & 0x0f;
@@ -87,9 +88,21 @@ void MIDIControl::ProcessMessage(short mm, short ctl, short val)
 		MIDIChannelStatus *st = &channel[chnl];
 		switch (msg)
 		{
+		case MIDI_NOTEON:
+			if (v1 != 0)
+			{
+				st->no[v1]++;
+				NoteOn(chnl, v1, v2);
+				break;
+			}
+			/*FALLTHROUGH*/
+		case MIDI_NOTEOFF:
+			st->no[v1]--;
+			NoteOff(chnl, v1, v2);
+			break;
 		case MIDI_CTLCHG:
-			st->cc[ctl] = val;
-			switch (ctl)
+			st->cc[v1] = v2;
+			switch (v1)
 			{
 			case MIDI_CTRL_BANK:
 			case MIDI_CTRL_BANK_LSB:
@@ -97,21 +110,25 @@ void MIDIControl::ProcessMessage(short mm, short ctl, short val)
 					st->bank = 128;
 				else if (st->cc[MIDI_CTRL_BANK] == 0x79) // GM2 melodic bank
 					st->bank = st->cc[MIDI_CTRL_BANK_LSB];
+				else if (chnl == 9)
+					st->bank = 128;
+				else
+					st->bank = 0;
 				break;
 			case MIDI_CTRL_DATA:
 				switch (st->rpnnum)
 				{
 				case 0:
-					st->pbsemi = val;
+					st->pbsemi = v2;
 					break;
 				case 1:
-					st->finetune = (st->finetune & 0x007f) | (val << 7);
+					st->finetune = (st->finetune & 0x007f) | (v2 << 7);
 					break;
 				case 2:
-					st->coarsetune = 64 - val;
+					st->coarsetune = 64 - v2;
 					break;
 				case 3:
-					st->mwsemi = val;
+					st->mwsemi = v2;
 					break;
 				}
 				break;
@@ -119,38 +136,38 @@ void MIDIControl::ProcessMessage(short mm, short ctl, short val)
 				switch (st->rpnnum)
 				{
 				case 0:
-					st->pbcents = val;
+					st->pbcents = v2;
 					break;
 				case 1:
-					st->finetune = (st->finetune & 0x007f) | (val << 7);
+					st->finetune = (st->finetune & 0x007f) | (v2 << 7);
 					break;
 				case 3:
-					st->mwcents = val;
+					st->mwcents = v2;
 					break;
 				}
 				break;
 			case MIDI_CTRL_RPNLSB:
-				st->rpnnum = (st->rpnnum & 0x3F80) | val;
+				st->rpnnum = (st->rpnnum & 0x3F80) | v2;
 				break;
 			case MIDI_CTRL_RPNMSB:
-				st->rpnnum = (st->rpnnum & 0x007F) | (val << 7);
+				st->rpnnum = (st->rpnnum & 0x007F) | (v2 << 7);
 				break;
 			}
-			ControlChange(chnl, ctl, val);
+			ControlChange(chnl, v1, v2);
 			break;
 		case MIDI_PRGCHG:
-			st->patch = val;
+			st->patch = v2;
 			break;
 		case MIDI_KEYAT:
-			st->at[ctl] = val;
+			st->at[v1] = v2;
 			break;
 		case MIDI_CHNAT:
-			st->aftertouch = val;
-			AftertouchChange(chnl, ctl);
+			st->aftertouch = v1;
+			AftertouchChange(chnl, v1);
 			break;
 		case MIDI_PWCHG:
-			st->pitchbend = (val << 7) | ctl;
-			PitchbendChange(chnl, ctl, val);
+			st->pitchbend = (v2 << 7) | v1;
+			PitchbendChange(chnl, v1, v2);
 			break;
 		}
 	}

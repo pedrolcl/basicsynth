@@ -272,6 +272,10 @@
 			<param name="Local" value="Notelist.html#note">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="OPTION">
+			<param name="Local" value="Notelist.html#option">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="PLAY">
 			<param name="Local" value="Notelist.html#play">
 			</OBJECT>

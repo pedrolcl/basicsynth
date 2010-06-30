@@ -147,19 +147,19 @@
     <connect src="osc" dst="out.in" />
   </instr>
   <instr id="17" type="BuzzSynth" name="Buzzer" desc="Pulse wave instrument">
-    <gen gn="0" mod="17" vol="0.8">
-      <osc frq="440.0" fmult="1" harm="10" hmult="0" />
-      <flt fc="1200" fcmult="2400" q="1" />
-      <egs rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.9" rt3="0.1" ty="1" son="1"/>
-      <egm rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.9" rt3="0.1" ty="1" son="1"/>
+    <gen gn="0" mod="305" vol="0.8">
+      <osc frq="440.0" fr="1" fscl="0" harm="10" amp="0.5" ascl="0" />
+      <flt fc="1200" fscl="4800" q="1" />
+      <egv rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.9" rt3="0.1" ty="1" son="1"/>
+      <egm rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.5" rt3="0.1" ty="1" son="1"/>
     </gen>
-    <gen gn="1" mod="16" vol="0.2">
-      <osc frq="440.0" fmul="2" harm="5" hmul="0" />
-      <flt fc="0" fcmul="0" q="1" />
-      <egs rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.9" rt3="0.1" ty="1" son="1"/>
+    <gen gn="1" mod="288" vol="0.2">
+      <osc frq="440.0" fr="1" fscl="1200" harm="5" amp="0.5" ascl="0"/>
+      <flt fc="0" fscl="0" q="1" />
+      <egv rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.9" rt3="0.1" ty="1" son="1"/>
       <egm rt0="0" lv0="0" rt1="0.01" lv1="1.0" rt2="0.1" lv2="0.9" rt3="0.1" ty="1" son="1"/>
     </gen>
     <lfo frq="3.5" wt="0" atk="0.0" amp="0" />
-    <pb pbamp="0" pbwt="0" />
+    <pb pbamp="0" pbwt="0" pbdur="1" pbdly="0" pbmode="0"/>
   </instr>
 </instrlib>

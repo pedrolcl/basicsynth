@@ -32,18 +32,18 @@
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="$(#BSHOME)/Bin/Example10" prefix_auto="1" extension_auto="1" />
+				<Option output="$(#BSHOME)\Bin\Example10" prefix_auto="1" extension_auto="1" />
 				<Option object_output="gccRelease" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-O2" />
+					<Add option="-W" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DUSE_TINYXML" />
-					<Add option="-W" />
-					<Add option="-O2" />
 					<Add directory="$(#BSHOME)\Include" />
 					<Add directory="$(#BSHOME)\Src\Instruments" />
 				</Compiler>
@@ -55,30 +55,38 @@
 					<Add library="$(#BSHOME)\Lib\Instruments.a" />
 					<Add library="$(#BSHOME)\Lib\Common.a" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="$(CMD_CP) data.xml $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test1.wav $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test2.wav $(TARGET_OUTPUT_DIR)" />
+				</ExtraCommands>
 			</Target>
-      <Target title="Release UNIX">
-        <Option output="$(#BSHOME)/Bin/Example10" prefix_auto="1" extension_auto="1" />
-        <Option working_dir="" />
-        <Option object_output="gccRelease" />
-        <Option type="1" />
-        <Option compiler="gcc" />
-        <Option createDefFile="1" />
-        <Compiler>
-          <Add option="-O3" />
-          <Add option="-W" />
-          <Add option="-DUNIX" />
-          <Add option="-DNDEBUG" />
-          <Add option="-DUSE_TINYXML" />
-          <Add option="-DGCC" />
-          <Add directory="$(#BSHOME)/Include" />
-          <Add directory="$(#BSHOME)/Src/Instruments" />
-        </Compiler>
-        <Linker>
-          <Add library="$(#BSHOME)/Lib/Instruments.a" />
-          <Add library="$(#BSHOME)/Lib/Common.a" />
-        </Linker>
-      </Target>
-    </Build>
+			<Target title="Release UNIX">
+				<Option output="$(#BSHOME)\Bin\Example10" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gccRelease" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-W" />
+					<Add option="-DUNIX" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DUSE_TINYXML" />
+					<Add option="-DGCC" />
+					<Add directory="$(#BSHOME)\Include" />
+					<Add directory="$(#BSHOME)\Src\Instruments" />
+				</Compiler>
+				<Linker>
+					<Add library="$(#BSHOME)\Lib\Instruments.a" />
+					<Add library="$(#BSHOME)\Lib\Common.a" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="$(CMD_CP) data.xml $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test1.wav $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test2.wav $(TARGET_OUTPUT_DIR)" />
+				</ExtraCommands>
+			</Target>
+		</Build>
 		<Unit filename="data.xml" />
 		<Unit filename="main.cpp" />
 		<Unit filename="test1.wav" />

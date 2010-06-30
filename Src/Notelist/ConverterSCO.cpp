@@ -39,10 +39,7 @@ void nlConverterSCO::BeginNotelist()
 		fpOutput = fopen(sconame, "wa");
 
 		if (fpOutput == NULL)
-		{
-			fpOutput = stdout;
 			fprintf(stderr, "Cannot open file: %s\n", sconame);
-		}
 	}
 	nlConverter::BeginNotelist();
 }
@@ -58,54 +55,43 @@ void nlConverterSCO::EndNotelist()
 
 void nlConverterSCO::BeginVoice(nlVoice *vp)
 {
-	fprintf(fpOutput, "; BeginVoice %d\n", vp->voiceNum);
+	if (fpOutput)
+		fprintf(fpOutput, "; BeginVoice %d\n", vp->voiceNum);
 	nlConverter::BeginVoice(vp);
 }
 
 void nlConverterSCO::EndVoice(nlVoice *vp)
 {
-	fprintf(fpOutput, "; EndVoice %d\n", vp->voiceNum);
+	if (fpOutput)
+		fprintf(fpOutput, "; EndVoice %d\n", vp->voiceNum);
 	nlConverter::EndVoice(vp);
 }
 
-#ifdef _OLD_WAY
-void nlConverterSCO::BeginNote(double start, double dur, double vol, double pit, int pcount, double *params)
-{
-	if (curVoice == NULL)
-		return;
-
-	// Notelist has middle C at octave 4, CSound is octave 8
-	// i inum time dur volume pitch p6 ... pn
-	long ipit = (long) pit;
-	fprintf(fpOutput, "i%ld %g %g %g %ld%c%02ld",
-		curVoice->instr, start, dur, vol * curVoice->volMul, 4 + (ipit / 12), '.', (ipit % 12));
-	int pn;
-	double val;
-	for (pn = 0; pn < pcount; pn++)
-	{
-		val = params[pn];
-		fprintf(fpOutput, " %g", val);
-	}
-
-	fputc('\n', fpOutput);
-}
-
-void nlConverterSCO::ContinueNote(double start, double vol, double pit, int pcount, double *params)
-{
-	// how do we do this in CSound?
-}
-#endif
-
 void nlConverterSCO::BeginNote(double start, double dur)
 {
-	if (curVoice == NULL)
+	if (curVoice == NULL || fpOutput == NULL)
 		return;
 
-	// Notelist has middle C at octave 4, CSound is octave 8
-	// i inum time dur volume pitch p6 ... pn
-	long ipit = (long) curVoice->lastPit;
-	fprintf(fpOutput, "i%ld %g %g %g %ld%c%02ld",
-		curVoice->instr, start, dur, curVoice->lastVol * curVoice->volMul, 4 + (ipit / 12), '.', (ipit % 12));
+	double amp = curVoice->lastVol;
+	if (amp > 0)
+	{
+		if (gen.GetVoldbMode())
+			amp = pow(10.0, (amp - 100.0) / 20.0); 
+		else
+			amp *= 0.01;
+	}
+	amp *= curVoice->volMul;
+	fprintf(fpOutput, "i%ld %g %g %g", curVoice->instr, start, dur, amp);
+
+	if (gen.GetFrequencyMode())
+	{
+		fprintf(fpOutput, " %g", curVoice->lastPit * pow(2.0, (double)curVoice->transpose/12.0));
+	}
+	else
+	{
+		long ipit = (long) (curVoice->lastPit + curVoice->transpose);
+		fprintf(fpOutput, " %ld%c%02ld", 4 + (ipit / 12), '.', (ipit % 12));
+	}
 
 	int pn;
 	int pc = curVoice->numParam;
@@ -113,6 +99,21 @@ void nlConverterSCO::BeginNote(double start, double dur)
 		fprintf(fpOutput, " %g", curVoice->lastParam[pn]);
 
 	fputc('\n', fpOutput);
+
+	if (curVoice->doublex != 0)
+	{
+		fprintf(fpOutput, "i%ld %g %g %g", curVoice->instr, start, dur, amp * curVoice->doublev);
+		if (gen.GetFrequencyMode())
+		{
+			fprintf(fpOutput, " %g", curVoice->lastPit * pow(2.0, (double)(curVoice->transpose + curVoice->doublex)/12.0));
+		}
+		else
+		{
+			long ipit = (long) (curVoice->lastPit + curVoice->transpose + curVoice->doublex);
+			fprintf(fpOutput, " %ld%c%02ld", 4 + (ipit / 12), '.', (ipit % 12));
+		}
+		fputc('\n', fpOutput);
+	}
 }
 
 void nlConverterSCO::RestartNote(double start, double dur)

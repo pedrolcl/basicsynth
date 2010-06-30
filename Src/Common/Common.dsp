@@ -191,6 +191,10 @@ SOURCE=.\SynthFileW.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SynthMutex.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SynthString.cpp
 
 !IF  "$(CFG)" == "Common - Win32 Release"
@@ -201,6 +205,10 @@ SOURCE=.\SynthString.cpp
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\SynthThread.cpp
 # End Source File
 # Begin Source File
 
@@ -457,7 +465,15 @@ SOURCE=..\..\Include\SynthList.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Include\SynthMutex.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Include\SynthString.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Include\SynthThread.h
 # End Source File
 # Begin Source File
 

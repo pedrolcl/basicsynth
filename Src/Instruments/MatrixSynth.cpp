@@ -281,6 +281,8 @@ int MatrixSynth::SetParams(VarParamEvent *params)
 	chnl = params->chnl;
 	frq = params->frq;
 	vol = params->vol;
+	if (params->noteonvel > 0)
+		vol *= ((float)params->noteonvel / 127.0);
 	pbGen.SetFrequency(frq);
 	lfoGen.SetSigFrq(frq);
 	pbWT.SetSigFrq(frq);

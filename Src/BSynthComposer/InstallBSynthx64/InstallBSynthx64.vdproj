@@ -21,8 +21,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_05867FE79276473D943B57C91919B293"
-        "OwnerKey" = "8:_708BF3E8D0EA463698EEB9DE528AB88C"
+        "MsmKey" = "8:_050F419DEF2A4B28AD4B01483C895FB2"
+        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -177,6 +177,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4734BD3400B8457D8B90279F61CA2066"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4C417B47CDA943029A0B10B7C33324AE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -243,12 +249,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_708BF3E8D0EA463698EEB9DE528AB88C"
-        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_72640FB5489546348BC2FAECE594AF1D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -275,6 +275,12 @@
         {
         "MsmKey" = "8:_77A59F8C9516415B92A1CF1D6E372BCC"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7CFD978D30B446B6B25704C62C2B6B85"
+        "OwnerKey" = "8:_050F419DEF2A4B28AD4B01483C895FB2"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -466,6 +472,12 @@
         "Entry"
         {
         "MsmKey" = "8:_C777BA9CAA6C4853B8350E17F74ADE08"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CBE646BCDC9647209F92156A9252AD2B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1168,6 +1180,26 @@
             "TargetName" = "8:pulselight.nl"
             "Tag" = "8:"
             "Folder" = "8:_9359A54D84824FEB92C2F3DF17769FE1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4734BD3400B8457D8B90279F61CA2066"
+            {
+            "SourcePath" = "8:..\\..\\..\\ExampleProjects\\Bounce\\Bounce.bsprj"
+            "TargetName" = "8:Bounce.bsprj"
+            "Tag" = "8:"
+            "Folder" = "8:_49102ECF62514FE8946B77742CCCE652"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2122,6 +2154,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CBE646BCDC9647209F92156A9252AD2B"
+            {
+            "SourcePath" = "8:..\\..\\..\\ExampleProjects\\Bounce\\bounce.nl"
+            "TargetName" = "8:bounce.nl"
+            "Tag" = "8:"
+            "Folder" = "8:_49102ECF62514FE8946B77742CCCE652"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CFA7F6BF1D894203985D8B3D5C8387A0"
             {
             "SourcePath" = "8:..\\Forms\\FMAlg4.jpg"
@@ -2538,6 +2590,17 @@
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
                                     "Property" = "8:_2E7BC83E6FAD4AC382055F9B67672B75"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_49102ECF62514FE8946B77742CCCE652"
+                                    {
+                                    "Name" = "8:Bounce"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_2163BA1589FF48E4BD634CD17CDD553D"
                                         "Folders"
                                         {
                                         }
@@ -3359,11 +3422,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_05867FE79276473D943B57C91919B293"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_050F419DEF2A4B28AD4B01483C895FB2"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86_x64.msm"
                 "Properties"
                 {
                 }
@@ -3373,11 +3436,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_708BF3E8D0EA463698EEB9DE528AB88C"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7CFD978D30B446B6B25704C62C2B6B85"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86_x64.msm"
+            "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
                 "Properties"
                 {
                 }

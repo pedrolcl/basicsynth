@@ -192,6 +192,8 @@ int TextEditorWin::IsChanged()
 	return edwnd.IsChanged();
 }
 
+// TODO: use a binary search or a RE pattern match.
+// TODO: return different value for command / parameter
 int TextEditorWin::IsKeyword(char *txt)
 {
 	int kw = 0;
@@ -314,10 +316,13 @@ int TextEditorWin::IsKeyword(char *txt)
 		if (strcmp(txt, "VOICE") == 0
 		 || strcmp(txt, "VOL") == 0
 		 || strcmp(txt, "VOLUME") == 0
+		 || strcmp(txt, "VOLDB") == 0
 		 || strcmp(txt, "VAR") == 0
 		 || strcmp(txt, "VARIABLE") == 0
 		 || strcmp(txt, "VERSION") == 0
-		 || strcmp(txt, "VER") == 0)
+		 || strcmp(txt, "VER") == 0
+		 || strcmp(txt, "VELOCITY") == 0
+		 || strcmp(txt, "VEL") == 0)
 			kw = 1;
 		break;
 	case 'W':

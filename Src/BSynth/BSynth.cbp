@@ -36,12 +36,12 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-O3" />
+					<Add option="-W" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-D_WINDOWS" />
-					<Add option="-W" />
-					<Add option="-O3" />
 					<Add directory="$(#BSHOME)\Include" />
 					<Add directory="$(#BSHOME)\Src\Instruments" />
 					<Add directory="$(#BSHOME)\Src\Notelist" />
@@ -51,6 +51,19 @@
 					<Add library="$(#BSHOME)\Lib\Notelist.a" />
 					<Add library="$(#BSHOME)\Lib\Common.a" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="$(CMD_CP) testnl.xml $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) testnl.nl $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) testinst.xml $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) testprj.xml  $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test.nl  $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test2.nl  $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstaddsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstfmsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstmatsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstsubsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tsttonesynth.* $(TARGET_OUTPUT_DIR)" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Debug UNIX">
 				<Option output="$(#BSHOME)\Bin\BSynth" prefix_auto="1" extension_auto="1" />
@@ -96,6 +109,19 @@
 					<Add library="$(#BSHOME)\Lib\Notelist.a" />
 					<Add library="$(#BSHOME)\Lib\Common.a" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="$(CMD_CP) testnl.xml $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) testnl.nl $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) testinst.xml $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) testprj.xml  $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test.nl  $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) test2.nl  $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstaddsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstfmsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstmatsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tstsubsynth.* $(TARGET_OUTPUT_DIR)" />
+					<Add after="$(CMD_CP) tsttonesynth.* $(TARGET_OUTPUT_DIR)" />
+				</ExtraCommands>
 			</Target>
 		</Build>
 		<Unit filename="BSynth.h" />

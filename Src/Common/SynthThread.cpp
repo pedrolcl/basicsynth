@@ -34,15 +34,10 @@ static DWORD WINAPI Startup(LPVOID param)
 
 int SynthThread::StartThread(int pri)
 {
-	int winpri = THREAD_PRIORITY_NORMAL;
-	if (pri == 1)
-		winpri = THREAD_PRIORITY_ABOVE_NORMAL;
-	else if (pri > 1)
-		winpri = THREAD_PRIORITY_TIME_CRITICAL;
 	info->thrdH = CreateThread(NULL, 0, Startup, this, CREATE_SUSPENDED, &info->thrdID);
 	if (info->thrdH != INVALID_HANDLE_VALUE)
 	{
-		SetThreadPriority(info->thrdH, winpri);
+		SetThreadPriority(info->thrdH, pri);
 		ResumeThread(info->thrdH);
 		Sleep(0);
 		return 0;

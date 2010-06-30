@@ -489,6 +489,8 @@ int nlLex::Next()
 				return T_VOL;
 			if (CompareToken(cTokbuf, "VOLUME") == 0)
 				return T_VOL;
+			if (CompareToken(cTokbuf, "VOLDB") == 0)
+				return T_VOLDB;
 			break;
 		case 'A':
 			if (CompareToken(cTokbuf, "VAR") == 0)
@@ -497,6 +499,10 @@ int nlLex::Next()
 				return T_DECLARE;
 			break;
 		case 'E':
+			if (CompareToken(cTokbuf, "VELOCITY") == 0)
+				return T_VELOCITY;
+			if (CompareToken(cTokbuf, "VEL") == 0)
+				return T_VELOCITY;
 			if (CompareToken(cTokbuf, "VERSION") == 0)
 				return T_VER;
 			if (CompareToken(cTokbuf, "VER") == 0)

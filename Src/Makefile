@@ -18,6 +18,7 @@ common \
 instruments \
 notelist \
 examples \
+gmsynth \
 bsynth
 
 all: chkdirs $(BSMODULES)
@@ -46,6 +47,9 @@ notelist:
 examples:
 	cd Examples; make $(MAKEFLAGS)
 
+gmsynth:
+	cd GMSynth; make $(MAKEFLAGS)
+	
 bsynth:
 	cd BSynth; make $(MAKEFLAGS)
 

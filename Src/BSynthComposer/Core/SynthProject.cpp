@@ -723,9 +723,14 @@ int SynthProject::GenerateToFile()
 
 	// reset in case of dynamic mixer control changes
 	mixInfo->InitMixer();
+	return 0;
+}
+
+int SynthProject::Finished(int ret)
+{
 	if (prjGenerate)
 		prjGenerate->Finished();
-	return 0;
+	return ret;
 }
 
 int SynthProject::Generate()
@@ -789,8 +794,6 @@ int SynthProject::Generate()
 
 	// re-initialize in case of dynamic mixer control changes
 	mixInfo->InitMixer();
-	if (prjGenerate)
-		prjGenerate->Finished();
 
 	return 0;
 }
@@ -801,7 +804,7 @@ int SynthProject::Play()
 {
 	// select minimum latency
 	if (SetupSoundDevice(0.0f))
-		return 0;
+		return -1;
 	mix.Reset();
 	mgr.Init(&mix, wop);
 	seq.SetCB(0, 0, 0);
@@ -810,7 +813,7 @@ int SynthProject::Play()
 	wop->Shutdown();
 	delete wop;
 	wop = 0;
-	return 1;
+	return 0;
 }
 
 int SynthProject::ThreadProc()
@@ -828,13 +831,13 @@ int SynthProject::ThreadProc()
 		ret = Play();
 		break;
 	}
-	return ret;
+	return Finished(ret);
 }
 
 int SynthProject::Start()
 {
 	if (seq.GetState() == seqOff)
-		StartThread(3);
+		return StartThread(15);
 	return seq.GetState() != seqOff;
 }
 

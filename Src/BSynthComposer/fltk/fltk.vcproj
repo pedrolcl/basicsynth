@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.9&quot;"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.10&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib ../../../Lib/SciLexerD.lib ../../../OpenSource/fltk-1.1.9/lib/fltkd.lib ../../../OpenSource/fltk-1.1.9/lib/fltkjpegd.lib ../../../OpenSource/fltk-1.1.9/lib/fltkimagesd.lib  opengl32.lib wsock32.lib comctl32.lib"
+				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib ../../../Lib/SciLexerD.lib ../../../OpenSource/fltk-1.1.10/lib/fltkd.lib ../../../OpenSource/fltk-1.1.10/lib/fltkjpegd.lib ../../../OpenSource/fltk-1.1.10/lib/fltkimagesd.lib opengl32.lib wsock32.lib comctl32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.9&quot;;&quot;../../../OpenSource/flu_2.14&quot;"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.10&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -191,7 +191,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.9&quot;"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.10&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -210,7 +210,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib ../../../Lib/SciLexer.lib ../../../OpenSource/fltk-1.1.9/lib/fltk.lib ../../../OpenSource/fltk-1.1.9/lib/fltkjpeg.lib ../../../OpenSource/fltk-1.1.9/lib/fltkimages.lib  opengl32.lib wsock32.lib dsound.lib comctl32.lib"
+				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib ../../../Lib/SciLexer.lib ../../../OpenSource/fltk-1.1.10/lib/fltk.lib ../../../OpenSource/fltk-1.1.10/lib/fltkjpeg.lib ../../../OpenSource/fltk-1.1.10/lib/fltkimages.lib opengl32.lib wsock32.lib dsound.lib comctl32.lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

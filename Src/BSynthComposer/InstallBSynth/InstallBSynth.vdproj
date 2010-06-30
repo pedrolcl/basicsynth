@@ -135,6 +135,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3523ABD9623947A49F93CE4EBF6AE969"
+        "OwnerKey" = "8:_3A55F12F4A674BE2B5A8F4809B1B8F5B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_35A4A44A159B4AEAA95A35798057D866"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -147,14 +153,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3BD6CCECD1DA4C2E845B82502367697A"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_3A55F12F4A674BE2B5A8F4809B1B8F5B"
+        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3DEAD8DF30F6438EB6E7BBDAD5303ADE"
-        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
+        "MsmKey" = "8:_3BD6CCECD1DA4C2E845B82502367697A"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -173,12 +179,6 @@
         {
         "MsmKey" = "8:_4206D059827C4E7FBED82C07F43E9119"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_43B77C1091F9778CD824B760D5813C8E"
-        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -279,6 +279,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_678C3F55344D4634AB47B0B227F304C0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6A44AE61DBF4416E9B5984A4D77AB389"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -293,12 +299,6 @@
         {
         "MsmKey" = "8:_708E60B47AFF4FD7B89E11C2A2493FF5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_71B5BE956E814D7AB3C0F4BCCB4A24BC"
-        "OwnerKey" = "8:_3DEAD8DF30F6438EB6E7BBDAD5303ADE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -388,6 +388,12 @@
         "Entry"
         {
         "MsmKey" = "8:_96AAFE5A51AF4D4C85FD630B347295F1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_97F95ED7C785445E8A835FA2D82A525C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1150,26 +1156,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43B77C1091F9778CD824B760D5813C8E"
-            {
-            "SourcePath" = "8:DSOUND.dll"
-            "TargetName" = "8:DSOUND.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_87D264B5825044799D95C07C10C07938"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_44483C95C2854863B0DDDBB8265C75C3"
             {
             "SourcePath" = "8:..\\..\\..\\ExampleProjects\\PrettyFlowers\\prettyflowers.nl"
@@ -1476,6 +1462,26 @@
             "TargetName" = "8:ChufferEd.xml"
             "Tag" = "8:"
             "Folder" = "8:_B0143130A22449C58E1AB07DA66D1B85"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_678C3F55344D4634AB47B0B227F304C0"
+            {
+            "SourcePath" = "8:..\\..\\..\\ExampleProjects\\Bounce\\bounce.nl"
+            "TargetName" = "8:bounce.nl"
+            "Tag" = "8:"
+            "Folder" = "8:_842BB33539454D18843F9D17C819D48E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1836,6 +1842,26 @@
             "TargetName" = "8:sflwr.nl"
             "Tag" = "8:"
             "Folder" = "8:_ABFFE67C8CBA4327A35F1C1524602CE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97F95ED7C785445E8A835FA2D82A525C"
+            {
+            "SourcePath" = "8:..\\..\\..\\ExampleProjects\\Bounce\\Bounce.bsprj"
+            "TargetName" = "8:Bounce.bsprj"
+            "Tag" = "8:"
+            "Folder" = "8:_842BB33539454D18843F9D17C819D48E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2501,6 +2527,17 @@
                                         {
                                         }
                                     }
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_842BB33539454D18843F9D17C819D48E"
+                                    {
+                                    "Name" = "8:Bounce"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_52F2F2511486431EBFE397192C34526A"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
                                     "{9EF0B969-E518-4E46-987F-47570745A589}:_85A805CCD2234E3A834A182464180A69"
                                     {
                                     "Name" = "8:Testjig"
@@ -2602,7 +2639,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth Composer"
         "ProductCode" = "8:{F41DBB95-DA27-4AA0-8F1C-E0E536E88032}"
-        "PackageCode" = "8:{9ACC60E5-CD0D-4C2A-AF45-D678D64A0E90}"
+        "PackageCode" = "8:{006918D6-9061-4D75-89DF-8F0E538E4B1C}"
         "UpgradeCode" = "8:{1DF16329-30EA-455D-8985-06DD389ED628}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -3338,11 +3375,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3DEAD8DF30F6438EB6E7BBDAD5303ADE"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3523ABD9623947A49F93CE4EBF6AE969"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -3352,11 +3389,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_71B5BE956E814D7AB3C0F4BCCB4A24BC"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3A55F12F4A674BE2B5A8F4809B1B8F5B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
                 "Properties"
                 {
                 }

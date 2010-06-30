@@ -91,6 +91,10 @@ SOURCE=.\AddSynth.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BuzzSynth.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Chuffer.cpp
 # End Source File
 # Begin Source File
@@ -148,6 +152,10 @@ SOURCE=.\WFSynth.cpp
 # Begin Source File
 
 SOURCE=.\AddSynth.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BuzzSynth.cpp
 # End Source File
 # Begin Source File
 

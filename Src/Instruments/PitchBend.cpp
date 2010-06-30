@@ -137,6 +137,7 @@ PitchBendWT::PitchBendWT()
 	mode = 0;
 	durSec = 0;
 	depth = 0;
+	delay = 0;
 	ampLvl = 0;
 	sigFrq = 0;
 	pbOn = 0;

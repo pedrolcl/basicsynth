@@ -225,6 +225,8 @@ int nlParser::Statement()
 		return Map();
 	case T_MAXPARAM:
 		return MaxParam();
+	case T_OPTION:
+		return Option();
 
 	// note lists
 	case T_VOICE:
@@ -444,12 +446,12 @@ int nlParser::Set()
 }
 
 // option = 'option' optname ('on'|'off')
-// optname = 'frequency' | 'voldb'
+// optname = 'frequency' | 'voldb' | 'velocity'
 int nlParser::Option()
 {
 	int err = 0;
 	int opt = lexPtr->Next();
-	if (opt == T_FREQ || opt == T_VOLDB)
+	if (opt == T_FREQ || opt == T_VOLDB || opt == T_VELOCITY)
 	{
 		theToken = lexPtr->Next();
 		if (theToken == T_ON || theToken == T_OFF)
@@ -458,6 +460,7 @@ int nlParser::Option()
 			node->SetToken(opt);
 			node->SetValue(theToken == T_ON ? 1L : 0L);
 			genPtr->AddNode(node);
+			theToken = lexPtr->Next();
 		}
 		else
 			err = Error("Expected ON|OFF", skiptoend);
@@ -1069,6 +1072,8 @@ int nlParser::Note()
 		return Declare();
 	case T_SET:
 		return Set();
+	case T_OPTION:
+		return Option();
 
 	case T_INSTNUM:
 		return Instrument();

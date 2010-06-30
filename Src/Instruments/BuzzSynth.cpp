@@ -146,6 +146,8 @@ BuzzSynth::BuzzSynth()
 	vol = 1.0;
 	chnl = 0;
 	modOn = 0;
+	frq = 440.0;
+	pwFrq = 0;
 }
 
 BuzzSynth::BuzzSynth(BuzzSynth *tp)
@@ -243,6 +245,8 @@ int BuzzSynth::SetParams(VarParamEvent *evt)
 	int err = 0;
 	chnl = evt->chnl;
 	vol = evt->vol;
+	if (evt->noteonvel > 0)
+		vol *= ((float)evt->noteonvel / 127.0);
 	frq = evt->frq;
 	buzz[0].frqBase = frq;
 	buzz[1].frqBase = frq;
@@ -308,7 +312,7 @@ int BuzzSynth::SetParam(bsInt16 id, float val)
 			bz->volume = AmpValue(val);
 			break;
 		case 1: //	Oscillator frequency multiplier
-			bz->frqScl = FrqValue(val) * 100.0;
+			bz->frqScl = FrqValue(val);
 			break;
 		case 2: // Harmonics base
 			bz->ampBase = AmpValue(val);
@@ -317,10 +321,10 @@ int BuzzSynth::SetParam(bsInt16 id, float val)
 			bz->ampScl = AmpValue(val);
 			break;
 		case 5: // Filter base (cents above fundamental frequency)
-			bz->fltBase = FrqValue(val) * 100.0;
+			bz->fltBase = FrqValue(val);
 			break;
 		case 6: //Filter envelope scale
-			bz->fltScl = FrqValue(val) * 100.0;
+			bz->fltScl = FrqValue(val);
 			break;
 		case 7: // Filter 'Q'
 			bz->fltQ = AmpValue(val);
@@ -459,11 +463,11 @@ int BuzzSynth::GetParams(VarParamEvent *params)
 		gn = (ndx+1) << 8;
 		BuzzPart *bz = &buzz[ndx];
 		params->SetParam(gn|0, (float) bz->volume);
-		params->SetParam(gn|1, (float) bz->frqScl / 100.0);
+		params->SetParam(gn|1, (float) bz->frqScl);
 		params->SetParam(gn|2, (float) bz->ampBase);
 		params->SetParam(gn|3, (float) bz->ampScl);
-		params->SetParam(gn|5, (float) bz->fltBase / 100.0);
-		params->SetParam(gn|6, (float) bz->fltScl / 100.0);
+		params->SetParam(gn|5, (float) bz->fltBase);
+		params->SetParam(gn|6, (float) bz->fltScl);
 		params->SetParam(gn|7, (float) bz->fltQ);
 		params->SetParam(gn|8, (float) bz->frqRatio);
 		params->SetParam(gn|9, (float) bz->harmMax);
@@ -546,7 +550,7 @@ int BuzzSynth::GetParam(bsInt16 idval, float *val)
 			*val = (float) bz->volume;
 			break;
 		case 1: //	Oscillator frequency multiplier (cents)
-			*val = (float) bz->frqScl / 100.0;
+			*val = (float) bz->frqScl;
 			break;
 		case 2: // Harmonics amplitude base
 			*val = (float) bz->ampBase;
@@ -555,10 +559,10 @@ int BuzzSynth::GetParam(bsInt16 idval, float *val)
 			*val = (float) bz->ampScl;
 			break;
 		case 5: // Filter base (cents above fundamental frequency)
-			*val = (float) bz->fltBase / 100.0;
+			*val = (float) bz->fltBase;
 			break;
 		case 6: //Filter envelope scale (cents)
-			*val = (float) bz->fltScl / 100.0;
+			*val = (float) bz->fltScl;
 			break;
 		case 7: // Filter 'Q'
 			*val = (float) bz->fltQ;
@@ -666,8 +670,8 @@ int BuzzSynth::Load(XmlSynthElem *parent)
 		{
 			if (elem->GetAttribute("gn", ival) == 0)
 			{
-				if (ival > 0 && ival <= BUZZ_NGEN)
-					buzz[ival-1].Load(elem);
+				if (ival >= 0 && ival < BUZZ_NGEN)
+					buzz[ival].Load(elem);
 			}
 		}
 		else if (elem->TagMatch("lfo"))
@@ -684,12 +688,12 @@ int BuzzSynth::Save(XmlSynthElem *parent)
 {
 	XmlSynthElem *elem;
 
-	for (short ndx = 1; ndx <= BUZZ_NGEN; ndx++)
+	for (short ndx = 0; ndx < BUZZ_NGEN; ndx++)
 	{
 		if ((elem = parent->AddChild("gen")) == NULL)
 			return -1;
 		elem->SetAttribute("gn", ndx);
-		buzz[ndx-1].Save(elem);
+		buzz[ndx].Save(elem);
 		delete elem;
 	}
 

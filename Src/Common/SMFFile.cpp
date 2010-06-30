@@ -308,7 +308,7 @@ void SMFFile::ChnlMessage(bsUint16 msg)
 	trackObj->AddEvent(evt);
 }
 
-int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb, bsInt16 mask)
+int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb, bsUint16 mask)
 {
 	sbnk = sb;
 	if (s)

@@ -82,15 +82,18 @@ protected:
 		frqRatio = 1.0;
 		fltBase = 0.0;
 		fltScl = 0.0;
-		fltFreq = 0.0;
+		fltFreq = 2400.0;
 		fltQ = 1.0;
 		fltLast = 0;
 		ampBase = 0.5;
 		ampScl = 0.0;
 		ampLast = 0;
 		harmMax = 100;
-		modOn = BUZZ_ENABLE|BUZZ_MFILT|BUZZ_FILTER;
+		modOn = BUZZ_ENABLE|BUZZ_FILTER|BUZZ_RELFRQ;
 		envSig.SetSegs(4);
+		envSig.SetSusOn(1);
+		envSig.SetLevel(1, 1.0);
+		envSig.SetLevel(2, 1.0);
 		envMod.SetSegs(4);
 	}
 
@@ -177,6 +180,8 @@ protected:
 
 	inline int IsFinished()
 	{
+		if (!(modOn & BUZZ_ENABLE))
+			return 1;
 		return envSig.IsFinished();
 	}
 

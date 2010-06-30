@@ -46,6 +46,7 @@ nlGenerate::nlGenerate()
 
 	freqmode = 0;
 	voldbmode = 0;
+	velocity = 0;
 	maxParam = MAXPARAM;
 	curVoice = NULL;
 	voiceList = NULL;
@@ -1669,6 +1670,9 @@ nlScriptNode *nlOptNode::Exec()
 		break;
 	case T_VOLDB:
 		genPtr->SetVoldbMode(lVal);
+		break;
+	case T_VELOCITY:
+		genPtr->SetVelocityOn(lVal);
 		break;
 	}
 	return next;

@@ -126,6 +126,7 @@
 #define T_TRACK 401
 #define T_STARTTRK 402
 #define T_STOPTRK 403
+#define T_VELOCITY 404
 
 #define MAXPARAM 10
 #define MAXFGEN  10

@@ -300,6 +300,8 @@ int Chuffer::SetParams(VarParamEvent *params)
 
 	chnl = params->chnl;
 	vol = params->vol;
+	if (params->noteonvel > 0)
+		vol *= ((float)params->noteonvel / 127.0);
 	frq = params->frq;
 	dur = params->duration / synthParams.sampleRate;
 	bsInt16 *id = params->idParam;

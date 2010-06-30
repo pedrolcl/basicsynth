@@ -1181,6 +1181,7 @@ private:
 	int GenerateToFile();
 	int Generate();
 	int Play();
+	int Finished(int ret);
 
 public:
 	SynthItem     *synthInfo;

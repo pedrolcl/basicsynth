@@ -77,8 +77,10 @@ LRESULT GenerateDlg::OnStart(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHa
 	FormatPeak();
 	prjGenerate = static_cast<GenerateWindow*>(this);
 
-	theProject->Start();
-	EnableOK(0, 1);
+	if (theProject->Start() == 0)
+		EnableOK(0, 1);
+	else
+		EnableOK(1, 0);
 	return 0;
 }
 

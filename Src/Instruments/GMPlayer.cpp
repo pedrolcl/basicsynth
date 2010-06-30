@@ -134,16 +134,16 @@ int GMPlayer::SetParam(bsInt16 idval, float val)
 {
 	switch (idval)
 	{
-	case 16:
+	case GMPLAYER_FLAGS:
 		localVals = (bsInt32) val;
 		break;
-	case 17:
+	case GMPLAYER_BANK:
 		bankValue = (bsInt16) val;
 		break;
-	case 18:
+	case GMPLAYER_PROG:
 		progValue = (bsInt16) val;
 		break;
-	case 19:
+	case GMPLAYER_ATTN:
 		attnScale = val;
 		break;
 	default:
@@ -154,10 +154,10 @@ int GMPlayer::SetParam(bsInt16 idval, float val)
 
 int GMPlayer::GetParams(VarParamEvent *params)
 {
-	params->SetParam(16, (float) localVals);
-	params->SetParam(17, (float) bankValue);
-	params->SetParam(18, (float) progValue);
-	params->SetParam(19, (float) attnScale);
+	params->SetParam(GMPLAYER_FLAGS, (float) localVals);
+	params->SetParam(GMPLAYER_BANK, (float) bankValue);
+	params->SetParam(GMPLAYER_PROG, (float) progValue);
+	params->SetParam(GMPLAYER_ATTN, (float) attnScale);
 	return 0;
 }
 
@@ -165,16 +165,16 @@ int GMPlayer::GetParam(bsInt16 idval, float *val)
 {
 	switch (idval)
 	{
-	case 16:
+	case GMPLAYER_FLAGS:
 		*val = (float) localVals;
 		break;
-	case 17:
+	case GMPLAYER_BANK:
 		*val = (float) bankValue;
 		break;
-	case 18:
+	case GMPLAYER_PROG:
 		*val = (float) progValue;
 		break;
-	case 19:
+	case GMPLAYER_ATTN:
 		*val = (float) attnScale;
 		break;
 	default:
@@ -185,10 +185,10 @@ int GMPlayer::GetParam(bsInt16 idval, float *val)
 
 static InstrParamMap gmPlayerParams[] = 
 {
-	{"attn",  19 },
-	{"bank",  17 },
-	{"local", 16 }, 
-	{"prog",  18 },
+	{"attn",  GMPLAYER_ATTN },
+	{"bank",  GMPLAYER_BANK },
+	{"local", GMPLAYER_FLAGS }, 
+	{"prog",  GMPLAYER_PROG },
 };
 
 bsInt16 GMPlayer::MapParamID(const char *name, Opaque tmplt)

@@ -55,6 +55,7 @@ static void AddEvent(bsInt16 inum, int pit, float dur)
 	evt = inMgr.ManufEvent(inum);
 	evt->evid = evidcount++;
 	evt->type = SEQEVT_START;
+	evt->track = 0;
 	evt->SetParam(P_INUM, (float)inum);
 	evt->SetParam(P_CHNL, 0.0);
 	evt->SetParam(P_START, startTime);
@@ -198,7 +199,7 @@ int main(int argc, char *argv[])
 	outxml = outbase;
 	outxml += '_';
 	outxml += outfile;
-	doc.Save((char *) (const char *)outxml);
+	doc.Save(outxml);
 #endif
 	///////////////////////////////////////////////////////////////
 

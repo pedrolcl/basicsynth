@@ -85,7 +85,6 @@ public:
 
 	~GMSynthDLL()
 	{
-		wvd.Shutdown();
 		memset(&magic, 0, sizeof(GUID));
 	}
 
@@ -97,6 +96,7 @@ public:
 
 	void SetWaveDevice(void *dev);
 	void OpenWaveDevice();
+	void CloseWaveDevice();
 	int  ThreadProc();
 
 	int Unload();
@@ -650,7 +650,7 @@ int GMSynthDLL::ThreadProc()
 		bsInt32 drain = (bsInt32) (synthParams.sampleRate * (ldTm * 4));
 		while (--drain > 0)
 			inmgr.Tick();
-		wvd.Stop();
+		CloseWaveDevice();
 	}
 	else
 		wvf.CloseWaveFile();
@@ -843,6 +843,10 @@ void GMSynthDLL::OpenWaveDevice()
 	wvd.Setup(wavWnd, ldTm, 4, &wavDevice);
 }
 
+void GMSynthDLL::CloseWaveDevice()
+{
+	wvd.Shutdown();
+}
 #endif
 
 #ifdef UNIX
@@ -860,6 +864,11 @@ void GMSynthDLL::SetWaveDevice(void *w)
 void GMSynthDLL::OpenWaveDevice()
 {
 	wvd.Setup(wavDevice, ldTm, 4);
+}
+
+void GMSynthDLL::CloseWaveDevice()
+{
+	wvd.Shutdown();
 }
 
 #endif

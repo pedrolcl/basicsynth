@@ -18,8 +18,13 @@
 CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, 0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0};
 IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60};
 #endif
-typedef HRESULT (WINAPI *tDirectSoundCreate)(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+typedef HRESULT (WINAPI *tDirectSoundCreate)(const GUID *pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
 
+// Manage the DirectSound object.
+// This class creates a "singleton" DirectSound object
+// shared by all WaveOutDirect instances. One instance
+// of this class exists and is created at init time
+// and destroyed at program exit.
 class ManageDirectSound
 {
 public:
@@ -35,15 +40,38 @@ public:
 		if (h)
 			pDirectSoundCreate = (tDirectSoundCreate)GetProcAddress(h, "DirectSoundCreate");
 	}
+
 	~ManageDirectSound()
 	{
+		// This doesn't work. The dsound lib can get
+		// unloaded before this destructor is called
+		// and the dirSndObj will no longer be valid.
+		//if (dirSndObj != NULL)
+		//{
+		//	dirSndObj->Release();
+		//	dirSndObj = NULL;
+		//}
+		//if (lastDev)
+		//	delete lastDev;
+	}
+
+	ULONG AddRef()
+	{
+		ULONG rc = 0;
+		if (dirSndObj != NULL)
+			rc = dirSndObj->AddRef();
+		return rc;
+	}
+
+	ULONG Release()
+	{
+		ULONG rc = 0;
 		if (dirSndObj != NULL)
 		{
-			dirSndObj->Release();
-			dirSndObj = NULL;
+			if ((rc = dirSndObj->Release()) == 0)
+				dirSndObj = NULL;
 		}
-		if (lastDev)
-			delete lastDev;
+		return rc;
 	}
 
 	int Create(HWND w, GUID *dev)
@@ -171,7 +199,7 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, GUID *dev)
 	// ms = latency * 0.25 * 1000
 	pauseTime = (DWORD) (latency * 250.0f);
 
-	dsObj.dirSndObj->AddRef();
+	dsObj.AddRef();
 
 	return 0;
 }
@@ -238,7 +266,7 @@ void WaveOutDirect::Shutdown()
 		Stop();
 		dirSndBuf->Release();
 		dirSndBuf = 0;
-		dsObj.dirSndObj->Release();
+		dsObj.Release();
 	}
 	outState = 0;
 }

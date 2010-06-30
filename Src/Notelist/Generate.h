@@ -889,6 +889,7 @@ private:
 	long maxParam;
 	long freqmode;
 	long voldbmode;
+	long velocity;
 	double beat;
 	double secBeat;
 	double nlVersion;
@@ -917,6 +918,8 @@ public:
 	long GetFrequencyMode() { return freqmode; }
 	void SetVoldbMode(long n) { voldbmode = n; }
 	long GetVoldbMode() { return voldbmode; }
+	void SetVelocityOn(long n) { velocity = n; }
+	long GetVelocityOn() { return velocity; }
 
 	void SetTempo(double b, double t)
 	{

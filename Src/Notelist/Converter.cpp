@@ -177,10 +177,23 @@ void nlConverter::MakeEvent(int evtType, double start, double dur)
 	if (gen.GetVersion() < 1.0)
 		amp /= 327.67;
 
-	double vel = amp;
+	// in MIDI Velocity mode, per-note amplitude
+	// is passed via note-on velocity with volume
+	// multipler set in the volume. Otherwise,
+	// we calculate total attenuation here.
+	double vel;
+	if (gen.GetVelocityOn())
+	{
+		vel = amp;
+		amp = curVoice->volMul * 100.0;
+	}
+	else
+	{
+		vel = 127.0;
+		amp *= curVoice->volMul;
+	}
 	evt->SetParam(P_NOTEONVEL, (float) vel);
 
-	amp *= curVoice->volMul;
 	if (amp > 0)
 	{
 		if (gen.GetVoldbMode())
@@ -225,7 +238,7 @@ void nlConverter::MakeEvent(int evtType, double start, double dur)
 			if (evtType == SEQEVT_START)
 				evtID2 = seq->NextEventID();
 			evt2->SetID(evtID2);
-			evt2->SetParam(P_NOTEONVEL, vel * curVoice->doublev);
+			evt2->SetParam(P_NOTEONVEL, vel);
 			evt2->SetParam(P_VOLUME, amp * curVoice->doublev);
 			if (gen.GetFrequencyMode())
 				evt2->SetParam(P_FREQ, pit * pow(2.0, (double)curVoice->doublex/12.0));
