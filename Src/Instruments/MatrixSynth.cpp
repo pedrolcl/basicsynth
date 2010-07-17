@@ -65,8 +65,9 @@ static InstrParamMap globParams[] =
 	{ "frq", P_FREQ }, 
 	{ "lfoamp", 19 }, { "lfoatk", 18 }, { "lfofrq", 16 }, { "lfowt", 17 },
 	{ "matfrq", P_FREQ }, { "matvol", P_VOLUME },
-	{ "pbamp", 25 }, { "pba1", 22 }, { "pba2", 23 }, { "pba3", 24 },
-	{ "pbfrq", 27 }, { "pbr1", 20 }, { "pbr2", 21 }, { "pbwt", 26 },
+	{ "pba1", 22 },  { "pba2", 23 },  { "pba3", 24 },  
+	{ "pbamp", 25 }, { "pbdly", 29 }, { "pbdur", 27 }, { "pbfrq", 27 }, 
+	{ "pbmode", 28 }, { "pbr1", 20 },  { "pbr2", 21 },  { "pbwt", 26 },
 	{ "vol", P_VOLUME }
 };
 
@@ -252,7 +253,10 @@ void MatrixSynth::Start(SeqEvent *evt)
 	if (pbOn)
 		pbGen.Reset(0);
 	if (pbWTOn)
+	{
+		pbWT.SetDurationS(evt->duration);
 		pbWT.Reset(0);
+	}
 }
 
 void MatrixSynth::Param(SeqEvent *evt)
@@ -286,7 +290,6 @@ int MatrixSynth::SetParams(VarParamEvent *params)
 	pbGen.SetFrequency(frq);
 	lfoGen.SetSigFrq(frq);
 	pbWT.SetSigFrq(frq);
-	pbWT.SetDurationS(params->duration);
 
 	bsInt16 *id = params->idParam;
 	float *vp = params->valParam;
@@ -344,6 +347,12 @@ int MatrixSynth::SetParam(bsInt16 idval, float val)
 			break;
 		case 27:
 			pbWT.SetDuration(FrqValue(val));
+			break;
+		case 28:
+			pbWT.SetMode((int)val);
+			break;
+		case 29:
+			pbWT.SetDelay(FrqValue(val));
 			break;
 		}
 	}
@@ -510,6 +519,8 @@ int MatrixSynth::GetParams(VarParamEvent *params)
 	params->SetParam(25, (float)pbWT.GetLevel());
 	params->SetParam(26, (float)pbWT.GetWavetable());
 	params->SetParam(27, (float)pbWT.GetDuration());
+	params->SetParam(28, (float)pbWT.GetMode());
+	params->SetParam(29, (float)pbWT.GetDelay());
 
 		// id = 1|on[3]|vn[8] (oscillator)
 		// id = 2|en[3]|sn[5]|vn[3] (envelope)
@@ -613,6 +624,12 @@ int MatrixSynth::GetParam(bsInt16 idval, float *val)
 			break;
 		case 27:
 			*val = (float) pbWT.GetDuration();
+			break;
+		case 28:
+			*val = (float) pbWT.GetMode();
+			break;
+		case 29:
+			*val = (float) pbWT.GetDelay();
 			break;
 		}
 	}
@@ -1008,10 +1025,7 @@ int MatrixSynth::Load(XmlSynthElem *parent)
 		else if (elem->TagMatch("pb"))
 		{
 			pbGen.Load(elem);
-			if (elem->GetAttribute("pbamp", dval) == 0)
-				pbWT.SetLevel(dval);
-			if (elem->GetAttribute("pbwt", ival) == 0)
-				pbWT.SetWavetable((int)ival);
+			pbWT.Load(elem);
 		}
 		next = elem->NextSibling();
 		delete elem;
@@ -1059,8 +1073,7 @@ int MatrixSynth::Save(XmlSynthElem *parent)
 	if (elem == NULL)
 		return -1;
 	err |= pbGen.Save(elem);
-	err |= elem->SetAttribute("pbamp", (float) pbWT.GetLevel());
-	err |= elem->SetAttribute("pbwt", (short) pbWT.GetWavetable());
+	err |= pbWT.Save(elem);
 	delete elem;
 
 	return err;

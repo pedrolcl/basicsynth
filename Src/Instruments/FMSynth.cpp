@@ -39,7 +39,7 @@ Instrument *FMSynth::FMSynthFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *FMSynth::FMSynthEventFactory(Opaque tmplt)
 {
 	VarParamEvent *vpe = new VarParamEvent;
-	vpe->maxParam = 108;
+	vpe->maxParam = 110;
 	return (SeqEvent *) vpe;
 }
 
@@ -69,9 +69,9 @@ static InstrParamMap fmsynthParams[] =
 	{ "nzfr",    62 }, { "nzmix",   60 }, { "nzpk",    66 }, { "nzrel",   69 }, { "nzst",    64 },
 	{ "nzsus",   68 }, { "nzty",    71 },
 
-	{ "pbamp",  106 }, { "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 },
-	{ "pbfrq",  108 }, { "pbon",   100 }, { "pbr1",   101 }, { "pbr2",   102 },
-	{ "pbwt",   107 }
+	{ "pba1",   103 }, { "pba2",   104 }, { "pba3",   105 }, { "pbamp",  106 }, 
+	{ "pbdly",  109 }, { "pbdur",  108 }, { "pbfrq",  108 }, { "pbmode", 110 }, 
+	{ "pbon",   100 }, { "pbr1",   101 }, { "pbr2",   102 }, { "pbwt",   107 }
 };
 
 bsInt16 FMSynth::MapParamID(const char *name, Opaque tmplt)
@@ -244,7 +244,6 @@ void FMSynth::Start(SeqEvent *evt)
 	}
 	if (pbWT.On())
 	{
-		pbWT.SetSigFrq(frq);
 		pbWT.SetDurationS(evt->duration);
 		pbWT.Reset();
 	}
@@ -254,8 +253,6 @@ void FMSynth::Param(SeqEvent *evt)
 {
 	if (evt->type == SEQEVT_CONTROL)
 		return; // TODO: process controller changes
-	lfoGen.SetSigFrq(frq);
-	pbWT.SetSigFrq(frq);
 	SetParams((VarParamEvent*)evt);
 	// The only changeable things are the oscillators, i.e. pitch
 	// and signal/noise/delay mixture.
@@ -288,6 +285,9 @@ int FMSynth::SetParams(VarParamEvent *evt)
 		vol *= ((float)evt->noteonvel / 127.0);
 	frq = evt->frq;
 	chnl = evt->chnl;
+	lfoGen.SetSigFrq(frq);
+	pbWT.SetSigFrq(frq);
+
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
 	int n = evt->numParam;
@@ -508,6 +508,12 @@ int FMSynth::SetParam(bsInt16 id, float val)
 	case 108:
 		pbWT.SetDuration(FrqValue(val));
 		break;
+	case 109:
+		pbWT.SetDelay(FrqValue(val));
+		break;
+	case 110:
+		pbWT.SetMode((int)val);
+		break;
 	default:
 		return 1;
 	}
@@ -582,6 +588,8 @@ int FMSynth::GetParams(VarParamEvent *params)
 	params->SetParam(106, (float) pbWT.GetLevel());
 	params->SetParam(107, (float) pbWT.GetWavetable());
 	params->SetParam(108, (float) pbWT.GetDuration());
+	params->SetParam(109, (float) pbWT.GetDelay());
+	params->SetParam(110, (float) pbWT.GetMode());
 
 	return 0;
 }
@@ -786,6 +794,12 @@ int FMSynth::GetParam(bsInt16 id, float *val)
 	case 108:
 		*val = (float) pbWT.GetDuration();
 		break;
+	case 109:
+		*val = (float) pbWT.GetDelay();
+		break;
+	case 110:
+		*val = (float) pbWT.GetMode();
+		break;
 	default:
 		return 1;
 	}
@@ -989,10 +1003,7 @@ int FMSynth::Load(XmlSynthElem *parent)
 			if (elem->GetAttribute("on", ival) == 0)
 				pbOn = (int) ival;
 			pbGen.Load(elem);
-			if (elem->GetAttribute("pbamp", dval) == 0)
-				pbWT.SetLevel(AmpValue(dval));
-			if (elem->GetAttribute("pbwt", ival) == 0)
-				pbWT.SetWavetable((int)ival);
+			pbWT.Load(elem);
 		}
 		elem = elem->NextSibling(&node);
 	}
@@ -1079,8 +1090,7 @@ int FMSynth::Save(XmlSynthElem *parent)
 		return -1;
 	elem->SetAttribute("on", (short) pbOn);
 	pbGen.Save(elem);
-	elem->SetAttribute("pbamp", (float) pbWT.GetLevel());
-	elem->SetAttribute("pbwt", (short) pbWT.GetWavetable());
+	pbWT.Save(elem);
 	delete elem;
 
 	return 0;

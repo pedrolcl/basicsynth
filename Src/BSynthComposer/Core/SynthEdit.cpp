@@ -60,7 +60,7 @@ void SynthEdit::SetPair(int knobID, int lblID)
 	{
 		SynthWidget *knb = mainGroup->FindID(knobID);
 		SynthWidget *lbl = mainGroup->FindID(lblID);
-		if (knb && lbl)
+		if (knb && lbl && knb != lbl)
 		{
 			knb->SetBuddy2(lbl);
 			lbl->SetBuddy1(knb);

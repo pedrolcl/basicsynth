@@ -32,7 +32,7 @@ Instrument *SubSynth::SubSynthFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *SubSynth::SubSynthEventFactory(Opaque tmplt)
 {
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = 53;
+	ep->maxParam = 55;
 	return (SeqEvent *) ep;
 }
 
@@ -52,8 +52,8 @@ static InstrParamMap subSynthParams[] =
 	{"oscfg", 19},  {"oscfr", 20},  {"oscfrq", 5 }, {"oscft", 18},
 	{"oscmix", 16}, {"oscvol", 6},  {"oscwt", 17},
 	{"pbamp", 50},  {"pba1", 47},   {"pba2", 48},   {"pba3", 49},
-	{"pbfrq", 52},  {"pbon", 44},   {"pbr1", 45},   {"pbr2", 46},
-	{"pbwt", 51}
+	{"pbdly", 54},  {"pbdur", 52},  {"pbfrq", 52},  {"pbmode", 55},
+	{"pbon", 44},   {"pbr1", 45},   {"pbr2", 46},   {"pbwt", 51}
 };
 
 bsInt16 SubSynth::MapParamID(const char *name, Opaque tmplt)
@@ -158,7 +158,11 @@ void SubSynth::Start(SeqEvent *evt)
 	if (pbOn)
 		pbGen.Reset(0);
 	if (pbWT.On())
+	{
+		pbWT.SetDurationS(evt->duration);
 		pbWT.Reset(0);
+	}
+	pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
 }
 
 void SubSynth::Param(SeqEvent *evt)
@@ -186,13 +190,11 @@ int SubSynth::SetParams(VarParamEvent *evt)
 	int err = 0;
 	chnl = evt->chnl;
 	vol = evt->vol;
-	pwFrq = im->GetPitchbendC(chnl);
 	frq = evt->frq;
 	osc.SetFrequency(frq);
 	pbGen.SetFrequency(frq);
 	lfoGen.SetSigFrq(frq);
 	pbWT.SetSigFrq(frq);
-	pbWT.SetDurationS(evt->duration);
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;
 	int n;
@@ -320,6 +322,12 @@ int SubSynth::SetParam(bsInt16 id, float val)
 	case 53:
 		coefRate = val;
 		break;
+	case 54:
+		pbWT.SetDelay(FrqValue(val));
+		break;
+	case 55:
+		pbWT.SetMode((int)val);
+		break;
 	default:
 		return 1;
 	}
@@ -366,6 +374,8 @@ int SubSynth::GetParams(VarParamEvent *params)
 	params->SetParam(51, (float) pbWT.GetWavetable());
 	params->SetParam(52, (float) pbWT.GetDuration());
 	params->SetParam(53, coefRate);
+	params->SetParam(54, (float) pbWT.GetDelay());
+	params->SetParam(55, (float) pbWT.GetMode());
 	return 0;
 }
 
@@ -408,6 +418,8 @@ int SubSynth::GetParam(bsInt16 idval, float *val)
 	case 51: *val = (float) pbWT.GetWavetable(); break;
 	case 52: *val = (float) pbWT.GetDuration(); break;
 	case 53: *val = (float) coefRate; break;
+	case 54: *val = (float) pbWT.GetDelay(); break;
+	case 55: *val = (float) pbWT.GetMode(); break;
 	default:
 		return 1;
 	}
@@ -518,10 +530,7 @@ int SubSynth::Load(XmlSynthElem *parent)
 			if (elem->GetAttribute("on", ival) == 0)
 				pbOn = (int) ival;
 			pbGen.Load(elem);
-			if (elem->GetAttribute("pbamp", dvals[0]) == 0)
-				pbWT.SetLevel(AmpValue(dvals[0]));
-			if (elem->GetAttribute("pbwt", ival) == 0)
-				pbWT.SetWavetable((int)ival);
+			pbWT.Load(elem);
 		}
 		next = elem->NextSibling();
 		delete elem;
@@ -581,8 +590,7 @@ int SubSynth::Save(XmlSynthElem *parent)
 		return -1;
 	elem->SetAttribute("on", (short) pbOn);
 	pbGen.Save(elem);
-	elem->SetAttribute("pbamp", (float) pbWT.GetLevel());
-	elem->SetAttribute("pbwt", (short) pbWT.GetWavetable());
+	pbWT.Save(elem);
 	delete elem;
 
 	return 0;

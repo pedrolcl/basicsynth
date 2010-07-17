@@ -355,8 +355,14 @@ void SwitchWidget::Paint(DrawContext dc)
 		gr->DrawImage((Bitmap*)sip->GetImage(1), area.x, area.y);
 	else
 		gr->DrawImage((Bitmap*)sip->GetImage(0), area.x, area.y);
+	DrawLabel(dc);
+}
+
+void SwitchWidget::DrawLabel(DrawContext dc)
+{
 	if (lbl && show)
 	{
+		Graphics *gr = (Graphics *)dc;
 		RectF rcf;
 		rcf.X = lblRect.x;
 		rcf.Y = lblRect.y;
@@ -532,15 +538,6 @@ void ImageWidget::Paint(DrawContext dc)
 		int x = area.x + ((area.w - w) / 2);
 		int y  = area.y + ((area.h - h) / 2);
 		Graphics *gr = (Graphics *)dc;
-		//Rect dest;
-		//dest.Width = w;
-		//dest.Height = h;
-		//dest.X = x;
-		//dest.Y = y;
-		//ImageAttributes attr;
-		//Color transp(255,255,255);
-		//attr.SetColorKey(transp, transp, ColorAdjustTypeBitmap);
-		//gr->DrawImage(img, dest, 0, 0, w, h, UnitPixel, &attr);
 		gr->DrawImage(img, x, y);
 	}
 }
@@ -559,13 +556,13 @@ void LampWidget::CreateImage()
 	Rect baseRing;
 	baseRing.X = 0;
 	baseRing.Y = 0;
+	int ring;
+	if (area.w > area.h)
+		ring = area.h - 1;
+	else
+		ring = area.w - 1;
 	if (!(style & 2))
 	{
-		int ring;
-		if (area.w > area.h)
-			ring = area.h - 1;
-		else
-			ring = area.w - 1;
 		baseRing.Width = ring;
 		baseRing.Height = ring;
 	}

@@ -109,6 +109,7 @@ public:
 	// base class is In/Out "pressed" type button
 	virtual void CreateImage();
 	virtual void Paint(DrawContext dc);
+	virtual void DrawLabel(DrawContext dc);
 
 	virtual int Load(XmlSynthElem *elem);
 };

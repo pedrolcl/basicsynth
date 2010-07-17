@@ -20,7 +20,7 @@
 /// three levels and two rates. Rate 1 is the time to
 /// transition from level 1 to level 2. Rate 2 is the time
 /// to transition from level 2 to level 3.
-/// (deprecated - PitchBendWT is more flexible)
+/// (deprecated - PitchBendWT is more functional)
 class PitchBend : public GenUnit
 {
 private:
@@ -95,10 +95,11 @@ public:
 /// by an amount value. If the signal frequency is set to non-zero,
 /// the amount value is taken to indicate pitch cents. This is converted
 /// into a frequency range. If the signal frequency is set to zero,
-/// the depth value is absolute in Hz. The rate of table scanning may be
+/// the depth value is absolute. The rate of table scanning may be
 /// absolute time in seconds, or a percent of the note duration.
 /// A delay time can specified as well, and is either absolute time
-/// or percent of note duration. When mode != 0, time values are absolute.
+/// or percent of note duration. 
+/// When mode is non-zero, time values are absolute.
 class PitchBendWT : public GenUnit
 {
 private:
@@ -125,7 +126,7 @@ public:
 	
 	void SetDuration(FrqValue d)    { durSec = d; }
 	void SetDelay(FrqValue d)       { dlySec = d; }
-	void SetDurationS(bsInt32 d)    { count = samples = d; } // used at runtime.
+	void SetDurationS(bsInt32 d)    { samples = d; }
 	void SetWavetable(int wt)       { wtID = wt; }
 	void SetLevel(AmpValue val)     { depth = val; pbOn = depth > 0; }
 	void SetSigFrq(FrqValue val)    { sigFrq = val; }

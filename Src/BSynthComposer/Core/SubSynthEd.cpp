@@ -50,6 +50,9 @@ void SubSynthEdit::ValueChanged(SynthWidget *wdg)
 	case 102: // LFO wavetable
 		SelectWavetable(mainGroup->FindID(103));
 		break;
+	case 216: // PB wavetable
+		SelectWavetable(wdg);
+		break;
 	case 12: // filter type
 		SetResonRange((int) wdg->GetValue(), 1);
 		// FALLTHROUGH...
@@ -65,19 +68,14 @@ void SubSynthEdit::SetResonRange(int ft, int draw)
 	TextWidget *lbl = (TextWidget*)mainGroup->FindID(90); // resonance label;
 	float scale;
 	int enable;
-	if (ft == 2) // Bandpass
+	if (ft == 2 || ft == 4) // Bandpass || LP w/Res
 	{
-		scale = 1000.0f;
+		scale = 20.0f;
 		enable = 1;
 	}
 	else if (ft == 3) // Reson
 	{
 		scale = 1.0f;
-		enable = 1;
-	}
-	else if (ft == 4) // LP. w/Res
-	{
-		scale = 20.0f;
 		enable = 1;
 	}
 	else // lowpass or highpass

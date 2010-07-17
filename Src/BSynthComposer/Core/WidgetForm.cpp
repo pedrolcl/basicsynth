@@ -58,9 +58,9 @@ void WidgetForm::BtnUp(int x, int y, int shft, int ctl)
 {
 	if (track && track->Tracking())
 	{
-		track->BtnUp(x, y, shft, ctl);
 		if (edwin)
 			edwin->Release();
+		track->BtnUp(x, y, shft, ctl);
 		track = 0;
 	}
 }

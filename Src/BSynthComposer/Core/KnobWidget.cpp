@@ -345,8 +345,8 @@ int KnobWidget::ChangeValue(int x, int y, int ctrl, int shift)
 	int r = CalcIndicator();
 	if (buddy2)
 	{
-		buddy2->SetValue(GetValue());
-//		buddy2->SetValue(Round(value));
+//		buddy2->SetValue(GetValue());
+		buddy2->SetValue(Round(value));
 		form->Redraw(buddy2);
 	}
 	if (r)
@@ -478,7 +478,7 @@ void FrequencyGroup::SetPairs(int knbCourse, int knbFine, int lblCourse, int lbl
 		course = FindID(knbCourse);
 		if (course && lblCourse >= 0)
 		{
-			if ((lbl = FindID(lblCourse)) != 0)
+			if ((lbl = FindID(lblCourse)) != 0 && lbl != course)
 			{
 				course->SetBuddy2(lbl);
 				lbl->SetBuddy1(course);
@@ -490,7 +490,7 @@ void FrequencyGroup::SetPairs(int knbCourse, int knbFine, int lblCourse, int lbl
 		fine = FindID(knbFine);
 		if (fine && lblFine >= 0)
 		{
-			if ((lbl = FindID(lblFine)) != 0)
+			if ((lbl = FindID(lblFine)) != 0 && lbl != fine)
 			{
 				fine->SetBuddy2(lbl);
 				lbl->SetBuddy1(fine);

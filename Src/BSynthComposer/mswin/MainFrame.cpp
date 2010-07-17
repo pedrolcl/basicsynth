@@ -783,11 +783,6 @@ LRESULT MainFrame::OnMarkerClear(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 	return 0;
 }
 
-LRESULT MainFrame::OnEditUpdateUI(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
-{
-	return 0;
-}
-
 /// OnView* functions toggle various child windows.
 LRESULT MainFrame::OnViewProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
@@ -1043,8 +1038,8 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 		return;
 
 	ProjectItem *parent = itm->GetParent();
-	if (parent == 0)
-		return;
+//	if (parent == 0)
+//		return;
 
 	TVINSERTSTRUCT tvi;
 	memset(&tvi, 0, sizeof(tvi));

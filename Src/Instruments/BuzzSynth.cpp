@@ -184,6 +184,7 @@ void BuzzSynth::Start(SeqEvent *evt)
 	if (pbWT.On())
 	{
 		modOn |= 2;
+		pbWT.SetDurationS(evt->duration);
 		pbWT.Reset(0);
 	}
 	pwFrq = (frq * synthParams.GetCentsMult((int)im->GetPitchbendC(chnl))) - frq;
@@ -252,7 +253,6 @@ int BuzzSynth::SetParams(VarParamEvent *evt)
 	buzz[1].frqBase = frq;
 	lfoGen.SetSigFrq(frq);
 	pbWT.SetSigFrq(frq);
-	pbWT.SetDurationS(evt->duration);
 
 	bsInt16 *id = evt->idParam;
 	float *valp = evt->valParam;

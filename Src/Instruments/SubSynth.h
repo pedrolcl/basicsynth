@@ -139,11 +139,8 @@ public:
 	}
 	virtual void Reset(float initPhs)
 	{
-		float bw = res;
-		if (bw < 1.0) // 1Hz
-			bw = 1.0;
 		if (initPhs >= 0)
-			filt.Init(egFilt->GetStart(), 1.0/bw, gain);
+			filt.Init(egFilt->GetStart(), res, gain);
 		coefCount = coefRate;
 		filt.Reset(initPhs);
 	}
@@ -215,7 +212,7 @@ public:
 			float q = res;
 			if (q < 1)
 				q = 1;
-			filt.CalcCoef(f, q);
+			filt.CalcCoef(f, res);
 			coefCount = coefRate;
 		}
 		return filt.Sample(in) * gain;

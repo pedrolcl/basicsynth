@@ -26,7 +26,7 @@ Instrument *SFPlayerInstr::SFPlayerInstrFactory(InstrManager *m, Opaque tmplt)
 SeqEvent *SFPlayerInstr::SFPlayerEventFactory(Opaque tmplt)
 {
 	VarParamEvent *ep = new VarParamEvent;
-	ep->maxParam = 48;
+	ep->maxParam = 50;
 	return (SeqEvent*)ep;
 }
 
@@ -496,6 +496,12 @@ int SFPlayerInstr::SetParam(bsInt16 idval, float val)
 	case 48: 
 		pbWT.SetDuration(FrqValue(val));
 		break;
+	case 49: 
+		pbWT.SetDelay(FrqValue(val));
+		break;
+	case 50: 
+		pbWT.SetMode((int)val);
+		break;
 
 	default:
 		return 1;
@@ -594,6 +600,12 @@ int SFPlayerInstr::GetParam(bsInt16 idval, float *val)
 	case 48: 
 		*val = (float) pbWT.GetDuration(); 
 		break;
+	case 49: 
+		*val = (float) pbWT.GetDelay(); 
+		break;
+	case 50: 
+		*val = (float) pbWT.GetMode(); 
+		break;
 
 	default:
 		return 1;
@@ -639,6 +651,8 @@ int SFPlayerInstr::GetParams(VarParamEvent *params)
 	params->SetParam(46, (float) pbWT.GetLevel());
 	params->SetParam(47, (float) pbWT.GetWavetable());
 	params->SetParam(48, (float) pbWT.GetDuration());
+	params->SetParam(49, (float) pbWT.GetDelay());
+	params->SetParam(50, (float) pbWT.GetMode());
 
 	return 0;
 }
@@ -663,8 +677,11 @@ static InstrParamMap sfPlayerParams[] =
 
 	{"monoSet", 18},
 	{"pbamp", 46},
-	{"pbfrq", 47},
-	{"pbwt", 48},
+	{"pbdly", 49},
+	{"pbdur", 48},
+	{"pbfrq", 48},
+	{"pbmode", 50},
+	{"pbwt", 47},
 	{"prog", 17 }, 
 
 	{"vibLfoAttack", 40},
@@ -720,8 +737,6 @@ int SFPlayerInstr::LoadEnv(XmlSynthElem *elem, EnvGenADSR& env)
 int SFPlayerInstr::Load(XmlSynthElem *parent)
 {
 	char *cval;
-	double dval;
-	short ival;
 
 	XmlSynthElem elem;
 	XmlSynthElem celem;
@@ -762,10 +777,7 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 		}
 		else if (elem.TagMatch("pb"))
 		{
-			if (elem.GetAttribute("pbamp", dval) == 0)
-				pbWT.SetLevel(dval);
-			if (elem.GetAttribute("pbwt", ival) == 0)
-				pbWT.SetWavetable((int)ival);
+			pbWT.Load(&elem);
 		}
 		next = elem.NextSibling(&elem);
 	}
@@ -832,8 +844,7 @@ int SFPlayerInstr::Save(XmlSynthElem *parent)
 
 	if (!parent->AddChild("pb", &elem))
 		return -1;
-	elem.SetAttribute("pbamp", (float) pbWT.GetLevel());
-	elem.SetAttribute("pbwt",  (short) pbWT.GetWavetable());
+	pbWT.Save(&elem);
 
 	return 0;
 }

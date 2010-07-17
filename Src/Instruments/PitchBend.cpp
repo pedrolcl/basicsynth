@@ -134,8 +134,9 @@ PitchBendWT::PitchBendWT()
 	indexIncr = 0;
 	count = 0;
 	samples = 0;
-	mode = 0;
-	durSec = 0;
+	mode = 1;
+	durSec = 1;
+	dlySec = 0;
 	depth = 0;
 	delay = 0;
 	ampLvl = 0;
@@ -209,9 +210,12 @@ void PitchBendWT::Reset(float initPhs)
 		ampLvl = depth;
 
 	wave = wtSet.GetWavetable(wtSet.FindWavetable(wtID));
-	if (wave && count > 0)
+	if (wave)
 	{
-		indexIncr = synthParams.ftableLength / count;
+		if (count > 0)
+			indexIncr = synthParams.ftableLength / count;
+		else
+			indexIncr = 1;
 		if (initPhs >= 0)
 			index = synthParams.radTI * initPhs;
 		lastVal = ampLvl * wave[(int)(index+0.5)];
