@@ -312,6 +312,8 @@ public:
 		}
 		if (fc > synthParams.nyquist)
 			fc = synthParams.nyquist;
+		if (q < 0.5)
+			q = 0.5;
 
 		// Hal Chamberlin, Musical Applications of Microprocessors
 		double r = exp(-PI * fc / (q * synthParams.sampleRate));

@@ -196,6 +196,8 @@ public:
 	{
 		if (cutoff < 1)
 			cutoff = 1;
+		if (fq < 0.5)
+			fq = 0.5;
 		double c = 1 / tan(rad * cutoff);
 		double c2 = c * c;
 		double csqr2 = sqr2 * c;
@@ -242,13 +244,11 @@ class FilterBP : public BiQuadFilterBP
 public:
 	void CalcCoef()
 	{
-		double bw;
 		if (fq < 0.5)
-			bw = 1.0;
-		else
-			bw = 1.0 / fq;
-		double c = 1.0 / tan(rad * 1.0 * bw);
-		//double d = 2.0 * cos(2.0 * r * cutoff);
+			fq = 0.5;
+		//double c = 1.0 / tan((PI * cutoff) / (fq * synthParams.sampleRate));
+		double c = 1.0 / tan(rad * cutoff / fq);
+		//double d = 2.0 * cos(2.0 * PI * cutoff / synthParams.sampleRate);
 		double d = 2.0 * cos(synthParams.frqRad * cutoff);
 		double oned = 1.0 / (1.0 + c);
 
