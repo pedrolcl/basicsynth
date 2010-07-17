@@ -286,7 +286,6 @@ public:
 	virtual void Restart() { nxtSamp = samples; }
 	/// Shutdown the device buffer.
 	virtual void Shutdown() { }
-
 };
 
 /// Wave output class for 16-bit PCM sample output.
@@ -344,7 +343,6 @@ public:
 		*nxtSamp++ = (float)value;
 		sampleTotal++;
 	}
-
 };
 
 /// Wave file writer (PCM). WaveFile manages output to a WAV file.

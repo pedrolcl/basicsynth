@@ -74,6 +74,7 @@ public:
 	virtual void Restart();
 	/// Destroy the DirectSound buffer.
 	virtual void Shutdown();
+
 	/// Flush output.
 	/// This overrides the base class method and is the point
 	/// where we need to switch to another block in the sound
