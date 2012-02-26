@@ -134,8 +134,8 @@ void FindReplDlg::DoReplace(int inSel)
 
 LRESULT FindReplDlg::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-//	if (ed)
-//		::SetFocus(ed->m_hWnd);
+	if (ed)
+		ed->Focus();
 	ShowWindow(SW_HIDE);
 	return 0;
 }

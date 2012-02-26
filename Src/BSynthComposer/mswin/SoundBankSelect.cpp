@@ -62,14 +62,20 @@ int SelectSoundBankPreset(bsString& file, MIDIControl *instr, int chnl)
 	SoundBankSelect dlg;
 
 	dlg.fileID = file;
-	dlg.bnkNum = instr->GetBank(chnl);
-	dlg.insNum = instr->GetPatch(chnl);
+	if (instr && chnl >= 0)
+	{
+		dlg.bnkNum = instr->GetBank(chnl);
+		dlg.insNum = instr->GetPatch(chnl);
+	}
 
 	if (dlg.DoModal() == IDOK)
 	{
 		file = dlg.fileID;
-		instr->SetBank(chnl, dlg.bnkNum);
-		instr->SetPatch(chnl, dlg.insNum);
+		if (instr && chnl >= 0)
+		{
+			instr->SetBank(chnl, dlg.bnkNum);
+			instr->SetPatch(chnl, dlg.insNum);
+		}
 		return 1;
 	}
 	return 0;

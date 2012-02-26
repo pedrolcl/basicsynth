@@ -156,6 +156,7 @@ LRESULT CMainDlg::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandle
 
 void CMainDlg::ShutDown()
 {
+	HCURSOR c = SetCursor(LoadCursor(0, IDC_WAIT));
 	KeyboardOff();
 	GMSynthStop();
 	GMSynthClose();
@@ -171,6 +172,7 @@ void CMainDlg::ShutDown()
 		rk.SetStringValue("Scale", value);
 		rk.Close();
 	}
+	SetCursor(c);
 	//DestroyWindow();
 	::PostQuitMessage(0);
 }
@@ -240,7 +242,7 @@ LRESULT CMainDlg::OnBnClickedLoad(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 	if (BrowseFile(1, file, "MIDI|*.mid|", "mid"))
 	{
 		midFile = file;
-		if (GMSynthLoadSequence(file, "SF", -1) != GMSYNTH_NOERROR)
+		if (GMSynthLoadSequence(file, "SF", 0xffff) != GMSYNTH_NOERROR)
 		{
 			MessageBox("Could not load MIDI file", "Ooops...", MB_OK|MB_ICONHAND);
 			return 0;
@@ -565,7 +567,7 @@ LRESULT CMainDlg::OnPreset(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 LRESULT CMainDlg::OnDeltaposChannelSpin(int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/)
 {
-	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+//	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 	kbdChannel = (GetDlgItemInt(IDC_KEYBOARD_CHANNEL) - 1) & 0x0F;
 
 	return 0;

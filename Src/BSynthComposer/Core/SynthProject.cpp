@@ -55,9 +55,11 @@ void SynthProject::Init()
 	playFrom = 0;
 	playTo = 0;
 	playMode = 0;
+	cbRate = 1.0;
 
 	prjMidiIn.SetSequenceInfo(&seq, &mgr);
 	prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
+	seq.SetResolution(prjOptions.tickRes);
 
 	InstrMapEntry *ime;
 	if (prjOptions.inclInstr & 0x001)
@@ -131,7 +133,7 @@ void SynthProject::Init()
 		ime->paramToID = MixerControl::MapParamID;
 		ime->paramToName = MixerControl::MapParamName;
 		ime->dumpTmplt = DestroyTemplate;
-		InstrConfig *mi = mgr.AddInstrument(0, ime, 0);
+		InstrConfig *mi = mgr.AddInstrument(-1, ime, 0);
 		mi->SetName("[mixer]");
 	}
 	if (prjOptions.inclInstr & 0x400)
@@ -147,6 +149,8 @@ void SynthProject::Init()
 		ime->paramToID = GMPlayer::MapParamID;
 		ime->paramToName = GMPlayer::MapParamName;
 		ime->dumpTmplt = DestroyTemplate;
+		InstrConfig *mi = mgr.AddInstrument(-1, ime, GMPlayer::InstrFactory(&mgr, 0));
+		mi->SetName("[midiplayer]");
 	}
 	if (prjOptions.inclInstr & 0x1000)
 	{
@@ -173,12 +177,6 @@ void SynthProject::InitProject()
 	wvoutInfo->AddRef();
 	wvoutInfo->SetParent(this);
 	prjTree->AddNode(wvoutInfo);
-
-	midiInfo = new MidiItem;
-	midiInfo->AddRef();
-	midiInfo->SetParent(this);
-	if (prjOptions.inclMIDI)
-		prjTree->AddNode(midiInfo);
 
 	mixInfo = new MixerItem;
 	mixInfo->AddRef();
@@ -224,6 +222,12 @@ void SynthProject::InitProject()
 	libInfo->SetParent(this);
 	if (prjOptions.inclLibraries)
 		prjTree->AddNode(libInfo);
+
+	midiInfo = new MidiItem;
+	midiInfo->AddRef();
+	midiInfo->SetParent(this);
+	if (prjOptions.inclMIDI)
+		prjTree->AddNode(midiInfo);
 
 	sblInfo = new SoundBankList;
 	sblInfo->AddRef();
@@ -325,10 +329,6 @@ int SynthProject::Load(XmlSynthElem *node)
 		{
 			itmerr = synthInfo->Load(child);
 		}
-		else if (child->TagMatch("midi"))
-		{
-			itmerr = midiInfo->Load(child);
-		}
 		else if (child->TagMatch("out"))
 		{
 			itmerr = wvoutInfo->Load(child);
@@ -371,7 +371,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		}
 		else if (child->TagMatch("seq"))
 		{
-			FileItem *fi = new FileItem;
+			FileItem *fi = seqInfo->NewChild();
 			fi->SetParent(seqInfo);
 			itmerr = fi->Load(child);
 			if (prjOptions.inclSequence)
@@ -379,7 +379,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		}
 		else if (child->TagMatch("text"))
 		{
-			FileItem *fi = new FileItem;
+			FileItem *fi = txtInfo->NewChild();
 			fi->SetParent(txtInfo);
 			itmerr = fi->Load(child);
 			if (prjOptions.inclTextFiles)
@@ -387,7 +387,7 @@ int SynthProject::Load(XmlSynthElem *node)
 		}
 		else if (child->TagMatch("script"))
 		{
-			FileItem *fi = new FileItem;
+			FileItem *fi = scriptInfo->NewChild();
 			fi->SetParent(scriptInfo);
 			itmerr = fi->Load(child);
 			if (prjOptions.inclScripts)
@@ -400,6 +400,10 @@ int SynthProject::Load(XmlSynthElem *node)
 			itmerr = sbi->Load(child);
 			if (prjOptions.inclSoundFonts)
 				prjTree->AddNode(sbi);
+		}
+		else if (child->TagMatch("midi"))
+		{
+			itmerr = midiInfo->Load(child);
 		}
 		if (itmerr)
 		{
@@ -477,7 +481,6 @@ int SynthProject::Save(XmlSynthElem *node)
 	libPath->Save(node);
 
 	synthInfo->Save(node);
-	midiInfo->Save(node);
 	wvoutInfo->Save(node);
 	mixInfo->Save(node);
 	wfInfo->Save(node);
@@ -488,6 +491,7 @@ int SynthProject::Save(XmlSynthElem *node)
 	seqInfo->Save(node);
 	txtInfo->Save(node);
 	scriptInfo->Save(node);
+	midiInfo->Save(node);
 
 	return 0;
 }
@@ -500,6 +504,7 @@ int SynthProject::NewProject(const char *fname)
 	SetAuthor(prjOptions.defAuthor);
 	SetCopyright(prjOptions.defCopyright);
 	int ok = ItemProperties();
+	prjTree->UpdateNode(this);
 	synthInfo->NewProject();
 	mixInfo->SetMixerInputs(1, 0);
 	mixInfo->SetChannelOn(0, 1);
@@ -686,8 +691,9 @@ int SynthProject::GenerateSequence(nlConverter& cvt)
 		cvt.SetErrorCallback(&ecb);
 		err = cvt.Generate();
 	}
-	// TODO: load MIDI files (.mid)
 	cvtActive = 0;
+	if (midiInfo)
+		err |= midiInfo->Generate(&mgr, &seq);
 	return err;
 }
 
@@ -716,7 +722,7 @@ int SynthProject::GenerateToFile()
 	}
 	if (prjGenerate)
 		prjGenerate->AddMessage("Start sequencer...");
-	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
+	seq.SetCB(SeqCallback, (bsInt32)(synthParams.sampleRate * cbRate), (Opaque)this);
 	seq.Sequence(mgr, playFrom*synthParams.isampleRate, playTo*synthParams.isampleRate);
 	seq.SetCB(0, 0, 0);
 	wvoutInfo->CloseOutput(wvOut, &mix);
@@ -735,10 +741,10 @@ int SynthProject::Finished(int ret)
 
 int SynthProject::Generate()
 {
-	mixInfo->InitMixer();
-
 	if (SetupSoundDevice(prjOptions.playBuf))
 		return -1;
+
+	mixInfo->InitMixer();
 	mgr.Init(&mix, wop);
 
 	nlConverter cvt;
@@ -746,47 +752,51 @@ int SynthProject::Generate()
 	cvt.SetSequencer(&seq);
 	cvt.SetSampleRate(synthParams.sampleRate);
 
-	if (GenerateSequence(cvt))
-		return -1;
-
-	if (prjGenerate)
-		prjGenerate->AddMessage("Start sequencer...");
-	seq.SetCB(SeqCallback, synthParams.isampleRate, (Opaque)this);
-
-	// For now, if MIDI is currently active, allow playing along
-	// with the sequence. This might need to be changed to a separate
-	// option.
-	SeqState ss = seqSeqOnce;
-	if (prjMidiIn.IsOn())
-		ss |= seqPlay;
-
-	// Generate the output...
-	bsInt32 fromSamp = playFrom * synthParams.isampleRate;
-	bsInt32 toSamp = playTo * synthParams.isampleRate;
-	if (seq.GetTrackCount() > 1 || ss & seqPlay)
-		seq.SequenceMulti(mgr, fromSamp, toSamp, ss);
-	else // optimal single track playback
-		seq.Sequence(mgr, fromSamp, toSamp);
-	seq.SetCB(0, 0, 0);
-
-	AmpValue lv, rv;
-	long pad;
-	if (wvoutInfo)
+	int ok = 0;
+	if ((ok = GenerateSequence(cvt)) == 0)
 	{
-		pad = (long) (wvoutInfo->GetTailOut() * synthParams.sampleRate);
-		while (pad-- > 0)
+		if (prjGenerate)
+			prjGenerate->AddMessage("Start sequencer...");
+		seq.SetCB(SeqCallback, (bsInt32)(synthParams.sampleRate * cbRate), (Opaque)this);
+
+		// For now, if MIDI is currently active, allow playing along
+		// with the sequence. This might need to be changed to a separate
+		// option.
+		SeqState ss = seqSeqOnce;
+		if (prjMidiIn.IsOn())
+			ss |= seqPlay;
+
+		// Generate the output...
+		bsInt32 fromSamp = (playFrom * synthParams.isampleRate) / 10;
+		bsInt32 toSamp = (playTo * synthParams.isampleRate) / 10;
+		if (seq.GetTrackCount() > 1 || ss & seqPlay)
+			seq.SequenceMulti(mgr, fromSamp, toSamp, ss);
+		else // optimal single track playback
+			seq.Sequence(mgr, fromSamp, toSamp);
+		seq.SetCB(0, 0, 0);
+
+		int cancel = 0;
+		if (prjGenerate)
+			cancel = prjGenerate->WasCanceled();
+		if (!cancel)
 		{
-			mix.Out(&lv, &rv);
-			wop->Output2(lv, rv);
+			AmpValue lv, rv;
+			long pad;
+			// Drain all output.
+			if (wvoutInfo)
+				pad = (long) (wvoutInfo->GetTailOut() * synthParams.sampleRate);
+			else
+				pad = (long) (synthParams.sampleRate * prjOptions.playBuf);
+
+			while (pad-- > 0 && !cancel)
+			{
+				mix.Out(&lv, &rv);
+				wop->Output2(lv, rv);
+				if (prjGenerate)
+					cancel = prjGenerate->WasCanceled();
+			}
 		}
 	}
-
-	// Drain all output by filling the output buffer with zeros.
-	lv = 0;
-	rv = 0;
-	pad = (long) (synthParams.sampleRate * prjOptions.playBuf) * 4;
-	while (pad-- > 0)
-		wop->Output2(lv, rv);
 
 	wop->Shutdown();
 	delete wop;
@@ -795,7 +805,7 @@ int SynthProject::Generate()
 	// re-initialize in case of dynamic mixer control changes
 	mixInfo->InitMixer();
 
-	return 0;
+	return ok;
 }
 
 // Start live playback from keyboard (virtual and/or MIDI).

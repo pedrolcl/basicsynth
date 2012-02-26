@@ -10,6 +10,24 @@
 #include "resource.h"
 #include "QueryValueDlg.h"
 
+// this is used to convert text. Only one string at a time
+// since this utilizes a shared buffer.
+static const wchar_t *WideChar(const char *in)
+{
+	static wchar_t *namebuffer = 0;
+	static size_t namelen = 0;
+	size_t inlen = strlen(in);
+	if (inlen >= namelen)
+	{
+		delete namebuffer;
+		namebuffer = new wchar_t[inlen+1];
+		namelen = inlen+1;
+	}
+	int len = MultiByteToWideChar(CP_UTF8, 0, in, (int)inlen, namebuffer, (int)namelen-1);
+	namebuffer[len] = 0;
+	return namebuffer;
+}
+
 void WidgetGroup::Paint(DrawContext dc)
 {
 	Graphics *gr = (Graphics *)dc;
@@ -368,7 +386,7 @@ void SwitchWidget::DrawLabel(DrawContext dc)
 		rcf.Y = lblRect.y;
 		rcf.Width = lblRect.w;
 		rcf.Height = lblRect.h;
-		FontFamily lblff(L"Tahoma");
+		FontFamily lblff(WideChar(form->LabelFont()));
 		StringFormat lblFmt;
 		int lblStyle = FontStyleRegular;
 		if (bold)
@@ -383,9 +401,7 @@ void SwitchWidget::DrawLabel(DrawContext dc)
 			lblFmt.SetAlignment(StringAlignmentFar);
 		lblFmt.SetLineAlignment(StringAlignmentCenter);
 		Font lblFont(&lblff, lblHeight, lblStyle, UnitPixel);
-		int textLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lbl, -1, 0, 0);
-		wchar_t *wtext = new wchar_t[textLen];
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lbl, -1, wtext, (int)textLen);
+		const wchar_t *lblw = WideChar(lbl);
 		if (shadow)
 		{
 			SolidBrush blk(Color::Black);
@@ -394,7 +410,7 @@ void SwitchWidget::DrawLabel(DrawContext dc)
 			sr.Y = rcf.Y + shadow;
 			sr.Width = rcf.Width;
 			sr.Height = rcf.Height;
-			gr->DrawString(wtext, -1, &lblFont, sr, &lblFmt, &blk);
+			gr->DrawString(lblw, -1, &lblFont, sr, &lblFmt, &blk);
 		}
 		ARGB c;
 		if (enable)
@@ -402,8 +418,7 @@ void SwitchWidget::DrawLabel(DrawContext dc)
 		else
 			c = 0x80000000;
 		SolidBrush br(c);
-		gr->DrawString(wtext, -1, &lblFont, rcf, &lblFmt, &br);
-		delete wtext;
+		gr->DrawString(lblw, -1, &lblFont, rcf, &lblFmt, &br);
 	}
 }
 
@@ -503,10 +518,11 @@ void SlideSwitchWidget::Paint(DrawContext dc)
 void *ImageWidget::LoadImage(char *file)
 {
 	char path[MAX_PATH];
-	snprintf(path, MAX_PATH, "%s/%s", prjOptions.formsDir, file);
-	wchar_t wpath[MAX_PATH];
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path, -1, wpath, MAX_PATH);
-	return new Bitmap(wpath);
+	if (SynthFileExists(file))
+		strcpy_s(path, MAX_PATH, file);
+	else
+		sprintf_s(path, MAX_PATH, "%s/%s", form->FormsDir(), file);
+	return new Bitmap(WideChar(path));
 }
 
 // todo - cache images
@@ -705,11 +721,8 @@ void TextWidget::Paint(DrawContext dc)
 			SolidBrush bck(bgClr);
 			gr->FillRectangle(&bck, area.x, area.y, area.w, area.h);
 		}
-		int textLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, text, -1, 0, 0);
-		wchar_t *wtext = new wchar_t[textLen];
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, text, -1, wtext, (int)textLen);
 
-		FontFamily ff(L"Arial");
+		FontFamily ff(WideChar(form->LabelFont()));
 		StringFormat sf;
 		if (align == 0) // left
 		{
@@ -734,6 +747,7 @@ void TextWidget::Paint(DrawContext dc)
 		Font textFont(&ff, textHeight, style, UnitPixel);
 		RectF sr;
 
+		const wchar_t *wtext = WideChar(text);
 		if (inset)
 		{
 			SolidBrush blk(Color::Black);
@@ -762,7 +776,6 @@ void TextWidget::Paint(DrawContext dc)
 		sr.Width = area.w;
 		sr.Height = area.h;
 		gr->DrawString(wtext, -1, &textFont, sr, &sf, &br);
-		delete wtext;
 	}
 	if (focus)
 	{

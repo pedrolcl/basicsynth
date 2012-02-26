@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file SoundBankSelectFltk.cpp Sound bank selection dialog implementation.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
 #include "SoundBankSelectFltk.h"
 #include "MainFrm.h"
@@ -54,14 +64,20 @@ int SelectSoundBankPreset(bsString& file, MIDIControl *instr, int chnl)
 	SoundBankSelect dlg;
 
 	dlg.fileID = file;
-	dlg.bnkNum = instr->GetBank(chnl);
-	dlg.preNum = instr->GetPatch(chnl);
+	if (instr && chnl >= 0)
+	{
+		dlg.bnkNum = instr->GetBank(chnl);
+		dlg.preNum = instr->GetPatch(chnl);
+	}
 
 	if (dlg.DoModal())
 	{
 		file = dlg.fileID;
-		instr->SetBank(chnl, dlg.bnkNum);
-		instr->SetPatch(chnl, dlg.preNum);
+		if (instr && chnl >= 0)
+		{
+			instr->SetBank(chnl, dlg.bnkNum);
+			instr->SetPatch(chnl, dlg.preNum);
+		}
 		return 1;
 	}
 	return 0;

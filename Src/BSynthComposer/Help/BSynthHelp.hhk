@@ -91,6 +91,11 @@
 		<param name="Local" value="projectproperties.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Sequencer Files">
+		<param name="Name" value="Sequencer Files">
+		<param name="Local" value="seqfile.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="steps">
 		<param name="Name" value="Basic Synth Step by Step">
 		<param name="Local" value="stepbystep.html">

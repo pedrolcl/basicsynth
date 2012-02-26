@@ -262,6 +262,8 @@ int KnobWidget::GetKnobImage(KnobImageType t)
 	kd->cx = area.w;
 	kd->cy = area.h;
 	kd->tick = tickLen;
+	kd->tmaj = tickMaj;
+	kd->tmin = tickMin;
 	kd->angle = faceAng;
 	kd->style = style;
 	kd->fgClr = fgClr;
@@ -395,13 +397,13 @@ int KnobWidget::Load(XmlSynthElem *elem)
 		v = 0.0;
 	SetValue(v);
 
-	short tic;
-	if (elem->GetAttribute("tickmaj", tic) == 0)
-		tickMaj = tic;
-	if (elem->GetAttribute("tickmin", tic) == 0)
-		tickMin = tic;
-	if (elem->GetAttribute("ticklen", tic) == 0)
-		tickLen = tic;
+	short tmaj = 0;
+	short tmin = 0;
+	short tlen = 0;
+	elem->GetAttribute("tickmaj", tmaj);
+	elem->GetAttribute("tickmin", tmin);
+	elem->GetAttribute("ticklen", tlen);
+	SetTicks(tmaj, tmin, tlen);
 	return 0;
 }
 

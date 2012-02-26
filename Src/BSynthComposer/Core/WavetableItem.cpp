@@ -2,7 +2,7 @@
 // BasicSynth - Project item to represent a wavetable.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -13,7 +13,9 @@
 int WavetableItem::EditItem()
 {
 	EditorView *ed = prjFrame->CreateFormEditor(this);
-	return 1;
+	if (ed)
+        return 1;
+    return 0;
 }
 
 WidgetForm *WavetableItem::CreateForm(int xo, int yo)

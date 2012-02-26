@@ -24,6 +24,7 @@
 class MIDIControlEd : public WidgetForm
 {
 protected:
+	bsString sbFile;
 
 public:
 	MIDIControlEd();

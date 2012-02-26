@@ -38,6 +38,7 @@ public:
 #define VW_ENABLE_SELALL 0x80
 #define VW_ENABLE_FIND   0x100
 #define VW_ENABLE_MARK   0x200
+#define VW_ENABLE_UNMARK 0x400
 
 #define PRJ_ENABLE_SCORES  1
 #define PRJ_ENABLE_SCRIPTS 2
@@ -75,6 +76,7 @@ public:
 	virtual void Cancel() = 0;
 	virtual long EditState() = 0;
 	virtual int IsChanged() = 0;
+	virtual void Focus() = 0;
 };
 
 struct SelectInfo

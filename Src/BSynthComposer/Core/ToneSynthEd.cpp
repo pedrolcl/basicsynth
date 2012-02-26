@@ -35,7 +35,7 @@ void ToneSynthEdit::ValueChanged(SynthWidget *wdg)
 	case 49: // LFO wavetable
 		SelectWavetable(mainGroup->FindID(101));
 		break;
-	case 74: // PB wavetable
+	case 80: // PB wavetable
 		SelectWavetable(wdg);
 		break;
 	default:

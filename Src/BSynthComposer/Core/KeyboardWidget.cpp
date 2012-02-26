@@ -22,6 +22,14 @@ KeyboardWidget::KeyboardWidget()
 	rcWhite = 0;
 	rcBlack = 0;
 	rcLastKey = 0;
+	bmKey[0] = 0;
+	bmKey[1] = 0;
+	bmKey[2] = 0;
+	bmKey[3] = 0;
+	kclr[0] = ClrRGBA(255,255,240);
+	kclr[1] = ClrRGBA(200,200,192);
+	kclr[2] = ClrRGBA(8,8,8);
+	kclr[3] = ClrRGBA(40,40,40);
 	evtID = 1;
 	activeInstr = 0;
 	selectInstr = 0;
@@ -40,6 +48,7 @@ KeyboardWidget::KeyboardWidget()
 
 KeyboardWidget::~KeyboardWidget()
 {
+	DeleteBitmaps();
 	delete[] rcWhite;
 	delete[] rcBlack;
 	ClearNotes();
@@ -78,6 +87,12 @@ void KeyboardWidget::Setup()
 {
 	delete[] rcWhite;
 	delete[] rcBlack;
+	DeleteBitmaps();
+
+	colorMap.Find("kwup", kclr[0]);
+	colorMap.Find("kwdn", kclr[1]);
+	colorMap.Find("kbup", kclr[2]);
+	colorMap.Find("kbdn", kclr[3]);
 
 	rcWhite = new wdgRect[whtKeys];
 	rcBlack = new wdgRect[blkKeys];
@@ -112,12 +127,11 @@ void KeyboardWidget::Setup()
 	// a gap inbetween the groups equal to the width of a white key.
 	int xWhite = space;
 	int xBlack = space + widWhite - (widBlack / 2);
-	int i, on, ndx;
+	int i, on;
 	int ndxw = 0;
 	int ndxb = 0;
 	for (on = 0; on < octs; on++)
 	{
-		ndx = on * 7;
 		for (i = 0; i < 7; i++)
 		{
 			rcWhite[ndxw].x = (int) xWhite + area.x;
@@ -128,7 +142,6 @@ void KeyboardWidget::Setup()
 			ndxw++;
 		}
 
-		ndx = on * 5;
 		for (i = 0; i < 2; i++)
 		{
 			rcBlack[ndxb].x = (int) xBlack + area.x;
@@ -168,6 +181,7 @@ void KeyboardWidget::Setup()
 
 	lastKey = -1;
 	rcLastKey = 0;
+	CreateBitmaps();
 }
 
 int KeyboardWidget::BtnDown(int x, int y, int ctrl, int shift)
@@ -352,10 +366,9 @@ void KeyboardWidget::CopyNotes()
 {
 	const char *comma = ", ";
 	const char *semi  = ";\r\n";
-	const char *obrack = "{";
+//	const char *obrack = "{";
 	const char *cbrack = "}";
 
-	int groupCount = 0;
 	RecNote *note;
 	bsString pitches;
 	if (recGroup)

@@ -3,7 +3,7 @@
 <title>FM Synthesis Instrument</title>
 </head>
 <body>
-<h2><a name="_FM_Synthesis_Instrument"></a>FM Synthesis Instrument<hr/></h2>
+<h2><a name="_FM_Synthesis_Instrument"></a>FM Synthesis Instrument</h2>
 <p>The <i>FMSynth</i> instrument combines three tone generators in one of 
 four arrangements: </p>
     <ol>
@@ -12,13 +12,81 @@ four arrangements: </p>
         <li>Generator II and III both modulate Generator I.</li>
         <li>Generator III modulates both Generator I and II (two carrier).</li>
     </ol>
-</p>A filtered noise generator can be
+<p>A noise generator can be
 mixed with the FM signal to simulate noise transients in the sound. Both the FM
-signal and noise signal can be fed to an all-pass delay line to add resonance
+signal and noise signal can be fed to a feedback delay line to add resonance and/or echo
 to the sound.</p>
-<h3>Patch Diagram<hr/></h3>
+<h3>Patch Diagram</h3>
 <img src="images/fmsynthdiag.jpg" alt="FMSynth diagram" />
-<h3>Configuration<hr/></h3>
+<h3>Configuration</h3>
+<p>The <em>FMSynth</em> instrument editor is shown below.</p>
+<img src="images/fmsynthedit.jpg" alt="tone editor" />
+<h4>Generators</h4>
+<p>
+The four generators (GEN I, II, III and Noise) have separate frequency and envelope configurations.
+The frequency setting for the oscillators sets a multiple of the note frequency. The <b>Freq. X</b>
+knob sets the integer multiple of the frequency while the <b>Fine</b> knob sets the fractional part
+of the frequency. The oscillator frequency is the note pitch multiplied by the sum of the integer and
+fractional parts (f = note * (FreqX + Find)). The <b>WT</b> selection sets the wavetable (waveform)
+for each oscillator. The <b>Select</b> button allows selection of any waveform defined for the 
+synthesizer. (See <a href="step2.html">Configuring Wavetables</a> for information on defining new waveforms.)
+</p>
+<p>
+The Noise generator provides a variable noise sampling rate and a ring modulator that can be
+applied to the noise signal. The <b>Osc</b> knob sets the frequency 
+of the ring modulation oscillator while the <b>Rnd-H</b> knob sets the rate at which random values are
+generated. These two settings in combination affect the "color" of the noise.
+</p>
+<h4>Envelopes</h4>
+<p>
+The envelope for each signal generator is set independently. 
+The envelope controls amplitude of the oscillator. For GEN I (carrier) and Noise, this is the volume
+level. For GEN II and III the envelope value is the index of modulation.
+The <b>Start</b> knob sets the starting level. For GEN I (carrier) this is usually set to 0.
+For a modulator the start level is often greater than 0 and sets the initial index of modulation.
+The <b>Attack</b> knob sets the attack time in seconds.
+The <b>Peak</b> knob sets the envelop level at the end of the attack. 
+The <b>Decay</b> knob sets the amount of time the envelope takes to move from the peak level to the sustain level.
+The <b>Sustain</b> knob sets the level held over the note duration.
+The <b>Release</b> knob sets the final release time in seconds. Release is initiated when the note is stopped
+and is the time the envelope takes to decay from the current note level to the end level.
+The <b>End</b> knob sets the final level of the envelope. 
+The <b>Curve</b> selects linear, exponential or logarithmic envelopes.
+</p>
+<h4>Modulation Algorithm</h4>
+<p>The buttons to the right of the editor select the internal connections between the oscillators.
+Each generator is labeled in the diagram. The top switch sends the output of GEN II to the frequency
+input of GEN I. The second button sends the output of GEN III to the input of GEN II, which is then
+applied to the frequency of GEN I. The third button applies the sum of GEN II and III to the frequency
+of GEN I. The fourth button applies the output of GEN III to both GEN I and II, and adds the output
+of GEN I and II. Note that in this configuration, the envelope for GEN II specifies volume level, not
+modulation.
+</p>
+<h4>LFO</h4>
+<p>
+The LFO (Low Frequency Oscillator) produces vibrato. The <b>Frequency</b> knob sets the vibrato rate in Hz.
+The <b>Attack</b> knob sets the time in second for the vibrato to become active. The <b>Depth</b> knob sets
+the amount of vibrato in semitones. A value of 1 indicates a half-step in pitch. Fractional values can be used
+to set vibrato to cents of pitch, e.g., 0.1 is equivalent to 10 cents. The buttons to the left of the <b>Depth</b>
+knob select the LFO waveform. Use the <b>Select</b> button to choose a waveform other than a sine wave.
+LFO is applied to each of GEN I, II, and III.
+</p>
+<h4>Delay Line</h4>
+<p>The <b>Delay</b>, <b>Decay</b>, and <b>Mix</b> knobs next to the LFO set the parameters of a delay line.
+The <b>Delay</b> value sets the length of the delay line in seconds. The <b>Decay</b> knob sets the feedback
+level as the time it takes the feedback level to decay 60dB. The <b>Mix</b> knob sets the amount of the signal
+from the delay line that is added to the final output.</p>
+<h4>Signal Mixer</h4>
+<p>The group of knobs to the right of the delay line sets the mix of oscillator, noise and delay.
+The <b>FM Mix</b> knob sets the amount of the oscillator output applied to the final output.
+The <b>FM Dly</b> knob sets the amount of the oscillator output applied to the delay line input.
+The <b>NZ Mix</b> knob sets the amount of the noise output applied to the final output.
+The <b>NZ Dly</b> knob sets the amount of the noise output applied to the delay line input.
+The <b>Pan</b> switch enables internall panning. When ON, the output is panned by the setting of the
+<b>Pan</b> knob instead of the main mixer pan setting.
+</p>
+
+<h4>Project and Notelist ID Values</h4>
 <p>The following table shows the parameter numbers and the
 equivalent XML tag and attribute values for the <i>FMSynth</i> instrument. </p>
 
@@ -480,7 +548,7 @@ equivalent XML tag and attribute values for the <i>FMSynth</i> instrument. </p>
   <td><p>Pitch bend WT rate (only settable during performance)</p></td>
  </tr>
 </table>
-<h3>XML Format<hr/></h3>
+<h3>XML Format</h3>
     <pre>
 &lt;instr id=&quot;&quot; type=&quot;FMSynth&quot; name=&quot;&quot;&gt;
   &lt;fm mix=&quot;&quot; dly=&quot;&quot; alg=&quot;&quot; pon=&quot;&quot; pan=&quot;&quot; /&gt;

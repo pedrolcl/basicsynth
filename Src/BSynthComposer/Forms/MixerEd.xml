@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout type="Mixer" x="0" y="0" w="800" h="240" bg="bg" fg="fg">
-  <wdg name="master" id="0" ty="group" x="0" y="5" w="140" h="245" bord="0" fr="bg" bg="bg">
-    <wdg id="1" ty="label" x="0" y="10" w="140" h="20" lbl="Master" th="16" italic="1" bold="1" shadow="1" align="1" fg="hdr" bg="bg" />
-    <wdg id="4" ty="baseknob" x="20" y="40" w="100" h="100" val="1" lo="0" hi="2" prec="3" hiclr="shinyhi" loclr="shinylo" />
-    <wdg id="5" ty="label" x="20" y="145" w="100" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
+  <group name="master" id="0"  x="0" y="5" w="140" h="245" bord="0" fr="bg" bg="bg">
+    <label id="1"  x="0" y="10" w="140" h="20" lbl="Master" th="16" italic="1" bold="1" shadow="1" align="1" fg="hdr" bg="bg" />
+    <baseknob id="4"  x="20" y="40" w="100" h="100" val="1" lo="0" hi="2" prec="3" hiclr="shinyhi" loclr="shinylo" />
+    <label id="5"  x="20" y="145" w="100" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
     <pair knb="4" lbl="5" />
-    <wdg id="6" ty="pushbutton" x="20" y="175" w="100" h="30" lbl="Save" fg="cmd" />
-    <wdg id="8" ty="pushbutton" x="20" y="210" w="100" h="30" lbl="Clear" fg="cmd" />
-  </wdg>
-  <wdg name="labels" id="0" ty="group" x="140" y="5" w="50" h="175" >
-    <wdg id="12" ty="box" x="0" y="0" w="2" h="240" style="1" fg="shinylo" bg="shinyhi" />
-    <wdg id="9" ty="label" x="5" y="0" w="40" h="20" th="14" lbl="Chnl." fg="label" bg="bg" />
-    <wdg id="10" ty="label" x="5" y="40" w="40" h="20" th="14" lbl="Vol." fg="label" bg="bg" />
-    <wdg id="11" ty="label" x="5" y="115" w="40" h="20" th="14" lbl="Pan." fg="label" bg="bg" />
-  </wdg>
-  <wdg name="input" id="20" ty="group" x="200" y="5" w="50" h="175" bord="0" fr="bg" bg="bg">
-    <wdg name="inon" id="21" ty="pushswitch" x="0" y="0" w="50" h="20" th="12" lbl="0" fg="btnlabel" bg="bg" />
-    <wdg name="volval" id="22" ty="baseknob" x="0" y="25" w="50" h="50" val="0.5" lo="0" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
-    <wdg name="vollbl" id="23" ty="label" x="0" y="80" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
-    <wdg name="panval" id="24" ty="baseknob" x="0" y="100" w="50" h="50" val="0" lo="-1" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
-    <wdg name="panlbl" id="25" ty="label" x="0" y="155" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
+    <pushbutton id="6"  x="20" y="175" w="100" h="30" lbl="Save" fg="cmd" />
+    <pushbutton id="8"  x="20" y="210" w="100" h="30" lbl="Clear" fg="cmd" />
+  </group>
+  <group name="labels" id="0"  x="140" y="5" w="50" h="175" >
+    <box id="12"  x="0" y="0" w="2" h="240" style="1" fg="shinylo" bg="shinyhi" />
+    <label id="9"  x="5" y="0" w="40" h="20" th="14" lbl="Chnl." fg="label" bg="bg" />
+    <label id="10"  x="5" y="40" w="40" h="20" th="14" lbl="Vol." fg="label" bg="bg" />
+    <label id="11"  x="5" y="115" w="40" h="20" th="14" lbl="Pan." fg="label" bg="bg" />
+  </group>
+  <group name="input" id="20"  x="200" y="5" w="50" h="175" bord="0" fr="bg" bg="bg">
+    <pushswitch name="inon" id="21"  x="0" y="0" w="50" h="20" th="12" lbl="0" fg="btnlabel" bg="bg" />
+    <baseknob name="volval" id="22"  x="0" y="25" w="50" h="50" val="0.5" lo="0" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
+    <label name="vollbl" id="23"  x="0" y="80" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
+    <baseknob name="panval" id="24"  x="0" y="100" w="50" h="50" val="0" lo="-1" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
+    <label name="panlbl" id="25"  x="0" y="155" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
     <pair knb="22" lbl="23" />
     <pair knb="24" lbl="25" />
-  </wdg>
-  <wdg name="send" id="20" ty="group" x="200" y="180" w="50" h="70" bord="0" fr="bg" bg="bg">
-    <wdg name="sendval" id="26" ty="baseknob" x="0" y="0" w="50" h="50" val="0" lo="0" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
-    <wdg name="sendlbl" id="27" ty="label" x="0" y="55" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
+  </group>
+  <group name="send" id="20"  x="200" y="180" w="50" h="70" bord="0" fr="bg" bg="bg">
+    <baseknob name="sendval" id="26"  x="0" y="0" w="50" h="50" val="0" lo="0" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
+    <label name="sendlbl" id="27"  x="0" y="55" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
     <pair knb="26" lbl="27" />
-  </wdg>
-  <wdg name="effect" id="20" ty="group" x="0" y="5" w="50" h="200" bord="0" fr="bg" bg="bg">
-    <wdg name="fxedit" id="21" ty="pushbutton" x="0" y="0" w="50" h="20" th="12" lbl="0" fg="btnlabel" bg="bg" />
-    <wdg name="fxvolval" id="22" ty="baseknob" x="0" y="25" w="50" h="50" val="0.5" lo="0" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
-    <wdg name="fxvollbl" id="23" ty="label" x="0" y="80" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
-    <wdg name="fxpanval" id="24" ty="baseknob" x="0" y="100" w="50" h="50" val="0" lo="-1" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
-    <wdg name="fxpanlbl" id="25" ty="label" x="0" y="155" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
+  </group>
+  <group name="effect" id="20"  x="0" y="5" w="50" h="200" bord="0" fr="bg" bg="bg">
+    <pushbutton name="fxedit" id="21"  x="0" y="0" w="50" h="20" th="12" lbl="0" fg="btnlabel" bg="bg" />
+    <baseknob name="fxvolval" id="22"  x="0" y="25" w="50" h="50" val="0.5" lo="0" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
+    <label name="fxvollbl" id="23"  x="0" y="80" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
+    <baseknob name="fxpanval" id="24"  x="0" y="100" w="50" h="50" val="0" lo="-1" hi="1" prec="3" hiclr="shinyhi" loclr="shinylo" />
+    <label name="fxpanlbl" id="25"  x="0" y="155" w="50" h="15" th="12" align="1" filled="1" edit="1" bg="black" fg="volume"/>
     <pair knb="22" lbl="23" />
     <pair knb="24" lbl="25" />
-    <wdg name="fxname" id="26" ty="label" x="0" y="180" w="50" h="15" th="12" align="1" bg="bg" fg="label"/>
-  </wdg>
+    <label name="fxname" id="26"  x="0" y="180" w="50" h="15" th="12" align="1" bg="bg" fg="label"/>
+  </group>
 </layout>

@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-
+#include <locale.h>
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
@@ -28,6 +28,16 @@ const GUID DSDEVID_DefaultPlayback = {0xdef00000, 0x9c6d, 0x47ed, 0xaa, 0xf1, 0x
 
 int Run(LPTSTR cmd = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
+// The C-runtime functions atof, sprintf, etc., use the locale
+// to set the character for a decimal point. In order
+// for XML and Notelist files to be consistent on different 
+// locales, a call to setlocale(LC_NUMERIC, "C") needs to be made
+// at some point. This is not the ideal solution since it also
+// affects the UI. There are versions of atof and sprintf that take a
+// locale parameter (atof_l), but these are not consistent across
+// various compilers.
+	setlocale(LC_NUMERIC, "C");
+
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 	LoadString(_Module.GetResourceInstance(), IDS_PRODUCT, _Module.ProductName, 80);

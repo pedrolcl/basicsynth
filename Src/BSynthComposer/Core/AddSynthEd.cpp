@@ -129,7 +129,7 @@ void AddSynthEdit::SetRateRange(float rtVal)
 		rtVal = rtRange->GetValue();
 
 	KnobBased *rt;
-	int fid = 221;
+	int fid = 223;
 	for (int sn = 0; sn < MAXADDSEG; sn++)
 	{
 		rt = (KnobBased *)mainGroup->FindID(fid);
@@ -276,7 +276,17 @@ void AddSynthEdit::ValueChanged(SynthWidget *wdg)
 
 	if (id == 32) // osc. wavetable
 	{
-		SelectWavetable(mainGroup->FindID(25), 1);
+		// need to modify IP for current partial
+		//SelectWavetable(mainGroup->FindID(25), 1);
+		SynthWidget *wtgrp = mainGroup->FindID(25);
+		if (wtgrp != NULL)
+		{
+			float val = (float) SelectWavetable((int) wtgrp->GetValue());
+			wtgrp->SetValue(val);
+			tone->SetParam(((curPart+1) << 8) | (wtgrp->GetIP() & 0xff), val);
+			Redraw(wdg);
+			theProject->SetChange(1);
+		}
 		return;
 	}
 
@@ -345,7 +355,7 @@ void AddSynthEdit::ValueChanged(SynthWidget *wdg)
 		egWdg->SetStart(val);
 		Redraw(egWdg);
 	}
-	else if (id == 204) // start
+	else if (id == 204) // sustain
 	{
 		egWdg->SetSus((int)val);
 		Redraw(egWdg);

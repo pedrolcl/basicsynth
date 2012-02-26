@@ -46,6 +46,7 @@ private:
 	CEdit edName;
 	
 	void EnableUpDn();
+	void SetButtonImage(int ctrl, int imgid);
 	//void EnableOK();
 
 public:

@@ -80,7 +80,22 @@ public:
 	virtual int Open()
 	{
 		position = 0;
-		return input.FileOpen(filename) == 0;
+		if (input.FileOpen(filename) == 0)
+		{
+			// Skip BOM on UTF-8 file
+			if (input.ReadCh() == 0xEF
+			 && input.ReadCh() == 0xBB
+			 && input.ReadCh() == 0xBF)
+			{
+				position = 3;
+			}
+			else
+			{
+				input.FileRewind();
+			}
+			return 1;
+		}
+		return 0;
 	}
 
 	virtual int Close()
@@ -110,6 +125,14 @@ public:
 		start = (unsigned char *)p;
 		current = start;
 		end = start + n;
+		// Skip UTF-8 BOM
+		if (n >= 3
+		 && start[0] == 0xEF
+		 && start[1] == 0xBB
+		 && start[2] == 0xBF)
+		{
+			current += 3;
+		}
 	}
 
 	virtual ~nlLexFileMem()
@@ -181,6 +204,7 @@ private:
 	int   theToken;
 	int   nLineno;
 	int   position;
+	double version;
 	nlLexIn *in;
 			
 public:
@@ -189,10 +213,30 @@ public:
 
 	inline nlLexIn *GetLexIn() { return in; }
 	inline void SetLexIn(nlLexIn *p) { in = p; }
+	inline void Version(double v) { version = v; }
 
 	int Open(nlLexIn *p);
 	void Close();
 	int Next();
+
+	inline bool SymbolStartChar(int ch)
+	{
+		return (ch >= 'a' && ch <= 'z')
+			|| (ch >= 'A' && ch <= 'Z')
+			|| ch == '_'
+			|| ch == '$'
+			|| ch > 127;
+	}
+
+	inline bool SymbolChar(int ch)
+	{
+		return (ch >= 'a' && ch <= 'z')
+			|| (ch >= 'A' && ch <= 'Z')
+			|| (ch >= '0' && ch <= '9')
+			|| ch == '_'
+			|| ch == '$'
+			|| ch > 127;
+	}
 
 	inline const char *Tokbuf()
 	{
@@ -206,9 +250,10 @@ public:
 
 	inline int Position()
 	{
-		//return in->Position();
 		return position;
 	}
+
+	static int IsKeyword(const char *cTokbuf);
 };
 
 #endif // !defined(_LEX_H_)

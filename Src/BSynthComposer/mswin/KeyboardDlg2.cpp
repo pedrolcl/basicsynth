@@ -8,6 +8,63 @@
 #include "KeyboardDlg2.h"
 //#include "GenerateDlg.h"
 
+void KeyboardWidget::CreateBitmaps()
+{
+	DeleteBitmaps();
+
+	Graphics *gr;
+
+	int cx = rcWhite[0].Width();
+	int cy = rcWhite[0].Height();
+
+	bmKey[0] = new Bitmap(cx, cy);
+	bmKey[1] = new Bitmap(cx, cy);
+
+	RectF wr(0, 0, cx, cy);
+	LinearGradientBrush whup(wr, Color(kclr[0]), Color(32,32,32), 0.0, FALSE);
+	LinearGradientBrush whdn(wr, Color(kclr[1]), Color(8,8,8), 0.0, FALSE);
+	REAL fact[4] = { 1.0f, 0.0f, 0.0f, 1.0f, };
+	REAL pos[4] = { 0.0f, 0.1f, 0.9f, 1.0f };
+	whup.SetBlend(fact, pos, 4);
+	whdn.SetBlend(fact, pos, 4);
+
+	gr = Graphics::FromImage((Bitmap*)bmKey[0]);
+	gr->FillRectangle(&whup, 0, 0, cx, cy);
+	delete gr;
+
+	gr = Graphics::FromImage((Bitmap*)bmKey[1]);
+	gr->FillRectangle(&whdn, 0, 0, cx, cy);
+	delete gr;
+
+	cx = rcBlack[0].Width();
+	cy = rcBlack[0].Height();
+	bmKey[2] = new Bitmap(cx, cy);
+	bmKey[3] = new Bitmap(cx, cy);
+
+	SolidBrush blkup(kclr[2]);
+	SolidBrush blkdn(kclr[3]);
+
+	gr = Graphics::FromImage((Bitmap*)bmKey[2]);
+	gr->FillRectangle(&blkup, 0, 0, cx, cy);
+	delete gr;
+
+	gr = Graphics::FromImage((Bitmap*)bmKey[3]);
+	gr->FillRectangle(&blkdn, 0, 0, cx, cy);
+	delete gr;
+}
+
+void KeyboardWidget::DeleteBitmaps()
+{
+	for (int n = 0; n < 4; n++)
+	{
+		if (bmKey[n])
+		{
+			delete (Bitmap *)bmKey[n];
+			bmKey[n] = 0;
+		}
+	}
+}
+
 void KeyboardWidget::Paint(DrawContext dc)
 {
 	if (!rcWhite || !rcBlack)
@@ -25,6 +82,7 @@ void KeyboardWidget::Paint(DrawContext dc)
 		gr->SetClip(rc);
 	}
 
+#ifdef NO_KEY_BITMAPS
 	// I'm not sure why, but every now and then there is a memory exception
 	// deep, deep down in GDI+. For now, we just trap the exception and blaze
 	// onward. The worst case is part of the screen is not redrawn.
@@ -67,13 +125,42 @@ void KeyboardWidget::Paint(DrawContext dc)
 			}
 			rp++;
 		}
-		Pen pn(Color(0,0,0));
-		gr->DrawRectangle(&pn, area.x, area.y, area.w, area.h);
 	}
 	catch(...)
 	{
 		OutputDebugString("Funky exception in GDI+...\r\n");
 	}
+#else
+	wdgRect *rp = rcWhite;
+	int i;
+	for (i = 0; i < whtKeys; i++)
+	{
+		if (all || rp->Intersects(upd))
+		{
+			if (rp == rcLastKey)
+				gr->DrawImage((Bitmap*)bmKey[1], rp->x, rp->y);
+			else
+				gr->DrawImage((Bitmap*)bmKey[0], rp->x, rp->y);
+		}
+		rp++;
+	}
+	rp = rcBlack;
+	for (i = 0; i < blkKeys; i++)
+	{
+		if (all || upd.Intersects(*rp))
+		{
+			if (rp == rcLastKey)
+				gr->DrawImage((Bitmap*)bmKey[3], rp->x, rp->y);
+			else
+				gr->DrawImage((Bitmap*)bmKey[2], rp->x, rp->y);
+		}
+		rp++;
+	}
+
+#endif
+	Pen pn(Color(0,0,0));
+	gr->DrawRectangle(&pn, area.x, area.y, area.w, area.h);
+
 	upd.SetEmpty();
 	gr->SetClip(&clipRgn);
 }
@@ -129,9 +216,12 @@ void KeyboardDlg2::Load()
 	{
 		form = new KeyboardForm();
 		form->SetFormEditor(this);
-		wdgRect a;
 		if (form->Load(fileName, 0, 0) == 0 && form->GetKeyboard())
 		{
+			int cx = 200;
+			int cy = 100;
+			form->GetSize(cx, cy);
+			wdgRect a(5, 5, 150, cy-10);
 			SynthWidget *wdg = form->GetInstrList();
 			if (wdg)
 			{
@@ -149,9 +239,6 @@ void KeyboardDlg2::Load()
 				if (ic)
 					theProject->prjMidiIn.SetInstrument(ic->inum);
 			}
-			int cx = 200;
-			int cy = 100;
-			form->GetSize(cx, cy);
 			cx += 10;
 			cy += 10;
 			SetWindowPos(NULL, 0, 0, cx, cy, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
@@ -161,7 +248,7 @@ void KeyboardDlg2::Load()
 			bsString msg;
 			msg = "Could not load keyboard form: ";
 			msg += fileName;
-			prjFrame->Alert(msg, "Huh?");
+			prjFrame->Alert(msg, "Oooops...");
 			delete form;
 			form = 0;
 		}

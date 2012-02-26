@@ -16,6 +16,15 @@
 #include "aboutdlg.h"
 #include "maindlg.h"
 
+#ifdef USE_DIRECTSOUND
+#if !USE_SDK_DSOUND
+CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, {0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0} };
+IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, { 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60} };
+typedef HRESULT (WINAPI *tDirectSoundCreate)(const GUID *pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+tDirectSoundCreate DirectSoundCreate;
+#endif
+#endif
+
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
@@ -24,6 +33,9 @@ BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 CMainDlg::CMainDlg()
 {
 #ifdef USE_DIRECTSOUND
+#if !USE_SDK_DSOUND
+	DirectSoundCreate = (tDirectSoundCreate)GetProcAddress(LoadLibrary("dsound.dll"), "DirectSoundCreate");
+#endif
 	dirSndObj = NULL;
 	dirSndBuf = NULL;
 #else

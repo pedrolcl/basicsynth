@@ -19,17 +19,21 @@ int FileItem::ItemActions()
 }
 
 int FileItem::EditItem()
-{ 
-	TextEditor *ed = prjFrame->CreateTextEditor(this);
-	if (ed)
+{
+	if (actions & ITM_ENABLE_EDIT)
 	{
-		if (SynthProject::FullPath(file))
-			fullPath = file;
-		else
-			theProject->FindOnPath(fullPath, file);
-		ed->OpenFile(fullPath);
+		TextEditor *ed = prjFrame->CreateTextEditor(this);
+		if (ed)
+		{
+			if (SynthProject::FullPath(file))
+				fullPath = file;
+			else
+				theProject->FindOnPath(fullPath, file);
+			ed->OpenFile(fullPath);
+		}
+		return 1; 
 	}
-	return 1; 
+	return 0;
 }
 
 int FileItem::SaveItem() 
@@ -115,6 +119,15 @@ int FileItem::CopyFile(const char *srcDir, const char *dstDir)
 	return 0;
 }
 
+int FileItem::CreateNew()
+{
+	if (fullPath.Length() == 0)
+		return -1;
+	if (SynthFileExists(fullPath))
+		return 0;
+	return SynthCreateFile(fullPath, NULL, 0);
+}
+
 ///////////////////////////////////////////////////////////////
 
 int FileList::Load(XmlSynthElem *node)
@@ -125,7 +138,9 @@ int FileList::Load(XmlSynthElem *node)
 		if (child->TagMatch(xmlChild))
 		{
 			FileItem *fi = NewChild();
+			fi->SetParent(this);
 			fi->Load(child);
+			prjTree->AddNode(fi);
 		}
 		XmlSynthElem *sib = child->NextSibling();
 		delete child;
@@ -174,7 +189,11 @@ FileItem* FileList::NewAdd(const char *file)
 	if (ni->ItemActions() & ITM_ENABLE_PROPS)
 	{
 		if (ni->ItemProperties())
+		{
+			if (file == NULL)
+				ni->CreateNew();
 			prjTree->UpdateNode(ni);
+		}
 	}
 	if (ni->ItemActions() & ITM_ENABLE_EDIT)
 		ni->EditItem();

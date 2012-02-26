@@ -1,5 +1,18 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file Text editor window class declaration.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef TEXT_EDITOR_FLTK_H
 #define TEXT_EDITOR_FLTK_H
+
+#include <regex.h>
+#define RESUBS 10
 
 class TextEditorFltk :
 	public Fl_Text_Editor,
@@ -11,12 +24,24 @@ protected:
 	int changed;
 	int findFlags;
 	bsString findText;
+	bsString matchText;
+	int findStart;
+	int findEnd;
+	int matchStart;
+	int matchEnd;
+	regex_t re;
+	regmatch_t resubs[RESUBS];
+
+	bool InitFind(int flags, const char *text, bool insel);
+	bool DoFind();
+	int DoReplace(const char *rtext);
 
 public:
 	TextEditorFltk(int X, int Y, int W, int H);
 	virtual ~TextEditorFltk();
 
 	void TextChanged(int pos, int inserted, int deleted, int restyled);
+	void CallbackEvent(Fl_Widget *wdg);
 	void Resize(wdgRect& rc);
 	void Restyle(int position);
 	void UpdateUI();
@@ -42,6 +67,8 @@ public:
 	virtual void Cancel();
 	virtual long EditState();
 	virtual int IsChanged();
+	virtual void Focus() { take_focus(); }
+
 	virtual int OpenFile(const char *fname);
 	virtual int SaveFile(const char *fname);
 	virtual int GetText(bsString& text);

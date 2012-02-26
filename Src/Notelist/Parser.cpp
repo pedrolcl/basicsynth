@@ -56,7 +56,7 @@ nlParser::nlParser()
 	errCount = 0;
 	lastOct = 4;
 	octMiddleC = 0;
-	nlVersion = 3.0;
+	nlVersion = NOTELIST_VERSION;
 	filename = StrMakeCopy("<unknown>");
 }
 
@@ -479,7 +479,10 @@ int nlParser::Version()
 	if (theToken == T_NUM || theToken == T_STRLIT)
 	{
 		nlVersion = atof(lexPtr->Tokbuf());
+		if (nlVersion > NOTELIST_VERSION)
+			nlVersion = NOTELIST_VERSION;
 		genPtr->SetVersion(nlVersion);
+		lexPtr->Version(nlVersion);
 		theToken = lexPtr->Next();
 	}
 	else
@@ -639,7 +642,6 @@ int nlParser::MaxParam()
 int nlParser::Map()
 {
 	int err = 0;
-	int inGroup = 0;
 
 	nlMapNode *mapNode = new nlMapNode;
 	genPtr->AddNode(mapNode);
@@ -843,7 +845,6 @@ badparam:
 // instrument = 'instr' expr ';'
 int nlParser::Instrument()
 {
-	int err = 0;
 	cvtPtr->DebugNotify(2, "Parse: INSTRUMENT");
 	genPtr->AddNode(new nlInstnumNode);
 	return Param1("inst");
@@ -1570,6 +1571,7 @@ int nlParser::Value()
 	case T_CURDUR:
 	case T_CURVOL:
 	case T_CURTIME:
+	case T_NLVER:
 		genPtr->AddNode(theToken, 0L);
 		break;
 	case T_FGEN:

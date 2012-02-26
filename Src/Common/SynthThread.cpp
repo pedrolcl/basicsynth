@@ -2,7 +2,7 @@
 /// @file SynthThread.cpp Very simple thread class
 //
 // Copyright 2010 Daniel R. Mitchell, All Rights Reserved
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ int SynthThread::WaitThread()
 {
 	try
 	{
-		pthread_join(info->thrdID, NULL); 
+		pthread_join(info->thrdID, NULL);
 		pthread_mutex_destroy(&info->thrdGuard);
 	}
 	catch (...)

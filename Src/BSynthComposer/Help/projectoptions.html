@@ -6,7 +6,8 @@
 <body>
 <h1>Project Options<hr/></h1>
 <p>The Project Options form is used to set options for the synthesizer that apply to all projects. The values in this form are stored
-in the registry and reloaded when <i>BasicSynth</i> starts.</p>
+when the program exits and reloaded when it starts. Some values (such as the Forms directory) are not changed immediately.
+They are applied when a new project is opened.</p>
 <img src="images/projectoptions.jpg" alt="Project Options" />
 <p>
 The <b>Composer</b> field sets the default composer name. The <b>Copyright</b> field sets the default copyright notice.
@@ -35,10 +36,15 @@ The <b>Projects</b> field contains the default directory for project files.
 The <b>Wave-In</b> field contains the default directory for WAV files used by the WFSynth insrument.
 </p>
 <p>
-The <b>Forms</b> field contains the default directory for instrument form files. 
+The <b>Forms</b> field contains the default directory for instrument form files. Normally this value is
+set at installation and should not be changed. However, it is possible to create custom versions of the
+instrument editor forms and then change this value to the alternate directory.
 </p>
 <p>
-The <b>Colors</b> field contains the file containing color definitions for instrument forms.
+The <b>Colors</b> field contains the file containing color definitions for instrument forms. Various
+colors files are located in the Forms directory. A custom colors file can be used to set a color
+scheme preferred by the user. Copy one of the existing files and change the colors as desired.
+If the colors file is not a full path, it is assumed to be in the Forms directory.
 </p>
 <p>
 The <b>Libraries</b> field contains the default directory for instrument library files.
@@ -53,8 +59,18 @@ The <b>Wave Out</b> field allows selection of the wave output device (sound card
 The <b>Play Latency</b> field contains the value in seconds for playback latency. A longer latency time
 creates a larger buffer for sound output. A larger buffer helps to prevent glitches in sound output,
 but produces a longer delay between sound generation and sound output. A value of 1 to 0.1 seconds
-is typical. However, when using a MIDI keyboard, this value should be set to the minimum amount (20 milliseconds) to avoid
-audible delays between key press and sound output.
+is typical. The minimum value varies depending on the sound card and driver, but is generally around 20ms.
+The wave output module may select a value higher than configured if the value is too short. Note: the
+keyboard player does not use this setting. They keyboard will use the smallest possible
+latency available in order to minimize delay between key down and sound output.</p>
+<h3>Options File</h3>
+<p>
+The values entered in the project options dialog are saved and reloaded the next time
+<em>BasicSynth Composer</em> is started. On Windows versions, the settings are stored in the
+registry user HKLM\Software\BasicSynth. On other versions the settings are stored in a file
+in the user's home directory. Each line in the file contains the option name, an equal sign, then the
+option value. This file can be edited directly if needed. It can be copied to another computer to
+transfer the options.
 </p>
 </body>
 </html>

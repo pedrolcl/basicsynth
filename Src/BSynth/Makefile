@@ -1,20 +1,51 @@
+###########################################################################
+# Makefile for BasicSynth command line synthesizer
+#
+# "make all" makes all modules
+# "make clean" removes libraries and executable images 
+# "make new" cleans then rebuilds
+#
+# Dan Mitchell (http://basicsynth.com)
+###########################################################################
 include ../BasicSynth.cfg
 
-$(BSBIN)/BSynth: main.cpp $(CMNLIB) $(NLLIB) $(INSTLIB)
-	$(CPP) $(XMLLIB) -lm -I../Notelist $(CPPFLAGS) -o $@ main.cpp \
-		$(NLLIB) $(INSTLIB) $(CMNLIB)
-	-cp testinst.xml testprj.xml test.nl test2.nl $(BSBIN)
-	-cp tst*synth.xml $(BSBIN)
-	-cp tst*synth.nl $(BSBIN)
-	-cp testnl.xml testnl.nl $(BSBIN)
+.PHONY: all new clean testdata
 
-BSynth: $(BSBIN)/BSynth
+DATAFILES=\
+	testinst.xml \
+	testprj.xml \
+	test.nl \
+	test2.nl \
+	tstaddsynth.xml \
+	tstaddsynth.nl \
+	tstmatsynth.xml \
+	tstmatsynth.nl \
+	tstsubsynth.xml \
+	tstsubsynth.nl \
+	tstfmsynth.xml \
+	tstfmsynth.nl \
+	tsttonesynth.xml \
+	tsttonesynth.nl \
+	testnl.xml \
+	testnl.nl
+
+EXENAME=$(BSBIN)/BSynth$(EXE)
+
+all: $(EXENAME) testdata
+
+new: clean all
+
+testdata: $(DATAFILES)
+	cp $(DATAFILES) $(BSBIN)
+
+$(EXENAME): main.cpp $(CMNLIB) $(NLLIB) $(INSTLIB)
+	$(CPP) $(CPPFLAGS) -o $@ main.cpp $(XMLLIB) -I../Notelist \
+		$(NLLIB) $(INSTLIB) $(CMNLIB) -lm
 
 clean:
-	-rm $(BSBIN)/BSynth
-	-rm $(BSBIN)/testinst.xml $(BSBIN)/testprj.xml
-	-rm $(BSBIN)/test.nl $(BSBIN)/test2.nl
-	-rm $(BSBIN)/testnl.xml $(BSBIN)/testnl.nl
-	-rm $(BSBIN)/tst*synth.xml
-	-rm $(BSBIN)/tst*synth.nl
-	-rm $(BSBIN)/tst*synth.wav
+	-rm -f $(EXENAME)
+	-rm -f $(BSBIN)/testinst.xml $(BSBIN)/testprj.xml
+	-rm -f $(BSBIN)/test.nl $(BSBIN)/test2.nl
+	-rm -f $(BSBIN)/testnl.xml $(BSBIN)/testnl.nl
+	-rm -f $(BSBIN)/tst*synth.xml
+	-rm -f $(BSBIN)/tst*synth.nl

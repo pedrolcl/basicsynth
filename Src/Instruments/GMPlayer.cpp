@@ -22,7 +22,7 @@
 // See SFFile and DLSFile for more info.
 //
 // Copyright 2009-2010, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -183,11 +183,11 @@ int GMPlayer::GetParam(bsInt16 idval, float *val)
 	return 0;
 }
 
-static InstrParamMap gmPlayerParams[] = 
+static InstrParamMap gmPlayerParams[] =
 {
 	{"attn",  GMPLAYER_ATTN },
 	{"bank",  GMPLAYER_BANK },
-	{"local", GMPLAYER_FLAGS }, 
+	{"local", GMPLAYER_FLAGS },
 	{"prog",  GMPLAYER_PROG },
 };
 
@@ -342,7 +342,7 @@ void GMPlayer::Param(SeqEvent *se)
 	if (se->type == SEQEVT_CONTROL)
 	{
 		ControlEvent *evt = (ControlEvent *)se;
-		bsInt16 ch = evt->mmsg & 0x0f;
+		//bsInt16 ch = evt->mmsg & 0x0f;
 		switch (evt->mmsg & 0xf0)
 		{
 		case MIDI_CTLCHG:
@@ -589,7 +589,7 @@ void GMPlayer::GMPlayerZone::Initialize(bsInt16 ch, bsInt16 key, bsInt16 vel)
 		gainQ = SoundBank::Gain(zone->filtQ)/2.0f;
 		filt.CalcCoef(SoundBank::Frequency((bsInt16)initFilter), gainQ);
 		filt.Reset();
-		// Reduce amplitude for High 'Q' values. 
+		// Reduce amplitude for High 'Q' values.
 		// See DLS 2.2, sec 1.5.2
 		initAtten += zone->filtQ / 2.0f;
 	}
@@ -654,6 +654,14 @@ void GMPlayer::GMPlayerZone::Gen()
 		filtVal += lfo * modLfoFlt;
 		attenVal += (1.0 + lfo) * 0.5 * modLfoVol;
 	}
+
+#ifdef _DEBUG
+	// set breakpoints here to catch bad frequency calculations...
+	if (pitchVal < -1200)
+		pitchVal = -1200;
+	else if (pitchVal >= 25501)
+		pitchVal = 25500;
+#endif
 
 	// run the oscillator
 	osc.UpdatePhaseIncr(SoundBank::GetPow2n1200(pitchVal));

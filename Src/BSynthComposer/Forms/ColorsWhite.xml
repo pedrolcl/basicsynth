@@ -54,4 +54,8 @@
   <color name="yellow" val="#ffffff00" />
   <color name="cyan" val="#ff00ffff" />
   <color name="magenta" val="#ffff00ff" />
+  <color name="kwup" val="#ffffffff" />
+  <color name="kwdn" val="#ffc8c8c8" />
+  <color name="kbup" val="#ff080808" />
+  <color name="kbdn" val="#ff303030" />
 </colormap>

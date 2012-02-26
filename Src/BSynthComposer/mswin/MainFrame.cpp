@@ -48,15 +48,97 @@ static TBBUTTON mainButtons[] = {
 	{ 8, ID_EDIT_FIND, 0, BTNS_BUTTON },
 	{ 9, ID_EDIT_FINDNEXT, 0, BTNS_BUTTON },
 	{ 4, 0, 0, BTNS_SEP },
-	{ 10, ID_PROJECT_GENERATE, 0, BTNS_BUTTON },
-	{ 11, ID_PROJECT_PLAY, 0, BTNS_BUTTON },
-	{ 4, 0, 0, BTNS_SEP },
-	{ 12, ID_ITEM_PROPERTIES, 0, BTNS_BUTTON },
-	{ 2, ID_ITEM_SAVE, 0, BTNS_BUTTON },
 	{ 15, ID_ITEM_EDIT, 0, BTNS_BUTTON },
+	{ 2, ID_ITEM_SAVE, 0, BTNS_BUTTON },
+	{ 18, ID_ITEM_CLOSE, 0, BTNS_BUTTON },
 	{ 14, ID_ITEM_NEW, 0, BTNS_BUTTON },
 	{ 16, ID_ITEM_ADD, 0, BTNS_BUTTON },
+	{ 12, ID_ITEM_PROPERTIES, 0, BTNS_BUTTON },
+	{ 4, 0, 0, BTNS_SEP },
+	{ 11, ID_PROJECT_GENERATE, 0, BTNS_BUTTON },
+	{ 17, ID_PROJECT_PLAY, 0, BTNS_BUTTON },
+	{ 4, 0, 0, BTNS_SEP },
+	{ 19, ID_HELP_CONTENTS, TBSTATE_ENABLED, BTNS_BUTTON },
 };
+
+static int idbToolbar[] =
+{
+	IDB_NewProject32,
+	IDB_OpenProject32_1,
+	IDB_SaveProject32,
+	IDB_Cut32,
+	IDB_Copy32,
+	IDB_Paste32,
+	IDB_Undo32,
+	IDB_Redo32,
+	IDB_Find32,
+	IDB_FindNext32,
+	IDB_EditItem32,
+	IDB_Save32,
+	IDB_CloseItem32,
+	IDB_NewItem32,
+	IDB_AddItem32_1,
+	IDB_ItemProperties32,
+	IDB_CD32,
+	IDB_Keyboard32,
+	IDB_ProjectProperties32,
+	IDB_Help32,
+	-1
+};
+
+static int idbToolbar16[] =
+{
+	IDB_NewProject16,
+	IDB_OpenProject16_1,
+	IDB_SaveProject16,
+	IDB_Cut16,
+	IDB_Copy16,
+	IDB_Paste16,
+	IDB_Undo16,
+	IDB_Redo16,
+	IDB_Find16,
+	IDB_FindNext16,
+	IDB_EditItem16,
+	IDB_Save16,
+	IDB_CloseItem16,
+	IDB_NewItem16,
+	IDB_AddItem16_1,
+	IDB_ItemProperties16,
+	IDB_CD16,
+	IDB_Keyboard16,
+	IDB_ProjectProperties16,
+	IDB_Help16_1,
+	-1
+};
+
+
+static TBBUTTON mainButtons32[] = {
+	{ 0, ID_PROJECT_NEW, TBSTATE_ENABLED, BTNS_BUTTON },
+	{ 1, ID_PROJECT_OPEN, TBSTATE_ENABLED, BTNS_BUTTON },
+	{ 2, ID_PROJECT_SAVE, 0, BTNS_BUTTON },
+	{ 0, 0, 0, BTNS_SEP },
+	{ 3, ID_EDIT_CUT, 0, BTNS_BUTTON },
+	{ 4, ID_EDIT_COPY, 0, BTNS_BUTTON },
+	{ 5, ID_EDIT_PASTE, 0, BTNS_BUTTON },
+	{ 6, ID_EDIT_UNDO, 0, BTNS_BUTTON },
+	{ 7, ID_EDIT_REDO, 0, BTNS_BUTTON },
+	{ 8, ID_EDIT_FIND, 0, BTNS_BUTTON },
+	{ 9, ID_EDIT_FINDNEXT, 0, BTNS_BUTTON },
+	{ 0, 0, 0, BTNS_SEP },
+	{ 10, ID_ITEM_EDIT, 0, BTNS_BUTTON },
+	{ 11, ID_ITEM_SAVE, 0, BTNS_BUTTON },
+	{ 12, ID_ITEM_CLOSE, 0, BTNS_BUTTON },
+	{ 13, ID_ITEM_NEW, 0, BTNS_BUTTON },
+	{ 14, ID_ITEM_ADD, 0, BTNS_BUTTON },
+	{ 15, ID_ITEM_PROPERTIES, 0, BTNS_BUTTON },
+	{ 0, 0, 0, BTNS_SEP },
+	{ 16, ID_PROJECT_GENERATE, 0, BTNS_BUTTON },
+	{ 17, ID_PROJECT_PLAY, 0, BTNS_BUTTON },
+	{ 18, ID_PROJECT_OPTIONS, TBSTATE_ENABLED, BTNS_BUTTON },
+	{ 0, 0, 0, BTNS_SEP },
+	{ 19, ID_HELP_CONTENTS, TBSTATE_ENABLED, BTNS_BUTTON },
+};
+
 
 BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 {
@@ -94,49 +176,91 @@ LRESULT MainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 	HWND hWndCmdBar = cmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	HMENU mainMnu = ::GetMenu(m_hWnd);
 	HMENU fileMnu = ::GetSubMenu(mainMnu, 0);
-	HMENU mruMnu = ::GetSubMenu(fileMnu, 8);
-	mruList.SetMaxEntries(6);
+	HMENU mruMnu = ::GetSubMenu(fileMnu, 9);
+	mruList.SetMaxEntries(9);
 	mruList.SetMenuHandle(mruMnu);
 	mruList.SetMaxItemLength(40);
 	mruList.ReadFromRegistry(mruRegKey);
 
 	// attach menu
 	cmdBar.AttachMenu(GetMenu());
-	cmdBar.SetImageMaskColor(RGB(255,0,255));
+
+	// add bitmaps to menus
+	cmdBar.SetImageMaskColor(RGB(192,192,192));
 	cmdBar.SetImageSize(16, 16);
-	cmdBar.AddBitmap(IDB_NEWFOLDER, ID_PROJECT_NEW);
-	cmdBar.AddBitmap(IDB_OPENFOLDER, ID_PROJECT_OPEN);
-	cmdBar.AddBitmap(IDB_SAVEALL, ID_PROJECT_SAVE);
-	cmdBar.AddBitmap(IDB_SAVE, ID_ITEM_SAVE);
+	cmdBar.AddBitmap(IDB_NewProject16, ID_PROJECT_NEW);
+	cmdBar.AddBitmap(IDB_OpenProject16, ID_PROJECT_OPEN);
+	cmdBar.AddBitmap(IDB_SaveProject16, ID_PROJECT_SAVE);
+	cmdBar.AddBitmap(IDB_SaveProjectAs16, ID_PROJECT_SAVEAS);
+	cmdBar.AddBitmap(IDB_EditItem16, ID_ITEM_EDIT);
+	cmdBar.AddBitmap(IDB_Save16, ID_ITEM_SAVE);
+	cmdBar.AddBitmap(IDB_CloseItem16, ID_ITEM_CLOSE);
+	cmdBar.AddBitmap(IDB_AddItem16_1, ID_ITEM_ADD);
+	cmdBar.AddBitmap(IDB_NewItem16, ID_ITEM_NEW);
+	cmdBar.AddBitmap(IDB_CopyItem16, ID_ITEM_COPY);
+	cmdBar.AddBitmap(IDB_DeleteItem16_1, ID_ITEM_REMOVE);
+	cmdBar.AddBitmap(IDB_ItemProperties16, ID_ITEM_PROPERTIES);
 
-	cmdBar.AddBitmap(IDB_UNDO, ID_EDIT_UNDO);
-	cmdBar.AddBitmap(IDB_REDOX, ID_EDIT_REDO);
-	cmdBar.AddBitmap(IDB_CUT, ID_EDIT_CUT);
-	cmdBar.AddBitmap(IDB_COPY, ID_EDIT_COPY);
-	cmdBar.AddBitmap(IDB_PASTE, ID_EDIT_PASTE);
-	cmdBar.AddBitmap(IDB_FIND, ID_EDIT_FIND);
-	cmdBar.AddBitmap(IDB_FINDNEXT, ID_EDIT_FINDNEXT);
+	cmdBar.AddBitmap(IDB_Undo16, ID_EDIT_UNDO);
+	cmdBar.AddBitmap(IDB_Redo16, ID_EDIT_REDO);
+	cmdBar.AddBitmap(IDB_Cut16, ID_EDIT_CUT);
+	cmdBar.AddBitmap(IDB_Copy16, ID_EDIT_COPY);
+	cmdBar.AddBitmap(IDB_Paste16, ID_EDIT_PASTE);
+	cmdBar.AddBitmap(IDB_Find16, ID_EDIT_FIND);
+	cmdBar.AddBitmap(IDB_FindNext16, ID_EDIT_FINDNEXT);
 
-	cmdBar.AddBitmap(IDB_PROPERTIES, ID_PROJECT_PROPERTIES);
-	cmdBar.AddBitmap(IDB_AUDIO, ID_PROJECT_GENERATE);
-	cmdBar.AddBitmap(IDB_PLAY, ID_PROJECT_PLAY);
-// remove old menu
+	cmdBar.AddBitmap(IDB_ProjectProperties16, ID_PROJECT_OPTIONS);
+	cmdBar.AddBitmap(IDB_CD16, ID_PROJECT_GENERATE);
+	cmdBar.AddBitmap(IDB_Keyboard16, ID_PROJECT_PLAY);
+
+	cmdBar.AddBitmap(IDB_Help16_1, ID_HELP_CONTENTS);
+	cmdBar.AddBitmap(IDB_Info16_1, ID_APP_ABOUT);
+
+	// remove old menu
 	SetMenu(NULL);
 
 	bVisible = EDITOR_PANE | TOOLBAR_PANE | STATUS_PANE;
 
+	int *idbList;
+	int tbImgSize;
+	if (prjOptions.toolBarSize == 16)
+	{
+		idbList = idbToolbar16;
+		tbImgSize = 16;
+	}
+	else
+	{
+		idbList = idbToolbar;
+		tbImgSize = 32;
+	}
+
+	// create the toolbar
 	DWORD tbWinStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	DWORD tbStyle = CCS_NODIVIDER | CCS_NORESIZE | CCS_NOPARENTALIGN | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT;
 	HWND hWndToolBar = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, tbWinStyle | tbStyle,
 		0, 0, 100, 100, m_hWnd, (HMENU)LongToHandle(ATL_IDW_TOOLBAR),
 		_Module.GetModuleInstance(), NULL);
 	::SendMessage(hWndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0L);
-	COLORREF crMask = CLR_DEFAULT;
-	HIMAGELIST hImageList = ImageList_LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINTB), 
-		16, 1, CLR_DEFAULT, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-	::SendMessage(hWndToolBar, TB_SETIMAGELIST, 0, (LPARAM)hImageList);
-	::SendMessage(hWndToolBar, TB_ADDBUTTONS, 20, (LPARAM) mainButtons);
 
+	HIMAGELIST hImageList = ImageList_Create(tbImgSize, tbImgSize, ILC_COLOR24|ILC_MASK, 21, 5);
+	for (int idIndex = 0; idbList[idIndex] > 0; idIndex++)
+	{
+		HBITMAP bm = ::LoadBitmap(_Module.GetResourceInstance(), MAKEINTRESOURCE(idbList[idIndex]));
+		if (bm)
+		{
+			ImageList_AddMasked(hImageList, bm, RGB(192,192,192));
+			DeleteObject((HGDIOBJ)bm);
+		}
+		else
+		{
+			ATLTRACE("Could not load bitmap %d:%d\n", idIndex, idbList[idIndex]);
+		}
+	}
+	::SendMessage(hWndToolBar, TB_SETIMAGELIST, 0, (LPARAM)hImageList);
+	int numTools = sizeof(mainButtons32)/sizeof(mainButtons32[0]);
+	::SendMessage(hWndToolBar, TB_ADDBUTTONS, numTools, (LPARAM) mainButtons32);
+
+	// add menu and tools to the rebar
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
@@ -330,9 +454,7 @@ void MainFrame::AfterOpenProject()
 		return; // huh?
 	}
 
-	bsString colorFile;
-	if (theProject->FindForm(colorFile, prjOptions.colorsFile))
-		SynthWidget::colorMap.Load(colorFile);
+	SynthWidget::colorMap.Load(prjOptions.formsDir, prjOptions.colorsFile, 1);
 
 	kbdWnd.Load();
 
@@ -378,22 +500,33 @@ void MainFrame::UpdateEditUI(int pg)
 	UIEnable(ID_EDIT_SELECTALL, flags & VW_ENABLE_SELALL);
 	UIEnable(ID_ITEM_SAVE, flags & VW_ENABLE_FILE);
 	UIEnable(ID_ITEM_CLOSE, flags & VW_ENABLE_FILE);
+	UIEnable(ID_MARKER_SET, flags & VW_ENABLE_MARK);
+	UIEnable(ID_MARKER_NEXT, flags & VW_ENABLE_UNMARK);
+	UIEnable(ID_MARKER_PREV, flags & VW_ENABLE_UNMARK);
+	UIEnable(ID_MARKER_CLEAR, flags & VW_ENABLE_UNMARK);
 }
 
 /// Enable functions based on project tree selection.
 void MainFrame::UpdateItemUI(ProjectItem *pi)
 {
-	int enable = 0;
+	int itemFlags = 0;
+	int editFlags = 0;
 	if (pi)
-		enable = pi->ItemActions();
-	UIEnable(ID_ITEM_ADD, enable & ITM_ENABLE_ADD);
-	UIEnable(ID_ITEM_NEW, enable & ITM_ENABLE_NEW);
-	UIEnable(ID_ITEM_EDIT, enable & ITM_ENABLE_EDIT);
-	UIEnable(ID_ITEM_COPY, enable & ITM_ENABLE_COPY);
-	UIEnable(ID_ITEM_REMOVE, enable & ITM_ENABLE_REM);
-	UIEnable(ID_ITEM_PROPERTIES, enable & ITM_ENABLE_PROPS);
-	UIEnable(ID_ITEM_CLOSE, enable & ITM_ENABLE_CLOSE);
-	UIEnable(ID_ITEM_SAVE, enable & ITM_ENABLE_SAVE);
+	{
+		itemFlags = pi->ItemActions();
+		EditorView *vw = pi->GetEditor();
+		if (vw)
+			editFlags = vw->EditState();
+	}
+	UIEnable(ID_ITEM_ADD, itemFlags & ITM_ENABLE_ADD);
+	UIEnable(ID_ITEM_NEW, itemFlags & ITM_ENABLE_NEW);
+	UIEnable(ID_ITEM_EDIT, itemFlags & ITM_ENABLE_EDIT);
+	UIEnable(ID_ITEM_COPY, itemFlags & ITM_ENABLE_COPY);
+	UIEnable(ID_ITEM_REMOVE, itemFlags & ITM_ENABLE_REM);
+	UIEnable(ID_ITEM_PROPERTIES, itemFlags & ITM_ENABLE_PROPS);
+	UIEnable(ID_ITEM_CLOSE, itemFlags & ITM_ENABLE_CLOSE && editFlags & VW_ENABLE_FILE);
+	UIEnable(ID_ITEM_SAVE, itemFlags & ITM_ENABLE_SAVE && editFlags & VW_ENABLE_FILE);
+	UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 }
 
 /// Enable functions associated with an open project.
@@ -407,6 +540,7 @@ void MainFrame::UpdateProjectUI()
 	UIEnable(ID_VIEW_PROJECT, enable);
 	UIEnable(ID_VIEW_KEYBOARD, enable);
 	UIEnable(ID_ITEM_ERRORS, enable);
+	UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 }
 
 //////////////// Callbacks ///////////////////////////////
@@ -442,6 +576,19 @@ LRESULT MainFrame::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandle
 {
 	bHandled = FALSE;
 	return 1;
+}
+
+LRESULT MainFrame::OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if (theProject)
+	{
+		EditorView *ed = GetActiveEditor();
+		if (ed)
+			ed->Focus();
+		else if (bVisible & PROJECT_PANE)
+			prjList.SetFocus();
+	}
+	return 0;
 }
 
 /// WM_PAINT callback. 	All main window areas are covered by child windows.
@@ -695,7 +842,10 @@ LRESULT MainFrame::OnProjectGenerate(WORD wNotifyCode, WORD wID, HWND hWndCtl, B
 
 LRESULT MainFrame::OnProjectPlay(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	StartPlayer();
+	if (kbdWnd.IsRunning())
+		StopPlayer();
+	else
+		StartPlayer();
 	return 0;
 }
 
@@ -841,10 +991,12 @@ LRESULT MainFrame::OnAppAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bH
 
 LRESULT MainFrame::OnHelpContents(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	bsString path;
-	path = prjOptions.installDir;
-	path += "\\BSynthHelp.chm";
-	HWND h = HtmlHelp(m_hWnd, path, HH_DISPLAY_TOC, NULL);
+	if (!SynthFileExists(prjOptions.helpFile))
+	{
+		if (!BrowseFile(1, prjOptions.helpFile, "Help Files|*.chm|", "chm"))
+			return 0;
+	}
+	HWND h = HtmlHelp(m_hWnd, prjOptions.helpFile, HH_DISPLAY_TOC, NULL);
 	if (h == 0)
 		Alert("Cannot locate help file.", "Ooops");
 	return 0;
@@ -1038,8 +1190,6 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 		return;
 
 	ProjectItem *parent = itm->GetParent();
-//	if (parent == 0)
-//		return;
 
 	TVINSERTSTRUCT tvi;
 	memset(&tvi, 0, sizeof(tvi));
@@ -1052,13 +1202,13 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 	else
 		tvi.hParent = TVI_ROOT;
 	tvi.item.mask = TVIF_TEXT | TVIF_PARAM;
-	if (!itm->IsLeaf())
+/*	if (!itm->IsLeaf())
 	{
 		tvi.item.mask |= TVIF_CHILDREN; 
 		tvi.item.cChildren = 1;
 	}
 	else
-		tvi.item.cChildren = 0;
+		tvi.item.cChildren = 0;*/
 	tvi.item.pszText = (LPSTR) itm->GetName();
 	tvi.item.lParam = (LPARAM) itm;
 	itm->SetPSData((void*) prjList.InsertItem(&tvi));
@@ -1157,6 +1307,7 @@ int MainFrame::CloseAllEditors()
 		}
 	}
 	tabView.ShowWindow(SW_SHOW);
+	UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 	return ret;
 }
 
@@ -1221,6 +1372,7 @@ PropertyBox *MainFrame::CreatePropertyBox(ProjectItem *pi, int type)
 	case PRJNODE_SEQFILE:
 	case PRJNODE_TEXTFILE:
 	case PRJNODE_SCRIPT:
+	case PRJNODE_MIDIFILE:
 		{
 			FilePropertiesDlg *f = new FilePropertiesDlg;
 			f->SetItem(pi);
@@ -1299,6 +1451,7 @@ FormEditor *MainFrame::CreateFormEditor(ProjectItem *pi)
 	scrl->SetForm(form);
 	tabView.AddPage(scrl->m_hWnd, pi->GetName(), -1, static_cast<EditorView*>(form));
 	::SetFocus(form->m_hWnd);
+	UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 	return form;
 }
 
@@ -1314,6 +1467,7 @@ TextEditor *MainFrame::CreateTextEditor(ProjectItem *pi)
 		ed->SetPSData((void*)ed->m_hWnd);
 		tabView.AddPage(ed->m_hWnd, pi->GetName(), -1, static_cast<EditorView*>(ed));
 		::SetFocus(ed->m_hWnd);
+		UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 		return ed;
 	}
 	return 0;
@@ -1342,6 +1496,7 @@ int MainFrame::CloseEditor(ProjectItem *itm)
 	}
 	itm->SetEditor(0);
 	delete vw;
+	UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 
 	return 1;
 }
@@ -1438,16 +1593,16 @@ int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ex
 	ofn.lpstrFile = file;
 	ofn.nMaxFile = MAX_PATH;
 	int result;
+	// the term 'brain damage' comes to mind here...
+	pipe = file;
+	while ((pipe = strchr(pipe, '/')) != 0)
+		*pipe++ = '\\';
 	if (open)
 	{
 		result = GetOpenFileName(&ofn);
 	}
 	else
 	{
-		// the term 'brain damage' comes to mind here...
-		pipe = file;
-		while ((pipe = strchr(pipe, '/')) != 0)
-			*pipe++ = '\\';
 		ofn.Flags |= OFN_OVERWRITEPROMPT;
 		result = GetSaveFileName(&ofn);
 	}

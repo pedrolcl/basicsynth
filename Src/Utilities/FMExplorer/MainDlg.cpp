@@ -44,6 +44,15 @@
 #include "aboutdlg.h"
 #include "maindlg.h"
 
+#ifdef USE_DIRECTSOUND
+#if !USE_SDK_DSOUND
+CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, {0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0} };
+IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, { 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60} };
+typedef HRESULT (WINAPI *tDirectSoundCreate)(const GUID *pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+tDirectSoundCreate DirectSoundCreate;
+#endif
+#endif
+
 #define ALG_STACK 1
 #define ALG_STACK2 2
 #define ALG_WYE 3
@@ -58,6 +67,9 @@ static FMInstrParam resetParams =
 CMainDlg::CMainDlg()
 {
 #ifdef USE_DIRECTSOUND
+#if !USE_SDK_DSOUND
+	DirectSoundCreate = (tDirectSoundCreate)GetProcAddress(LoadLibrary("dsound.dll"), "DirectSoundCreate");
+#endif
 	dirSndObj = NULL;
 	dirSndBuf = NULL;
 #else
@@ -173,7 +185,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	InitValue(gen3Rel, gen3RelEd, 0, 4000, 400);
 
 	durValEd = GetDlgItem(IDC_DUR_EDIT);
-	durValEd.SetWindowText("1.0");
+	durValEd.SetWindowText("4.0");
 	volValEd = GetDlgItem(IDC_VOL);
 	volValEd.SetWindowText("0.707");
 

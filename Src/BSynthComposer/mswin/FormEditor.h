@@ -112,6 +112,8 @@ public:
 		return 0;
 	}
 
+	void Focus() { SetFocus(); }
+
 	long EditState();
 
 	void Copy() { CopyToClipboard(); }

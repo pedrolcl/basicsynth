@@ -89,6 +89,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\images\chuffered.jpg"
+				>
+			</File>
+			<File
 				RelativePath=".\delay.jpg"
 				>
 			</File>
@@ -110,6 +114,10 @@
 			</File>
 			<File
 				RelativePath=".\generate.jpg"
+				>
+			</File>
+			<File
+				RelativePath=".\images\gmplayered.jpg"
 				>
 			</File>
 			<File
@@ -193,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\images\wavefileproperties.jpg"
+				>
+			</File>
+			<File
 				RelativePath=".\wavetableedit.jpg"
 				>
 			</File>
@@ -202,6 +214,10 @@
 			</File>
 			<File
 				RelativePath=".\WFPlayDiag.jpg"
+				>
+			</File>
+			<File
+				RelativePath=".\images\wvplayed.jpg"
 				>
 			</File>
 		</Filter>
@@ -256,6 +272,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\index.html"
+			>
+		</File>
+		<File
 			RelativePath=".\instruments.html"
 			>
 		</File>
@@ -289,6 +309,10 @@
 		</File>
 		<File
 			RelativePath=".\projects.html"
+			>
+		</File>
+		<File
+			RelativePath=".\seqfile.html"
 			>
 		</File>
 		<File
@@ -345,6 +369,10 @@
 		</File>
 		<File
 			RelativePath=".\toneinstr.html"
+			>
+		</File>
+		<File
+			RelativePath=".\wavefiles.html"
 			>
 		</File>
 		<File

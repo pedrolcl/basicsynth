@@ -41,10 +41,10 @@ static bsInt16 midiCCNum[] =
 };
 
 static int maxCCIndex = sizeof(midiCCNum) / sizeof(bsInt16);
-static bsString sbFile;
 
 void MIDIControlEd::GetParams()
 {
+	sbFile = theProject->midiInfo->GetSoundBankFile();
 	if (sbFile.Length() == 0)
 	{
 		SoundBank *sb = SoundBank::SoundBankList.next;
@@ -52,7 +52,8 @@ void MIDIControlEd::GetParams()
 			sbFile = sb->name;
 	}
 	SynthWidget *wdg = mainGroup->FindID(2);
-	wdg->SetText(sbFile);
+	if (wdg)
+		wdg->SetText(sbFile);
 	LoadValues();
 }
 
@@ -110,8 +111,22 @@ void MIDIControlEd::ValueChanged(SynthWidget *wdg)
 	{
 	case 2:
 		sbFile = wdg->GetText();
+		theProject->midiInfo->SetSoundBankFile(sbFile);
+		theProject->SetChange(1);
 		break;
 	case 3:
+		if (SelectSoundBankPreset(sbFile, NULL, -1))
+		{
+			if (wdg)
+			{
+				wdg->SetText(sbFile);
+				theProject->midiInfo->SetSoundBankFile(sbFile);
+				Redraw(wdg);
+			}
+			theProject->SetChange(1);
+		}
+		break;
+	case 4:
 		GetParams();
 		Redraw(0);
 		break;

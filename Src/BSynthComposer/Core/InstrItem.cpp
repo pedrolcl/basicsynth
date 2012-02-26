@@ -2,7 +2,7 @@
 // BasicSynth - Project item that represents an instrument configuration.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -31,7 +31,9 @@ int InstrItem::ItemActions()
 int InstrItem::EditItem()
 {
 	FormEditor *fe = prjFrame->CreateFormEditor(this);
-	return 1;
+	if (fe)
+        return 1;
+    return 0;
 }
 
 int InstrItem::SaveItem()
@@ -39,7 +41,7 @@ int InstrItem::SaveItem()
 	FormEditor *fe = (FormEditor*)editor;
 	if (fe)
 		fe->GetForm()->SetParams();
-	return 0; 
+	return 0;
 }
 
 int InstrItem::CloseItem()

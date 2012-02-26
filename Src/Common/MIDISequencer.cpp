@@ -355,13 +355,15 @@ void MIDIFileLoad::MetaEvent()
 		*fmt++ = '(';
 		fmt = IntToStr(val3, fmt);
 		*fmt++ = ')';
+		*fmt++ = ' ';
+		fmt = IntToStr(val4, fmt);
 		*fmt = '\0';
 		//printf("Time Signature: %s\n", timeSig);
 		break;
 	case MIDI_META_KYSG:
 		val  = *inpPos++;
 		val2 = *inpPos++;
-		strcpy(keySig, (val & 0x80) ? flats[-val] : sharps[val]);
+		strcpy(keySig, (val & 0x80) ? flats[(256-val)&7] : sharps[val&7]);
 		strcat(keySig, " ");
 		strcat(keySig, val2 ? "min." : "maj.");
 		//printf("Key Signature: %s\n", keySig);

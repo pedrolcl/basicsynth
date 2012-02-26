@@ -29,7 +29,9 @@ extern CAppModule _Module;
 #include <atldlgs.h>
 #include <atlctrlw.h>
 //#define USE_DIRECTSOUND
-//#include <dsound.h>
+#ifdef USE_DIRECTSOUND
+#include <dsoundintf.h>
+#endif
 
 #include <stdio.h>
 #include <math.h>

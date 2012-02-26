@@ -65,6 +65,21 @@ public:
 	inline int CanRedo()    { return sciMsg(sciWnd, SCI_CANREDO, 0, 0); }
 	inline void GotoLine(int line) { sciMsg(sciWnd, SCI_GOTOLINE, line, 0); }
 	inline void GotoPosition(int pos) { sciMsg(sciWnd, SCI_GOTOPOS, pos, 0); }
+	inline void SetSavePoint() { sciMsg(sciWnd, SCI_SETSAVEPOINT, 0, 0); }
+	inline int GetTargetEnd()  { return sciMsg(sciWnd, SCI_GETTARGETEND, 0, 0); }
+
+	inline void BeginUndoAction() { sciMsg(sciWnd, SCI_BEGINUNDOACTION, 0, 0); }
+	inline void EndUndoAction()   { sciMsg(sciWnd, SCI_ENDUNDOACTION, 0, 0); }
+	inline void EmptyUndoBuffer() { sciMsg(sciWnd, SCI_EMPTYUNDOBUFFER, 0, 0); }
+
+	// to support styling
+	inline int GetEndStyled() { return sciMsg(sciWnd, SCI_GETENDSTYLED, 0, 0); }
+	inline int LineFromPosition(int pos) { return sciMsg(sciWnd, SCI_LINEFROMPOSITION, pos, 0); }
+	inline int PositionFromLine(int pos) { return sciMsg(sciWnd, SCI_POSITIONFROMLINE, pos, 0); }
+	inline int GetLineEndPosition(int pos) { return sciMsg(sciWnd, SCI_GETLINEENDPOSITION, pos, 0); }
+	inline int GetCharAt(int pos) { return 0xff & sciMsg(sciWnd, SCI_GETCHARAT, pos, 0); }
+	inline int StartStyling(int pos) { return sciMsg(sciWnd, SCI_STARTSTYLING, pos, 0x1F); }
+	inline int SetStyling(int len, int style) { return sciMsg(sciWnd, SCI_SETSTYLING, len, style); }
 
 	inline int Length()
 	{
@@ -94,24 +109,52 @@ public:
 		//SendMessage(SCI_SETTEXT, 0, (LPARAM) text);
 	}
 
-	void SetupStyling()
+	void SetupStyling(int nl)
 	{
-		// TODO: get from options?
-		char *fontName = "Courier";
-		int tabWidth = 4;
-		sciMsg(sciWnd, SCI_SETTABWIDTH, tabWidth, 0);
-		sciMsg(sciWnd, SCI_SETLEXER, SCLEX_CONTAINER, 0);
-		sciMsg(sciWnd, SCI_STYLECLEARALL, 0, 0);
-		sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_KEYWORD, RGB(0,0,0xC0));
-		sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_QUOTE, RGB(0x80,0x20,0));
-		sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_DELIM, RGB(0xc0,0,0));
-		sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_COMMENT, RGB(0,0x80,0));
-		for (int n = NLSTYLE_DEFAULT; n <= NLSTYLE_COMMENT; n++)
-			sciMsg(sciWnd, SCI_STYLESETFONT, n, (LPARAM) fontName);
-		//SendMessage(SCI_STYLESETITALIC, NLSTYLE_COMMENT, 1);
+		sciMsg(sciWnd, SCI_SETCODEPAGE, SC_CP_UTF8, 0);
+		sciMsg(sciWnd, SCI_STYLESETFORE, STYLE_DEFAULT, prjOptions.editTextColor);
+		sciMsg(sciWnd, SCI_STYLESETSIZE, STYLE_DEFAULT, prjOptions.editFontSize);
+		sciMsg(sciWnd, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM) prjOptions.editFontFace);
+		sciMsg(sciWnd, SCI_SETTABWIDTH, prjOptions.editTabSize, 0);
+		sciMsg(sciWnd, SCI_SETINDENT, 0, 0);
+		sciMsg(sciWnd, SCI_SETUSETABS, 1, 0);
 		sciMsg(sciWnd, SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
 		sciMsg(sciWnd, SCI_MARKERSETFORE, 0, RGB(0,0,160));
 		sciMsg(sciWnd, SCI_MARKERSETBACK, 0, RGB(0,0,160));
+		if (nl)
+		{
+			sciMsg(sciWnd, SCI_SETLEXER, SCLEX_CONTAINER, 0);
+			sciMsg(sciWnd, SCI_STYLECLEARALL, 0, 0);
+			sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_KEYWORD, RGB(0,0,0x80));
+			sciMsg(sciWnd, SCI_STYLESETBOLD, NLSTYLE_KEYWORD, 1);
+			//sciMsg(sciWnd, SCI_STYLESETBOLD, NLSTYLE_KEYWORD, 1);
+			sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_QUOTE, RGB(0xC0,0x20,0));
+			sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_DELIM, RGB(0x80,0,0x20));
+			//sciMsg(sciWnd, SCI_STYLESETBOLD, NLSTYLE_DELIM, 1);
+			sciMsg(sciWnd, SCI_STYLESETFORE, NLSTYLE_COMMENT, RGB(0,0x60,0));
+			for (int n = NLSTYLE_DEFAULT; n <= NLSTYLE_COMMENT; n++)
+				sciMsg(sciWnd, SCI_STYLESETFONT, n, (LPARAM) prjOptions.editFontFace);
+			//SendMessage(SCI_STYLESETITALIC, NLSTYLE_COMMENT, 1);
+		}
+		else
+		{
+			sciMsg(sciWnd, SCI_SETLEXER, SCLEX_NULL, 0);
+		}
+		sciMsg(sciWnd, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
+	}
+
+	void SetMargins()
+	{
+		int marginLines = sciMsg(sciWnd, SCI_GETLINECOUNT, 0, 0) * 10;
+		if (marginLines < 999)
+			marginLines = 999;
+		char digstr[20];
+		int ndx = 0;
+		for (int d = marginLines; d > 0 && ndx < 20; d /= 10)
+			digstr[ndx++] = '9';
+		digstr[ndx] = 0;
+		sciMsg(sciWnd, SCI_SETMARGINWIDTHN, 0, 
+			sciMsg(sciWnd, SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)digstr));
 	}
 
 	void MarkerAdd(int line)
@@ -140,6 +183,12 @@ public:
 	int MarkerGet(int line)
 	{
 		return sciMsg(sciWnd, SCI_MARKERGET, line, 0);
+	}
+
+	inline void SetTarget(int start, int end)
+	{
+		sciMsg(sciWnd, SCI_SETTARGETSTART, start, 0);
+		sciMsg(sciWnd, SCI_SETTARGETEND, end, 0);
 	}
 
 	int GetSelection(SelectInfo& info)
@@ -211,6 +260,11 @@ public:
 		return found;
 	}
 
+	inline int SearchInTarget(int flen, const char *ftext)
+	{
+		return sciMsg(sciWnd, SCI_SEARCHINTARGET, flen, (LPARAM) ftext);
+	}
+
 	/// Test the current selection for a match with the text.
 	int Match(const char *ftext)
 	{
@@ -225,6 +279,13 @@ public:
 		if (sciMsg(sciWnd, SCI_FINDTEXT, (WPARAM) sciFlags, (LPARAM) &ttf) >= 0)
 			return start == ttf.chrg.cpMin && end == ttf.chrg.cpMax;
 		return 0;
+	}
+
+	int MatchBrace(int pos1 = -1)
+	{
+		if (pos1 == -1)
+			pos1 = CurrentPos();
+		return sciMsg(sciWnd, SCI_BRACEMATCH, pos1, 0);
 	}
 };
 
@@ -249,7 +310,6 @@ public:
 	void TextChanged();
 	void Restyle(int position);
 	void UpdateUI();
-	int IsKeyword(char *txt);
 
 	virtual ProjectItem *GetItem();
 	virtual void SetItem(ProjectItem *p);
@@ -271,6 +331,8 @@ public:
 	virtual void Cancel();
 	virtual long EditState();
 	virtual int IsChanged();
+	virtual void Focus();
+
 	virtual int OpenFile(const char *fname);
 	virtual int SaveFile(const char *fname);
 	virtual int GetText(bsString& text);

@@ -1,28 +1,68 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file Text editor window implementation
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
+#include "FindReplDlgFltk.h"
 #include "TextEditorFltk.h"
+#include "MainFrm.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 //#include <io.h>
 
-static void TextChangedCB(int pos, int nInserted, int nDeleted, int nRestyled, 
+static void TextChangedCB(int pos, int nInserted, int nDeleted, int nRestyled,
 						  const char* deletedText, void* cbArg)
 {
-	((TextEditorFltk*)cbArg)->TextChanged(pos, nInserted, nDeleted, nRestyled);
+	TextEditorFltk *ed = reinterpret_cast<TextEditorFltk*>(cbArg);
+	ed->TextChanged(pos, nInserted, nDeleted, nRestyled);
 }
 
+static void TextEditorCB(Fl_Widget *wdg, void *arg)
+{
+	TextEditorFltk *ed = reinterpret_cast<TextEditorFltk*>(arg);
+	ed->CallbackEvent(wdg);
+}
 
 TextEditorFltk::TextEditorFltk(int X, int Y, int W, int H) : Fl_Text_Editor(X, Y, W, H, 0)
 {
 	findFlags = 0;
+	memset(&re, 0, sizeof(re));
 	pi = 0;
 	Fl_Text_Buffer *buf = new Fl_Text_Buffer;
 	buffer(buf);
-	buf->add_modify_callback(TextChangedCB, (void*)this);
+	buf->add_modify_callback(TextChangedCB, reinterpret_cast<void*>(this));
 }
 
 TextEditorFltk::~TextEditorFltk()
 {
+	regfree(&re);
+}
+
+void TextEditorFltk::CallbackEvent(Fl_Widget *wdg)
+{
+	int evt = Fl::event();
+//	LogDebug("TextEditor callback: %d\r\n", evt);
+	switch (evt)
+	{
+	case FL_ACTIVATE:
+	case FL_SHOW:
+		if (mainWnd && mainWnd->findDlg)
+			mainWnd->findDlg->SetEditor(this);
+		break;
+	case FL_CLOSE:
+	case FL_HIDE:
+	case FL_DEACTIVATE:
+		if (mainWnd && mainWnd->findDlg)
+			mainWnd->findDlg->SetEditor(NULL);
+		break;
+	}
 }
 
 void TextEditorFltk::TextChanged(int pos, int inserted, int deleted, int restyled)
@@ -30,12 +70,10 @@ void TextEditorFltk::TextChanged(int pos, int inserted, int deleted, int restyle
 	if (inserted || deleted)
 	{
 		changed = 1;
+		theProject->SetChange(1);
 		//Restyle(pos);
 	}
-}
-
-void TextEditorFltk::UpdateUI()
-{
+	mainWnd->EditStateChanged();
 }
 
 
@@ -46,8 +84,11 @@ ProjectItem *TextEditorFltk::GetItem()
 
 void TextEditorFltk::SetItem(ProjectItem *p)
 {
+	if (pi)
+		pi->SetEditor(0);
 	pi = p;
-	pi->SetEditor(this);
+	if (pi)
+		pi->SetEditor(this);
 }
 
 void TextEditorFltk::Undo()
@@ -75,14 +116,6 @@ void TextEditorFltk::Paste()
 	kf_paste(0, this);
 }
 
-void TextEditorFltk::Find()
-{
-	// open the find/replace dialog
-}
-
-void TextEditorFltk::FindNext()
-{
-}
 
 void TextEditorFltk::SelectAll()
 {
@@ -116,8 +149,17 @@ void TextEditorFltk::Cancel()
 
 long TextEditorFltk::EditState()
 {
-	Fl_Text_Buffer *buf = buffer();
-	return 0;
+	// I don't see a FLTK function to detect when there is "pasteable" text.
+	// or an editor function to detect when "Undo" is valid.
+	// No "Redo"
+	long flags = VW_ENABLE_FILE | VW_ENABLE_FIND | VW_ENABLE_GOTO
+		       | VW_ENABLE_SELALL | VW_ENABLE_UNDO | VW_ENABLE_PASTE;
+	int startPos = 0;
+	int endPos = 0;
+	buffer()->selection_position(&startPos, &endPos);
+	if (startPos != endPos)
+		flags |= VW_ENABLE_COPY | VW_ENABLE_CUT;
+	return flags;
 }
 
 int TextEditorFltk::IsChanged()
@@ -324,73 +366,222 @@ int TextEditorFltk::SetText(bsString& text)
 	return 0;
 }
 
+void TextEditorFltk::Find()
+{
+	mainWnd->ShowFind(this);
+}
+
+void TextEditorFltk::FindNext()
+{
+	if (findText.Length() == 0)
+		mainWnd->ShowFind(this);
+	else
+		Find(-1, 0);
+}
+
+bool TextEditorFltk::InitFind(int flags, const char *text, bool insel)
+{
+	Fl_Text_Buffer *buf = buffer();
+	int sel = buf->selection_position(&findStart, &findEnd);
+	if (insel)
+	{
+		if (!sel)
+		{
+			findStart = insert_position();
+			findEnd = findStart;
+			return false;
+		}
+	}
+	else
+	{
+		if (!sel)
+			findStart = insert_position();
+		else
+			findStart = findEnd+1;
+		findEnd = buf->length();
+		if (findStart > findEnd)
+			findStart = findEnd;
+	}
+	if (flags != -1)
+		findFlags = flags;
+	if (text)
+	{
+		findText = text;
+		if (findFlags & TXTFIND_REGEXP)
+		{
+			int reflags = REG_EXTENDED|REG_NEWLINE;
+			if (!(flags & TXTFIND_MATCHCASE))
+				reflags |= REG_ICASE;
+			regfree(&re);
+			if (regcomp(&re, text, reflags) != 0)
+				return false;
+		}
+	}
+	return true;
+}
+
+bool TextEditorFltk::DoFind()
+{
+	if (findStart == findEnd)
+		return false;
+
+	Fl_Text_Buffer *buf = buffer();
+	if (findFlags & TXTFIND_REGEXP)
+	{
+		char *matchText = buf->text_range(findStart, findEnd);
+		if (regexec(&re, matchText, RESUBS, resubs, 0) == 0)
+		{
+			for (int s = 0; s < RESUBS; s++)
+			{
+				if (resubs[s].rm_so != -1)
+					resubs[s].rm_so += findStart;
+				if (resubs[s].rm_eo != -1)
+					resubs[s].rm_eo += findStart;
+			}
+			matchStart = resubs[0].rm_so;
+			matchEnd = resubs[0].rm_eo;
+			free(matchText);
+		}
+		else
+		{
+			free(matchText);
+			return false;
+		}
+	}
+	else
+	{
+		if (!buf->search_forward(findStart, findText, &matchStart, findFlags & TXTFIND_MATCHCASE))
+			return false;
+		matchEnd = matchStart + findText.Length();
+	}
+	// if we get here we have matched the text
+	if (findFlags & (TXTFIND_WHOLEWORD|TXTFIND_WORDSTART))
+	{
+		if (buf->word_start(matchStart) != matchStart)
+			return false;
+		if (findFlags & TXTFIND_WHOLEWORD)
+		{
+			if (buf->word_end(matchStart) != matchEnd)
+				return false;
+		}
+	}
+	return true;
+}
+
 int TextEditorFltk::Find(int flags, const char *text)
 {
 	Fl_Text_Buffer *buf = buffer();
+	if (!InitFind(flags, text, false))
+		return -1;
+
 	int wrap = 0;
-	int curPos = insert_position();
-	int foundPos = 0;
-	int found = buf->search_forward(curPos, text, &foundPos, flags & TXTFIND_MATCHCASE);
-	if (!found && curPos > 0)
+	while (1)
 	{
-		found = buf->search_forward(0, text, &foundPos, flags & TXTFIND_MATCHCASE);
+		if (DoFind())
+		{
+			buf->select(matchStart, matchEnd);
+			insert_position(matchStart);
+			show_insert_position();
+			return wrap;
+		}
+		if (wrap || findStart == 0)
+			return -1;
+		findEnd = findStart-1;
+		findStart = 0;
 		wrap = 1;
-	}
-	if (found)
-	{
-		buf->select(foundPos, foundPos+strlen(text));
-		return wrap;
 	}
 	return -1;
 }
 
+
 int TextEditorFltk::MatchSel(int flags, const char *ftext)
 {
-	Fl_Text_Buffer *buf = buffer();
-	int startSel;
-	int endSel;
-	int r = buf->selection_position(&startSel, &endSel);
-	if (startSel == endSel)
-		return 0;
-	int foundPos = 0;
-	if (buf->search_forward(startSel, ftext, &foundPos, flags & TXTFIND_MATCHCASE))
+	if (InitFind(flags, ftext, true))
 	{
-		if (foundPos == startSel)
+		if (DoFind())
+		{
+			buffer()->select(matchStart, matchEnd);
+			show_insert_position();
 			return 1;
+		}
+		return 0;
 	}
-	return 0;
+	return -1;
+}
+
+int TextEditorFltk::DoReplace(const char *rtext)
+{
+	if (rtext == 0)
+		return 0;
+
+	int len = 0;
+	Fl_Text_Buffer *buf = buffer();
+	if (findFlags & TXTFIND_REGEXP)
+	{
+		bsString rbuf;
+		while (*rtext)
+		{
+			if (*rtext == '\\')
+			{
+				rtext++;
+				if (isdigit(*rtext))
+				{
+					int grp = *rtext++ - '0';
+					int st = resubs[grp].rm_so;
+					int end = resubs[grp].rm_eo;
+					if (st != -1)
+					{
+						while (st <= end)
+							rbuf += buf->character(st++);
+					}
+				}
+				else
+					rbuf += '\\';
+			}
+			else
+				rbuf += *rtext++;
+		}
+		buf->replace(matchStart, matchEnd, rbuf);
+		len = rbuf.Length();
+	}
+	else
+	{
+		buf->replace(matchStart, matchEnd, rtext);
+		len = strlen(rtext);
+	}
+	return len;
 }
 
 void TextEditorFltk::Replace(const char *rtext)
 {
-	Fl_Text_Buffer *buf = buffer();
-	buf->replace_selection(rtext);
+	int len = DoReplace(rtext);
+	buffer()->select(matchStart, matchStart+len);
 }
 
 int TextEditorFltk::ReplaceAll(int flags, const char *ftext, const char *rtext, SelectInfo& info)
 {
 	Fl_Text_Buffer *buf = buffer();
 
-	int match = flags & TXTFIND_MATCHCASE;
-	int flen = strlen(ftext);
-	int count = 0;
-	int curPos = info.startPos;
-	int foundPos = 0;
+	if (!InitFind(flags, ftext, false))
+		return -1;
 
-	while (buf->search_forward(curPos, ftext, &foundPos, match))
+	int count = 0;
+	findStart = info.startPos;
+	findEnd = info.endPos;
+	if (findStart == findEnd)
+		findEnd = buf->length();
+
+	int rlen;
+	do
 	{
-		if (foundPos > info.endPos)
+		if (!DoFind())
 			break;
 		count++;
-		buf->select(foundPos, foundPos+flen);
-		buf->remove_selection();
-		buf->insert(foundPos, rtext);
-		curPos = foundPos + flen;
-	}
-
+		rlen = DoReplace(rtext);
+		findStart = matchStart + rlen;
+	} while (findStart < findEnd);
 	return count;
 }
-
 
 int TextEditorFltk::GetSelection(SelectInfo& info)
 {

@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file PropertiesDlgFltk.cpp Properties dialogs implementation.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
 #include "PropertiesDlgFltk.h"
 #include "MainFrm.h"
@@ -21,6 +31,8 @@ static void BrowseCB(Fl_Widget *wdg, void *arg)
 ItemPropertiesBase::ItemPropertiesBase(ProjectItem *p, int width, int height) 
 	: Fl_Window(100, 100, width, height, "Properites")
 {
+	nameInp = 0;
+	descInp = 0;
 	doneSet = 0;
 	pi = p;
 	txtHeight = 25;
@@ -29,14 +41,6 @@ ItemPropertiesBase::ItemPropertiesBase(ProjectItem *p, int width, int height)
 
 ItemPropertiesBase::~ItemPropertiesBase()
 {
-	// the WidgetForm code can draw at anytime, not
-	// just on repaint events. We need to make sure
-	// we have a valid device context when this dialog
-	// window is destroyed... (This is a "feature" of
-	// fltk.)
-	// I give up... just use the damage() + draw() stuff. sigh...
-	//if (mainWnd)
-	//	mainWnd->make_current();
 }
 
 int ItemPropertiesBase::AddNameDesc(int ypos)
@@ -63,7 +67,11 @@ int ItemPropertiesBase::AddOkCancel(int ypos)
 void ItemPropertiesBase::OnOK()
 {
 	if (pi->SaveProperties((PropertyBox*)this))
+	{
+		if (theProject)
+			theProject->SetChange(1);
 		doneSet = 1;
+	}
 }
 
 void ItemPropertiesBase::OnCancel()
@@ -594,8 +602,8 @@ ProjectPropertiesDlg::ProjectPropertiesDlg()
 	cpyrInp = new Fl_Input(340, ypos, 150, txtHeight, "Copyright");
 	ypos += txtSpace;
 
-	descInp = new Fl_Input(90, ypos, 400, txtHeight, "Description");
-	ypos += txtSpace;
+	descInp = new Fl_Multiline_Input(90, ypos, 400, txtHeight*3, "Description");
+	ypos += txtSpace+(txtHeight*2);
 	
 	prjfInp = new Fl_Input(90, ypos, 380, txtHeight, "Project File");
 	prjfSel = new Fl_Button(470, ypos, 20, txtHeight, "...");
@@ -912,6 +920,81 @@ ProjectItem *MixerSetupDlg::GetListItem(int id, int ndx)
 	if (id == PROP_MIX_FX)
 		return ItemPropertiesBase::GetListItem(fxList, ndx);
 	return 0;
+}
+
+
+EffectsSetupDlg::EffectsSetupDlg(ProjectItem *pi) 
+ : ItemPropertiesBase(pi, 200, 400)
+{
+	int lblw = 100;
+	int valw = 80;
+	int ypos = 5;
+	nameInp = new Fl_Input(lblw, ypos, valw, txtHeight, "Name");
+	ypos += txtSpace;
+//	descInp = new Fl_Input(lblw, ypos, valw, txtHeight, "Desc.");
+//	ypos += txtSpace;
+	volInp = new Fl_Input(lblw, ypos, valw, txtHeight, "Volume");
+	ypos += txtSpace;
+	panInp = new Fl_Input(lblw, ypos, valw, txtHeight, "Pan");
+	ypos += txtSpace;
+	val1Inp = new Fl_Input(lblw, ypos, valw, txtHeight, "");
+	ypos += txtSpace;
+	val2Inp = new Fl_Input(lblw, ypos, valw, txtHeight, "");
+	if (pi->GetType() != PRJNODE_ECHO)
+	{
+		ypos += txtSpace;
+		val3Inp = new Fl_Input(lblw, ypos, valw, txtHeight, "");
+		ypos += txtSpace;
+		val4Inp = new Fl_Input(lblw, ypos, valw, txtHeight, "");
+		ypos += txtSpace;
+		val5Inp = new Fl_Input(lblw, ypos, valw, txtHeight, "");
+	}
+	else
+	{
+		val3Inp = 0;
+		val4Inp = 0;
+		val5Inp = 0;
+	}
+	ypos += txtSpace;
+	AddOkCancel(ypos);
+}
+
+
+Fl_Input *EffectsSetupDlg::GetInput(int id)
+{
+	switch (id)
+	{
+	case PROP_NAME:  return nameInp;
+	case PROP_DESC:  return descInp;
+	case PROP_FX_VOL: return volInp;
+	case PROP_FX_PAN: return panInp;
+	case PROP_FX_V1: return val1Inp;
+	case PROP_FX_V2: return val2Inp;
+	case PROP_FX_V3: return val3Inp;
+	case PROP_FX_V4: return val4Inp;
+	case PROP_FX_V5: return val5Inp;
+	}
+	return 0;
+}
+
+void EffectsSetupDlg::SetValue(int id, const char *val, const char *lbl)
+{
+	ItemPropertiesBase::SetValue(GetInput(id), val, lbl);
+}
+
+int EffectsSetupDlg::GetValue(int id, char *val, int len)
+{
+	return ItemPropertiesBase::GetValue(GetInput(id), val, len);
+}
+
+int EffectsSetupDlg::GetValue(int id, bsString& val)
+{
+	return ItemPropertiesBase::GetValue(GetInput(id), val);
+}
+
+void EffectsSetupDlg::EnableValue(int id, int enable)
+{
+	ItemPropertiesBase::EnableValue(GetInput(id), enable);
 }
 
 ///////////////////////////////////////////////////////////////////////

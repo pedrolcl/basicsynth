@@ -4,7 +4,7 @@
 // BasicSynth - send samples to the sound card using DirectSound
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -15,20 +15,23 @@
 #include <WaveOutDirect.h>
 
 #if !USE_SDK_DSOUND
-CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, 0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0};
-IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60};
+CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, {0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0} };
+IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, { 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60} };
 #endif
 typedef HRESULT (WINAPI *tDirectSoundCreate)(const GUID *pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+typedef BOOL (CALLBACK *LPDSENUMCALLBACKA)(LPGUID, LPCSTR, LPCSTR, LPVOID);
+typedef HRESULT (WINAPI *tDirectSoundEnumerate)(LPDSENUMCALLBACKA pDSEnumCallback, LPVOID pContext);
 
-// Manage the DirectSound object.
-// This class creates a "singleton" DirectSound object
-// shared by all WaveOutDirect instances. One instance
-// of this class exists and is created at init time
-// and destroyed at program exit.
+/// Manage the DirectSound object.
+/// This class creates a "singleton" DirectSound object
+/// shared by all WaveOutDirect instances. One instance
+/// of this class exists and is created at init time
+/// and destroyed at program exit.
 class ManageDirectSound
 {
 public:
 	tDirectSoundCreate pDirectSoundCreate;
+	tDirectSoundEnumerate pDirectSoundEnumerate;
 	IDirectSound *dirSndObj;
 	GUID *lastDev;
 
@@ -38,7 +41,10 @@ public:
 		lastDev = NULL;
 		HMODULE h = LoadLibrary("dsound.dll");
 		if (h)
+		{
 			pDirectSoundCreate = (tDirectSoundCreate)GetProcAddress(h, "DirectSoundCreate");
+			pDirectSoundEnumerate = (tDirectSoundEnumerate)GetProcAddress(h, "DirectSoundEnumerateA");
+		}
 	}
 
 	~ManageDirectSound()
@@ -55,6 +61,7 @@ public:
 		//	delete lastDev;
 	}
 
+	/// Add a reference to the DirectSound object.
 	ULONG AddRef()
 	{
 		ULONG rc = 0;
@@ -63,6 +70,7 @@ public:
 		return rc;
 	}
 
+	/// Release a reference to the DirectSound object.
 	ULONG Release()
 	{
 		ULONG rc = 0;
@@ -74,6 +82,8 @@ public:
 		return rc;
 	}
 
+	/// Create the DirectSound object if it does not exist.
+	/// If the device GUID is changed, we re-init.
 	int Create(HWND w, GUID *dev)
 	{
 		int newDev = 1;
@@ -184,11 +194,11 @@ int WaveOutDirect::CreateSoundBuffer(HWND w, GUID *dev)
 
 	DSBUFFERDESC dsbd;
 	dsbd.dwSize = sizeof(dsbd);
-	dsbd.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS; 
+	dsbd.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS;
 	dsbd.dwBufferBytes = bufLen;
-	dsbd.dwReserved = 0; 
+	dsbd.dwReserved = 0;
 	dsbd.lpwfxFormat = &wf;
-	
+
 	if (dsObj.dirSndObj->CreateSoundBuffer(&dsbd, &dirSndBuf, NULL) != S_OK)
 		return -1;
 
@@ -275,7 +285,7 @@ void WaveOutDirect::Shutdown()
 // buffer locked. Since samples are going directly to the buffer,
 // it is imperative to do that.
 // This next flag controls whether the code sleeps or spins when the
-// buffer is full. Depending on the CPU load, it might be better to 
+// buffer is full. Depending on the CPU load, it might be better to
 // spin because we might not get the CPU back when we want it.
 #define SLEEP_WHEN_BLOCKED 1
 int WaveOutDirect::FlushOutput()
@@ -356,16 +366,17 @@ WaveOutDirectI::WaveOutDirectI()
 
 int WaveOutDirectI::Setup(HWND w, float leadtm, int nb, GUID *dev)
 {
+	// the minimum latency varies with processor speed
+	// for Pentium 4 on XP, 20ms is about as small as you
+	// should go.
 	if (leadtm == 0.0f)
-	{
-		latency = 0.010f;
-		numBlk = 3;
-	}
+		latency = 0.020f;
 	else
-	{
 		latency = leadtm;
+	if (nb < 3)
+		numBlk = 3;
+	else
 		numBlk = nb;
-	}
 	if (CreateSoundBuffer(w, dev))
 		return -1;
 	AllocBuf(sampleMax, 2);
@@ -403,8 +414,18 @@ int WaveOutDirectI::FlushOutput()
 	DWORD toWrite = blkLen;
 	DWORD writeNow;
 	DWORD toSleep = 4;
-	while (1)
+	DWORD bufstat = 0;
+	while (dirSndBuf)
 	{
+		dirSndBuf->GetStatus(&bufstat);
+		if (!(bufstat & DSBSTATUS_PLAYING))
+			break;
+		if (bufstat & DSBSTATUS_BUFFERLOST)
+		{
+			if (dirSndBuf->Restore())
+				break;
+			ClearBuffer();
+		}
 		dirSndBuf->GetCurrentPosition(&pl, &wr);
 		if (pl < wrPos)
 			writeNow = (pl + bufLen) - wrPos;

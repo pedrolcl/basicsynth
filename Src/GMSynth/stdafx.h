@@ -3,7 +3,9 @@
 // are changed infrequently
 //
 
+#if _MSC_VER
 #pragma once
+#endif
 
 #ifdef _WIN32
 #include "targetver.h"

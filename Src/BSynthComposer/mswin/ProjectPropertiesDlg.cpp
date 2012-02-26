@@ -196,7 +196,7 @@ LRESULT ProjectPropertiesDlg::OnPathMvup(WORD wNotifyCode, WORD wID, HWND hWndCt
 LRESULT ProjectPropertiesDlg::OnPathMvdn(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	int sel = lbPath.GetCurSel();
-	if (sel == LB_ERR && sel < lbPath.GetCount())
+	if (sel == LB_ERR)
 		return 0;
 
 	char path[MAX_PATH];

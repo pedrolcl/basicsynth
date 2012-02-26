@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="BasicSynth workspace">
-		<Project filename="Common/Common.cbp" />
-		<Project filename="Instruments/Instruments.cbp">
-			<Depends filename="Common/Common.cbp" />
-		</Project>
-		<Project filename="Notelist/Notelist.cbp">
-			<Depends filename="Common/Common.cbp" />
-			<Depends filename="Instruments/Instruments.cbp" />
-		</Project>
+		<Project filename="Common/Common.cbp" active="1" />
+		<Project filename="Instruments/Instruments.cbp" />
+		<Project filename="Notelist/Notelist.cbp" />
 		<Project filename="Examples/Example01/Example01.cbp">
 			<Depends filename="Common/Common.cbp" />
 		</Project>
@@ -62,7 +57,7 @@
 			<Depends filename="Common/Common.cbp" />
 			<Depends filename="Instruments/Instruments.cbp" />
 		</Project>
-		<Project filename="BSynth/BSynth.cbp" active="1">
+		<Project filename="BSynth/BSynth.cbp">
 			<Depends filename="Common/Common.cbp" />
 			<Depends filename="Instruments/Instruments.cbp" />
 			<Depends filename="Notelist/Notelist.cbp" />

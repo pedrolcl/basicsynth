@@ -25,7 +25,7 @@ class BuzzSynth;
 
 ///////////////////////////////////////////////////////////////
 /// @brief One generator for the BuzzSynth class.
-/// The BuzzPart aggregates a variable spectrum oscillator,
+/// @details BuzzPart aggregates a variable spectrum oscillator,
 /// lowpass filter, modulation envelope and amplitude
 /// envelope. Envelopes are A3SR types.
 ///
@@ -198,7 +198,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////
 /// @brief BuzzSynth implements a two-oscillator subtractive synthesis instrument.
-/// @detail This instrument contains two bandwidth-limited pulse wave oscillators,
+/// @details This instrument contains two bandwidth-limited pulse wave oscillators,
 /// each with its own filter, modulation envelope, amplitude envelope, and
 /// LFO and pitch bend.
 ///

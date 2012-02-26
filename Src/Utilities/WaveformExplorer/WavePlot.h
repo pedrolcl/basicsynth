@@ -39,6 +39,7 @@ public:
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	int Plot(HDC dc, RECT& rc);
+	int Plot(Graphics *gr, RECT& rc);
 	void SetPeriods(int n) { periods = n; }
 };
 

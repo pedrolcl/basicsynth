@@ -40,6 +40,8 @@ private:
 	wdgRect upd;
 	int knWhite[7];
 	int knBlack[5];
+	void *bmKey[4]; ///< 0 = white up, 1 = white down, 2 = black up, 3 = black down
+	wdgColor kclr[4];
 
 	InstrConfig *activeInstr;
 	InstrConfig *selectInstr;
@@ -77,6 +79,8 @@ private:
 	void NumberString(int val, bsString& str);
 	void ClearNotes();
 	void CopyToClipboard(bsString& pitches);
+	void CreateBitmaps();
+	void DeleteBitmaps();
 
 public:
 	KeyboardWidget();

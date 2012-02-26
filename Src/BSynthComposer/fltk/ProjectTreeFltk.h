@@ -1,17 +1,30 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file Project tree window class declaration.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef PROJECT_TREE_FLTK_H
 #define PROJECT_TREE_FLTK_H
 
-class ProjectTreeFltk : 
+class ProjectTreeFltk :
+#if USE_TREE_CTL
+	public Fl_Tree,
+#else
 	public Fl_Hold_Browser,
+#endif
 	public ProjectTree
 {
 private:
+
 public:
 	ProjectTreeFltk(int X, int Y, int W, int H);
 	virtual ~ProjectTreeFltk();
-
-	int FindItem(ProjectItem *itm);
-
+	virtual int handle(int e);
 	virtual void AddNode(ProjectItem *itm, ProjectItem *sib = 0);
 	virtual void SelectNode(ProjectItem *itm);
 	virtual void RemoveNode(ProjectItem *itm);
@@ -21,5 +34,9 @@ public:
 	virtual ProjectItem *FirstChild(ProjectItem *itm);
 	virtual ProjectItem *NextSibling(ProjectItem *itm);
 	virtual ProjectItem *GetSelectedNode();
+
+	int CheckButton(int e);
+	int FindItem(ProjectItem *itm);
 };
+
 #endif

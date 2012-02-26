@@ -23,7 +23,7 @@
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
+			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops;.\mswin.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -54,7 +54,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;../../../OpenSource/WTL80"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -112,7 +112,7 @@
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
+			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops;.\mswin.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -143,7 +143,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -201,7 +201,7 @@
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
+			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops;.\mswin.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="true"
 			CharacterSet="2"
 			>
@@ -231,7 +231,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;../../../OpenSource/WTL80"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -288,7 +288,7 @@
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
+			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops;.\mswin.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="true"
 			CharacterSet="2"
 			>
@@ -318,7 +318,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -422,7 +422,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
@@ -431,7 +431,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
@@ -440,7 +440,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -448,7 +448,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -466,6 +466,10 @@
 			</File>
 			<File
 				RelativePath=".\OptionsDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProjectOptionsWin.cpp"
 				>
 			</File>
 			<File
@@ -528,7 +532,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -536,7 +540,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -544,7 +548,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -552,7 +556,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="../../../OpenSource/scintilla/include"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -599,10 +603,6 @@
 			</File>
 			<File
 				RelativePath=".\ModSynthDlg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mswinView.h"
 				>
 			</File>
 			<File
@@ -655,19 +655,43 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\AppWindow.bmp"
+				RelativePath=".\res\Add16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Audio.bmp"
+				RelativePath=".\res\Add32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\audiocd.ico"
+				RelativePath=".\res\AddItem16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\bitmap1.bmp"
+				RelativePath=".\res\AddItem16_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\AddItem32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\AddItem32_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\AddItem32_2.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\all.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\All16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\All32.bmp"
 				>
 			</File>
 			<File
@@ -679,123 +703,139 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\Cabinet.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\res\cclic.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\cd.bmp"
+				RelativePath=".\res\cd.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Copy.bmp"
+				RelativePath=".\res\CD16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\CopyFolder.bmp"
+				RelativePath=".\res\CD32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\copynotes.ico"
+				RelativePath=".\res\CloseItem16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Cut.bmp"
+				RelativePath=".\res\CloseItem32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Database.bmp"
+				RelativePath=".\res\Copy16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Document.bmp"
+				RelativePath=".\res\Copy32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Edit_Redo.bmp"
+				RelativePath=".\res\CopyItem16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Edit_Undo.bmp"
+				RelativePath=".\res\CopyItem32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\EditCode.bmp"
+				RelativePath=".\res\Cut16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\eight.ico"
+				RelativePath=".\res\Cut32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\eighth24.bmp"
+				RelativePath=".\res\DeleteItem16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\eighth32.bmp"
+				RelativePath=".\res\DeleteItem16_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Documents\EighthNote32.bmp"
+				RelativePath=".\res\DeleteItem16_2.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Find.bmp"
+				RelativePath=".\res\DeleteItem32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\FindNext.bmp"
+				RelativePath=".\res\DeleteItem32_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Flag_blue.bmp"
+				RelativePath=".\res\DeleteItem32_2.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Flag_green.bmp"
+				RelativePath=".\res\Down16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Flag_red.bmp"
+				RelativePath=".\res\Down16_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\generate.ico"
+				RelativePath=".\res\Down32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Genericfile.bmp"
+				RelativePath=".\res\Down32_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\half.ico"
+				RelativePath=".\res\EditItem16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\half24.bmp"
+				RelativePath=".\res\EditItem32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\half32.bmp"
+				RelativePath=".\res\Find16.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Documents\HalfNote32.bmp"
+				RelativePath=".\res\Find32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\ico00001.ico"
+				RelativePath=".\res\FindNext16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\icon1.ico"
+				RelativePath=".\res\FindNext16_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\icon2.ico"
+				RelativePath=".\res\FindNext32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\FindNext32_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Help16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Help16_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Help32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Help32_1.bmp"
 				>
 			</File>
 			<File
@@ -803,15 +843,55 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\Library.bmp"
+				RelativePath=".\res\Info16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\maintb.bmp"
+				RelativePath=".\res\Info16_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\mswin.ico"
+				RelativePath=".\res\Info32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Info32_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Item16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Item32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ItemHelp16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ItemHelp32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ItemProperties16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ItemProperties32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Keyboard16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Keyboard16_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Keyboard32.bmp"
 				>
 			</File>
 			<File
@@ -827,43 +907,63 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\NewDocument.bmp"
+				RelativePath=".\res\NewItem16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\NewFolder.bmp"
+				RelativePath=".\res\NewItem32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\NewNotelist.bmp"
+				RelativePath=".\res\NewProject16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\NewSequence.bmp"
+				RelativePath=".\res\NewProject16_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\notegroup.ico"
+				RelativePath=".\res\NewProject32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Notelist.bmp"
+				RelativePath=".\res\NewProject32_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Open.bmp"
+				RelativePath=".\res\OpenProject16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\OpenFolder.bmp"
+				RelativePath=".\res\OpenProject16_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Paste.bmp"
+				RelativePath=".\res\OpenProject32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Pause.bmp"
+				RelativePath=".\res\OpenProject32_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\part.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Part16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Part32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Paste16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Paste32.bmp"
 				>
 			</File>
 			<File
@@ -871,63 +971,31 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\Play.bmp"
+				RelativePath=".\res\Pause32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\play1.bmp"
+				RelativePath=".\res\Pause32_1.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Portrait.bmp"
+				RelativePath=".\res\Pause32_2.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Print.bmp"
+				RelativePath=".\res\ProjectProperties16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\PrintPreview.bmp"
+				RelativePath=".\res\ProjectProperties32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\PrintSetup.bmp"
+				RelativePath=".\res\Redo16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Properties.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\res\ProtectForm.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\res\Pushpin.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\res\quart.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\quart24.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\res\quart32.bmp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Documents\QuartNote32.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\res\record.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\Refresh.bmp"
+				RelativePath=".\res\Redo32.bmp"
 				>
 			</File>
 			<File
@@ -935,74 +1003,126 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\Rename.bmp"
+				RelativePath=".\res\Remove16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Repeat.bmp"
+				RelativePath=".\res\Remove32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Save.bmp"
+				RelativePath=".\res\Save16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\SaveAll.bmp"
+				RelativePath=".\res\Save32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Scriptfile.bmp"
+				RelativePath=".\res\SaveAll16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Sequence.bmp"
+				RelativePath=".\res\SaveAll32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\sixt.ico"
+				RelativePath=".\res\SaveAs16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\sixteenth24.bmp"
+				RelativePath=".\res\SaveAs32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\sixteenth32.bmp"
+				RelativePath=".\res\SaveProject16.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Documents\SixteenthNote32.bmp"
+				RelativePath=".\res\SaveProject32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\spkr.ico"
+				RelativePath=".\res\SaveProjectAs16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\Stop.bmp"
+				RelativePath=".\res\SaveProjectAs32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\toolbar.bmp"
+				RelativePath=".\res\speaker.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\res\whole.ico"
+				RelativePath=".\res\Speaker16.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\whole24.bmp"
+				RelativePath=".\res\Speaker32.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\whole32.bmp"
+				RelativePath=".\res\start.ico"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Documents\WholeNote32.bmp"
+				RelativePath=".\res\Start32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Start32_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Start32_2.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\stop.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Stop32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Stop32_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Stop32_2.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Undo16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Undo32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Up16.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Up16_1.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Up32.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Up32_1.bmp"
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\README.TXT"
+			>
+		</File>
 	</Files>
 	<Globals>
 		<Global

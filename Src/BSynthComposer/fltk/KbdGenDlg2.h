@@ -1,7 +1,17 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file KbdGenDlg.h Keyboard/Generator dialog (virtual keyboard)
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef KBDGENDLG_H
 #define KDBGENDLG_H
 
-class KbdGenDlg : 
+class KbdGenDlg :
 	public Fl_Group,
 	public FormEditor
 {
@@ -39,6 +49,8 @@ public:
 	virtual long EditState() { return 0; }
 	virtual int IsChanged()  { return 0; }
 	virtual void SetForm(WidgetForm *frm) { }
+	virtual void Focus() { take_focus(); }
+
 
 	virtual WidgetForm *GetForm()
 	{
@@ -84,19 +96,52 @@ public:
 	void UpdateChannels();
 };
 
-class GenerateDlg : 
+class BarMeter : public Fl_Widget
+{
+private:
+	float barValue;
+	float barRange;
+
+public:
+	BarMeter(int X, int Y, int W, int H)
+		: Fl_Widget(X, Y, W, H, "")
+	{
+		barValue = 0.0;
+		barRange = 1.0;
+	}
+
+	~BarMeter()
+	{
+	}
+
+	void Reset()
+	{
+		barValue = 0;
+	}
+
+	void SetRange(float rng);
+	void SetValue(float val);
+
+	void draw();
+};
+
+
+class GenerateDlg :
 	public Fl_Window,
 	public GenerateWindow
 {
 private:
 	bsString lastMsg;
-	long lastTime;
 	int canceled;
 	int closed;
-	long playFrom;
-	long playTo;
-	long playLive;
+	long lastTime;
+	long startTime;
+	float playRate;
 	SynthMutex dlgLock;
+	static long playFrom;
+	static long playTo;
+	static long playLive;
+	static long updateRate;
 
 	AmpValue lftPeak;
 	AmpValue rgtPeak;
@@ -111,12 +156,15 @@ private:
 	Fl_Input *toInp;
 	Fl_Button *startBtn;
 	Fl_Button *stopBtn;
-	Fl_Check_Button *pauseBtn;
+	Fl_Button *pauseBtn;
 	Fl_Text_Display *msgInp;
 	Fl_Button *closeBtn;
 	Fl_Input *tmInp;
 	Fl_Output *pkLft;
 	Fl_Output *pkRgt;
+	BarMeter *tmBar;
+	BarMeter *lpkMtr;
+	BarMeter *rpkMtr;
 
 	int StartThread();
 	void EndThread();

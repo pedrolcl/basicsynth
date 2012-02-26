@@ -339,7 +339,7 @@ public:
 	WidgetColorMap();
 	~WidgetColorMap();
 	void DeleteAll();
-	void Load(const char *file);
+	void Load(const char *path, const char *file, int top=1);
 	int Find(const char *name, wdgColor &val);
 	void Add(const char *name, wdgColor val);
 	void Add(XmlSynthElem *node);
@@ -509,6 +509,18 @@ public:
 
 	virtual int EnumUp(WGCallback cb, void *arg) { return cb(this, arg); }
 	virtual int EnumDn(WGCallback cb, void *arg) { return cb(this, arg); }
+
+	inline int Red(wdgColor c)   { return (int)((c >> 16) & 0xff); }
+	inline int Green(wdgColor c) { return (int)((c >> 8) & 0xff); }
+	inline int Blue(wdgColor c)  { return (int)(c & 0xff); }
+	inline int Alpha(wdgColor c) { return (int)((c >> 24) & 0xff); }
+	inline long ClrRGBA(int r, int g, int b, int a = 255) 
+	{
+		return ((long)(a&0xff) << 24)
+			 | ((long)(r&0xff) << 16) 
+			 | ((long)(g&0xff) << 8)
+			 | ((long)(b&0xff));
+	}
 
 	/// Load parameters.
 	/// @param elem XML node containing position and options

@@ -67,6 +67,10 @@ SynthWidget *SynthWidget::MakeWidget(const char *type)
 		wdg = new LampWidget;
 	else if (strcmp(type, "keyboard") == 0)
 		wdg = new KeyboardWidget;
+	else if (strcmp(type, "box") == 0)
+		wdg = new BoxWidget;
+    //else
+	//	printf("Unknown widget %s\n", type);
 	return wdg;
 }
 
@@ -130,7 +134,7 @@ int SynthWidget::GetColorAttribute(XmlSynthElem *elem, const char *attr, wdgColo
 			unsigned red = 0;
 			unsigned grn = 0;
 			unsigned blu = 0;
-			unsigned alpha = 0;
+			unsigned alpha = 255;
 			if (len == 8) // #aarrggbb
 			{
 				alpha = HexDig(digits[0]) << 4;
@@ -372,27 +376,7 @@ int WidgetGroup::Load(XmlSynthElem *elem)
 		return 0;
 	do
 	{
-		if (wdgNode.TagMatch("wdg"))
-		{
-			short x, y, w, h;
-			char *type;
-			wdgNode.GetAttribute("ty", &type);
-			if (type)
-			{
-				wdgNode.GetAttribute("x", x);
-				wdgNode.GetAttribute("y", y);
-				wdgNode.GetAttribute("w", w);
-				wdgNode.GetAttribute("h", h);
-				SynthWidget *wdg = AddWidget(type, x, y, w, h);
-				delete type;
-				if (wdg->Load(&wdgNode))
-				{
-					wdg->Remove();
-					delete wdg;
-				}
-			}
-		}
-		else if (wdgNode.TagMatch("pair"))
+		if (wdgNode.TagMatch("pair"))
 		{
 			short knbID;
 			short lblID;
@@ -410,6 +394,38 @@ int WidgetGroup::Load(XmlSynthElem *elem)
 		{
 			colorMap.Add(&wdgNode);
 		}
+		else
+		{
+			bsString wdgtype;
+			if (wdgNode.TagMatch("wdg"))
+			{
+				char *type = 0;
+				wdgNode.GetAttribute("ty", &type);
+				wdgtype.Attach(type);
+			}
+			else
+				wdgtype = wdgNode.TagName();
+			if (wdgtype.Length() > 0)
+			{
+				short x = 0;
+				short y = 0;
+				short w = 0;
+				short h = 0;
+				wdgNode.GetAttribute("x", x);
+				wdgNode.GetAttribute("y", y);
+				wdgNode.GetAttribute("w", w);
+				wdgNode.GetAttribute("h", h);
+				SynthWidget *wdg = AddWidget(wdgtype, x, y, w, h);
+				if (wdg)
+				{
+					if (wdg->Load(&wdgNode))
+					{
+						wdg->Remove();
+						delete wdg;
+					}
+				}
+			}
+		}
 	} while (wdgNode.NextSibling(&wdgNode));
 
 	return 0;
@@ -426,15 +442,10 @@ SynthWidget *WidgetGroup::AddWidget(SynthWidget *wdg)
 
 SynthWidget *WidgetGroup::AddWidget(const char *type, short x, short y, short w, short h)
 {
-	SynthWidget *wdg;
-	wdgRect rc;
-	rc.x = x + area.x;
-	rc.y = y + area.y;
-	rc.w = w;
-	rc.h = h;
-	wdg = MakeWidget(type);
+	SynthWidget *wdg = MakeWidget(type);
 	if (wdg == 0)
 	{
+		// not a builtin type. Maybe a system widget...
 		if (form)
 		{
 			FormEditor *ed = form->GetFormEditor();
@@ -442,8 +453,10 @@ SynthWidget *WidgetGroup::AddWidget(const char *type, short x, short y, short w,
 				wdg = ed->SystemWidget(type);
 		}
 		if (wdg == 0)
-			wdg = new BoxWidget;
+			return 0;
+		//	wdg = new BoxWidget;
 	}
+	wdgRect rc(x + area.x, y + area.y, w, h);
 	wdg->SetParent(this);
 	wdg->SetForm(form);
 	wdg->SetArea(rc);
@@ -505,6 +518,7 @@ WidgetColorMap::WidgetColorMap()
 WidgetColorMap::~WidgetColorMap()
 {
 	DeleteAll();
+	tail.Remove();
 }
 
 void WidgetColorMap::DeleteAll()
@@ -530,34 +544,73 @@ int WidgetColorMap::Find(const char *name, wdgColor &val)
 	return 0;
 }
 
-void WidgetColorMap::Load(const char *file)
+// load a colors file.
+// 'file' can be a full path or relative to 'path'
+// 'top' should be 1 for the top level file. 
+// Included files set 'top' to 0.
+// a colors file is XML format with two valid tag values:
+// <color name="name" val="color" />
+// <include>file</include>
+// a color value can be hex format or another color name, i.e.:
+// <color name="black" val="#ff000000" />
+// <color name="background" val="black" />
+void WidgetColorMap::Load(const char *path, const char *file, int top)
 {
-	XmlSynthDoc doc;
-	XmlSynthElem *root = doc.Open((char *)file);
-	if (root)
+	int found = 0;
+	bsString fullPath;
+	if ((found = SynthFileExists(file)) != 0)
+		fullPath = file;
+	else if (path)
 	{
-		DeleteAll();
-		XmlSynthElem node;
-		XmlSynthElem *child = root->FirstChild(&node);
-		while (child)
-		{
-			if (child->TagMatch("color"))
-				Add(child);
-			child = child->NextSibling(&node);
-		}
-		delete root;
-		doc.Close();
+		fullPath = path;
+		fullPath += '/';
+		fullPath += file;
+		found = SynthFileExists(fullPath);
 	}
 
-	// Set the global switch shadings
-	if (!Find("swuphi", SwitchWidget::swuphi))
-		SwitchWidget::swuphi = 0xffb4b4b4;
-	if (!Find("swuplo", SwitchWidget::swuplo))
-		SwitchWidget::swuplo = 0xff5a5a55;
-	if (!Find("swdnhi", SwitchWidget::swdnhi))
-		SwitchWidget::swdnhi = 0xff808078;
-	if (!Find("swdnlo", SwitchWidget::swdnlo))
-		SwitchWidget::swdnlo = 0xff424242;
+	if (found)
+	{
+		if (top)
+			DeleteAll();
+		XmlSynthDoc doc;
+		XmlSynthElem *root = doc.Open(fullPath);
+		if (root)
+		{
+			XmlSynthElem node;
+			XmlSynthElem *child = root->FirstChild(&node);
+			while (child)
+			{
+				if (child->TagMatch("color"))
+					Add(child);
+				else if (child->TagMatch("include"))
+				{
+					char *data = 0;
+					child->GetContent(&data);
+					if (data)
+					{
+						Load(path, data, 0);
+						delete data;
+					}
+				}
+				child = child->NextSibling(&node);
+			}
+			delete root;
+			doc.Close();
+		}
+	}
+
+	if (top)
+	{
+		// Set the global switch shadings
+		if (!Find("swuphi", SwitchWidget::swuphi))
+			SwitchWidget::swuphi = 0xffb4b4b4;
+		if (!Find("swuplo", SwitchWidget::swuplo))
+			SwitchWidget::swuplo = 0xff5a5a55;
+		if (!Find("swdnhi", SwitchWidget::swdnhi))
+			SwitchWidget::swdnhi = 0xff808078;
+		if (!Find("swdnlo", SwitchWidget::swdnlo))
+			SwitchWidget::swdnlo = 0xff424242;
+	}
 }
 
 void WidgetColorMap::Add(const char *name, wdgColor clr)

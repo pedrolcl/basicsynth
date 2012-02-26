@@ -2,11 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcproj", "{1A1DB816-2BB9-4236-B78F-7EE59365ECDE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E3932F06-DA1D-42A8-95AB-B3469B90F26F} = {E3932F06-DA1D-42A8-95AB-B3469B90F26F}
-		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
-		{74672FD6-6000-4F49-B24B-2831FC760FB8} = {74672FD6-6000-4F49-B24B-2831FC760FB8}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mswin", "mswin\mswin.vcproj", "{798CD28B-69BC-4DEE-9A77-A5D8F9008F42}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -19,21 +14,28 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "..\Common\Common.vcproj", "{BB4A5654-F24B-476F-A7B3-0A5D129E9076}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Instruments", "..\Instruments\Instruments.vcproj", "{E3932F06-DA1D-42A8-95AB-B3469B90F26F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Notelist", "..\Notelist\Notelist.vcproj", "{74672FD6-6000-4F49-B24B-2831FC760FB8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E3932F06-DA1D-42A8-95AB-B3469B90F26F} = {E3932F06-DA1D-42A8-95AB-B3469B90F26F}
-		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Help", "Help\Help.vcproj", "{E8F06A1D-E882-4B34-8EE5-048AE1017BA4}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "InstallBSynth", "InstallBSynth\InstallBSynth.vdproj", "{9D9FED40-929E-4F77-9539-C1C353CEFFB1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E8F06A1D-E882-4B34-8EE5-048AE1017BA4} = {E8F06A1D-E882-4B34-8EE5-048AE1017BA4}
+	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "InstallBSynthx64", "InstallBSynthx64\InstallBSynthx64.vdproj", "{153854D3-1F51-4DD1-BDDE-ACFC1801E579}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E8F06A1D-E882-4B34-8EE5-048AE1017BA4} = {E8F06A1D-E882-4B34-8EE5-048AE1017BA4}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wx", "wx\wx.vcproj", "{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3932F06-DA1D-42A8-95AB-B3469B90F26F} = {E3932F06-DA1D-42A8-95AB-B3469B90F26F}
+		{1A1DB816-2BB9-4236-B78F-7EE59365ECDE} = {1A1DB816-2BB9-4236-B78F-7EE59365ECDE}
+		{BB4A5654-F24B-476F-A7B3-0A5D129E9076} = {BB4A5654-F24B-476F-A7B3-0A5D129E9076}
+		{74672FD6-6000-4F49-B24B-2831FC760FB8} = {74672FD6-6000-4F49-B24B-2831FC760FB8}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +129,13 @@ Global
 		{153854D3-1F51-4DD1-BDDE-ACFC1801E579}.ReleaseI|Win32.Build.0 = Release
 		{153854D3-1F51-4DD1-BDDE-ACFC1801E579}.ReleaseI|x64.ActiveCfg = Release
 		{153854D3-1F51-4DD1-BDDE-ACFC1801E579}.ReleaseI|x64.Build.0 = Release
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.Debug|x64.ActiveCfg = Debug|Win32
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.Release|Win32.ActiveCfg = Release|Win32
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.Release|x64.ActiveCfg = Release|Win32
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.ReleaseI|Win32.ActiveCfg = Release|Win32
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.ReleaseI|Win32.Build.0 = Release|Win32
+		{78A94628-2F6D-409B-AF54-BDAFBD92B9A2}.ReleaseI|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

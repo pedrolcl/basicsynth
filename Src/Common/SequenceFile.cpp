@@ -30,6 +30,9 @@
 // with each parameter separated by white space.
 const char *SequenceFile::NextParam(const char *pin, char *pout)
 {
+	if (Comment(pin))
+		return NULL;
+
 	while (isspace(*pin))
 		pin++;
 
@@ -80,13 +83,14 @@ const char *SequenceFile::NextParam(const char *pin, char *pout)
 // Parse a line from a memory buffer.
 int SequenceFile::ParseMem(const char *linbuf)
 {
+	if (Comment(linbuf))
+		return 0;
+
 	const char *parg = linbuf;
-	bsInt16 argn = 0;
-	bsInt16 argmax = P_USER;
+	char argbuf[SEQ_MAX_ARG];
 	int evtype;
 	int inum;
-	SeqEvent *evt = NULL;
-	char argbuf[SEQ_MAX_ARG];
+	int argn;
 
 	while (isspace(*parg))
 		parg++;
@@ -109,16 +113,66 @@ int SequenceFile::ParseMem(const char *linbuf)
 		curmap->AddEntry(P_CHNL, P_CHNL);
 		curmap->AddEntry(P_START, P_START);
 		curmap->AddEntry(P_DUR, P_DUR);
-		curmap->AddEntry(P_TRACK, P_TRACK);
 		argn = P_XTRA;
 		while ((parg = NextParam(parg, argbuf)) != NULL)
-		{
 			curmap->AddEntry(argn++, atoi(argbuf));
-			if (Comment(parg))
-				break;
-		}
 		return 0;
 	}
+
+	if (*parg == '@')
+	{
+		// control event
+		if ((parg = NextParam(++parg, argbuf)) == NULL)
+			return -1;
+		bsInt16 mmsg = atoi(argbuf);
+		if ((parg = NextParam(++parg, argbuf)) == NULL)
+			return -1;
+		bsInt16 chnl = atoi(argbuf);
+		ControlEvent *cevt = new ControlEvent;
+		cevt->SetType(SEQEVT_CONTROL);
+		cevt->SetID(lastID++);
+		cevt->SetChannel(chnl);
+		if ((mmsg & 0xf0) != 0xf0)
+			mmsg |= chnl;
+		cevt->SetMessage(mmsg);
+		if ((parg = NextParam(parg, argbuf)) != NULL)
+			cevt->SetParam(P_START, atof(argbuf));
+		if ((parg = NextParam(parg, argbuf)) != NULL)
+			cevt->SetControl((bsInt16)atoi(argbuf));
+		if ((parg = NextParam(parg, argbuf)) != NULL)
+			cevt->SetValue((bsInt16)atoi(argbuf));
+		seq->AddEvent(cevt);
+		if (parg && (parg = NextParam(parg, argbuf)) != NULL)
+			return -1;
+		return 0;
+	}
+
+	if (*parg == '<' || *parg == '>')
+	{
+		// track event
+		TrackEvent *tevt = new TrackEvent;
+		evtype = (*parg == '<') ? SEQEVT_STARTTRACK : SEQEVT_STOPTRACK;
+		tevt->SetType(evtype);
+		tevt->SetID(lastID++);
+		tevt->SetTrack(0);
+		tevt->SetDuration(0);
+		if ((parg = NextParam(++parg, argbuf)) != NULL)
+			tevt->SetParam(P_START, atof(argbuf));
+		if ((parg = NextParam(parg, argbuf)) != NULL)
+			tevt->SetTrkNo((bsInt16)atoi(argbuf));
+		if (evtype == SEQEVT_STARTTRACK && (parg = NextParam(parg, argbuf)) != NULL)
+			tevt->SetLoop((bsInt16)atoi(argbuf));
+		else
+			tevt->SetLoop(0);
+		seq->AddEvent(tevt);
+		if (parg && (parg = NextParam(parg, argbuf)) != NULL)
+			return -1;
+		return 0;
+	}
+
+	bsInt16 argmax = P_USER;
+	SeqEvent *evt = NULL;
+
 	if (*parg == '+')
 	{
 		parg++;
@@ -139,56 +193,50 @@ int SequenceFile::ParseMem(const char *linbuf)
 		lastID++;
 		evtype = SEQEVT_START;
 	}
+	if ((parg = NextParam(parg, argbuf)) == NULL)
+		return -1;
+
+	inum = atoi(argbuf);
+	evt = inMgr->ManufEvent(inum);
+	if (evt == NULL)
+		return -1;
+	argmax = evt->MaxParam();
+	evt->SetType(evtype);
+	evt->SetID(lastID);
+	evt->SetParam(P_INUM, inum);
+	if (!curmap || curmap->inum != inum)
+	{
+		curmap = map;
+		while (curmap)
+		{
+			if (curmap->inum == inum)
+				break;
+			curmap = curmap->next;
+		}
+	}
+	argn = 1;
 
 	while ((parg = NextParam(parg, argbuf)) != NULL)
 	{
-		if (argn == 0)
-		{
-			inum = atoi(argbuf);
-			evt = inMgr->ManufEvent(inum);
-			if (evt == NULL)
-				return -1;
-			evt->SetType(evtype);
-			evt->SetID(lastID);
-			evt->SetParam(P_INUM, inum);
-			argn = P_INUM + 1;
-			argmax = evt->MaxParam();
-			if (!curmap || curmap->inum != inum)
-			{
-				curmap = map;
-				while (curmap)
-				{
-					if (curmap->inum == inum)
-						break;
-					curmap = curmap->next;
-				}
-			}
-		}
+		int mn;
+		if (curmap)
+			mn = curmap->MapParam(argn);
 		else
-		{
-			int mn;
-			int pn = argn++;
-			if (curmap)
-				mn = curmap->MapParam(pn);
-			else
-				mn = pn;
-			if (pn <= argmax)
-				evt->SetParam(mn, argbuf);
-		}
-		if (Comment(parg))
-			break;
+			mn = argn;
+		if (mn <= argmax)
+			evt->SetParam(mn, argbuf);
+		argn++;
 	}
-	if (error)
-		delete evt;
-	else if (evt)
-		seq->AddEvent(evt);
-	return error;
+	seq->AddEvent(evt);
+	return 0;
 }
 
 // Lines beginning with '//' or ; are comments.
 // Blank lines are also treated as comments.
 int SequenceFile::Comment(const char *line)
 {
+	if (line == NULL)
+		return 1;
 	while (isspace(*line))
 		line++;
 	char ch = *line++;
@@ -213,11 +261,67 @@ int SequenceFile::ReadLine(char *buf)
 	return cnt;
 }
 
+int SequenceFile::LoadMem(const char *file)
+{
+	if (inMgr == NULL)
+	{
+		errlin = "No instrument manager";
+		return error = -1;
+	}
+
+	if (seq == NULL)
+	{
+		errlin = "No sequencer";
+		return error = -1;
+	}
+	lastID = 0;
+	lineno = 1;
+	error = 0;
+	char linbuf[SEQ_MAX_LINE+1];
+	while (*file)
+	{
+		int chcnt = 0;
+		char *out = linbuf;
+		while (*file)
+		{
+			char ch = *file++;
+			if (ch == '\n')
+				break;
+			if (ch != '\r' && chcnt++ < SEQ_MAX_LINE)
+				*out++ = ch;
+		}
+		*out = '\0';
+		if (!Comment(linbuf))
+		{
+			if (ParseMem(linbuf))
+			{
+				errlin = "Error at: ";
+				errlin += linbuf;
+				break;
+			}
+		}
+		lineno++;
+	}
+	return error;
+}
+
 // LoadFile
 // open a file and read it one line at a time into memory.
 // Each line is passed to the parser in turn.
 int SequenceFile::LoadFile(const char *fileName)
 {
+	if (inMgr == NULL)
+	{
+		errlin = "No instrument manager";
+		return error = -1;
+	}
+
+	if (seq == NULL)
+	{
+		errlin = "No sequencer";
+		return error = -1;
+	}
+
 	if (fp.FileOpen((char*)fileName))
 	{
 		errlin = "Cannot open file ";

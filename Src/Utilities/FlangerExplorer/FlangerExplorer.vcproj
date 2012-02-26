@@ -20,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -54,7 +54,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(BasicSynthInc2)"
+				AdditionalIncludeDirectories="&quot;$(BasicSynthInc2)&quot;;..\..\..\OpenSource\WTL80\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -71,14 +71,14 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);..\..\..\OpenSource\WTL80\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CommonD.lib dsound.lib Winmm.lib"
+				AdditionalDependencies="CommonD.lib Winmm.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(BasicSynthLib2)"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
@@ -110,7 +110,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(BasicSynthInc2)"
+				AdditionalIncludeDirectories="&quot;$(BasicSynthInc2)&quot;;..\..\..\OpenSource\WTL80\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -160,14 +160,14 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);..\..\..\OpenSource\WTL80\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CommonD.lib dsound.lib Winmm.lib"
+				AdditionalDependencies="CommonD.lib Winmm.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(BasicSynthLib2x64)"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
@@ -199,8 +199,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="true"
@@ -232,7 +232,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(BasicSynthInc2)"
+				AdditionalIncludeDirectories="&quot;$(BasicSynthInc2)&quot;;..\..\..\OpenSource\WTL80\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -249,14 +249,14 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);..\..\..\OpenSource\WTL80\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Common.lib dsound.lib Winmm.lib"
+				AdditionalDependencies="Common.lib Winmm.lib"
 				OutputFile="..\..\..\Bin\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(BasicSynthLib2)"
@@ -289,7 +289,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
@@ -322,7 +322,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(BasicSynthInc2)"
+				AdditionalIncludeDirectories="&quot;$(BasicSynthInc2)&quot;;..\..\..\OpenSource\WTL80\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
@@ -337,14 +337,14 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);..\..\..\OpenSource\WTL80\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Common.lib dsound.lib Winmm.lib"
+				AdditionalDependencies="Common.lib Winmm.lib"
 				OutputFile="..\..\..\Bin$(PlatformName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(BasicSynthLib2x64)"

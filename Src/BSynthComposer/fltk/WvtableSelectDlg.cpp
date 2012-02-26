@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file WvtableSelectDlg.cpp Wavetable selection dialog implementation.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
 #include "WvtableSelectDlg.h"
 #include <ModSynthEd.h>

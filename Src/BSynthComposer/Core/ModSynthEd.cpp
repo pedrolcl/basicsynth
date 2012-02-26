@@ -2,7 +2,7 @@
 // BasicSynth - Modular Synthesis instrument editor
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ public:
 			envGr->SetSegs(nseg);
 			envGr->SetStart(ug->GetInput(UGEG_ST));
 			envGr->SetSus((int)ug->GetInput(UGEG_SUS));
-			float maxLvl = 1.0;
+			//float maxLvl = 1.0;
 			float maxRt = 1.0;
 			for (int n = 0; n < nseg; n++)
 			{
@@ -383,7 +383,7 @@ void ModSynthEdit::CreateLayout()
 	int xpos = 5;
 	int xmax = 805;
 	int slotH = 300;
-	int slotW = 100;
+//	int slotW = 100;
 	XmlSynthElem *elem;
 	ModSynthEditGroup *grp;
 	WidgetGroup *wgrp;
@@ -412,7 +412,7 @@ void ModSynthEdit::CreateLayout()
 		wgrp->Load(elem);
 		elem->GetAttribute("slh", h);
 		elem->GetAttribute("slw", w);
-		slotW = w;
+//		slotW = w;
 		slotH = h;
 		ypos += a.h;
 	}

@@ -35,7 +35,7 @@ public:
 	virtual void InitSpecific() { }
 	virtual int GetFieldID(int id, int& idval);
 
-	//enum { IDD = 0 }; <--- brain dead...
+	// enum { IDD = 0 }; //<--- brain dead...
 	int IDD;
 
 	BEGIN_MSG_MAP(ItemPropertiesBase)
@@ -79,6 +79,7 @@ public:
 class InstrPropertiesDlg : public ItemPropertiesBase
 {
 public:
+
 	InstrPropertiesDlg()
 	{
 		IDD = IDD_INSTR_PROPERTIES;

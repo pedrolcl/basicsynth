@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file FormEditorFltk.h Form Window implementation
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef _FORM_EDITOR_H
 #define _FORM_EDITOR_H
 
@@ -17,7 +27,7 @@ protected:
 	wdgColor fgColor;
 
 public:
-	FormEditorFltk(ProjectItem *pi, int x, int y, int w, int h);
+	FormEditorFltk(int x, int y, int w, int h);
 	virtual ~FormEditorFltk();
 
 	void draw();
@@ -32,12 +42,7 @@ public:
 		return item;
 	}
 
-	void SetItem(ProjectItem *p)
-	{
-		item = p;
-		label(p->GetName());
-	}
-
+	void SetItem(ProjectItem *p);
 	void SetForm(WidgetForm *wf);
 	
 	WidgetForm *GetForm()
@@ -86,6 +91,8 @@ public:
 			return form->IsChanged();
 		return 0;
 	}
+
+	void Focus() { take_focus(); }
 
 	long EditState();
 

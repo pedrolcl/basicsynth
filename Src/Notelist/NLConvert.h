@@ -12,7 +12,7 @@
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 
-#define NOTELIST_VERSION 1.0
+#define NOTELIST_VERSION 1.1
 
 // generator tokens
 
@@ -127,6 +127,7 @@
 #define T_STARTTRK 402
 #define T_STOPTRK 403
 #define T_VELOCITY 404
+#define T_NLVER 405
 
 #define MAXPARAM 10
 #define MAXFGEN  10

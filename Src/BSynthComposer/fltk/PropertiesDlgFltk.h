@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file Item Properties dialog class declarations.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #ifndef PROPERTIES_DLG_H
 #define PROPERTIES_DLG_H
 
@@ -223,6 +233,28 @@ public:
 	virtual int ListChildren(int id, ProjectItem *parent);
 	virtual int GetListCount(int id, int& count);
 	virtual ProjectItem *GetListItem(int id, int ndx);
+};
+
+class EffectsSetupDlg : public ItemPropertiesBase
+{
+private:
+	Fl_Input *volInp;
+	Fl_Input *panInp;
+	Fl_Input *val1Inp;
+	Fl_Input *val2Inp;
+	Fl_Input *val3Inp;
+	Fl_Input *val4Inp;
+	Fl_Input *val5Inp;
+	
+	Fl_Input *GetInput(int id);
+
+public:
+	EffectsSetupDlg(ProjectItem *p);
+
+	virtual void SetValue(int id, const char *val, const char *lbl);
+	virtual int GetValue(int id, char *val, int len);
+	virtual int GetValue(int id, bsString& val);
+	virtual void EnableValue(int id, int enable);
 };
 
 class QueryValueDlg : public Fl_Window

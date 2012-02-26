@@ -68,3 +68,15 @@ int SynthConfig::FindOnPath(bsString& fullPath, const char *fname)
 	return 0;
 }
 
+int SynthCreateFile(const char *fname, void *data, size_t datalen)
+{
+	FileWriteUnBuf fh;
+	if (fh.FileOpen(fname) == 0)
+	{
+		if (data && datalen > 0)
+			fh.FileWrite(data, datalen);
+		fh.FileClose();
+		return 0;
+	}
+	return -1;
+}

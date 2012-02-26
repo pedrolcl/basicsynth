@@ -98,6 +98,9 @@ const char *ProjectItem::GetFileSpec(int type)
 	case PRJNODE_SOUNDBANK:
 	case PRJNODE_SBLIST:
 		return "SoundFont Files|*.sf2|";
+	case PRJNODE_MIDICTRL:
+	case PRJNODE_MIDIFILE:
+		return "MIDI Files|*.mid|";
 	}
 	return "All Files|*.*|";
 }
@@ -129,6 +132,9 @@ const char *ProjectItem::GetFileExt(int type)
 	case PRJNODE_SOUNDBANK:
 	case PRJNODE_SBLIST:
 		return "sf2";
+	case PRJNODE_MIDICTRL:
+	case PRJNODE_MIDIFILE:
+		return "mid";
 	}
 	return "";
 }

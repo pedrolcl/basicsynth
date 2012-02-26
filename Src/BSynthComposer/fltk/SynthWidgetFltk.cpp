@@ -1,14 +1,26 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file SynthWidgetFltk.cpp Platform specific graphics code.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 // Platform-specifc graphics code
-// This uses FLTK drawing functions. 
+// This uses FLTK drawing functions.
 // A better implementation should use OpenGL and
-// do the linear gradient fill thingy. 
+// do the linear gradient fill thingy.
 // This could also do the cached bitmaps the
 // way the windows code does, but with "plain"
 // graphics there probably isn't as much
 // speed advantage.
 
 #include "globinc.h"
+#include <FL/Fl_BMP_Image.H>
 #include <FL/Fl_JPEG_Image.H>
+#include <FL/Fl_PNG_Image.H>
 
 static void SetColor(wdgColor c)
 {
@@ -125,6 +137,30 @@ void KnobBased::CreateImage()
 {
 }
 
+void GradientFillRect(wdgRect& rc, wdgColor loClr, wdgColor hiClr)
+{
+	double cy = (double) rc.Height();
+	double red1 = (double) ((loClr >> 16) & 0xff);
+	double grn1 = (double) ((loClr >> 8) & 0xff);
+	double blu1 = (double) (loClr & 0xff);
+	double red2 = (double) ((hiClr >> 16) & 0xff);
+	double grn2 = (double) ((hiClr >> 8) & 0xff);
+	double blu2 = (double) (hiClr & 0xff);
+	double rinc = (red2 - red1) / cy;
+	double ginc = (grn2 - grn1) / cy;
+	double binc = (blu2 - blu1) / cy;
+	int y = rc.GetTop();
+	while (y <= rc.GetBottom())
+	{
+		fl_color((int)red2, (int)grn2, (int)blu2);
+		fl_line(rc.GetLeft(), y, rc.GetRight(), y);
+		red2 -= rinc;
+		blu2 -= binc;
+		grn2 -= ginc;
+		y++;
+	}
+}
+
 // experimental - needs work.
 void GradientFillCircle(wdgRect& rc, wdgColor loClr, wdgColor hiClr)
 {
@@ -143,7 +179,6 @@ void GradientFillCircle(wdgRect& rc, wdgColor loClr, wdgColor hiClr)
 	double ginc = (grn2 - grn1) / rx;
 	double binc = (blu2 - blu1) / rx;
 
-	int pts = 0;
 	double r2 = rx * rx;
 	double x = rx;
 	double y = 0;
@@ -151,8 +186,8 @@ void GradientFillCircle(wdgRect& rc, wdgColor loClr, wdgColor hiClr)
 	{
 		x = sqrt(r2 - (y * y));
 		fl_color((int)red2, (int)grn2, (int)blu2);
-		fl_line((int)(cx - x), (int)(cy - y), (int)(cx + x), (int)(cy - y));
-		fl_line((int)(cx - x), (int)(cy + y), (int)(cx + x), (int)(cy + y));
+		fl_line((int)(cx - x)+1, (int)(cy - y), (int)(cx + x)-1, (int)(cy - y));
+		fl_line((int)(cx - x)+1, (int)(cy + y), (int)(cx + x)-1, (int)(cy + y));
 		y += 1.0;
 		red2 -= rinc;
 		blu2 -= binc;
@@ -160,7 +195,7 @@ void GradientFillCircle(wdgRect& rc, wdgColor loClr, wdgColor hiClr)
 	}
 /*	x = rx;
 	y = 0;
-	pts = 0;
+	int pts = 0;
 	double d1 = 0;
 	double d2 = 0;
 	while (x > y)
@@ -245,12 +280,24 @@ void SwitchWidget::Paint(DrawContext dc)
 	swrc.Shrink(1, 1);
 
 	if (!show || !enable)
+	{
+		SetColor(bgClr);
+		fl_rectf(rca.x, rca.y, rca.w, rca.h);
+	}
+	else if (swOn)
+		GradientFillRect(rca, swdnlo, swdnhi);
+	else
+		GradientFillRect(rca, swuplo, swuphi);
+
+/*
+	if (!show || !enable)
 		SetColor(bgClr);
 	else if (swOn)
 		fl_color(90,90,90);
 	else
 		fl_color(132,132,132);
 	fl_rectf(rca.x, rca.y, rca.w, rca.h);
+*/
 
 	if (show)
 	{
@@ -275,8 +322,18 @@ void SwitchWidget::Paint(DrawContext dc)
 		fl_line(swrc.x, swrc.y, swrc.x + swrc.w, swrc.y);
 		fl_line(swrc.x, swrc.y, swrc.x, swrc.y + swrc.h);
 	}
+	DrawLabel(dc);
+}
+
+void SwitchWidget::DrawLabel(DrawContext dc)
+{
 	if (lbl && show)
 	{
+		int *offs = (int*)dc;
+		int dx = offs[0];
+		int dy = offs[1];
+		wdgRect rca = area;
+		rca.Offset(dx, dy);
 		int curfont = fl_font();
 		int cursize = fl_size();
 		int newfont = FL_HELVETICA;
@@ -307,6 +364,17 @@ void SlideSwitchWidget::Paint(DrawContext dc)
 
 void *ImageWidget::LoadImage(char *file)
 {
+	char path[MAX_PATH];
+	if (SynthFileExists(file))
+		strncpy(path, file, MAX_PATH);
+	else
+		snprintf(path, MAX_PATH, "%s/%s", form->FormsDir(), file);
+	if (strstr(file, ".jpg"))
+		return (void*) new Fl_JPEG_Image(path);
+	if (strstr(file, ".png"))
+		return (void*) new Fl_PNG_Image(path);
+	if (strstr(file, ".bmp"))
+		return (void*) new Fl_BMP_Image(path);
 	return 0;
 }
 
@@ -319,11 +387,8 @@ void ImageWidget::CreateImage()
 	sd->type = nullSwitch;
 	sd->cx = area.w;
 	sd->cy = area.h;
-	bsString file;
-	theProject->FindForm(file, onImg);
-	sd->bm[1] = (void*) new Fl_JPEG_Image(file);
-	theProject->FindForm(file, offImg);
-	sd->bm[0] = (void*) new Fl_JPEG_Image(file);
+	sd->bm[0] = LoadImage(offImg);
+	sd->bm[1] = LoadImage(onImg);
 }
 
 void ImageWidget::Paint(DrawContext dc)
@@ -337,15 +402,7 @@ void ImageWidget::Paint(DrawContext dc)
 	if (!sipImg)
 		CreateImage();
 
-	Fl_JPEG_Image *img;
-	if (swOn)
-	{
-		img = (Fl_JPEG_Image*)(sipImg->GetImage(1));
-	}
-	else
-	{
-		img = (Fl_JPEG_Image*)(sipImg->GetImage(0));
-	}
+	Fl_RGB_Image *img = (Fl_RGB_Image*)(sipImg->GetImage(swOn ? 1 : 0));
 	if (img)
 	{
 		int iw = img->w();
@@ -416,6 +473,7 @@ void LampWidget::Paint(DrawContext dc)
 		fl_rect(rca.x, rca.y, rca.w, rca.h);
 	}
 
+//	DrawLabel(dc);
 	if (lbl && show)
 	{
 		int curfont = fl_font();
@@ -449,7 +507,7 @@ void BoxWidget::Paint(DrawContext dc)
 
 	SetColor(bgClr);
 	fl_rectf(rca.x, rca.y, rca.w, rca.h);
-	
+
 	SetColor(fgClr);
 	fl_rect(rca.x, rca.y, rca.w, rca.h);
 }
@@ -586,8 +644,8 @@ void EnvelopeWidget::Paint(DrawContext dc)
 	double lvlval = 0;
 	double xo = (double) (rca.x + 1);
 	double yo = (double) (rca.y + rca.h - 1);
-	double lasty;
-	double lastx;
+	double lasty = 0;
+	double lastx = 0;
 	SetColor(fgClr);
 	fl_begin_line();
 	fl_vertex(xo, yo);
@@ -741,7 +799,6 @@ void WaveWidget::PlotSeg(DrawContext dc)
 	{
 		SetColor(fgClr);
 		int n;
-		int parts = 1;
 		double mid = (double) cy / 2.0;
 		double xo = (double) (rca.x + 2);
 		double yo = (double) (rca.y + 2);
@@ -787,7 +844,7 @@ void SliderWidget::Paint(DrawContext dc)
 
 	fl_color(128,128,128);
 	fl_rectf(rca.x, rca.y, rca.w, rca.h);
-	
+
 	fl_color(40,40,40);
 	fl_rect(rca.x, rca.y, rca.w, rca.h);
 	fl_color(220,220,220);

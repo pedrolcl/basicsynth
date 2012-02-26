@@ -30,6 +30,8 @@ struct KnobData : public ImageData
 	long fgClr;
 	long bgClr;
 	int tick;
+	int tmaj;
+	int tmin;
 	int style;
 	float angle;
 	void *bm;
@@ -54,7 +56,10 @@ struct KnobData : public ImageData
 				&& faceClr == kd->faceClr
 				&& highClr == kd->highClr
 				&& fgClr == kd->fgClr
-				&& bgClr == kd->bgClr;
+				&& bgClr == kd->bgClr
+				&& tick == kd->tick
+				&& tmaj == kd->tmaj
+				&& tmin == kd->tmin;
 		}
 		return 0;
 	}

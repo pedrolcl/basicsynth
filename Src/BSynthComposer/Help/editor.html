@@ -7,8 +7,8 @@
 <p>Several types of text files can be included in a <i>BasicSynth</i> project. These include
 Notelist scores, sequencer files, script files, and notes about the composition. Text files are
 not contained in the project file, but are stored in separate files in the project directory. 
-You can edit these files directly with any text editor, but <i>BasicSynth</i> incorporates
-an integrated text editor based on the Scintilla editor. The Scintilla editor commands follow common Windows edit conventions. 
+You can edit these files directly with any text editor, or with the builtin editor.
+The editor commands follow common Windows edit conventions. 
 Arrow keys, along with the home and end keys, move the cursor and extend the text selection when the shift key is held down. 
 The following table shows the editor commands. Many of the keys are shown as uppercase by convention. However,
 unless the command specifically indicates the shift key, you do not need to press the shift key.  Text can be
@@ -144,6 +144,9 @@ selected with either the keyboard or the mouse.</p>
         <td>Restore text size to normal.</td><td>Ctrl+Keypad/</td>
       </tr>
    </table>
+<p><em>Note:</em> These commands are for the native Windows version of <em>BasicSynth Composer</em> using
+the <a href="http://www.scintilla.org">Scintilla editor.</a> Some versions of <em>BasicSynth Composer</em>
+use a different text editor and not all keyboard commands are available.</p>
 <h2>Find and Replace<hr/></h2>
 <p>The text editor includes a find and replace function with optional regular expression pattern matching. To find or replace text,
 select the <b>Edit-&gt;Find</b> menu or press <b>Ctrl-F</b>. The find and replace form is displayed.</p>
@@ -156,7 +159,7 @@ fields maintain lists of find and replace strings. The four checkboxes affect ho
 <li>Start of word: when checked, the find text must match the start of a word.</li>
 <li>Regular Expression: when checked, match text patterns.</li>
 </ul>
-<p>Regular expressions allow matching a text pattern. The text editor supports the follwing regular expressions.</p>
+<p>Regular expressions allow matching a text pattern. The text editor supports the following regular expressions.</p>
     <table border="0" summary="Regular expression synopsis">
       <tbody>
         <tr valign="top">

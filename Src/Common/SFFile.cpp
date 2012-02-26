@@ -595,8 +595,13 @@ void SFFile::ApplyModulator(SBZone *zone, sfModList *mp, int flags)
 		break;
 	case SBGEN_LFO1:
 		zone->genFlags |= SBGEN_LFO1X;
-		if (sbDst == SBGEN_PITCH && sbCtl == SBGEN_NONE)
-			zone->vibLfoFrq = mp->modAmount;
+		if (sbDst == SBGEN_PITCH)
+		{
+			if (sbCtl == SBGEN_NONE)
+				zone->vibLfoFrq = mp->modAmount;
+			else if (sbCtl == 0x81) // mod wheel
+				zone->vibLfoMwFrq = mp->modAmount;
+		}
 		break;
 	case SBGEN_LFO2:
 		zone->genFlags |= SBGEN_LFO2X;

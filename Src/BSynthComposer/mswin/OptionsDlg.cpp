@@ -8,16 +8,6 @@
 #include "resource.h"
 #include "OptionsDlg.h"
 
-static BOOL CALLBACK DSDevEnum(LPGUID lpGUID, 
-             LPCTSTR lpszDesc,
-             LPCTSTR lpszDrvName, 
-             LPVOID lpContext)
-{
-	CComboBox *cb = (CComboBox *) lpContext;
-	cb->AddString(lpszDesc);
-	return TRUE;
-}
-
 /////////////////////////////////////////////////////////////////////////////
 OptionsDlg::OptionsDlg()
 {
@@ -46,29 +36,23 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	snprintf(buf, 40, "%f", prjOptions.playBuf);
 	SetDlgItemText(IDC_LATENCY, buf);
 
-	midiDev = GetDlgItem(IDC_MIDI_IN);
+	SoundDevInfo *sdi = NULL;
 	waveDev = GetDlgItem(IDC_WAVE_OUT);
-
-	int midiDevNo = 0;
-	UINT ndev = midiInGetNumDevs(); 
-	for (UINT n = 0; n < ndev; n++)
-	{
-		MIDIINCAPS caps;
-		memset(&caps, 0, sizeof(caps));
-		midiInGetDevCaps(n, &caps, sizeof(caps));
-		if (strcmp(caps.szPname, prjOptions.midiDeviceName) == 0)
-			midiDevNo = n;
-		midiDev.AddString(caps.szPname);
-	}
-	midiDev.SetCurSel(midiDevNo);
-
-    //DirectSoundEnumerate(DSDevEnum, &waveDev);
-	if (prjOptions.pDirectSoundEnumerate)
-		prjOptions.pDirectSoundEnumerate(DSDevEnum, &waveDev);
+	while ((sdi = prjOptions.waveList.EnumItem(sdi)) != NULL)
+		waveDev.AddString(sdi->name);
 	if (prjOptions.waveDevice[0])
 		waveDev.SelectString(-1, prjOptions.waveDevice);
 	else
 		waveDev.SetCurSel(0);
+
+	midiDev = GetDlgItem(IDC_MIDI_IN);
+	sdi = NULL;
+	while ((sdi = prjOptions.midiList.EnumItem(sdi)) != NULL)
+		midiDev.AddString(sdi->name);
+	if (prjOptions.midiDeviceName[0])
+		midiDev.SelectString(-1, sdi->name);
+	else
+		midiDev.SetCurSel(0);
 
 	return 1;
 }
@@ -107,7 +91,7 @@ LRESULT OptionsDlg::OnBrowseProjects(WORD wNotifyCode, WORD wID, HWND hWndCtl, B
 
 LRESULT OptionsDlg::OnBrowseForms(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	Browse(IDC_DEF_PROJECTS, "Forms Folder");
+	Browse(IDC_DEF_FORMS, "Forms Folder");
 	return 0;
 }
 
@@ -122,7 +106,7 @@ LRESULT OptionsDlg::OnBrowseColors(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOO
 
 LRESULT OptionsDlg::OnBrowseLibraries(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	Browse(IDC_DEF_PROJECTS, "Library Folder");
+	Browse(IDC_DEF_LIBRARIES, "Library Folder");
 	return 0;
 }
 
@@ -159,10 +143,10 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 		memset(prjOptions.midiDeviceName, 0, MAX_PATH);
 	else
 		GetDlgItemText(IDC_MIDI_IN, prjOptions.midiDeviceName, MAX_PATH);
-
-	waveDev.GetWindowText(prjOptions.waveDevice, MAX_PATH);
 	if (theProject)
 		theProject->prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
+
+	waveDev.GetWindowText(prjOptions.waveDevice, MAX_PATH);
 
 	prjOptions.Save();
 

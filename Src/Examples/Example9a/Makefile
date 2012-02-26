@@ -1,14 +1,25 @@
+###########################################################################
+# Makefile for BasicSynth example9a
+#
+# "make new" rebuilds all executables
+# "make clean" removes the executable images from $(BSBIN)
+#
+# Dan Mitchell (http://basicsynth.com)
+###########################################################################
 include ../../BasicSynth.cfg
 
-$(BSBIN)/example9a: main.cpp MIDINames.cpp $(INSTLIB) $(CMNLIB)
-	$(CPP) -lm $(CPPFLAGS) -o $@ main.cpp MIDINames.cpp $(INSTLIB) $(CMNLIB)
-	
-example9a: $(BSBIN)/example9a
+.PHONY: new clean
+
+EXENAME=$(BSBIN)/example9a$(EXE)
+
+$(EXENAME): main.cpp MIDINames.cpp $(INSTLIB) $(CMNLIB)
+	$(CPP) $(CPPFLAGS) -o $@ main.cpp MIDINames.cpp $(INSTLIB) $(CMNLIB) -lm 
+
+new: clean $(EXENAME)
 
 clean:
-	-rm main.o
-	-rm $(BSBIN)/example9a
-	
+	-rm -f $(EXENAME)
+
 main.cpp: $(BSINC)/SynthDefs.h $(BSINC)/WaveFile.h \
 	$(BSINC)/EnvGen.h $(BSINC)/BiQuad.h \
 	$(BSINC)/GenNoise.h $(BSINC)/GenWave.h \

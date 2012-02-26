@@ -50,6 +50,7 @@ SwitchWidget::SwitchWidget() : SynthWidget(wdgSwitch)
 	lblHeight = 12;
 	bold = 0;
 	italic = 0;
+	shadow = 0;
 	align = 1; // center text
 	if (swuphi == 0)
 	{
@@ -335,7 +336,7 @@ SwitchGroup::~SwitchGroup()
 SynthWidget *SwitchGroup::AddWidget(const char *type, short x, short y, short w, short h)
 {
 	SynthWidget *wdg = WidgetGroup::AddWidget(type, x, y, w, h);
-	if (wdg->GetType() == wdgSwitch)
+	if (wdg && wdg->GetType() == wdgSwitch)
 		((SwitchWidget*)wdg)->SetToggle(2); // don't toggle
 	return wdg;
 }

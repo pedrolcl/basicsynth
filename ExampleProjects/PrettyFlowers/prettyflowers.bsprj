@@ -4,31 +4,32 @@
     <descr>Wildflower blues: Music for the Pretty Flowers video</descr>
     <author>Daniel R. Mitchell</author>
     <cpyrgt>2005</cpyrgt>
-    <out type="1" fmt="0" lead="0.000000" tail="0.000000">prettyflowers.wav</out>
+    <wvdir></wvdir>
     <synth sr="44100" wt="16384" usr="4">
-        <wvtable name="#10" ndx="10" type="1" parts="5" gibbs="0">
-            <part mul="1.000000" amp="1.000000" phs="0.000000" />
-            <part mul="2.000000" amp="0.300000" phs="0.000000" />
-            <part mul="3.000000" amp="0.100000" phs="0.000000" />
-            <part mul="5.000000" amp="0.050000" phs="0.000000" />
-            <part mul="7.000000" amp="0.025000" phs="0.000000" />
+        <wvtable name="#10" id="10" parts="5" type="1" gibbs="0">
+            <part mul="1" amp="1.000000" phs="0.000000" />
+            <part mul="2" amp="0.300000" phs="0.000000" />
+            <part mul="3" amp="0.100000" phs="0.000000" />
+            <part mul="5" amp="0.050000" phs="0.000000" />
+            <part mul="7" amp="0.025000" phs="0.000000" />
         </wvtable>
-        <wvtable name="#11" ndx="11" type="1" parts="2" gibbs="0">
-            <part mul="1.000000" amp="1.000000" phs="0.000000" />
-            <part mul="3.000000" amp="0.200000" phs="0.000000" />
+        <wvtable name="#11" id="11" parts="2" type="1" gibbs="0">
+            <part mul="1" amp="1.000000" phs="0.000000" />
+            <part mul="3" amp="0.200000" phs="0.000000" />
         </wvtable>
-        <wvtable name="#12" ndx="12" type="2" parts="3" gibbs="0">
-            <part mul="1.000000" amp="0.000000" phs="0.500000" />
-            <part mul="2.000000" amp="1.000000" phs="0.250000" />
-            <part mul="3.000000" amp="0.000000" phs="0.250000" />
+        <wvtable name="#12" id="12" parts="3" type="2" gibbs="0">
+            <part mul="1" amp="0.000000" phs="0.500000" />
+            <part mul="2" amp="1.000000" phs="0.250000" />
+            <part mul="3" amp="0.000000" phs="0.250000" />
         </wvtable>
-        <wvtable name="#13" ndx="13" type="2" parts="3" gibbs="0">
-            <part mul="1.000000" amp="1.000000" phs="0.250000" />
-            <part mul="2.000000" amp="0.000000" phs="0.500000" />
-            <part mul="3.000000" amp="0.000000" phs="0.250000" />
+        <wvtable name="#13" id="13" parts="3" type="2" gibbs="0">
+            <part mul="1" amp="1.000000" phs="0.250000" />
+            <part mul="2" amp="0.000000" phs="0.500000" />
+            <part mul="3" amp="0.000000" phs="0.250000" />
         </wvtable>
     </synth>
-    <mixer chnls="8" fxunits="1" lft="0.740000" rgt="0.740000" pan="2">
+    <out type="1" fmt="0" lead="0.000000" tail="0.000000">prettyflowers.wav</out>
+    <mixer chnls="8" fxunits="1" lft="0.650000" rgt="0.650000" pan="2">
         <chnl cn="0" on="1" vol="0.600000" pan="-0.200000" />
         <chnl cn="1" on="1" vol="0.500000" pan="0.200000" />
         <chnl cn="2" on="1" vol="0.500000" pan="0.000000" />
@@ -37,7 +38,7 @@
         <chnl cn="5" on="1" vol="0.795000" pan="-0.040000" />
         <chnl cn="6" on="1" vol="0.500000" pan="0.080000" />
         <chnl cn="7" on="1" vol="0.325000" pan="-0.150000" />
-        <reverb name="Revrb1" unit="0" vol="0.730000" pan="0.000000" rvt="2.000000" lt1="0.043700" lt2="0.041100" lt3="0.037100" lt4="0.029700">
+        <reverb rvt="2.000000" lt1="0.043700" lt2="0.041100" lt3="0.037100" lt4="0.029700" name="Revrb1" unit="0" vol="0.730000" pan="0.000000">
             <send chnl="0" amt="0.050000" />
             <send chnl="1" amt="0.050000" />
             <send chnl="2" amt="0.050000" />
@@ -48,17 +49,16 @@
             <send chnl="7" amt="0.045000" />
         </reverb>
     </mixer>
-    <wvdir></wvdir>
-    <wvfile id="4" name="Kick drum">11385_atomwrath_KD_BD.wav</wvfile>
-    <wvfile id="5" name="Snare drum">11386_atomwrath_KD_Sn.wav</wvfile>
-    <wvfile id="6" name="Tom-tom 1" desc="">11397_atomwrath_KD_tom1.wav</wvfile>
-    <wvfile id="7" name="Tom-tom 2" desc="">11398_atomwrath_KD_tom2.wav</wvfile>
-    <wvfile id="8" name="Snare ring">11387_atomwrath_KD_Snrim.wav</wvfile>
-    <wvfile id="9" name="Tight hat" desc="">11394_atomwrath_KD_hhped.wav</wvfile>
-    <wvfile id="10" name="Foot hat" desc="">11392_atomwrath_KD_hhcl.wav</wvfile>
-    <wvfile id="11" name="Cymbal" desc="">11391_atomwrath_KD_cym1b.wav</wvfile>
+    <wvfile id="4" lpst="0" lpend="28592" name="Kick drum" inc="0">11385_atomwrath_KD_BD.wav</wvfile>
+    <wvfile id="5" lpst="0" lpend="24519" name="Snare drum" inc="0">11386_atomwrath_KD_Sn.wav</wvfile>
+    <wvfile id="6" lpst="0" lpend="57560" name="Tom-tom 1" inc="0">11397_atomwrath_KD_tom1.wav</wvfile>
+    <wvfile id="7" lpst="0" lpend="65960" name="Tom-tom 2" inc="0">11398_atomwrath_KD_tom2.wav</wvfile>
+    <wvfile id="8" lpst="0" lpend="19857" name="Snare ring" inc="0">11387_atomwrath_KD_Snrim.wav</wvfile>
+    <wvfile id="9" lpst="0" lpend="6020" name="Tight hat" inc="0">11394_atomwrath_KD_hhped.wav</wvfile>
+    <wvfile id="10" lpst="0" lpend="9330" name="Foot hat" inc="0">11392_atomwrath_KD_hhcl.wav</wvfile>
+    <wvfile id="11" lpst="0" lpend="177204" name="Cymbal" inc="0">11391_atomwrath_KD_cym1b.wav</wvfile>
     <instrlib>
-        <instr id="1" type="MatrixSynth" name="PFBass" desc="">
+        <instr name="PFBass" id="1" type="MatrixSynth">
             <mat frq="440.000000" vol="1.000000" />
             <gen gn="0" wt="10" mul="1.000000" mnx="0.000000" eg="0" out="1101000000000000" mod="01000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
             <gen gn="1" wt="0" mul="2.000000" mnx="0.750000" eg="1" out="1001000000000000" mod="00000000" vol="0.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
@@ -97,9 +97,9 @@
                 <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
             </env>
             <lfo frq="3.500000" wt="0" atk="0.100000" amp="0.000000" />
-            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.000000" pbwt="12" />
+            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.000000" pbwt="12" pbdur="1.000000" pbdly="0.000000" pbmode="0" />
         </instr>
-        <instr id="2" type="MatrixSynth" name="PFKbd" desc="">
+        <instr name="PFKbd" id="2" type="MatrixSynth">
             <mat frq="440.000000" vol="1.000000" />
             <gen gn="0" wt="10" mul="1.000000" mnx="0.000000" eg="0" out="1100000000000000" mod="01000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
             <gen gn="1" wt="0" mul="4.000000" mnx="0.313000" eg="1" out="1000000000000000" mod="00000000" vol="0.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
@@ -138,9 +138,9 @@
                 <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
             </env>
             <lfo frq="3.500000" wt="0" atk="0.100000" amp="0.000000" />
-            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.000000" pbwt="13" />
+            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.000000" pbwt="13" pbdur="1.000000" pbdly="0.000000" pbmode="0" />
         </instr>
-        <instr id="3" type="MatrixSynth" name="PFGuit" desc="">
+        <instr name="PFGuit" id="3" type="MatrixSynth">
             <mat frq="440.000000" vol="1.000000" />
             <gen gn="0" wt="11" mul="1.000000" mnx="0.000000" eg="0" out="1101000000000000" mod="01000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
             <gen gn="1" wt="0" mul="4.000000" mnx="0.200000" eg="1" out="1001000000000000" mod="00000000" vol="1.000000" fx1="0.000000" fx2="0.000000" fx3="0.000000" fx4="0.000000" pan="0.000000" lfo="0.000000" pb="0.000000" />
@@ -176,12 +176,31 @@
                 <seg sn="0" rt="0.000000" lvl="0.000000" ty="1" fix="1" />
             </env>
             <lfo frq="3.500000" wt="0" atk="0.100000" amp="0.000000" />
-            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.120000" pbwt="13" />
+            <pb r1="0.000000" r2="0.000000" a1="0.000000" a2="0.000000" a3="0.000000" pbamp="0.120000" pbwt="13" pbdur="1.000000" pbdly="0.000000" pbmode="0" />
         </instr>
-        <instr id="4" type="WFSynth" name="PFDrum" desc="">
+        <instr name="PFDrum" id="4" type="WFSynth">
             <wvf fn="9" lp="0" pa="1" />
             <env ar="0.000000" rr="0.000000" />
         </instr>
     </instrlib>
-    <score inc="1" name="Pretty Flowers" desc="">prettyflowers.nl</score>
+    <score name="Pretty Flowers" inc="1" dbg="0">prettyflowers.nl</score>
+    <midi>
+        <chnl cn="0" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="1" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="2" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="3" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="4" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="5" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="6" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="7" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="8" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="9" bnk="128" prg="0" vol="100" pan="64" />
+        <chnl cn="10" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="11" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="12" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="13" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="14" bnk="0" prg="0" vol="100" pan="64" />
+        <chnl cn="15" bnk="0" prg="0" vol="100" pan="64" />
+        <sbfile></sbfile>
+    </midi>
 </synthprj>

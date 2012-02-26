@@ -1,164 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout type="MIDIControl" x="0" y="0" w="650" h="380" bg="bg" fg="fg" >
-  <wdg id="-2" ty="label" filled="1" x="5" y="5" w="150" h="20" val="0" th="14" align="0" lbl="Sound Bank File" bold="1" fg="label" />
-  <wdg id="2"  ty="label" filled="1" x="160" y="5" w="200" h="20" val="0" align="0" th="14" lbl="" bold="0" fg="label" bg="black" edit="1"/>
-  <wdg id="3" ty="pushbutton" x="370" y="5" w="50" h="20" lbl="Refresh" fg="btnlabel" />
-  <wdg id="-3" ty="group" x="5" y="30" w="300" h="330" border="1" fr="grpfr" fg="fg" bg="bg" >
-    <wdg id="-4" ty="label" x="5" y="5" w="50" h="20" align="1" lbl="Chnl" bold="1" fg="label" bg="bg" />
-    <wdg id="-5" ty="label" x="60" y="5" w="50" h="20" lbl="Bank" val="0" bold="1" fg="label" bg="bg" />
-    <wdg id="-6" ty="label" x="115" y="5" w="50" h="20" lbl="Patch" val="0" bold="1" fg="label" bg="bg" />
-    <wdg id="-7" ty="label" x="200" y="5" w="50" h="20" lbl="Vol." val="0" bold="1" fg="label" bg="bg" />
-    <wdg id="-8" ty="label" x="255" y="5" w="50" h="20" lbl="Pan" val="0" bold="1" fg="label" bg="bg" />
+  <label id="-2"  filled="1" x="5" y="5" w="150" h="20" val="0" th="14" align="0" lbl="Sound Bank File" bold="1" fg="label" />
+  <label id="2"   filled="1" x="160" y="5" w="200" h="20" val="0" align="0" th="14" lbl="" bold="0" fg="label" bg="black" edit="1"/>
+  <pushbutton id="3"  x="370" y="5" w="50" h="20" lbl="Select" fg="btnlabel" />
+  <pushbutton id="4"  x="425" y="5" w="50" h="20" lbl="Refresh" fg="btnlabel" />
+  <group id="-3"  x="5" y="30" w="300" h="330" border="1" fr="grpfr" fg="fg" bg="bg" >
+    <label id="-4"  x="5" y="5" w="50" h="20" align="1" lbl="Chnl" bold="1" fg="label" bg="bg" />
+    <label id="-5"  x="60" y="5" w="50" h="20" lbl="Bank" val="0" bold="1" fg="label" bg="bg" />
+    <label id="-6"  x="115" y="5" w="50" h="20" lbl="Patch" val="0" bold="1" fg="label" bg="bg" />
+    <label id="-7"  x="200" y="5" w="50" h="20" lbl="Vol." val="0" bold="1" fg="label" bg="bg" />
+    <label id="-8"  x="255" y="5" w="50" h="20" lbl="Pan" val="0" bold="1" fg="label" bg="bg" />
 
-    <wdg id="-10" ty="group" x="0" y="30" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="1" bold="1" fg="label" bg="bg" />
-      <wdg id="100" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="101" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="199" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="102" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="103" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-10"  x="0" y="30" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="1" bold="1" fg="label" bg="bg" />
+      <label id="100"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="101"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="199"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="102"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="103"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-20" ty="group" x="0" y="60" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="2" bold="1" fg="label" bg="bg" />
-      <wdg id="200" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="201" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="299" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="202" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="203" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-20"  x="0" y="60" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="2" bold="1" fg="label" bg="bg" />
+      <label id="200"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="201"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="299"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="202"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="203"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-30" ty="group" x="0" y="90" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="3" bold="1" fg="label" bg="bg" />
-      <wdg id="300" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="301" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="399" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="302" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="303" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-30"  x="0" y="90" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="3" bold="1" fg="label" bg="bg" />
+      <label id="300"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="301"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="399"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="302"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="303"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-40" ty="group" x="0" y="120" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="4" bold="1" fg="label" bg="bg" />
-      <wdg id="400" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="401" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="499" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="402" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="403" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-40"  x="0" y="120" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="4" bold="1" fg="label" bg="bg" />
+      <label id="400"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="401"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="499"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="402"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="403"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-50" ty="group" x="0" y="150" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="5" bold="1" fg="label" bg="bg" />
-      <wdg id="500" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="501" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="599" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="502" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="503" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-50"  x="0" y="150" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="5" bold="1" fg="label" bg="bg" />
+      <label id="500"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="501"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="599"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="502"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="503"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-60" ty="group" x="0" y="180" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="6" bold="1" fg="label" bg="bg" />
-      <wdg id="600" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="601" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="699" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="602" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="603" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-60"  x="0" y="180" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="6" bold="1" fg="label" bg="bg" />
+      <label id="600"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="601"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="699"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="602"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="603"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-70" ty="group" x="0" y="210" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="7" bold="1" fg="label" bg="bg" />
-      <wdg id="700" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="701" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="799" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="702" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="703" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-70"  x="0" y="210" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="7" bold="1" fg="label" bg="bg" />
+      <label id="700"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="701"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="799"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="702"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="703"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-80" ty="group" x="0" y="240" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="8" bold="1" fg="label" bg="bg" />
-      <wdg id="800" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="801" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="899" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="802" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="803" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
-  </wdg>
-  <wdg id="-3" ty="group" x="330" y="30" w="300" h="330" border="1" fr="grpfr" fg="fg" bg="bg" >
-    <wdg id="-4" ty="label" x="5" y="5" w="50" h="20" align="1" lbl="Chnl" bold="1" fg="label" bg="bg" />
-    <wdg id="-5" ty="label" x="60" y="5" w="50" h="20" lbl="Bank" val="0" bold="1" fg="label" bg="bg" />
-    <wdg id="-6" ty="label" x="115" y="5" w="50" h="20" lbl="Patch" val="0" bold="1" fg="label" bg="bg" />
-    <wdg id="-7" ty="label" x="200" y="5" w="50" h="20" lbl="Vol." val="0" bold="1" fg="label" bg="bg" />
-    <wdg id="-8" ty="label" x="255" y="5" w="50" h="20" lbl="Pan" val="0" bold="1" fg="label" bg="bg" />
+    <group id="-80"  x="0" y="240" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="8" bold="1" fg="label" bg="bg" />
+      <label id="800"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="801"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="899"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="802"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="803"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
+  </group>
+  <group id="-3"  x="330" y="30" w="300" h="330" border="1" fr="grpfr" fg="fg" bg="bg" >
+    <label id="-4"  x="5" y="5" w="50" h="20" align="1" lbl="Chnl" bold="1" fg="label" bg="bg" />
+    <label id="-5"  x="60" y="5" w="50" h="20" lbl="Bank" val="0" bold="1" fg="label" bg="bg" />
+    <label id="-6"  x="115" y="5" w="50" h="20" lbl="Patch" val="0" bold="1" fg="label" bg="bg" />
+    <label id="-7"  x="200" y="5" w="50" h="20" lbl="Vol." val="0" bold="1" fg="label" bg="bg" />
+    <label id="-8"  x="255" y="5" w="50" h="20" lbl="Pan" val="0" bold="1" fg="label" bg="bg" />
 
-    <wdg id="-90" ty="group" x="0" y="30" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="9" bold="1" fg="label" bg="bg" />
-      <wdg id="900" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="901" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="999" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="902" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="903" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-90"  x="0" y="30" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="9" bold="1" fg="label" bg="bg" />
+      <label id="900"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="901"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="999"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="902"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="903"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-100" ty="group" x="0" y="60" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="10" bold="1" fg="label" bg="bg" />
-      <wdg id="1000" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1001" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1099" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1002" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1003" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-100"  x="0" y="60" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="10" bold="1" fg="label" bg="bg" />
+      <label id="1000"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1001"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1099"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1002"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1003"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-110" ty="group" x="0" y="90" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="11" bold="1" fg="label" bg="bg" />
-      <wdg id="1100" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1101" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1199" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1102" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1103" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-110"  x="0" y="90" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="11" bold="1" fg="label" bg="bg" />
+      <label id="1100"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1101"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1199"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1102"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1103"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-120" ty="group" x="0" y="120" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="12" bold="1" fg="label" bg="bg" />
-      <wdg id="1200" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1201" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1299" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1202" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1203" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-120"  x="0" y="120" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="12" bold="1" fg="label" bg="bg" />
+      <label id="1200"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1201"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1299"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1202"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1203"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-130" ty="group" x="0" y="150" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="13" bold="1" fg="label" bg="bg" />
-      <wdg id="1300" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1301" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1399" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1302" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1303" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-130"  x="0" y="150" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="13" bold="1" fg="label" bg="bg" />
+      <label id="1300"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1301"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1399"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1302"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1303"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-140" ty="group" x="0" y="180" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="14" bold="1" fg="label" bg="bg" />
-      <wdg id="1400" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1401" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1499" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1402" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1403" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-140"  x="0" y="180" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="14" bold="1" fg="label" bg="bg" />
+      <label id="1400"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1401"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1499"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1402"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1403"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-150" ty="group" x="0" y="210" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="15" bold="1" fg="label" bg="bg" />
-      <wdg id="1500" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1501" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1599" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1502" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1503" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
+    <group id="-150"  x="0" y="210" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="15" bold="1" fg="label" bg="bg" />
+      <label id="1500"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1501"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1599"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1502"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1503"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
 
-    <wdg id="-160" ty="group" x="0" y="240" w="280" h="30" >
-      <wdg id="-1" ty="label" x="5" y="5" w="50" h="20" th="14" align="1" lbl="16" bold="1" fg="label" bg="bg" />
-      <wdg id="1600" ty="label" x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1601" ty="label" x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1699" ty="pushbutton" x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
-      <wdg id="1602" ty="label" x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
-      <wdg id="1603" ty="label" x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
-    </wdg>
-  </wdg>
+    <group id="-160"  x="0" y="240" w="280" h="30" >
+      <label id="-1"  x="5" y="5" w="50" h="20" th="14" align="1" lbl="16" bold="1" fg="label" bg="bg" />
+      <label id="1600"  x="60" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1601"  x="115" y="5" w="50" h="20" edit="1" filled="1" lbl="0" val="0" fmt="%3.0f" fg="label" bg="black" />
+      <pushbutton id="1699"  x="170" y="5" w="25" h="20" lbl="?" fg="btnlabel" />
+      <label id="1602"  x="200" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="1" fmt="%3.0f" fg="label" bg="black" />
+      <label id="1603"  x="255" y="5" w="50" h="20" edit="1" filled="1" lbl="1" val="2" fmt="%3.0f" fg="label" bg="black" />
+    </group>
+  </group>
 </layout>

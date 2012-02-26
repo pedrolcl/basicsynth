@@ -201,14 +201,15 @@ void SMFFile::MetaEvent()
 		IntToStr(timeSig, val2);
 		timeSig += " (";
 		IntToStr(timeSig, val3);
-		timeSig += ')';
+		timeSig += ") ";
+		IntToStr(timeSig, val4);
 		break;
 	case MIDI_META_KYSG:
 		val  = *inpPos++;
 		val2 = *inpPos++;
 		keySigKey = val;
 		keySigMaj = val2;
-		keySig += (val & 0x80) ? flats[(255-val)&7] : sharps[val&0x7];
+		keySig += (val & 0x80) ? flats[(256-val)&7] : sharps[val&0x7];
 		keySig += ' ';
 		keySig += val2 ? "min." : "maj.";
 		break;
@@ -310,7 +311,8 @@ void SMFFile::ChnlMessage(bsUint16 msg)
 
 int SMFFile::GenerateSeq(Sequencer *s, SMFInstrMap *map, SoundBank *sb, bsUint16 mask)
 {
-	sbnk = sb;
+	if (sb)
+		sbnk = sb;
 	if (s)
 		SetSequencer(s);
 	if (map)

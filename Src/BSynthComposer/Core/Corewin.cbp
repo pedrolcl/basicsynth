@@ -9,7 +9,7 @@
 			<Target title="Debug Win32">
 				<Option output="..\Lib\CoreD.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="gccDebug" />
+				<Option object_output="mingwDebug" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -17,6 +17,7 @@
 					<Add option="-g" />
 					<Add option="-W" />
 					<Add option="-O0" />
+					<Add option="-mthreads" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_LIB" />
@@ -30,13 +31,14 @@
 			<Target title="Release Win32">
 				<Option output="..\Lib\Core.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="gccRelease" />
+				<Option object_output="mingwRelease" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-W" />
+					<Add option="-mthreads" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
@@ -60,7 +62,9 @@
 			<Option target="Release Win32" />
 			<Option target="Debug UNIX" />
 		</Unit>
-		<Unit filename="ComposerGlobal.h" />
+		<Unit filename="ComposerGlobal.h">
+			<Option compile="1" />
+		</Unit>
 		<Unit filename="EnvelopeWidget.cpp" />
 		<Unit filename="EnvelopeWidget.h" />
 		<Unit filename="FMSynthEd.cpp" />

@@ -613,6 +613,9 @@ void nlVarValue::CopyValue(nlVarValue *p)
 	case vtReal:
 		p->dblVal = dblVal;
 		break;
+    case vtNull:
+        p->lVal = 0;
+        break;
 	}
 	p->vt = vt;
 }
@@ -1035,7 +1038,7 @@ nlScriptNode *nlLoopNode::Exec()
 
 	nlVoice *vox = genPtr->GetCurVoice();
 
-	nlScriptNode *ret = next->Exec();
+	next->Exec();
 	if (lseq)
 	{
 		long count = 0;
@@ -1389,6 +1392,9 @@ nlScriptNode *nlExprNode::Exec()
 			else
 				genPtr->PushStack(0L);
 			delete pstr1;
+			break;
+		case T_NLVER:
+			genPtr->PushStack(NOTELIST_VERSION);
 			break;
 		default:
 			// copy tos to value
@@ -1991,7 +1997,6 @@ nlScriptNode *nlNoteData::Exec(nlScriptNode *list)
 		}
 		list = list->GetNext();
 		nlVarValue *val = values;
-		int nn = 0;
 		int tok;
 		while (list != NULL && (tok = list->GetToken()) != endToken)
 		{

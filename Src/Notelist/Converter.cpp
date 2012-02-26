@@ -410,9 +410,11 @@ int CompareToken(const char *s1, const char *s2)
 	int c1, c2;
 	while (*s1 && *s2)
 	{
-		if ((c1 = *s1++) >= 'a' && c1 <= 'z')
+		c1 = ((int)*s1++) & 0xFF;
+		c2 = ((int)*s2++) & 0xFF;
+		if (c1 >= 'a' && c1 <= 'z')
 			c1 = 'A' + c1 - 'a';
-		if ((c2 = *s2++) >= 'a' && c2 <= 'z')
+		if (c2 >= 'a' && c2 <= 'z')
 			c2 = 'A' + c2 - 'a';
 		if (c1 != c2)
 			return c2 - c1;
@@ -479,6 +481,7 @@ char *FltToStr(double val, char *s, int len)
 			fpart *= 10.0;
 			ipart = floor(fpart); // 0 <= ipart < 10
 			*s++ = ((long)ipart) + '0';
+
 		}
 		*s = '\0';
 	}

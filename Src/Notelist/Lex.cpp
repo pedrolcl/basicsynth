@@ -30,6 +30,7 @@ nlLex::nlLex()
 	theToken = -1;
 	nLineno = 0;
 	position = 0;
+	version = NOTELIST_VERSION;
 }
 
 nlLex::~nlLex()
@@ -230,6 +231,10 @@ int nlLex::Next()
 		inch = insv;
 	}
 
+	// Or a rest
+	if ((bp[0] == 'R' || bp[0] == 'r') && bp[1] == 0)
+		return T_PIT;
+
 	// Or a rhythm...
 	if (inch == '%')
 	{
@@ -266,8 +271,41 @@ int nlLex::Next()
 		return T_NUM;
 	}
 
+	int kw = IsKeyword(cTokbuf);
+	if (kw != T_ENDOF)
+		return kw;
+
+	// symbol?
+	inch = insv;
+	if (version < 1.1)
+	{
+		if (!isalpha(inch))
+			return -1;
+		bp = &cTokbuf[1];
+		while ((inch = ((int)*bp++)&0xFF) != 0)
+		{
+			if (!isalnum(inch))
+				return -1;
+		}
+	}
+	else
+	{
+		if (!SymbolStartChar(inch))
+			return -1;
+		bp = &cTokbuf[1];
+		while ((inch = ((int)*bp++)&0xFF) != 0)
+		{
+			if (!SymbolChar(inch))
+				return -1;
+		}
+	}
+	return T_VAR;
+}
+
+int nlLex::IsKeyword(const char *cTokbuf)
+{
 	// check keywords...
-	switch (toupper(inch))
+	switch (toupper(cTokbuf[0]))
 	{
 	case 'A':
 		if (CompareToken(cTokbuf, "ARTIC") == 0)
@@ -394,6 +432,8 @@ int nlLex::Next()
 			return T_NOT;
 		if (CompareToken(cTokbuf, "NOTE") == 0)
 			return T_NOTE;
+		if (CompareToken(cTokbuf, "NLVER") == 0)
+			return T_NLVER;
 		break;
 	case 'O':
 		if (CompareToken(cTokbuf, "ON") == 0)
@@ -516,17 +556,5 @@ int nlLex::Next()
 			return T_WRITE;
 		break;
 	}
-
-	// symbol?
-	inch = insv;
-	if (!isalpha(inch))
-		return -1;
-	bp = &cTokbuf[1];
-	while ((inch = ((int)*bp++)&0xFF) != 0)
-	{
-		if (!isalpha(inch) && !isdigit(inch))
-			return -1;
-	}
-	return T_VAR;
+	return T_ENDOF;
 }
-

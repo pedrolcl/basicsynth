@@ -1,4 +1,6 @@
+#if _MSC_VER
 #pragma once
+#endif
 
 // The following macros define the minimum required platform.  The minimum required platform
 // is the earliest version of Windows, Internet Explorer etc. that has the necessary features to run 

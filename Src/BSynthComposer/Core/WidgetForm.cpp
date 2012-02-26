@@ -15,8 +15,10 @@ WidgetForm::WidgetForm()
 	track = 0;
 	focus = 0;
 	mainGroup = new WidgetGroup;
+	mainGroup->SetForm(this);
 	bgColor = 0xff808080;
 	fgColor = 0xff000000;
+	formFont = prjOptions.formsFont;
 }
 
 WidgetForm::~WidgetForm()
@@ -111,7 +113,7 @@ void WidgetForm::BtnDn(int x, int y, int shft, int ctl)
 int WidgetForm::Load(const char *fileName, int xo, int yo)
 {
 	XmlSynthDoc doc;
-	XmlSynthElem root;
+	XmlSynthElem root(&doc);
 	if (doc.Open((char*)fileName, &root) == 0)
 		return -1;
 
@@ -138,6 +140,9 @@ int WidgetForm::Load(XmlSynthElem *root, int xo, int yo)
 		rc.w = val;
 	if (root->GetAttribute("h", val) == 0)
 		rc.h = val;
+	char *data = 0;
+	if (root->GetAttribute("font", &data) == 0)
+		formFont.Attach(data);
 	rc.x += xo;
 	rc.y += yo;
 	mainGroup->SetArea(rc);
@@ -288,4 +293,14 @@ void WidgetForm::MoveTo(int x, int y)
 	a.x += x - a.x;
 	a.y += y - a.y;
 	mainGroup->SetArea(a);
+}
+
+const char *WidgetForm::LabelFont()
+{
+	return formFont;
+}
+
+const char *WidgetForm::FormsDir()
+{
+	return prjOptions.formsDir;
 }

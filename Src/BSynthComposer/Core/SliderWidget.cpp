@@ -2,7 +2,7 @@
 // BasicSynth - Widget to display a slider.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ int SliderWidget::LoseFocus()
 	return 1;
 }
 
-// Note: using floor(v+0.5) creates problems, 
+// Note: using floor(v+0.5) creates problems,
 // especially with prec=0, so we actually "truncate"
 float SliderWidget::Round(float v)
 {
@@ -201,7 +201,6 @@ int SliderWidget::MouseMove(int x, int y, int ctrl, int shift)
 
 int SliderWidget::ChangeValue(int x, int y, int ctrl, int shift)
 {
-	double lastval = value;
 	double scale;
 	if (vertical)
 		scale = (double) (slideTrack.GetBottom() - y) / (double) slideTrack.h;
@@ -230,9 +229,6 @@ int SliderWidget::ChangeValue(int x, int y, int ctrl, int shift)
 int SliderWidget::Load(XmlSynthElem *elem)
 {
 	SynthWidget::Load(elem);
-
-	wdgColor hiclr = 0xc0c0c0;
-	wdgColor loclr = 0x505050;
 
 	float scl;
 	float lo;

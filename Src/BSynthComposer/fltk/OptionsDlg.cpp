@@ -1,24 +1,16 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file Global options dialog implementation.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL 
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
 #include "OptionsDlg.h"
 #include "MainFrm.h"
-
-static int GetMIDIDevice(const char *name)
-{
-	if (*name == 0)
-		return -1;
-#ifdef _WIN32
-	UINT ndev = midiInGetNumDevs(); 
-	for (UINT n = 0; n < ndev; n++)
-	{
-		MIDIINCAPS caps;
-		memset(&caps, 0, sizeof(caps));
-		midiInGetDevCaps(n, &caps, sizeof(caps));
-		if (strcmp(caps.szPname, name) == 0)
-			return n;
-	}
-#endif
-	return 0;
-}
 
 static void OkCB(Fl_Widget *wdg, void *arg)
 {
@@ -30,13 +22,44 @@ static void CanCB(Fl_Widget *wdg, void *arg)
 	((ProjectOptionsDlg*)arg)->OnCancel();
 }
 
-static void BrowseCB(Fl_Widget *wdg, void *arg)
+static void BrowsePrj(Fl_Widget *wdg, void *arg)
 {
-	Fl_Input *inp = (Fl_Input *)arg;
-	bsString file;
-	file = inp->value();
-	if (mainWnd->BrowseFile(1, file, "All files (*)", 0))
-		inp->value(file);
+	ProjectOptionsDlg* dlg = (ProjectOptionsDlg*)arg;
+	dlg->BrowsePath("Project Files Directory", dlg->GetProject());
+}
+
+static void BrowseWvin(Fl_Widget *wdg, void *arg)
+{
+	ProjectOptionsDlg* dlg = (ProjectOptionsDlg*)arg;
+	dlg->BrowsePath("Wave Files Directory", dlg->GetWaveIn());
+}
+
+static void BrowseForms(Fl_Widget *wdg, void *arg)
+{
+	ProjectOptionsDlg* dlg = (ProjectOptionsDlg*)arg;
+	dlg->BrowsePath("Forms Directory", dlg->GetForms());
+}
+
+static void BrowseLibs(Fl_Widget *wdg, void *arg)
+{
+	ProjectOptionsDlg* dlg = (ProjectOptionsDlg*)arg;
+	dlg->BrowsePath("Libraries Directory", dlg->GetLibs());
+}
+
+static void BrowseColors(Fl_Widget *wdg, void *arg)
+{
+	ProjectOptionsDlg* dlg = (ProjectOptionsDlg*)arg;
+	Fl_Input *inp = dlg->GetColors();
+	const char *dir = fl_file_chooser("Colors File", NULL, inp->value());
+	if (dir)
+		inp->value(dir);
+}
+
+void ProjectOptionsDlg::BrowsePath(const char *title, Fl_Input *inp)
+{
+	const char *dir = fl_dir_chooser(title, inp->value());
+	if (dir)
+		inp->value(dir);
 }
 
 ProjectOptionsDlg::ProjectOptionsDlg()
@@ -55,56 +78,80 @@ ProjectOptionsDlg::ProjectOptionsDlg()
 	ypos += txtSpace;
 
 	Fl_Box *lbl = new Fl_Box(5, ypos, 85, txtHeight, "Include:");
-	incSco = new Fl_Check_Button(90, ypos, 80, txtHeight, "Notelists");
+	incSco = new Fl_Check_Button(90, ypos, 90, txtHeight, "Notelists");
 	incSco->value(prjOptions.inclNotelist);
 
-	incSeq = new Fl_Check_Button(180, ypos, 80, txtHeight, "Sequences");
+	incSeq = new Fl_Check_Button(190, ypos, 90, txtHeight, "Sequences");
 	incSeq->value(prjOptions.inclSequence);
 
-	incTxt = new Fl_Check_Button(270, ypos, 80, txtHeight, "Text Files");
+	incTxt = new Fl_Check_Button(290, ypos, 90, txtHeight, "Text Files");
 	incTxt->value(prjOptions.inclTextFiles);
 
-	incScr = new Fl_Check_Button(360, ypos, 80, txtHeight, "Scripts");
+	incScr = new Fl_Check_Button(390, ypos, 90, txtHeight, "Scripts");
 	incScr->value(prjOptions.inclScripts);
+	ypos += txtSpace;
 
-	incLib = new Fl_Check_Button(450, ypos, 80, txtHeight, "Libraries");
+	incSF = new Fl_Check_Button(90, ypos, 90, txtHeight, "Sound Fonts");
+	incSF->value(prjOptions.inclSoundFonts);
+
+	incLib = new Fl_Check_Button(190, ypos, 90, txtHeight, "Libraries");
 	incLib->value(prjOptions.inclLibraries);
 
+	incMIDI = new Fl_Check_Button(290, ypos, 90, txtHeight, "MIDI");
+	incMIDI->value(prjOptions.inclMIDI);
 	ypos += txtSpace;
 
-	prjfInp = new Fl_Input(90, ypos, 440, txtHeight, "Project Files: ");
+	prjfInp = new Fl_Input(90, ypos, 420, txtHeight, "Project Files: ");
 	prjfInp->value(prjOptions.defPrjDir);
-//	prjfBrowse = new Fl_Button(470, ypos, 20, txtHeight, "...");
-//	prjfBrowse->callback(BrowseCB, (void*)&prjfInp);
+	prjfBrowse = new Fl_Button(510, ypos, 20, txtHeight, "...");
+	prjfBrowse->callback(BrowsePrj, (void*)this);
 	ypos += txtSpace;
 
-	wvinInp = new Fl_Input(90, ypos, 440, txtHeight, "Wave Files: ");
+	wvinInp = new Fl_Input(90, ypos, 420, txtHeight, "Wave Files: ");
 	wvinInp->value(prjOptions.defWaveIn);
-//	wvinBrowse = new Fl_Button(470, ypos, 20, txtHeight, "...");
-//	wvinBrowse->callback(BrowseCB, (void*)&wvinInp);
+	wvinBrowse = new Fl_Button(510, ypos, 20, txtHeight, "...");
+	wvinBrowse->callback(BrowseWvin, (void*)this);
 	ypos += txtSpace;
 
-	formInp = new Fl_Input(90, ypos, 440, txtHeight, "Form Files: ");
+	formInp = new Fl_Input(90, ypos, 420, txtHeight, "Form Files: ");
 	formInp->value(prjOptions.formsDir);
-//	formBrowse = new Fl_Button(470, ypos, 20, txtHeight, "...");
-//	formBrowse->callback(BrowseCB, (void*)&formInp);
+	formBrowse = new Fl_Button(510, ypos, 20, txtHeight, "...");
+	formBrowse->callback(BrowseForms, (void*)this);
 	ypos += txtSpace;
 
-	colorsInp = new Fl_Input(90, ypos, 440, txtHeight, "Colors: ");
+	colorsInp = new Fl_Input(90, ypos, 420, txtHeight, "Colors: ");
 	colorsInp->value(prjOptions.colorsFile);
+	colorsBrowse = new Fl_Button(510, ypos, 20, txtHeight, "...");
+	colorsBrowse->callback(BrowseColors, (void*)this);
 	ypos += txtSpace;
 
-	libsInp = new Fl_Input(90, ypos, 440, txtHeight, "Library Files: ");
+	libsInp = new Fl_Input(90, ypos, 420, txtHeight, "Library Files: ");
 	libsInp->value(prjOptions.defLibDir);
-//	libsBrowse = new Fl_Button(470, ypos, 20, txtHeight, "...");
-//	libsBrowse->callback(BrowseCB, (void*)libsInp);
+	libsBrowse = new Fl_Button(510, ypos, 20, txtHeight, "...");
+	libsBrowse->callback(BrowseLibs, (void*)this);
 	ypos += txtSpace;
 
-	midiDev = new Fl_Input(90, ypos, 175, txtHeight, "MIDI In");
-	midiDev->value(prjOptions.midiDeviceName);
+	midiDev = new Fl_Choice(90, ypos, 175, txtHeight, "MIDI In");
+	SoundDevInfo *sdi = NULL;
+	while ((sdi = prjOptions.midiList.EnumItem(sdi)) != NULL)
+		midiDev->add(sdi->name);
+	if (prjOptions.midiDeviceName[0])
+	{
+		const Fl_Menu_Item *itm = midiDev->find_item(prjOptions.midiDeviceName);
+		if (itm)
+			midiDev->value(itm);
+	}
 
-	waveDev = new Fl_Input(350, ypos, 175, txtHeight, "Wave Out");
-	waveDev->value(prjOptions.waveDevice);
+	waveDev = new Fl_Choice(350, ypos, 175, txtHeight, "Wave Out");
+	sdi = NULL;
+	while ((sdi = prjOptions.waveList.EnumItem(sdi)) != NULL)
+		waveDev->add(sdi->name);
+	if (prjOptions.waveDevice[0])
+	{
+		const Fl_Menu_Item *itm = waveDev->find_item(prjOptions.waveDevice);
+		if (itm)
+			waveDev->value(itm);
+	}
 	ypos += txtSpace;
 
 	latency = new Fl_Input(120, ypos, 100, txtHeight, "Playback Latency");
@@ -131,16 +178,30 @@ void ProjectOptionsDlg::OnOK()
 	prjOptions.inclNotelist = incSco->value();
 	prjOptions.inclSequence = incSeq->value();
 	prjOptions.inclTextFiles = incTxt->value();
+	prjOptions.inclSoundFonts = incSF->value();
 	prjOptions.inclScripts = incScr->value();
 	prjOptions.inclLibraries = incLib->value();
+	prjOptions.inclMIDI = incMIDI->value();
 	strncpy(prjOptions.defPrjDir, prjfInp->value(), MAX_PATH);
 	strncpy(prjOptions.defWaveIn, wvinInp->value(), MAX_PATH);
 	strncpy(prjOptions.formsDir, formInp->value(), MAX_PATH);
 	strncpy(prjOptions.colorsFile, colorsInp->value(), MAX_PATH);
 	strncpy(prjOptions.defLibDir, libsInp->value(), MAX_PATH);
 	prjOptions.playBuf = atof(latency->value());
-	strncpy(prjOptions.midiDeviceName, midiDev->value(), MAX_PATH);
-	prjOptions.midiDevice = GetMIDIDevice(prjOptions.midiDeviceName);
+	const char *itm;
+	if ((itm = waveDev->text()) != NULL)
+		strncpy(prjOptions.waveDevice, itm, MAX_PATH);
+	if ((itm = midiDev->text()) != NULL)
+		strncpy(prjOptions.midiDeviceName, itm, MAX_PATH);
+	SoundDevInfo *sdi = 0;
+	while ((sdi = prjOptions.midiList.EnumItem(sdi)) != 0)
+	{
+		if (sdi->name.CompareNC(prjOptions.midiDeviceName) == 0)
+		{
+			prjOptions.midiDevice = sdi->id;
+			break;
+		}
+	}
 	doneInput = 1;
 	prjOptions.Save();
 }

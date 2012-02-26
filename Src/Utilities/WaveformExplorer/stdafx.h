@@ -31,6 +31,14 @@ extern CAppModule _Module;
 
 #include <stdio.h>
 #include <math.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+#pragma comment(lib, "gdiplus.lib")
+
+//#define USE_DIRECTSOUND
+#ifdef USE_DIRECTSOUND
+#include <dsoundintf.h>
+#endif
 
 #include <BasicSynth.h>
 

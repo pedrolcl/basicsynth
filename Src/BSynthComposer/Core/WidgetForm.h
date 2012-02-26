@@ -16,6 +16,7 @@ protected:
 	SynthWidget *focus;
 	long bgColor;
 	long fgColor;
+	bsString formFont; ///< actually, just the face name...
 public:
 	WidgetForm();
 	virtual ~WidgetForm();
@@ -54,6 +55,8 @@ public:
 	virtual void SetWidgetState(int id, int st);
 	virtual void SetWidgetText(int id, const char *txt);
 	virtual int GetWidgetText(int id, char *txt, size_t len);
+	virtual const char *LabelFont();
+	virtual const char *FormsDir();
 };
 
 #endif

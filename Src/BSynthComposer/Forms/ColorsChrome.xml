@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <colormap>
+  <include>ColorsCommon.xml</include>
   <color name="bg" val="#ff808080" />
   <color name="fg" val="#ff000000" />
   <color name="label" val="#fff0f0f8" />
@@ -32,26 +33,5 @@
   <color name="wtsel" val="#ffd0d0ff" />
   <color name="cmd" val="#ff000000" />
   <color name="hdr" val="#fff8f8f8" />
-  <color name="glmphi" val="#ff80f080" />
-  <color name="glmplo" val="#ff008000" />
-  <color name="rlmplo" val="#ff602020" />
-  <color name="rlmphi" val="#fff04040" />
-  <color name="blmplo" val="#ff000080" />
-  <color name="blmphi" val="#ff8080f0" />
-  <color name="ylmplo" val="#ff808000" />
-  <color name="ylmphi" val="#fff0f080" />
-  <color name="swuphi" val="#ffa0a0a8" />
-  <color name="swuplo" val="#ff404048" />
-  <color name="swdnhi" val="#ff9090a8" />
-  <color name="swdnlo" val="#ff202038" />
 
-  <color name="white" val="#ffffffff" />
-  <color name="black" val="#ff000000" />
-  <color name="gray" val="#ff808080" />
-  <color name="red" val="#ffff0000" />
-  <color name="green"  val="#ff00ff00"/>
-  <color name="blue" val="#ff0000ff" />
-  <color name="yellow" val="#ffffff00" />
-  <color name="cyan" val="#ff00ffff" />
-  <color name="magenta" val="#ffff00ff" />
 </colormap>

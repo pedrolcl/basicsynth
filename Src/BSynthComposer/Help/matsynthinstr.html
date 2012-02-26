@@ -4,17 +4,57 @@
 </head>
 <body>
     <h2>
-        <a name="_Matrix_Synthesis_Instrument"></a>Matrix Synthesis Instrument<hr/></h2>
+        <a name="_Matrix_Synthesis_Instrument"></a>Matrix Synthesis Instrument</h2>
     <p>
         The <i>MatrixSynth</i> instrument combines eight oscillators and eight envelope
         generators in a variable configuration, along with LFO, pitch bend, dynamic panning
         and processing effects.
     </p>
-    <h3>Patch Diagram<hr/></h3>
+    <h3>Patch Diagram</h3>
     <img src="images/matsynthdiag.jpg" alt="MatSynth diagram" />
-    <h3>Configuration<hr/></h3>
+<h3>Configuration</h3>
+<p>The MatrixSynth instrument editor is shown below.</p>
+<img src="images/matsynth.jpg" alt="mat editor" />
+<p>Because of the complexity of this instrument, it is helpful to draw  a patch
+diagram before attempting to configure the instrument. The eight tone generators
+can be configured for FM synthesis, additive synthesis, or a combination. The
+MatrixSynth instrument can also produce  an "ensemble" sound, with
+separate sections of the patch used to produce different sounds, doublings, etc. </p>
+<p>The editor configures one tone generator (oscillator and envelope generator) at a time.
+The oscillator is selected using the buttons at the top of the form. The envelope
+for the oscillator is selected using the buttons between the oscillator and envelope
+areas. An envelope can be shared by multiple oscillators. A single LFO and  pitch-bend 
+configuration is shared by all tone generators, but the amount of each can be individually
+applied and scaled to each tone generator.
+</p>
+<p>The switches at the left side enable routing the oscillator signal. 
+<ul>
+<li>On - enables the oscillator</li>
+<li>Out - adds the oscillator output to the audio signal</li>
+<li>Vib. - applies the LFO parameters to the oscillator frequency, scaled by the LFO amount.</li>
+<li>P.B. - applies the pitch-bend parameters to the oscillator frequency.</li>
+<li>Pan - applies the pan parameter to the output directly, bypassing the mixer setting.</li>
+<li>Fx1-Fx4 - applies the audio output to the Mixer effects channel, scaled by the Fx parameter values.</li>
+</ul>
+<p>Typically, the effects send and pan values are set for an instrument at the mixer. The MatrixSynth
+can optionally bypass the mixer settings on a per-oscillator basis. This allows direct control of effects
+and pan by setting the appropriate instrument parameters during performance.</p>
+<p>The next set of switches controls FM input to the oscillator. If a switch is set on, the output
+of the respective oscillator is applied to the current oscillator's frequency. For example, a simple
+two oscillator FM instrument is created by enabling GEN 1 and GEN 2, setting GEN 1 as an audio output 
+and selecting GEN2 in the Mod-in settings for GEN 1. </p>
+<p>The switches labeled with waveforms select the oscillator waveform.</p>
+<p>The Freq X and Fine controls set the oscillator multiplier. The note frequency is multiplied
+by the sum of the Freq X and Fine controls. The Volume value sets the level for audio output and is
+only effective if the OUT lamp is switched on. The Modulation value sets the level for modulation
+output and is only effective if the oscillator is selected as an input to another oscillator.</p>
+<p>The LFO value scales the output of the LFO for this oscillator. The FxN values determine 
+how much of the oscillator is applied to the respective mixer effects input. The Pan value determines
+the panning for this oscillator.</p>
+
+<h4>Project and Notelist ID Values</h4>
 <p>
-Each of the eight oscillators can be designated a signal output, a modulator, or both. Separate
+Since each of the eight oscillators can be designated a signal output, a modulator, or both, separate
 parameters determine the amplitude for signal output and modulation output. Oscillator
 signals are routed using a set of flags on each oscillator. The flags are defined
 as follows. (bit 0 indicates LSB)
@@ -22,7 +62,7 @@ as follows. (bit 0 indicates LSB)
 <p>
 Bit 0 - If set, the oscillator is on and output of the oscillator will be processed.
 If clear, the oscillator is skipped during sample generation.<br/>
-Bit 1 - If set, the oscillator output is multiplied by the volume level and added
+Bit 1 - If set, the oscillator output is multiplied by the envelope, scaled by the volume level, and added
 to the audio signal output.<br/>
 Bit 2 - If set, the LFO is applied to the oscillator frequency (vibrato).<br/>
 Bit 3 - If set, the Pitch Bend function is applied to the oscillator.<br/>
@@ -1059,7 +1099,7 @@ e0s2rt is allowed as well.</p>
             </td>
         </tr>
     </table>
-    <h3>XML Format<hr/></h3>
+    <h3>XML Format</h3>
     <pre>
 &lt;instr type=&quot;MatrixSynth&quot;&gt;
   &lt;mat frq=&quot;&quot; vol=&quot;&quot; /&gt;

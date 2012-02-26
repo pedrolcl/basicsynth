@@ -42,6 +42,7 @@ public:
 	virtual void Cancel() { }
 	virtual long EditState() { return 0; }
 	virtual int IsChanged()  { return 0; }
+	virtual void Focus() { if (IsWindow()) SetFocus(); }
 	virtual void SetForm(WidgetForm *frm) { }
 
 	virtual WidgetForm *GetForm()

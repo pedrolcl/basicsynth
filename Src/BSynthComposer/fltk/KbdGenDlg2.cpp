@@ -1,30 +1,51 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file KbdGenDlg2.cpp Keyboard window implementation.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
+#include "KbdGenDlg2.h"
 #include "MainFrm.h"
 
+
+long GenerateDlg::playFrom;
+long GenerateDlg::playTo;
+long GenerateDlg::playLive;
+long GenerateDlg::updateRate = 1;
 
 static void FormatTime(Fl_Input *wdg, long secs)
 {
 	char txt[40];
-	snprintf(txt, 40, "%3d:%02d", secs / 60, secs % 60);
+	snprintf(txt, 40, "%3d:%02d.%1d", (secs / 600), (secs / 10) % 60, secs % 10);
 	wdg->value(txt);
 }
 
 static long GetTimeValue(Fl_Input *wdg)
 {
+	long minutes = 0;
+	long seconds = 0;
+	long tenths = 0;
 	char buf[80];
 	strncpy(buf, wdg->value(), 80);
-	long sec = 0;
-	char *col = strchr(buf, ':');
-	if (col == NULL)
+	char *bp = buf;
+	while (isspace(*bp))
+		bp++;
+	char *delim = strchr(bp, ':');
+	if (delim)
 	{
-		sec = atol(buf);
+		minutes = atol(buf);
+		bp = delim + 1;
 	}
-	else
-	{
-		*col++ = 0;
-		sec = (atol(buf) * 60) + atol(col);
-	}
-	return sec;
+	if (isdigit(*bp))
+		seconds = atol(bp);
+	if ((delim = strchr(bp, '.')) != NULL)
+		tenths = atol(delim+1);
+	return (minutes * 600) + (seconds * 10) + tenths;
 }
 
 
@@ -50,6 +71,7 @@ static void PauseCB(Fl_Widget *wdg, void *arg)
 
 GenerateDlg::GenerateDlg(int live) : Fl_Window(100, 100, 600, 320, "Generate")
 {
+    updateRate = 1;
 	playLive = live;
 	playFrom = 0;
 	playTo = 0;
@@ -61,62 +83,105 @@ GenerateDlg::GenerateDlg(int live) : Fl_Window(100, 100, 600, 320, "Generate")
 	Fl_Box *lbl;
 	Fl_Group *grp;
 
-	lbl = new Fl_Box(5, 5, 80, 30, "Out @->");
-	lbl->labelcolor(0x00400000);
-	grp = new Fl_Group(85, 5, 270, 30, 0);
-	spkrBtn = new Fl_Light_Button(90, 5, 80, 30, "Live");
-	spkrBtn->type(FL_RADIO_BUTTON);
-	spkrBtn->value(playLive);
-	diskBtn = new Fl_Light_Button(180, 5, 80, 30, "Disk");
-	diskBtn->type(FL_RADIO_BUTTON);
-	diskBtn->value(!playLive);
-	grp->end();
-
-	grp = new Fl_Group(0, 40, 270, 35, 0);
-	lbl = new Fl_Box(5, 40, 80, 30, "Play");
-	allBtn = new Fl_Light_Button(90, 40, 80, 30, "All");
-	allBtn->type(FL_RADIO_BUTTON);
-	allBtn->value(1);
-	someBtn = new Fl_Light_Button(180, 40, 80, 30, "Part");
-	someBtn->type(FL_RADIO_BUTTON);
-	someBtn->value(0);
-	grp->end();
-
-	lbl = new Fl_Box(5, 75, 80, 30, "From");
-	fromInp = new Fl_Input(90, 75, 170, 30, 0);
-	lbl = new Fl_Box(5, 110, 80, 30, "To");
-	toInp = new Fl_Input(90, 110, 170, 30, 0);
-
-	startBtn = new Fl_Button(10, 145, 80, 30, "Start"); 
+	int topx = 5;
+	int topy = 5;
+	int topw = 40;
+	int toph = 40;
+	startBtn = new Fl_Button(topx, topy, topw, toph, "@+2|>");
+	startBtn->labelcolor(FL_GREEN);
 	startBtn->callback(StartCB, (void*)this);
 	startBtn->activate();
+	topx += topw + 5;
 
-	stopBtn = new Fl_Button(95, 145, 80, 30, "Stop"); 
+	stopBtn = new Fl_Button(topx, topy, topw, toph, "@+2square");
+	stopBtn->labelcolor(FL_RED);
 	stopBtn->callback(StopCB, (void*)this);
 	stopBtn->deactivate();
+	topx += topw + 5;
 
-	pauseBtn = new Fl_Check_Button(180, 145, 80, 30, "Pause"); 
+	pauseBtn = new Fl_Button(topx, topy, topw, toph, "@+2||");
+	pauseBtn->type(FL_TOGGLE_BUTTON);
 	pauseBtn->callback(PauseCB, (void*)this);
 	pauseBtn->deactivate();
+	pauseBtn->labelcolor(FL_BLUE);
 	pauseBtn->value(0);
+	topx += topw + 5;
 
-	lbl = new Fl_Box(5, 180, 80, 30, "Time");
-	tmInp = new Fl_Output(90, 180, 170, 30, 0);
-	lbl = new Fl_Box(5, 215, 80, 30, "Peak Left");
-	pkLft = new Fl_Output(90, 215, 170, 30, 0);
-	lbl = new Fl_Box(5, 250, 80, 30, "Peak Right");
-	pkRgt = new Fl_Output(90, 250, 170, 30, 0);
+	topw = 60;
+	grp = new Fl_Group(topx, topy, (topw*2)+15, toph, 0);
+	topx += 5;
+	spkrBtn = new Fl_Light_Button(topx, topy, topw, toph, "Audio");
+	spkrBtn->type(FL_RADIO_BUTTON);
+	spkrBtn->value(playLive);
+	topx += topw + 5;
+	diskBtn = new Fl_Light_Button(topx, topy, topw, toph, "Disk");
+	diskBtn->type(FL_RADIO_BUTTON);
+	diskBtn->value(!playLive);
+	topx += topw + 5;
+	grp->end();
 
-	closeBtn = new Fl_Button(90, 285, 170, 30, "Close");
+	grp = new Fl_Group(topx, topy, (topw*2)+15, toph, 0);
+	topx += 5;
+	allBtn = new Fl_Light_Button(topx, topy, topw, toph, "All");
+	allBtn->type(FL_RADIO_BUTTON);
+	allBtn->value(1);
+	topx += topw + 5;
+	someBtn = new Fl_Light_Button(topx, topy, topw, toph, "Part");
+	someBtn->type(FL_RADIO_BUTTON);
+	someBtn->value(0);
+	topx += topw + 5;
+	grp->end();
+
+	topw = 40;
+	toph = 20;
+	lbl = new Fl_Box(topx, topy, topw, toph, "From");
+	lbl = new Fl_Box(topx, topy+toph, topw, toph, "To");
+	topx += topw + 5;
+	topw = 60;
+	fromInp = new Fl_Input(topx, topy, topw, toph, 0);
+	toInp = new Fl_Input(topx, topy+toph, topw, toph, 0);
+	topx += topw + 5;
+
+	closeBtn = new Fl_Button(topx, topy, topw, toph*2, "Close");
 	closeBtn->callback(CloseCB, (void*)this);
+	int dlgw = topx + topw + 5;
 
-	msgInp = new Fl_Text_Display(280, 5, 310, 310, 0);
+	topx = 5;
+	topy = topy + (toph*2) + 5;
+	int topw2 = 60;
+	int topx2 = topx + topw + 5;
+	lbl = new Fl_Box(topx, topy, topw, toph, "Time");
+	tmInp = new Fl_Output(topx2, topy, topw2, toph, 0);
+	topx2 += topw2 + 5;
+	lbl = new Fl_Box(topx2, topy, dlgw - topx2 - 5, toph, "Time Bar Meter");
+	tmBar = new BarMeter(topx2, topy, dlgw - topx2 - 5, toph);
+
+	topy += toph+5;
+	lbl = new Fl_Box(topx, topy, topw, toph, "L. Pk");
+	topx += topw + 5;
+	pkLft = new Fl_Output(topx, topy, topw2, toph, 0);
+    topx += 85;
+    lpkMtr = new BarMeter(topx, topy, 85, toph);
+    lpkMtr->SetRange(1.2);
+
+//	topx += topw2 + 5;
+    topx = dlgw / 2;
+	lbl = new Fl_Box(topx, topy, topw, toph, "R. Pk");
+	topx += topw + 5;
+	pkRgt = new Fl_Output(topx, topy, topw2, toph, 0);
+    topx += 85;
+    rpkMtr = new BarMeter(topx, topy, 85, toph);
+    rpkMtr->SetRange(1.2);
+
+	topx = 5;
+	topy += toph + 5;
+	msgInp = new Fl_Text_Display(topx, topy, dlgw - 10, 300, 0);
 	msgInp->buffer(new Fl_Text_Buffer);
+	int dlgh = topy + 305;
 
 	end();
 	resizable(0);
-	resize((Fl::w() - w()) / 2, (Fl::h() - h()) / 2, w(), h());
-	set_modal();
+	resize((Fl::w() - dlgw) / 2, (Fl::h() - dlgh) / 2, dlgw, dlgh);
 
 	dlgLock.Create();
 }
@@ -139,7 +204,9 @@ void GenerateDlg::AddMessage(const char *s)
 void GenerateDlg::UpdateTime(long tm)
 {
 	dlgLock.Enter();
-	lastTime = tm;
+	if (tm == 0)
+		tmBar->SetRange((float)(theProject->seq.GetLength() * 10) / synthParams.sampleRate);
+	lastTime = (tm * updateRate) + startTime;
 	dlgLock.Leave();
 	Fl::awake((void*)3);
 }
@@ -190,18 +257,22 @@ void GenerateDlg::OnStart(int autoStart)
 	lastMsg = "";
 	if (!autoStart)
 	{
-		if (someBtn->value())
-		{
-			playFrom = GetTimeValue(fromInp);;
-			playTo = GetTimeValue(toInp);
-		}
-		else
-		{
-			playFrom = 0;
-			playTo = 0;
-		}
+		playFrom = GetTimeValue(fromInp);;
+		playTo = GetTimeValue(toInp);
 		playLive = spkrBtn->value();
 	}
+    if (someBtn->value())
+    {
+        theProject->StartTime(playFrom);
+        theProject->EndTime(playTo);
+        startTime = playFrom;
+    }
+    else
+    {
+        theProject->StartTime(0);
+        theProject->EndTime(0);
+        startTime = 0;
+    }
 	lastTime = 0;
 	FormatTime(tmInp, playFrom);
 	lftPeak = 0;
@@ -209,8 +280,7 @@ void GenerateDlg::OnStart(int autoStart)
 	lftMax = 0;
 	rgtMax = 0;
 	FormatPeak();
-	theProject->StartTime(playFrom);
-	theProject->EndTime(playTo);
+	theProject->CallbackRate((float)updateRate / 10.0f);
 	theProject->PlayMode(playLive);
 	theProject->Start();
 //	StartThread();
@@ -231,6 +301,7 @@ void GenerateDlg::OnStart(int autoStart)
 			if (msg == (void*)3)
 			{
 				FormatTime(tmInp, lastTime);
+				tmBar->SetValue(lastTime);
 				FormatPeak();
 			}
 			else if (msg == (void*)4)
@@ -245,12 +316,12 @@ void GenerateDlg::OnStart(int autoStart)
 	char buf[100];
 	snprintf(buf, 100, "Peak: [%.6f, %.6f]\n-------- Finished ---------\n", lftMax, rgtMax);
 	msgbuf->append(buf);
+	lpkMtr->SetValue(lftMax);
+	rpkMtr->SetValue(rgtMax);
 	stopBtn->deactivate();
 	pauseBtn->deactivate();
 	startBtn->activate();
 	closeBtn->activate();
-//	if (autoStart)
-//		Fl::delete_widget(this);
 }
 
 void GenerateDlg::OnStop()
@@ -277,22 +348,24 @@ void GenerateDlg::OnClose()
 void GenerateDlg::FormatPeak()
 {
 	char pkText[200];
-	snprintf(pkText,80, " %.6f", lftPeak);
+	snprintf(pkText,80, " %.3f", lftPeak);
 	pkLft->value(pkText);
 
-	snprintf(pkText,80, " %.6f", rgtPeak);
+	snprintf(pkText,80, " %.3f", rgtPeak);
 	pkRgt->value(pkText);
 
 	if (lftPeak > 1.0 || rgtPeak > 1.0)
 	{
-		snprintf(pkText, 200, "Out of range (%.6f, %.6f) at %02d:%02d\n", 
-			lftPeak, rgtPeak, lastTime / 60, lastTime % 60);
+		snprintf(pkText, 200, "Out of range (%.3f, %.3f) at %02d:%02d.%1d\n",
+			lftPeak, rgtPeak, (lastTime / 600), (lastTime / 10) % 60, lastTime % 10);
 		msgInp->buffer()->append(pkText);
 	}
 	if (lftPeak > lftMax)
 		lftMax = lftPeak;
 	if (rgtPeak > rgtMax)
 		rgtMax = rgtPeak;
+	lpkMtr->SetValue(lftPeak);
+	rpkMtr->SetValue(rgtPeak);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -326,7 +399,6 @@ KbdGenDlg::~KbdGenDlg()
 
 int KbdGenDlg::handle(int e)
 {
-	int s = 0;
 	int mx = Fl::event_x();
 	int my = Fl::event_y();
 	if (mx >= instrList->x() && mx <= instrList->x() + instrList->w()
@@ -551,19 +623,25 @@ void KbdGenDlg::UpdateChannels()
 // The virtual keyboard widget. See the Windows version for discussion.
 /////////////////////////////////////////////////////////////////////////////
 
+// since fltk uses simple rectangle drawing, bitmaps don't help much.
+void KeyboardWidget::CreateBitmaps() { }
+void KeyboardWidget::DeleteBitmaps() { }
+
 void KeyboardWidget::CopyToClipboard(bsString& str)
 {
+	Fl::copy(str, str.Length(), 1);
 }
 
 void KeyboardWidget::Paint(DrawContext dc)
 {
-	//printf("Keyboard Draw background %d,%d,%d,%d\n", x(), y(), w(), h());
+	//printf("Keyboard Draw %d,%d,%d,%d\n", x(), y(), w(), h());
 
-	fl_color(92,92,64);
-	fl_rectf(area.x, area.y, area.w, area.h);
 	if (!rcWhite || !rcBlack)
+	{
+		fl_color(92,92,64);
+		fl_rectf(area.x, area.y, area.w, area.h);
 		return;
-
+	}
 
 	wdgRect *rp = rcWhite;
 	int i;
@@ -573,12 +651,12 @@ void KeyboardWidget::Paint(DrawContext dc)
 		{
 			//printf("Keyboard Draw white key %d = %d,%d,%d,%d\n", i, rp->x, rp->y, rp->w, rp->h);
 			if (rp == rcLastKey)
-				fl_color(128, 128, 128);
+				fl_color(Red(kclr[1]), Green(kclr[1]), Blue(kclr[1]));
 			else
-				fl_color(240, 240, 230);
+				fl_color(Red(kclr[0]), Green(kclr[0]), Blue(kclr[0]));
 			fl_rectf(rp->x, rp->y, rp->w, rp->h);
 			fl_color(8,8,8);
-			fl_line(rp->x, rp->y, rp->x, rp->y+rp->h-1);
+			fl_rect(rp->x, rp->y, rp->w, rp->h);
 		}
 		rp++;
 	}
@@ -590,15 +668,35 @@ void KeyboardWidget::Paint(DrawContext dc)
 		{
 			//printf("Keyboard Draw black key %d = %d,%d,%d,%d\n", i, rp->x, rp->y, rp->w, rp->h);
 			if (rp == rcLastKey)
-				fl_color(64, 64, 64);
+				fl_color(Red(kclr[3]), Green(kclr[3]), Blue(kclr[3]));
 			else
-				fl_color(8, 8, 8);
+				fl_color(Red(kclr[2]), Green(kclr[2]), Blue(kclr[2]));
 			fl_rectf(rp->x, rp->y, rp->w, rp->h);
 		}
 		rp++;
 	}
+}
 
-	fl_color(0,0,0);
-	int rw = (rcWhite[whtKeys-1].x + rcWhite[0].w) - rcWhite[0].x;
-	fl_rect(rcWhite[0].x, rcWhite[0].y, rw, rcWhite[0].h);
+void BarMeter::SetRange(float rng)
+{
+	barValue = 0.0;
+	barRange = rng;
+}
+
+void BarMeter::SetValue(float val)
+{
+	if (val != barValue)
+	{
+		if ((barValue = val) > barRange)
+			barValue = barRange;
+		damage(FL_DAMAGE_USER1, x(), y(), w(), y());
+	}
+}
+
+void BarMeter::draw()
+{
+	fl_color(128,128,128);
+	fl_rectf(x(), y(), w(), h());
+	fl_color(0,192,0);
+	fl_rectf(x()+2, y()+2, (int)((float)w() * barValue / barRange), h()-4);
 }

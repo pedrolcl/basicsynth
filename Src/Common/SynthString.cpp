@@ -194,7 +194,7 @@ int bsString::FindReverse(int start, int ch)
 
 size_t bsString::SubString(bsString& out, int start, size_t len)
 {
-	if (len > curLen)
+	if (len > curLen || len == 0)
 		len = curLen;
 	if (start < 0)
 		start = 0;
@@ -232,7 +232,7 @@ int bsString::SplitPath(bsString& base, bsString& file, int inclSep)
 	if (slash >= 0)
 	{
 		SubString(base, 0, slash + (inclSep ? 1 : 0));
-		SubString(file, slash+1, -1);
+		SubString(file, slash+1, 0);
 		return 2;
 	}
 	base = NULL;

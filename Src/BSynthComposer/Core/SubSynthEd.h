@@ -10,6 +10,7 @@
 class SubSynthEdit : public SynthEdit
 {
 private:
+	int oldft;
 	void SetResonRange(int ft, int draw);
 
 public:

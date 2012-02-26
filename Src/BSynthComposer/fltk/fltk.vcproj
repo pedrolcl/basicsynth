@@ -23,7 +23,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
+			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops;.\fltk.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.10&quot;"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,8 +62,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/CoreD.lib ../../../Lib/CommonD.lib ../../../Lib/InstrumentsD.lib ../../../Lib/NotelistD.lib ../../../Lib/SciLexerD.lib ../../../OpenSource/fltk-1.1.10/lib/fltkd.lib ../../../OpenSource/fltk-1.1.10/lib/fltkjpegd.lib ../../../OpenSource/fltk-1.1.10/lib/fltkimagesd.lib opengl32.lib wsock32.lib comctl32.lib"
+				AdditionalDependencies="../Lib/CoreD.lib CommonD.lib InstrumentsD.lib NotelistD.lib fltkd.lib fltkimagesd.lib fltkjpegd.lib fltkpngd.lib fltkzd.lib regexd.lib opengl32.lib wsock32.lib comctl32.lib"
+				OutputFile="../../../Bin/BSynthComposerFLTK.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="../../../Lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -168,7 +170,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops"
+			InheritedPropertySheets="..\..\..\Include\XMLSelection.vsprops;.\fltk.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -191,7 +193,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core;&quot;../../../OpenSource/fltk-1.1.10&quot;"
+				AdditionalIncludeDirectories="../../../Include;../../Instruments;../../Notelist;../Core"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -210,7 +212,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Lib/Core.lib ../../../Lib/Common.lib ../../../Lib/Instruments.lib ../../../Lib/Notelist.lib ../../../Lib/SciLexer.lib ../../../OpenSource/fltk-1.1.10/lib/fltk.lib ../../../OpenSource/fltk-1.1.10/lib/fltkjpeg.lib ../../../OpenSource/fltk-1.1.10/lib/fltkimages.lib opengl32.lib wsock32.lib dsound.lib comctl32.lib"
+				AdditionalDependencies="../Lib/Core.lib Common.lib Instruments.lib Notelist.lib fltk.lib fltkjpeg.lib fltkimages.lib regex.lib opengl32.lib wsock32.lib dsound.lib comctl32.lib"
+				OutputFile="../../../Bin/BSynthComposerFLTK.exe"
+				AdditionalLibraryDirectories="../../../Lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -320,6 +324,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\FindReplDlgFltk.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FormEditorFltk.cpp"
 				>
 				<FileConfiguration
@@ -420,6 +428,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\Core\ProjectOptionsFile.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\ProjectTreeFltk.cpp"
 				>
 				<FileConfiguration
@@ -508,6 +528,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\FindReplDlgFltk.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FormEditorFltk.h"
 				>
 			</File>
@@ -540,6 +564,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SoundBankSelectFltk.h"
 				>
 			</File>
@@ -561,6 +589,14 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\fltk.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\icon1.ico"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\README.TXT"

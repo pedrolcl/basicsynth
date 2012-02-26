@@ -7,62 +7,60 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug Win32">
-				<Option output="$(#BSHOME)/Lib/NotelistD.a" prefix_auto="0" extension_auto="0" />
+				<Option output="$(#BSHOME)/Lib/libNotelistD.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="gccDebug" />
+				<Option object_output="debugi686" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-W" />
-					<Add option="-O0" />
-					<Add option="-DWIN32" />
-					<Add option="-D_DEBUG" />
+					<Add option="-mthreads" />
+					<Add option="-D_WIN32" />
+					<Add option="-DDEBUG" />
 					<Add option="-D_LIB" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-DUSE_TINYXML" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)\Lib\libNotelistD.a" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="$(#BSHOME)/Lib/Notelist.a" prefix_auto="0" extension_auto="0" />
+				<Option output="$(#BSHOME)/Lib/libNotelist.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="gccRelease" />
+				<Option object_output="releasei686" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-W" />
-					<Add option="-DWIN32" />
+					<Add option="-mthreads" />
+					<Add option="-D_WIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-DUSE_TINYXML" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)\Lib\libNotelist.a" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Debug UNIX">
-				<Option output="$(#BSHOME)/Lib/NotelistD.a" prefix_auto="0" extension_auto="0" />
+				<Option output="$(#BSHOME)/Lib/libNotelistD.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="gccDebug" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-O2" />
 					<Add option="-g" />
-					<Add option="-W" />
+					<Add option="-pthread" />
 					<Add option="-DUNIX" />
 					<Add option="-DDEBUG" />
-					<Add option="-DUSE_TINYXML" />
-					<Add option="-DGCC" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)/Lib/libNotelistD.a" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Release UNIX">
-				<Option output="$(#BSHOME)/Lib/Notelist.a" prefix_auto="0" extension_auto="0" />
+				<Option output="$(#BSHOME)/Lib/libNotelist.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="gccRelease" />
 				<Option type="2" />
@@ -70,15 +68,21 @@
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-W" />
+					<Add option="-pthread" />
 					<Add option="-DUNIX" />
 					<Add option="-DNDEBUG" />
-					<Add option="-DUSE_TINYXML" />
-					<Add option="-DGCC" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)/Lib/libNotelist.a" />
+				</ExtraCommands>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-DUSE_TINYXML" />
+			<Add option="-DGCC" />
+			<Add directory="$(#BSHOME)/Include" />
+		</Compiler>
 		<Unit filename="Converter.cpp" />
 		<Unit filename="Converter.h" />
 		<Unit filename="ConverterSCO.cpp" />
@@ -94,6 +98,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

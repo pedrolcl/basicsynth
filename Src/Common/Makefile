@@ -1,47 +1,67 @@
 ###########################################################
-# Makefile for Common library
+# Makefile for BasicSynth Common library
+#
+# Targets:
+#        all - make the library
+#        clean - remove the object files
+#        new - clean then make the library
 ###########################################################
 include ../BasicSynth.cfg
 TINYXML=tinyxml
 
-OBJS=\
-	DLSFile.o \
-	Global.o \
-	InstrManager.o \
-	MIDIControl.o \
-	MIDIInput.o \
-	MIDISequencer.o \
-	Player.o \
-	Sequencer.o \
-	SequenceFile.o \
-	SFFile.o \
-	SMFFile.o \
-	SoundBank.o \
-	WaveFile.o \
-	SynthFileU.o \
-	SynthString.o \
-	SynthMutex.o \
-	SynthThread.o \
-	XmlWrapU.o \
-	XmlWrapN.o \
-	XmlWrapT.o \
-	tinyxml.o \
-	tinyxmlerror.o \
-	tinyxmlparser.o \
-	tinystr.o
+SRCS=\
+	DLSFile.cpp \
+	Global.cpp \
+	InstrManager.cpp \
+	MIDIControl.cpp \
+	MIDIInput.cpp \
+	MIDISequencer.cpp \
+	Player.cpp \
+	Sequencer.cpp \
+	SequenceFile.cpp \
+	SFFile.cpp \
+	SMFFile.cpp \
+	SoundBank.cpp \
+	WaveFile.cpp \
+	SynthString.cpp \
+	SynthMutex.cpp \
+	SynthThread.cpp \
+	XmlWrapU.cpp \
+	XmlWrapN.cpp \
+	XmlWrapT.cpp \
+	$(TINYXML)/tinyxml.cpp \
+	$(TINYXML)/tinyxmlerror.cpp \
+	$(TINYXML)/tinyxmlparser.cpp \
+	$(TINYXML)/tinystr.cpp
+
+ifeq ($(SYS),Msys)
+SRCS += SynthFileW.cpp WaveOutDirect.cpp
+else
+SRCS += SynthFileU.cpp
+endif
+
+OBJS=$(patsubst %.cpp,$(ODIR)/%.o,$(SRCS))
+
+.PHONY: new all clean chkdirs
+
+all:  chkdirs $(CMNLIB)
+
+new: clean all
 
 $(CMNLIB): $(OBJS)
-	-@rm $@
+	@test $@ || rm $@
 	$(AR) r $@ $(OBJS)
+	$(RANLIB) $@
 
-all: $(CMNLIB)
-
+chkdirs:
+	@test -d $(ODIR) || mkdir $(ODIR)
+	@test -d $(ODIR)/$(TINYXML) || mkdir $(ODIR)/$(TINYXML)
+	
 clean:
 	-@rm $(OBJS)
 	-@rm $(CMNLIB)
 
-DLSFile.o: \
-	DLSFile.cpp \
+DLSFile.cpp: \
 	$(BSINC)/DLSDefs.h \
 	$(BSINC)/DLSFile.h \
 	$(BSINC)/SynthDefs.h \
@@ -50,8 +70,7 @@ DLSFile.o: \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/SoundBank.h
 
-Player.o: \
-	Player.cpp \
+Player.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/WaveFile.h \
@@ -62,8 +81,7 @@ Player.o: \
 	$(BSINC)/Instrument.h \
 	$(BSINC)/Player.h
 
-MIDISequencer.o: \
-	MIDISequencer.cpp \
+MIDISequencer.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/WaveFile.h \
@@ -72,8 +90,7 @@ MIDISequencer.o: \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/MIDISequencer.h
 
-MIDIControl.o: \
-	MIDIControl.cpp \
+MIDIControl.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/WaveFile.h \
@@ -87,8 +104,7 @@ MIDIControl.o: \
 	$(BSINC)/MIDIDefs.h \
 	$(BSINC)/MIDIControl.h
 
-MIDIInput.o: \
-	MIDIInput.cpp \
+MIDIInput.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SeqEvent.h \
@@ -97,8 +113,7 @@ MIDIInput.o: \
 	$(BSINC)/MIDIDefs.h \
 	$(BSINC)/MIDIInput.h
 
-Sequencer.o: \
-	Sequencer.cpp \
+Sequencer.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/WaveTable.h \
@@ -110,8 +125,7 @@ Sequencer.o: \
 	$(BSINC)/SynthMutex.h \
 	$(BSINC)/Sequencer.h
 
-SequenceFile.o: \
-	SequenceFile.cpp \
+SequenceFile.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SynthList.h \
@@ -123,8 +137,7 @@ SequenceFile.o: \
 	$(BSINC)/Sequencer.h \
 	$(BSINC)/SequenceFile.h
 
-SFFile.o: \
-	SFFile.cpp \
+SFFile.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SynthList.h \
@@ -133,16 +146,14 @@ SFFile.o: \
 	$(BSINC)/SoundBank.h \
 	$(BSINC)/SFFile.h
 
-SoundBank.o: \
-	SoundBank.cpp \
+SoundBank.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SynthList.h \
 	$(BSINC)/SynthFile.h \
 	$(BSINC)/SoundBank.h
 
-SMFFile.o: \
-	SMFFile.cpp \
+SMFFile.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthString.h \
 	$(BSINC)/SynthList.h \
@@ -153,38 +164,35 @@ SMFFile.o: \
 	$(BSINC)/MIDIDefs.h \
 	$(BSINC)/SMFFile.h
 
-WaveFile.o:\
-	WaveFile.cpp \
+WaveFile.cpp: \
 	$(BSINC)/SynthDefs.h \
 	$(BSINC)/SynthFile.h \
 	$(BSINC)/WaveFile.h
 
-InstrManager.o: InstrManager.cpp $(BSINC)/Instrument.h $(BSINC)/Sequencer.h
+InstrManager.cpp: \
+	$(BSINC)/SynthDefs.h \
+	$(BSINC)/SynthString.h \
+	$(BSINC)/SynthList.h \
+	$(BSINC)/Instrument.h \
+	$(BSINC)/Sequencer.h
 
-SynthFileU.o: SynthFileU.cpp $(BSINC)/SynthFile.h
+SynthFileU.cpp: $(BSINC)/SynthFile.h
 
-XmlWrapU.o: XmlWrapU.cpp $(BSINC)/XmlWrap.h
+SynthFileW.cpp: $(BSINC)/SynthFile.h
 
-XmlWrapN.o: XmlWrapN.cpp $(BSINC)/XmlWrap.h
+SynthString.cpp: $(BSINC)/SynthString.h
 
-SynthString.o: SynthString.cpp $(BSINC)/SynthString.h
+SynthMutex.cpp: $(BSINC)/SynthMutex.h
 
-SynthMutex.o: SynthMutex.cpp $(BSINC)/SynthMutex.h
+SynthThread.cpp: $(BSINC)/SynthThread.h
 
-SynthThread.o: SynthThread.cpp $(BSINC)/SynthThread.h
+Global.cpp: $(BSINC)/SynthDefs.h $(BSINC)/WaveTable.h
 
-Global.o: Global.cpp $(BSINC)/SynthDefs.h $(BSINC)/WaveTable.h
+WaveOutDirect.cpp: $(BSINC)/WaveOutDirect.h
 
-XmlWrapT.o: XmlWrapT.cpp $(BSINC)/XmlWrap.h
+XmlWrapU.cpp: $(BSINC)/XmlWrap.h
 
-tinyxml.o: $(TINYXML)/tinyxml.cpp
-	$(CPP) -c $(CPPFLAGS) $< 
- 
-tinyxmlerror.o: $(TINYXML)/tinyxmlerror.cpp
-	$(CPP) -c $(CPPFLAGS) $< 
+XmlWrapN.cpp: $(BSINC)/XmlWrap.h
 
-tinyxmlparser.o: $(TINYXML)/tinyxmlparser.cpp
-	$(CPP) -c $(CPPFLAGS) $< 
+XmlWrapT.cpp: $(BSINC)/XmlWrap.h
 
-tinystr.o: $(TINYXML)/tinystr.cpp
-	$(CPP) -c $(CPPFLAGS) $< 

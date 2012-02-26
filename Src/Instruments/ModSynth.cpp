@@ -863,7 +863,6 @@ int ModSynth::SaveConnect(XmlSynthElem *parent, ModSynthUG *ug)
 	XmlSynthElem *child;
 	ModSynthConn *con;
 	con = ug->ConnectList(0);
-	const char *nm = ug->GetName();
 	while (con)
 	{
 		if (con->ug)

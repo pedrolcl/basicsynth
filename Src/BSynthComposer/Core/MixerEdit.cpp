@@ -2,7 +2,7 @@
 // BasicSynth - Mixer and effects units editor
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -174,7 +174,6 @@ void MixerEdit::Setup(int xo, int yo)
 	GetArea(inputNode, rca);
 	int inx = rca.x;
 	int iny = rca.y;
-	int fxy = rca.y + rca.h + 5;
 	int inID = 20;
 	for (cn = 0; cn < numChnl; cn++)
 	{
@@ -275,8 +274,6 @@ void MixerEdit::GetParams()
 	if (mixItem == 0)
 		return;
 
-	SynthWidget *wdg;
-
 	AmpValue lft;
 	AmpValue rgt;
 	mixItem->GetMasterVol(lft, rgt);
@@ -286,7 +283,6 @@ void MixerEdit::GetParams()
 	int id = 20;
 	for (n = 0; n < numChnl; n++)
 	{
-		wdg = mainGroup->FindID(id+1);
 		SetWidgetState(id+1, mixItem->GetChannelOn(n));
 		SetWidgetValue(id+2, mixItem->GetChannelVol(n));
 		SetWidgetValue(id+4, mixItem->GetChannelPan(n));

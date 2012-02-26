@@ -184,7 +184,7 @@ void MixerItem::SetMixerEffects(int num, int keep)
 				if (keep)
 					items[n] = effects[n];
 				else if (effects[n])
-					delete effects[n];
+					effects[n]->Release();
 			}
 		}
 	}
@@ -193,7 +193,7 @@ void MixerItem::SetMixerEffects(int num, int keep)
 		while (n < fxUnits)
 		{
 			if (effects[n])
-				delete effects[n];
+				effects[n]->Release();
 			n++;
 		}
 		delete effects;
@@ -215,6 +215,7 @@ FxItem *MixerItem::AddEffect(const char *type)
 		return 0;
 	fx->SetParent(this);
 	fx->SetChannels(mixChnl);
+	fx->AddRef();
 	return fx;
 }
 
@@ -425,7 +426,7 @@ int MixerItem::SaveProperties(PropertyBox *pb)
 	for (fxn = 0; fxn < oldUnits; fxn++)
 	{
 		if (oldFx[fxn])
-			delete oldFx[fxn];
+			oldFx[fxn]->Release();
 	}
 	delete oldFx;
 

@@ -76,7 +76,7 @@ void nlConverterSCO::BeginNote(double start, double dur)
 	if (amp > 0)
 	{
 		if (gen.GetVoldbMode())
-			amp = pow(10.0, (amp - 100.0) / 20.0); 
+			amp = pow(10.0, (amp - 100.0) / 20.0);
 		else
 			amp *= 0.01;
 	}
@@ -132,7 +132,7 @@ void nlConverterSCO::MixerEvent(int fn, double *params)
 		return;
 
 	// i inum time dur fn fx# from to frq wt
-	fprintf(fpOutput, "i%ld %g %g %d %g %g %g %g %g\n",
+	fprintf(fpOutput, "i%d %g %g %d %g %g %g %g %g\n",
 		mixInstr, curVoice->curTime, params[3], fn,
 		params[0], params[1], params[2], params[4], params[5]);
 }

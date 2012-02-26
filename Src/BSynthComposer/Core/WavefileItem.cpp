@@ -2,7 +2,7 @@
 // BasicSynth - Project item to represent wave files used by the WFSynth instrument.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ int WavefileItem::SaveProperties(PropertyBox *pb)
 		if (wf != 0)
 		{
 			char buf[80];
-			snprintf(buf, 80, "ID #%d is already in use, please choose another ID.", id);
+			snprintf(buf, 80, "ID #%d is already in use, please choose another ID.", (bsInt16)id);
 			prjFrame->Alert(buf, 0);
 			return 0;
 		}

@@ -1,3 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// BasicSynth Composer
+//
+/// @file Form edit window implementation.
+//
+// Copyright 2010, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+//////////////////////////////////////////////////////////////////////
 #include "globinc.h"
 #include "FormEditorFltk.h"
 #include "MainFrm.h"
@@ -14,7 +24,7 @@ void VScrollCB(Fl_Widget *wdg, void *arg)
 	ed->OnScroll();
 }
 
-FormEditorFltk::FormEditorFltk(ProjectItem *pi, int X, int Y, int W, int H) : Fl_Group(X, Y, W, H, 0)
+FormEditorFltk::FormEditorFltk(int X, int Y, int W, int H) : Fl_Group(X, Y, W, H, 0)
 {
 	SynthWidget::colorMap.Find("bg", bgColor);
 	SynthWidget::colorMap.Find("fg", fgColor);
@@ -22,14 +32,7 @@ FormEditorFltk::FormEditorFltk(ProjectItem *pi, int X, int Y, int W, int H) : Fl
 	box(FL_FLAT_BOX);
 	color(0x80808000);
 	setCapture = 0;
-	item = pi;
-	pi->SetEditor(this);
-	form = pi->CreateForm(X, Y);
-	if (form)
-	{
-		form->SetFormEditor(this);
-		form->GetParams();
-	}
+	item = 0;
 	vscrl = new Fl_Scrollbar(0,0,0,0);
 	vscrl->type(FL_VERTICAL);
 	vscrl->callback(VScrollCB, this);
@@ -38,7 +41,6 @@ FormEditorFltk::FormEditorFltk(ProjectItem *pi, int X, int Y, int W, int H) : Fl
 	hscrl->callback(HScrollCB, this);
 	end();
 	resizable(0);
-	Resize(); // layout the scrollbars.
 }
 
 FormEditorFltk::~FormEditorFltk()
@@ -50,7 +52,6 @@ FormEditorFltk::~FormEditorFltk()
 
 int FormEditorFltk::handle(int e)
 {
-	int s = 0;
 	int mx = Fl::event_x();
 	int my = Fl::event_y();
 //	printf("FormEditorFltk handle(%d) at [%d,%d]\n", e, mx, my);
@@ -105,6 +106,28 @@ void FormEditorFltk::resize(int X, int Y, int W, int H)
 	if (form)
 	{
 		form->MoveTo(X, Y);
+		Resize();
+	}
+}
+
+void FormEditorFltk::SetItem(ProjectItem *p)
+{
+	if (item != NULL)
+	{
+		item->SetEditor(0);
+		item->Release();
+	}
+	if ((item = p) != NULL)
+	{
+		item->SetEditor(this);
+		item->AddRef();
+		//label(p->GetName());
+		form = p->CreateForm(x(), y());
+		if (form)
+		{
+			form->SetFormEditor(this);
+			form->GetParams();
+		}
 		Resize();
 	}
 }
@@ -170,7 +193,7 @@ void FormEditorFltk::draw()
 	if (damage() == FL_DAMAGE_CHILD)
 	{
 		// now draw all the children atop the background:
-		for (int i = children(); i--; childList++) 
+		for (int i = children(); i--; childList++)
 			update_child(**childList);
 	}
 	else
@@ -193,14 +216,14 @@ void FormEditorFltk::draw()
 			if (!part)
 				fl_push_clip(x(), y(), fw, fh);
 			//fl_color((int) (bgColor >> 16) & 0xff, (int) (bgColor >> 8) & 0xff, (int) bgColor & 0xff);
-			fl_color(bgColor << 8);
+			fl_color((Fl_Color)(bgColor << 8));
 			fl_rectf(x(), y(), fw, fh);
 			form->RedrawForm(ctx);
 			if (!part)
 				fl_pop_clip();
 		}
 		// now draw all the children atop the background:
-		for (int i = children(); i--; childList++) 
+		for (int i = children(); i--; childList++)
 			draw_child(**childList);
 		if (hon && von)
 			fl_draw_box(FL_UP_BOX, x()+fw, y()+fh, w()-fw, h()-fh, Fl_Color(0xa0a0a000));
@@ -255,7 +278,6 @@ void FormEditorFltk::Redraw(SynthWidget *wdg)
 		redraw();
 }
 
-// This doesn't work well under FLTK...
 void FormEditorFltk::DrawWidget(SynthWidget *wdg)
 {
 	int left = x();

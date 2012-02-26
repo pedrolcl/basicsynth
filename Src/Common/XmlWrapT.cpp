@@ -12,6 +12,13 @@
 /////////////////////////////////////////////////////////////////
 #include <XmlWrap.h>
 #if defined(USE_TINYXML)
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#if _WIN32 && _MSC_VER
+#define snprintf _snprintf
+#endif
+
 
 XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 {
@@ -47,6 +54,7 @@ XmlSynthElem *XmlSynthElem::FirstChild(XmlSynthElem *ret)
 		const TiXmlElement *n = pElem->FirstChildElement();
 		if (n)
 		{
+			ret->doc = doc;
 			ret->SetNode((TiXmlElement *)n);
 			return ret;
 		}
@@ -74,6 +82,7 @@ XmlSynthElem *XmlSynthElem::NextSibling(XmlSynthElem *ret)
 		const TiXmlElement *n = pElem->NextSiblingElement();
 		if (n)
 		{
+			ret->doc = doc;
 			ret->SetNode((TiXmlElement*)n);
 			return ret;
 		}
@@ -102,6 +111,7 @@ XmlSynthElem *XmlSynthElem::AddChild(const char *childTag, XmlSynthElem *ret)
 		if (n)
 		{
 			pElem->LinkEndChild(n);
+			ret->doc = doc;
 			ret->SetNode(n);
 			return ret;
 		}
@@ -121,10 +131,10 @@ int XmlSynthElem::GetAttribute(const char *attrName, short& val)
 {
 	if (pElem)
 	{
-		int v;
-		if (pElem->QueryIntAttribute(attrName, &v) == TIXML_SUCCESS)
+		const char *str = pElem->Attribute(attrName);
+		if (str)
 		{
-			val = (short) v;
+			val = atoi(str);
 			return 0;
 		}
 	}
@@ -136,10 +146,10 @@ int XmlSynthElem::GetAttribute(const char *attrName, long& val)
 {
 	if (pElem)
 	{
-		int v;
-		if (pElem->QueryIntAttribute(attrName, &v) == TIXML_SUCCESS)
+		const char *str = pElem->Attribute(attrName);
+		if (str)
 		{
-			val = (long) v;
+			val = atol(str);
 			return 0;
 		}
 	}
@@ -151,8 +161,12 @@ int XmlSynthElem::GetAttribute(const char *attrName, float& val)
 {
 	if (pElem)
 	{
-		if (pElem->QueryFloatAttribute(attrName, &val) == TIXML_SUCCESS)
+		const char *str = pElem->Attribute(attrName);
+		if (str)
+		{
+			val = (float) atof(str);
 			return 0;
+		}
 	}
 
 	val = 0.0;
@@ -163,8 +177,12 @@ int XmlSynthElem::GetAttribute(const char *attrName, double& val)
 {
 	if (pElem)
 	{
-		if (pElem->QueryDoubleAttribute(attrName, &val) == TIXML_SUCCESS)
+		const char *str = pElem->Attribute(attrName);
+		if (str)
+		{
+			val = atof(str);
 			return 0;
+		}
 	}
 	val = 0.0;
 	return -1;
@@ -177,9 +195,13 @@ int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 		const char *s = pElem->Attribute(attrName);
 		if (s)
 		{
-			*val = new char[strlen(s)+1];
-			strcpy(*val, s);
-			return 0;
+			size_t len = strlen(s)+1;
+			*val = new char[len];
+			if (*val)
+			{
+				strcpy(*val, s);
+				return 0;
+			}
 		}
 	}
 	*val = NULL;
@@ -208,20 +230,19 @@ int XmlSynthElem::SetAttribute(const char *attrName, long val)
 
 int XmlSynthElem::SetAttribute(const char *attrName, float val)
 {
-	if (pElem)
-	{
-		pElem->SetDoubleAttribute(attrName, (double) val);
-		return 0;
-	}
-	return -1;
+	return SetAttribute(attrName, (double) val);
 }
 
 int XmlSynthElem::SetAttribute(const char *attrName, double val)
 {
 	if (pElem)
 	{
-		pElem->SetDoubleAttribute(attrName, val);
-		return 0;
+		char strval[40];
+		if (snprintf(strval, 40, "%g", val) >= 0)
+		{
+			pElem->SetAttribute(attrName, strval);
+			return 0;
+		}
 	}
 	return -1;
 }
@@ -253,7 +274,6 @@ int XmlSynthElem::SetContent(const char *data)
 		TiXmlText *t = new TiXmlText(data ? data : "");
 		if (t)
 		{
-			XmlSynthElem *ret = new XmlSynthElem;
 			pElem->LinkEndChild(t);
 			return 0;
 		}
@@ -313,6 +333,8 @@ XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *root)
 	{
 		if (root == 0)
 			root = new XmlSynthElem(this);
+		else
+			root->doc = this;
 		if (root)
 		{
 			TiXmlDeclaration *d = new TiXmlDeclaration("1.0","UTF-8","yes");
@@ -343,6 +365,8 @@ XmlSynthElem *XmlSynthDoc::Open(const char *fname, XmlSynthElem* root)
 	{
 		if (root == 0)
 			root = new XmlSynthElem(this);
+		else
+			root->doc = this;
 		root->SetNode(doc->RootElement());
 		return root;
 	}

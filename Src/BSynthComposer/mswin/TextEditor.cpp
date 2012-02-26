@@ -9,18 +9,27 @@
 #include "FindReplDlg.h"
 
 static FindReplDlg findDlg;
+// load SciLexer to use other built-in lexers.
+#ifdef SCI_LEXER
+#if _DEBUG
+static char dllname[] = "SciLexerD.dll";
+#else
+static char dllname[] = "SciLexer.dll";
+#endif
+#else
+#if _DEBUG
+static char dllname[] = "ScintillaD.dll";
+#else
+static char dllname[] = "Scintilla.dll";
+#endif
+#endif
 
 void LoadEditorDLL()
 {
-	HMODULE h;
-#if _DEBUG
-	h = LoadLibrary("SciLexerD.dll");
-	if (!h)
-#endif
-	h = LoadLibrary("SciLexer.dll");
+	HMODULE h = LoadLibrary(dllname);
 	if (h == 0)
 	{
-		MessageBox(HWND_DESKTOP, "The Editor dll (SciLexer) was not loaded. Must abort...", "Sorry...", MB_OK);
+		MessageBox(HWND_DESKTOP, "The Editor dll (Scintilla) was not loaded. Must abort...", "Sorry...", MB_OK);
 		exit(0);
 	}
 }
@@ -172,7 +181,8 @@ void TextEditorWin::ClearMarkers()
 
 long TextEditorWin::EditState()
 {
-	long flags = VW_ENABLE_FILE | VW_ENABLE_GOTO | VW_ENABLE_SELALL | VW_ENABLE_FIND | VW_ENABLE_MARK;
+	long flags = VW_ENABLE_FILE | VW_ENABLE_GOTO | VW_ENABLE_SELALL 
+	           | VW_ENABLE_FIND | VW_ENABLE_MARK | VW_ENABLE_UNMARK;
 	if (edwnd.CanPaste())
 		flags |= VW_ENABLE_PASTE;
 	if (edwnd.CanRedo())
@@ -192,273 +202,108 @@ int TextEditorWin::IsChanged()
 	return edwnd.IsChanged();
 }
 
-// TODO: use a binary search or a RE pattern match.
-// TODO: return different value for command / parameter
-int TextEditorWin::IsKeyword(char *txt)
+void TextEditorWin::Focus()
 {
-	int kw = 0;
-	switch (*txt)
-	{
-	case 'A':
-		if ( strcmp(txt, "ARTIC") == 0
-		  || strcmp(txt, "AND") == 0
-		  || strcmp(txt, "ADD") == 0)
-			kw = 1;
-		break;
-	case 'B':
-		kw = strcmp(txt, "BEGIN") == 0;
-		break;
-	case 'C':
-		if ( strcmp(txt, "CHANNEL") == 0
-		  || strcmp(txt, "CHNL") == 0
-		  || strcmp(txt, "COUNT") == 0
-		  || strcmp(txt, "CALL") == 0
-		  || strcmp(txt, "CURPIT") == 0
-		  || strcmp(txt, "CURDUR") == 0
-		  || strcmp(txt, "CURVOL") == 0
-		  || strcmp(txt, "CURTIME") == 0)
-			kw = 1;
-		break;
-	case 'D':
-		if (strcmp(txt, "DOUBLE") == 0
-		 || strcmp(txt, "DO") == 0
-		 || strcmp(txt, "VAR") == 0)
-			kw = 1;
-		break;
-	case 'E':
-		if (strcmp(txt, "END") == 0
-		 || strcmp(txt, "EXP") == 0
-		 || strcmp(txt, "EVAL") == 0
-		 || strcmp(txt, "ELSE") == 0)
-			kw = 1;
-		break;
-	case 'F':
-		if (strcmp(txt, "FIXED") == 0
-		 || strcmp(txt, "FGEN") == 0
-		 || strcmp(txt, "FREQUENCY") == 0
-		 || strcmp(txt, "FXRCV") == 0
-		 || strcmp(txt, "FXPAN") == 0)
-			kw = 1;
-		break;
-	case 'I':
-		if (strcmp(txt, "INSTR") == 0
-		 || strcmp(txt, "INSTRUMENT") == 0
-		 || strcmp(txt, "INIT") == 0
-		 || strcmp(txt, "INCLUDE") == 0
-		 || strcmp(txt, "IF") == 0
-		 || strcmp(txt, "IN") == 0)
-			kw = 1;
-		break;
-	case 'L':
-		if (strcmp(txt, "LOOP") == 0
-		 || strcmp(txt, "LINE") == 0
-		 || strcmp(txt, "LOG") == 0)
-			kw = 1;
-		break;
-	case 'M':
-		if (strcmp(txt, "MARK") == 0
-		 || strcmp(txt, "MAP") == 0
-		 || strcmp(txt, "MAXPARAM") == 0
-		 || strcmp(txt, "MIXER") == 0
-		 || strcmp(txt, "MIDDLEC") == 0
-		 || strcmp(txt, "MIDICC") == 0
-		 || strcmp(txt, "MIDIPW") == 0
-		 || strcmp(txt, "MIDIPRG") == 0
-		 || strcmp(txt, "MIDIAT") == 0)
-			kw = 1;
-		break;
-	case 'N':
-		if (strcmp(txt, "NOT") == 0
-		 || strcmp(txt, "NOTE") == 0)
-			kw = 1;
-		break;
-	case 'O':
-		if (strcmp(txt, "ON") == 0
-		 || strcmp(txt, "OFF") == 0
-		 || strcmp(txt, "OR") == 0
-		 || strcmp(txt, "OPTION") == 0
-		 || strcmp(txt, "OSC") == 0)
-			kw = 1;
-		break;
-	case 'P':
-		if (strcmp(txt, "PARAM") == 0
-		 || strcmp(txt, "PLAY") == 0
-		 || strcmp(txt, "PERCENT") == 0)
-			kw = 1;
-		break;
-	case 'R':
-		if (strcmp(txt, "RAND") == 0
-		 || strcmp(txt, "REPEAT") == 0
-		 || strcmp(txt, "RAMP") == 0)
-			kw = 1;
-		break;
-	case 'S':
-		if (strcmp(txt, "SUS") == 0
-		 || strcmp(txt, "SUSTAIN") == 0
-		 || strcmp(txt, "SEQ") == 0
-		 || strcmp(txt, "SEQUENCE") == 0
-		 || strcmp(txt, "SYNC") == 0
-		 || strcmp(txt, "SET") == 0
-		 || strcmp(txt, "SCRIPT") == 0
-		 || strcmp(txt, "SYS") == 0
-		 || strcmp(txt, "SYSTEM") == 0)
-			kw = 1;
-		break;
-	case 'T':
-		if (strcmp(txt, "TIE") == 0
-		 || strcmp(txt, "TRANSPOSE") == 0
-		 || strcmp(txt, "TIME") == 0
-		 || strcmp(txt, "TEMPO") == 0
-		 || strcmp(txt, "THEN") == 0)
-			kw = 1;
-		break;
-	case 'V':
-		if (strcmp(txt, "VOICE") == 0
-		 || strcmp(txt, "VOL") == 0
-		 || strcmp(txt, "VOLUME") == 0
-		 || strcmp(txt, "VOLDB") == 0
-		 || strcmp(txt, "VAR") == 0
-		 || strcmp(txt, "VARIABLE") == 0
-		 || strcmp(txt, "VERSION") == 0
-		 || strcmp(txt, "VER") == 0
-		 || strcmp(txt, "VELOCITY") == 0
-		 || strcmp(txt, "VEL") == 0)
-			kw = 1;
-		break;
-	case 'W':
-		if (strcmp(txt, "WHILE") == 0
-		 || strcmp(txt, "WRITE") == 0)
-			kw = 1;
-		break;
-	}
-	return kw;
+	if (edwnd.IsWindow())
+		edwnd.SetFocus();
 }
 
-// TODO: read the line into a buffer... Scintilla somtimes requests
-// restyling all the way to the end of the file, even when only
-// one char on one line has changed...
+#define KWMAXLEN 10
+// isalpha(c) throws debug exceptions on UNICODE chars
+#define AtoZ(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
+
 void TextEditorWin::Restyle(int position)
 {
-	int inkw = 0;
-	int inq = 0;
-	char kwbuf[40];
-	int kwpos;
-	int lineNumber = edwnd.CallScintilla(SCI_LINEFROMPOSITION, edwnd.SendMessage(SCI_GETENDSTYLED));
-    int startPos = edwnd.CallScintilla(SCI_POSITIONFROMLINE, lineNumber);
-#if _DEBUG
-	int sizTotal = edwnd.CallScintilla(SCI_GETLENGTH, 0, 0);
-	ATLTRACE("Restyle from %d to %d (total = %d)\n", startPos, position, sizTotal);
-#endif
-	int lenPos;
+	int endStyled = edwnd.GetEndStyled();
+	int lineNumber = edwnd.LineFromPosition(endStyled);
+	int startPos = edwnd.PositionFromLine(lineNumber);
+
+	//ATLTRACE("Restyle %d: endStyled=%d lineNumber=%d startPos=%d\n", position, endStyled, lineNumber, startPos);
+
 	int chPos = startPos;
-	int ch = edwnd.CallScintilla(SCI_GETCHARAT, chPos);
+	int ch = edwnd.GetCharAt(chPos);
 	while (chPos < position)
 	{
 		if (strchr(",;{}[]():=", ch) != 0)
 		{
 			if (startPos != chPos)
 			{
-				edwnd.CallScintilla(SCI_STARTSTYLING, startPos, 0x1F);
-				//ATLTRACE("Set styling 1 %d %d '%s'\n", startPos, (chPos - startPos));
-				edwnd.CallScintilla(SCI_SETSTYLING, chPos - startPos, NLSTYLE_DEFAULT);
+				edwnd.StartStyling(startPos);
+				edwnd.SetStyling(chPos - startPos, NLSTYLE_DEFAULT);
 			}
-			edwnd.CallScintilla(SCI_STARTSTYLING, chPos, 0x1F);
-			//ATLTRACE("Set styling 2 (delimiter) %c %d\n", ch, chPos);
-			edwnd.CallScintilla(SCI_SETSTYLING, 1, NLSTYLE_DELIM);
-			ch = edwnd.CallScintilla(SCI_GETCHARAT, ++chPos);
+			edwnd.StartStyling(chPos);
+			int lenPos = 0;
+			do
+			{
+				lenPos++;
+				ch = edwnd.GetCharAt(++chPos);
+			} while (strchr(",;{}[]():=", ch) != 0);
+			edwnd.SetStyling(lenPos, NLSTYLE_DELIM);
 			startPos = chPos;
 		}
 		else if (ch == '!' || ch == '\'')
 		{
 			if (startPos != chPos)
 			{
-				edwnd.CallScintilla(SCI_STARTSTYLING, startPos, 0x1F);
-				//ATLTRACE("Set styling 3 %d\n", (chPos - startPos));
-				edwnd.CallScintilla(SCI_SETSTYLING, chPos - startPos, NLSTYLE_DEFAULT);
+				edwnd.StartStyling(startPos);
+				edwnd.SetStyling(chPos - startPos, NLSTYLE_DEFAULT);
 			}
-			lineNumber = edwnd.CallScintilla(SCI_LINEFROMPOSITION, chPos);
-			int eol = edwnd.CallScintilla(SCI_GETLINEENDPOSITION, lineNumber);
-			edwnd.CallScintilla(SCI_STARTSTYLING, chPos, 0x1F);
-			//ATLTRACE("Set styling 4 %d\n", eol - chPos);
-			edwnd.CallScintilla(SCI_SETSTYLING, eol - chPos, NLSTYLE_COMMENT);
+			int eol = edwnd.GetLineEndPosition(edwnd.LineFromPosition(chPos));
+			edwnd.StartStyling(chPos);
+			edwnd.SetStyling(eol - chPos, NLSTYLE_COMMENT);
 			chPos = eol+1;
-			ch = edwnd.CallScintilla(SCI_GETCHARAT, chPos);
+			ch = edwnd.GetCharAt(chPos);
 			startPos = chPos;
 		}
 		else if (ch == '"')
 		{
 			if (startPos != chPos)
 			{
-				edwnd.CallScintilla(SCI_STARTSTYLING, startPos, 0x1F);
-				//ATLTRACE("Set styling 5 %d\n", (chPos - startPos));
-				edwnd.CallScintilla(SCI_SETSTYLING, chPos - startPos, NLSTYLE_DEFAULT);
+				edwnd.StartStyling(startPos);
+				edwnd.SetStyling(chPos - startPos, NLSTYLE_DEFAULT);
 			}
 			startPos = chPos;
 			do
 			{
-				ch = edwnd.CallScintilla(SCI_GETCHARAT, ++chPos);
-			} while (chPos < position && ch != '"');
-			lenPos = chPos - startPos;
+				ch = edwnd.GetCharAt(++chPos);
+			} while (chPos < position && ch != '"' && ch != '\n');
 			if (ch == '"')
-				lenPos++;
-			//ATLTRACE("Set styling 6 %d\n", lenPos);
-			edwnd.CallScintilla(SCI_STARTSTYLING, startPos, 0x1F);
-			edwnd.CallScintilla(SCI_SETSTYLING, lenPos, NLSTYLE_QUOTE);
-			ch = edwnd.CallScintilla(SCI_GETCHARAT, ++chPos);
+				ch = edwnd.GetCharAt(++chPos);
+			edwnd.StartStyling(startPos);
+			edwnd.SetStyling(chPos - startPos, NLSTYLE_QUOTE);
 			startPos = chPos;
 		}
-		else if ((ch >= 'a' && ch < 'z') || (ch >= 'A' && ch <= 'Z'))
+		else if (AtoZ(ch))
 		{
 			// possible keyword
-			int delim = 0;
-			kwpos = 0;
+			char kwbuf[KWMAXLEN+1];
+			int kwpos = 0;
 			int kwStart = chPos;
 			do
 			{
-				if (kwpos < 39)
-					kwbuf[kwpos++] = (ch >= 'a' && ch <= 'z') ? (ch - 'a' + 'A') : ch;
-				ch = edwnd.CallScintilla(SCI_GETCHARAT, ++chPos);
-			} while (strchr(" \t\n\r;:,(){}[]*/-+^&|#=<>\"'!", ch) == 0 && chPos < position);
-			kwbuf[kwpos] = 0;
-			int kw = 0;
-			if (strchr("ABCDEFG", kwbuf[0]) != 0)
-			{
-				if (kwbuf[0] == '#' || kwbuf[0] == 'b' || isdigit(kwbuf[0]))
-					kw = 0;
-				else
-					kw = IsKeyword(kwbuf);
-			}
-			else if (strchr("WHQES", kwbuf[0]) != 0)
-			{
-				if (kwbuf[0] == 0)
-					kw = 0;
-				else
-					kw = IsKeyword(kwbuf);
-			}
-			else
-				kw = IsKeyword(kwbuf);
-			if (kw)
+				kwbuf[kwpos++] = ch;
+				ch = edwnd.GetCharAt(++chPos);
+			} while (AtoZ(ch) && kwpos <= KWMAXLEN && chPos < position);
+			kwbuf[kwpos] = '\0';
+			if (nlLex::IsKeyword(kwbuf) != T_ENDOF)
 			{
 				if (startPos != kwStart)
 				{
-					edwnd.CallScintilla(SCI_STARTSTYLING, startPos, 0x1F);
-					//ATLTRACE("Set styling 7 %d %d '%s'\n", startPos, kwStart - startPos);
-					edwnd.CallScintilla(SCI_SETSTYLING, kwStart - startPos, NLSTYLE_DEFAULT);
+					edwnd.StartStyling(startPos);
+					edwnd.SetStyling(kwStart - startPos, NLSTYLE_DEFAULT);
 				}
-				//ATLTRACE("Set styling 8 %d %d %s\n", kwStart, chPos - kwStart, kwbuf);
-				edwnd.CallScintilla(SCI_STARTSTYLING, kwStart, 0x1F);
-				edwnd.CallScintilla(SCI_SETSTYLING, chPos - kwStart, NLSTYLE_KEYWORD);
+				edwnd.StartStyling(kwStart);
+				edwnd.SetStyling(chPos - kwStart, NLSTYLE_KEYWORD);
 				startPos = chPos;
 			}
 		}
 		else
-			ch = edwnd.CallScintilla(SCI_GETCHARAT, ++chPos);
+			ch = edwnd.GetCharAt(++chPos);
 	}
 	if (startPos != chPos)
 	{
-		edwnd.CallScintilla(SCI_STARTSTYLING, startPos, 0x1F);
-		//ATLTRACE("Set styling 9 %d %d\n", startPos, chPos - startPos);
-		edwnd.CallScintilla(SCI_SETSTYLING, chPos - startPos, NLSTYLE_DEFAULT);
+		edwnd.StartStyling(startPos);
+		edwnd.SetStyling(chPos - startPos, NLSTYLE_DEFAULT);
 	}
 }
 
@@ -473,36 +318,37 @@ int TextEditorWin::OpenFile(const char *fname)
 
 	HANDLE fh;
 	fh = CreateFile(file, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (fh == INVALID_HANDLE_VALUE)
-		return -1;
-
-	// get file size
-	DWORD sizHigh = 0;
-	DWORD siz = GetFileSize(fh, &sizHigh);
-	if (sizHigh)
+	if (fh != INVALID_HANDLE_VALUE)
 	{
-		// bigger than 4 gigabytes? No way... :)
-		CloseHandle(fh);
-		return -2;
-	}
-
-	if (siz > 0)
-	{
-		char *text = new char[siz+1];
-		if (text != NULL)
+		// get file size
+		DWORD sizHigh = 0;
+		DWORD siz = GetFileSize(fh, &sizHigh);
+		if (sizHigh)
 		{
-			DWORD nread = 0;
-			ReadFile(fh, (LPVOID)text, siz, &nread, NULL);
-			text[siz] = 0;
-			bsString tmp;
-			tmp.Attach(text);
-			SetText(tmp);
+			// bigger than 4 gigabytes? No way... :)
+			CloseHandle(fh);
+			return -2;
 		}
+
+		if (siz > 0)
+		{
+			char *text = new char[siz+1];
+			if (text != NULL)
+			{
+				DWORD nread = 0;
+				ReadFile(fh, (LPVOID)text, siz, &nread, NULL);
+				text[siz] = 0;
+				bsString tmp;
+				tmp.Attach(text);
+				SetText(tmp);
+			}
+		}
+		CloseHandle(fh);
 	}
 
-	edwnd.CallScintilla(SCI_SETSAVEPOINT);
-
-	CloseHandle(fh);
+	edwnd.SetMargins();
+	edwnd.EmptyUndoBuffer();
+	edwnd.SetSavePoint();
 	return 0;
 }
 
@@ -521,6 +367,8 @@ int TextEditorWin::SaveFile(const char *fname)
 				return -1;
 		}
 	}
+	else
+		file = fname;
 
 	int ret = 0;
 	bsString text;
@@ -532,8 +380,8 @@ int TextEditorWin::SaveFile(const char *fname)
 		if (siz > 0)
 		{
 			DWORD nwrit = 0;
-			WriteFile(fh, (LPVOID) (const char *)text, siz, &nwrit, NULL);
-			if (siz != nwrit)
+			WriteFile(fh, (LPVOID) (const char *)text, (DWORD)siz, &nwrit, NULL);
+			if ((DWORD)siz != nwrit)
 				ret = -2;
 		}
 		CloseHandle(fh);
@@ -541,7 +389,7 @@ int TextEditorWin::SaveFile(const char *fname)
 	else
 		ret = -1;
 
-	edwnd.CallScintilla(SCI_SETSAVEPOINT);
+	edwnd.SetSavePoint();
 
 	return ret;
 }
@@ -572,7 +420,7 @@ int TextEditorWin::Find(int flags, const char *text)
 {
 	findFlags = flags;
 	findText = text;
-	int sciFlags = edwnd.SetSearchFlags(flags);
+	edwnd.SetSearchFlags(flags);
 	int wrap = 0;
 	int start = edwnd.CurrentPos();
 	int found = edwnd.Find(text, start);
@@ -605,14 +453,14 @@ int TextEditorWin::ReplaceAll(int flags, const char *ftext, const char *rtext, S
 	int flen = (int)strlen(ftext);
 	int rlen = (int)strlen(rtext);
 	edwnd.SetSearchFlags(flags);
-	edwnd.CallScintilla(SCI_BEGINUNDOACTION, 0, 0);
+	edwnd.BeginUndoAction();
 	SelectInfo si;
 	si.startPos = info.startPos;
 	si.endPos = info.endPos;
 	if (si.startPos == si.endPos)
 	{
-		si.endPos = edwnd.CallScintilla(SCI_GETLENGTH, 0, 0);
-		si.endLn = edwnd.CallScintilla(SCI_LINEFROMPOSITION, si.endPos, 0)+1;
+		si.endPos = edwnd.Length();
+		si.endLn = edwnd.LineFromPosition(si.endPos)+1;
 		si.endCh = 0;
 	}
 	else
@@ -623,17 +471,16 @@ int TextEditorWin::ReplaceAll(int flags, const char *ftext, const char *rtext, S
 
 	do
 	{
-		edwnd.CallScintilla(SCI_SETTARGETSTART, si.startPos, 0);
-		edwnd.CallScintilla(SCI_SETTARGETEND, si.endPos, 0);
-		if (edwnd.CallScintilla(SCI_SEARCHINTARGET, flen, (LPARAM) ftext) == -1)
+		edwnd.SetTarget(si.startPos, si.endPos);
+		if (edwnd.SearchInTarget(flen, ftext) == -1)
 			break;
 		count++;
 		int msg = (flags & SCFIND_REGEXP) ? SCI_REPLACETARGETRE : SCI_REPLACETARGET;
 		edwnd.CallScintilla(msg, rlen, (LPARAM) rtext);
-		si.startPos = edwnd.CallScintilla(SCI_GETTARGETEND, 0, 0);
-		si.endPos = edwnd.CallScintilla(SCI_POSITIONFROMLINE, si.endLn, 0) + si.endCh;
+		si.startPos = edwnd.GetTargetEnd();
+		si.endPos = edwnd.PositionFromLine(si.endLn) + si.endCh;
 	} while (si.startPos <= si.endPos);
-	edwnd.CallScintilla(SCI_ENDUNDOACTION);
+	edwnd.EndUndoAction();
 	return count;
 }
 
@@ -661,10 +508,7 @@ LRESULT TextEditorWin::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	{
 		edwnd.Init();
 		if (pi)
-		{
-			if (pi->GetType() == PRJNODE_NOTEFILE)
-				edwnd.SetupStyling();
-		}
+			edwnd.SetupStyling(pi->GetType() == PRJNODE_NOTEFILE);
 	}
 	return 0;
 }

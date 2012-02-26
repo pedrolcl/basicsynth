@@ -1,32 +1,55 @@
+###########################################################
+# Makefile for BasicSynth Instruments library
+#
+# Targets:
+#        all - make the library
+#        clean - remove the object files
+#        new - clean then rebuild
+###########################################################
 include ../BasicSynth.cfg
 
-OBJS=\
-LoadInstrLib.o \
-AddSynth.o \
-BuzzSynth.o \
-Chuffer.o \
-FMSynth.o \
-GMPlayer.o \
-LFO.o \
-PitchBend.o \
-MatrixSynth.o \
-MixerControl.o \
-ModSynth.o \
-SFPlayer.o \
-SubSynth.o \
-Tone.o \
-WFSynth.o
+SRCS=\
+	LoadInstrLib.cpp \
+	AddSynth.cpp \
+	BuzzSynth.cpp \
+	Chuffer.cpp \
+	FMSynth.cpp \
+	GMPlayer.cpp \
+	LFO.cpp \
+	PitchBend.cpp \
+	MatrixSynth.cpp \
+	MixerControl.cpp \
+	ModSynth.cpp \
+	SFPlayer.cpp \
+	SubSynth.cpp \
+	Tone.cpp \
+	WFSynth.cpp
 
-$(INSTLIB): $(OBJS)
-	-@rm $@
+OBJS=$(patsubst %.cpp,$(ODIR)/%.o,$(SRCS))
+
+.PHONY: all new clean chkdirs
+
+all: chkdirs $(INSTLIB)
+
+new: clean chkdirs $(INSTLIB)
+
+$(INSTLIB):  $(OBJS)
+	@test $@ || rm $@
 	$(AR) r $@ $(OBJS)
+	$(RANLIB) $@
 
-all: $(INSTLIB)
+chkdirs:
+	@test -d $(ODIR) || mkdir $(ODIR)
 
 clean:
-	-@rm $(OBJS)
-	-@rm $(INSTLIB)
+	-@rm -f $(OBJS) Includes.h.gch
+	-@rm -f $(INSTLIB)
 
+$(OBJS) : Includes.h.gch
+
+Includes.h.gch: Includes.h $(BSINC)/BasicSynth.h
+	$(CPP) -x c++ -c $(CPPFLAGS) Includes.h -o $@
+	
 AddSynth.cpp: AddSynth.h Includes.h
 
 BuzzSynth.cpp: BuzzSynth.h Includes.h

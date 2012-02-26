@@ -44,6 +44,15 @@
 #include "SaveArgs.h"
 #include "maindlg.h"
 
+#ifdef USE_DIRECTSOUND
+#if !USE_SDK_DSOUND
+CLSID CLSID_DirectSound = {0x47d4d946, 0x62e8, 0x11cf, {0x93, 0xbc, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0} };
+IID IID_IDirectSound = {0x279AFA83, 0x4981, 0x11CE, { 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60} };
+typedef HRESULT (WINAPI *tDirectSoundCreate)(const GUID *pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+tDirectSoundCreate DirectSoundCreate;
+#endif
+#endif
+
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
@@ -52,6 +61,9 @@ BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 CMainDlg::CMainDlg()
 {
 #ifdef USE_DIRECTSOUND
+#if !USE_SDK_DSOUND
+	DirectSoundCreate = (tDirectSoundCreate)GetProcAddress(LoadLibrary("dsound.dll"), "DirectSoundCreate");
+#endif
 	dirSndObj = NULL;
 	dirSndBuf = NULL;
 #else
@@ -215,7 +227,6 @@ LRESULT CMainDlg::OnKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bH
 
 LRESULT CMainDlg::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	OutputDebugString("OnTimer\r\n");
 	idTimer = 0;
 	OnStop(uMsg, IDC_STOP, NULL, bHandled);
 	return 0;
@@ -292,7 +303,11 @@ LRESULT CMainDlg::OnSin(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& 
 		SetPartValue(ndx, 0.0);
 	}
 
-	wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	try {
+		wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	} catch(...) {
+		OutputDebugString("Sin\r\n");
+	}
 	wndPlot.Invalidate();
 	return 0;
 }
@@ -311,8 +326,11 @@ LRESULT CMainDlg::OnSawtooth(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, B
 		SetPartValue(ndx, dval);
 		part += 1.0;
 	}
-
-	wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	try {
+		wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	} catch(...) {
+		OutputDebugString("Sawtooth\r\n");
+	}
 	wndPlot.Invalidate();
 	return 0;
 }
@@ -330,7 +348,11 @@ LRESULT CMainDlg::OnRamp(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 		part += 1.0;
 	}
 
-	wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	try {
+		wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	} catch(...) {
+		OutputDebugString("Ramp\r\n");
+	}
 	wndPlot.Invalidate();
 	return 0;
 }
@@ -351,7 +373,11 @@ LRESULT CMainDlg::OnSquare(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 		part += 1.0;
 	}
 
-	wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	try {
+		wtSet.SetWaveTable(WT_USR(0), WFI_MAXPART, NULL, amps, NULL, gibbs);
+	} catch(...) {
+		OutputDebugString("Square\r\n");
+	}
 	wndPlot.Invalidate();
 	return 0;
 }

@@ -107,32 +107,17 @@ LRESULT MixerSetupDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	edName = GetDlgItem(IDC_FX_NAME);
 	fxList = GetDlgItem(IDC_FX_LIST);
 	fxType = GetDlgItem(IDC_FX_TYPE);
-	// TODO: mixer should fill this list...
+	// TODO: this list should come from the project info...
 	fxType.InsertString(0, "reverb");
 	fxType.InsertString(1, "flanger");
 	fxType.InsertString(2, "echo");
 	fxType.SetCurSel(0);
 
-	CButton btn;
-	btn = GetDlgItem(IDC_FX_UP);
-	RECT rc;
-	btn.GetClientRect(&rc);
-	int cx = 16;
-	if (rc.right >= 32)
-		cx = 32;
-
-	HICON mvUp = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_MVUP), IMAGE_ICON, cx, cx, LR_SHARED);
-	HICON mvDn = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_MVDN), IMAGE_ICON, cx, cx, LR_SHARED);
-	HICON add = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_ADD), IMAGE_ICON, cx, cx, LR_SHARED);
-	HICON rem = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_REM), IMAGE_ICON, cx, cx, LR_SHARED);
-
-	btn.SetIcon(mvUp);
-	btn = GetDlgItem(IDC_FX_DN);
-	btn.SetIcon(mvDn);
-	btn = GetDlgItem(IDC_FX_ADD);
-	btn.SetIcon(add);
-	btn = GetDlgItem(IDC_FX_REM);
-	btn.SetIcon(rem);
+	SetButtonImage(IDC_FX_ADD, IDI_ADD);
+	SetButtonImage(IDC_FX_REM, IDI_REM);
+	SetButtonImage(IDC_FX_UP, IDI_MVUP);
+	SetButtonImage(IDC_FX_DN, IDI_MVDN);
+	SetButtonImage(IDC_FX_EDIT, IDI_INFO);
 
 	pi->LoadProperties(this);
 
@@ -272,4 +257,11 @@ LRESULT MixerSetupDlg::OnFxEdit(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 	}
 
 	return 0;
+}
+
+void MixerSetupDlg::SetButtonImage(int ctrl, int imgid)
+{
+	HICON ico = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(imgid), IMAGE_ICON, 32, 32, 0);
+	CButton btn = GetDlgItem(ctrl);
+	btn.SetIcon(ico);
 }

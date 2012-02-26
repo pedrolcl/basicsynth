@@ -89,7 +89,7 @@ LRESULT ItemPropertiesBase::OnBrowse(WORD wNotifyCode, WORD wID, HWND hWndCtl, B
 	path[0] = '\0';
 	GetDlgItemText(IDC_FILE_NAME, path, MAX_PATH);
 
-	if (prjFrame->BrowseFile(0, path, spc, ext))
+	if (prjFrame->BrowseFile(1, path, spc, ext))
 	{
 		SetDlgItemText(IDC_FILE_NAME, SynthProject::SkipProjectDir(path));
 		if (needFile)
@@ -164,9 +164,10 @@ LRESULT FilelistOrder::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	btn = GetDlgItem(IDC_FILE_UP);
 	RECT rc;
 	btn.GetClientRect(&rc);
-	int cx = 16;
-	if (rc.right >= 32)
-		cx = 32;
+//	int cx = 16;
+//	if (rc.right >= 32)
+//		cx = 32;
+	int cx = 32;
 
 	HICON mvUp = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_MVUP), IMAGE_ICON, cx, cx, LR_SHARED);
 	HICON mvDn = (HICON) LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDI_MVDN), IMAGE_ICON, cx, cx, LR_SHARED);
@@ -199,8 +200,10 @@ LRESULT FilelistOrder::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHan
 	while (index < count)
 	{
 		itm = (ProjectItem *) fileList.GetItemDataPtr(index);
+		itm->AddRef();
 		prjTree->RemoveNode(itm);
 		prjTree->AddNode(itm);
+		itm->Release();
 		index++;
 	}
 	theProject->SetChange(1);

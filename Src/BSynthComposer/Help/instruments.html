@@ -3,7 +3,7 @@
 <title>Instruments</title>
 </head>
 <body>
-<h1><i>BasicSynth</i> Instruments<hr/></h1>
+<h1><i>BasicSynth</i> Instruments</h1>
 <p>
     <i>BasicSynth</i> includes nine different synthesis instruments. Each instrument
     is a collection of unit generators, the fundamental signal processing unit in a software synthesizer. 
@@ -46,7 +46,7 @@ are a limited number of instruments in <i>BasicSynth,</i> there can be an unlimi
 of instrument configurations. 
 </p>
 
-<h3>Patch Diagrams<hr/></h3>
+<h3>Patch Diagrams</h3>
 <p>Each instrument is represented by a patch diagram using the symbols shown in the
 following table. </p>
 <table border="1" cellspacing="0" cellpadding="4">
@@ -101,7 +101,7 @@ following table. </p>
         <td>Input parameter value.</td>
     </tr>
 </table>
-<h3>Instrument Editors<hr/></h3>
+<h3>Instrument Editors</h3>
 <p>
 Because each instrument implements a different patch, and has different parameters,
 each instrument is configured with a specialized editor. However, all instrument
@@ -165,14 +165,14 @@ as a "R" segment. The curve type group changes the segment from linear (Li), exp
 </tr>
 <tr valign="top">
 <td><img src="images/formcmd.jpg" alt="form command"></td>
-<td>Forms have two common command buttons labeled [Set] and [Restore]. The [Set] 
+<td>Forms have two common command buttons labeled <b>Set</b> and <b>Restore</b>. The <b>Set</b>
 button takes a snapshot of the current settings. If you make changes and want to go back to a 
-previous configuration, the [Restore] button sets the instrument back to the last set of
-values saved with [Set].
+previous configuration, the <b>Restore</b> button sets the instrument back to the last set of
+values saved with <b>Set</b>.
 </td>
 </tr>
 </table>
-<h3>Oscillators<hr/></h3>
+<h3>Oscillators</h3>
 <p>
 Oscillator frequency is configured by setting the either the fundamental frequency or a frequency multiple.
 The frequency multiple is a value that will be multiplied by the frequency of the note when the
@@ -185,17 +185,18 @@ is to be used. Ten wavetables are predefined, but you may add as many wavetables
 the wavetable editor.
 </p>
 <p>
-For most instruments, oscillator amplitude is controlled internally by multiplying the oscillator output
-with an envelope generator output. (This is why the instrument patch diagrams do not show an amplitude input on oscillators.)
+For most instruments, oscillator amplitude is controlled by multiplying the oscillator output
+with an envelope generator output. 
 The modular synthesis instrument, however, provides an amplitude input to the oscillators so that you
 can set the amplitude to a fixed level, or set the amplitude from another unit generator. 
 </p>
-<h3>Envelope Generators<hr/></h3>
+<h3>Envelope Generators</h3>
 <p>
-Three different envelope generators are used int <i>BasicSynth</i>, AR, ADSR, and variable-segment. 
+Three different envelope generators are used in <i>BasicSynth</i>, AR, ADSR, and variable-segment. 
 An AR envelope consists of attack, optional sustain, and decay segments. The ADSR envelope consists
-of attack, decay, sustain, and decay segments. Usually an ADSR envelope will allow
-setting the start and end levels as well as the peak and sustain levels. 
+of attack, decay, sustain, and release segments. For some instruments, the start and end
+level of an ADSR envelope can be set specifically. This is typically the case when the envelope
+is applied to a modulator oscillator.
 A variable-segment envelope has a variable number of segments, each defined by a rate and a level. 
 To configure a variable-segment envelope, you first select the number of segments you want, set the
 start value, and then set the rate and level for each segment.
@@ -229,13 +230,13 @@ sustain is turned off, the envelope will begin the final segment without waiting
 the release event. The ADSR envelope always has sustain on, but, since the
 sustain level can be set to zero, it can function as if the sustain was turned off.
 </p>
-<h3>Filters<hr/></h3>
+<h3>Filters</h3>
 <p>
 The center frequency on most filters can be set anywhere between zero and 10kHz. The editor
 controls for filter frequency are set to range from 0 to 10. 
 A value of 1 represents 1kHz, 0.5 represents 500Hz, etc.
 </p>
-<h3>LFO and Pitch Bend<hr/></h3>
+<h3>LFO and Pitch Bend</h3>
 <p>
 Several instruments include LFO and Pitch bend units. The LFO unit includes a wavetable
 oscillator and a single segment envelope. The envelope provides a delayed application

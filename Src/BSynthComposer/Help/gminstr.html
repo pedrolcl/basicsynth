@@ -20,6 +20,17 @@ vibrato LFO, pitch wheel and pitch bend envelope to determine the playback frequ
 note-on velocity, envelope and modulation LFO to determine the volume level. The modulation wheel adds to the levels
 for vibrato and tremolo.</p>
 <h3>Configuration<hr/></h3>
+<p>The General MIDI Instrument editor is shown below.</p>
+<img src="images/gmplayered.jpg" alt="GM editor" />
+<p>Normally, the values for note on volume, pan, bank, and patch are received as MIDI events. 
+The four switches under "Internal" can be used to override the default MIDI values. Use the other controls
+to set the override values. The override for volume is set in the Notelist score. 
+The override for Pan is the value set on the mixer channel.</p>
+<p>The "Atten" setting sets an attenuation scaling for the sound bank. Some sound banks (especially older SF2 files)
+need to be scaled in order to correct for the limited dynamic range of some synthesizers. By setting an attenuation
+value less than 1.0 the overall dynamic range of the sounds is decreased and may provide a better balance between
+sounds. When needed, a value of 0.375 is typical.</p>
+<h4>Project and Notelist ID Values</h4>
 <p>Because synthesis parameters are loaded from either the sound bank or received from MIDI controls,
 the GM instrument does not have configuration values for synthesis parameters. 
 However, configuration values setable on the instrument

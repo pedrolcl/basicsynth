@@ -18,14 +18,14 @@
 #include <SoundBank.h>
 #include <DLSFile.h>
 
-static bsUint16 Swap(bsUint16 n)
+/*static bsUint16 Swap(bsUint16 n)
 {
 #if SYNTH_BIG_ENDIAN
 	return ((n << 8) & 0xff00) | ((n >> 8) & 0x00ff);
 #else
 	return n;
 #endif
-}
+}*/
 
 static bsUint32 Swap(bsUint32 n)
 {

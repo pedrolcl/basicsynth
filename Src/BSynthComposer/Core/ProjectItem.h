@@ -42,7 +42,8 @@ enum PIType
 	 PRJNODE_SOUNDBANK,
 	 PRJNODE_SBLIST,
 	 PRJNODE_SELSOUND,
-	 PRJNODE_MIDICTRL
+	 PRJNODE_MIDICTRL,
+	 PRJNODE_MIDIFILE
 };
 
 #define ITM_ENABLE_NEW   0x0001
@@ -193,6 +194,7 @@ public:
 /// or a Script file
 /// or a Plain text file
 /// or a Instrument library file
+/// or a MIDI file
 class FileItem : public ProjectItem
 {
 protected:
@@ -207,6 +209,7 @@ public:
 		useThis = 1;
 		loaded = 0;
 		actions = ITM_ENABLE_EDIT
+				| ITM_ENABLE_CLOSE
 			    | ITM_ENABLE_PROPS
 				| ITM_ENABLE_REM;
 	}
@@ -223,6 +226,7 @@ public:
 	virtual int EditItem();
 	virtual int SaveItem();
 	virtual int CopyFile(const char *srcDir, const char *dstDir);
+	virtual int CreateNew();
 	virtual int LoadProperties(PropertyBox *pb);
 	virtual int SaveProperties(PropertyBox *pb);
 
@@ -282,9 +286,10 @@ public:
 		errFirst = 0;
 		errLast = 0;
 		dbgLevel = 0;
-		actions  = ITM_ENABLE_COPY
-			     | ITM_ENABLE_REM
-				 | ITM_ENABLE_EDIT
+		actions  = ITM_ENABLE_EDIT
+				 | ITM_ENABLE_CLOSE
+				 | ITM_ENABLE_SAVE
+				 | ITM_ENABLE_REM
 				 | ITM_ENABLE_ERRS
 				 | ITM_ENABLE_PROPS;
 	}
@@ -307,6 +312,23 @@ public:
 	int Load(XmlSynthElem *node);
 	int Save(XmlSynthElem *node);
 };
+
+class SeqItem : public FileItem
+{
+public:
+	SeqItem() : FileItem(PRJNODE_SEQFILE)
+	{
+		actions  = ITM_ENABLE_EDIT
+				 | ITM_ENABLE_CLOSE
+				 | ITM_ENABLE_SAVE
+				 | ITM_ENABLE_REM
+				 /*| ITM_ENABLE_ERRS*/
+				 | ITM_ENABLE_PROPS;
+	}
+
+	int Convert(SequenceFile& seqf);
+};
+
 
 /// A list of files.
 class FileList : public ProjectItem
@@ -380,9 +402,11 @@ public:
 
 	virtual FileItem *NewChild()
 	{
-		return new FileItem(PRJNODE_SEQFILE);
+		return (FileItem*) new SeqItem();
 	}
 };
+
+
 
 /// The list of script files.
 class ScriptList : public FileList
@@ -418,6 +442,7 @@ public:
 		inc = 0;
 		actions = ITM_ENABLE_COPY
 				| ITM_ENABLE_EDIT
+				| ITM_ENABLE_CLOSE
 				| ITM_ENABLE_REM
 				| ITM_ENABLE_PROPS;
 	}
@@ -614,7 +639,9 @@ public:
 		actions = ITM_ENABLE_EDIT
 			    | ITM_ENABLE_PROPS
 				| ITM_ENABLE_COPY
-				| ITM_ENABLE_REM;
+				| ITM_ENABLE_REM
+				| ITM_ENABLE_CLOSE
+				| ITM_ENABLE_SAVE;
 	}
 
 	~WavetableItem()
@@ -1088,19 +1115,56 @@ public:
 	virtual int Save(XmlSynthElem *node);
 };
 
-class MidiItem : public ProjectItem
+class MidiFile : public FileItem
 {
 public:
-	MidiItem() : ProjectItem(PRJNODE_MIDICTRL)
+	MidiFile() : FileItem(PRJNODE_MIDIFILE)
 	{
-		actions = ITM_ENABLE_EDIT | ITM_ENABLE_CLOSE;
-		name = "MIDI Control";
+		actions  = ITM_ENABLE_REM | ITM_ENABLE_PROPS;
+	}
+};
+
+class MidiItem : public FileList
+{
+private:
+	bsString sbFile;
+	SoundBank *sbnk;
+public:
+	MidiItem() : FileList(PRJNODE_MIDICTRL)
+	{
+		actions = ITM_ENABLE_EDIT | ITM_ENABLE_CLOSE | ITM_ENABLE_ADD;
+		name = "MIDI";
+		xmlChild = "smf";
+		leaf = 0;
+		sbnk = 0;
 	}
 
 	virtual int EditItem();
 	virtual WidgetForm *CreateForm(int xo, int yo);
 	virtual int Load(XmlSynthElem *node);
 	virtual int Save(XmlSynthElem *node);
+
+	virtual FileItem *NewChild()
+	{
+		return (FileItem*) new MidiFile();
+	}
+
+	int Generate(InstrManager *mgr, Sequencer *seq);
+
+	const char *GetSoundBankFile() 
+	{
+		return sbFile; 
+	}
+	
+	void SetSoundBankFile(const char *file)
+	{
+		sbFile = file;
+		if (sbnk)
+			sbnk->Unlock();
+		sbnk = SoundBank::FindBankFile(file);
+		if (sbnk)
+			sbnk->Lock();
+	}
 };
 
 /// A list of files/directories, e.g., a search path.
@@ -1168,6 +1232,7 @@ private:
 	bsInt32 playFrom;
 	bsInt32 playTo;
 	bsInt32 playMode;  ///< 0 = to disk, 1 = sequence live, 2 = keyboard
+	float cbRate;
 	bsString lastError;
 	bsString wvInPath;
 
@@ -1257,6 +1322,8 @@ public:
 	void StartTime(bsInt32 t) { playFrom = t; }
 	void EndTime(bsInt32 t)   { playTo = t; }
 	void PlayMode(bsInt32 m)  { playMode = m; }
+	void CallbackRate(float r) { cbRate = r; }
+	float CallbackRate() { return cbRate; }
 
 	void SetProjectPath(const char *path)
 	{

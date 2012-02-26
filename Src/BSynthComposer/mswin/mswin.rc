@@ -48,86 +48,111 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Toolbar
-//
-
-IDR_MAINFRAME TOOLBAR  16, 15
-BEGIN
-    BUTTON      ID_NEW_PROJECT
-    BUTTON      ID_NEW_NOTELIST
-    BUTTON      ID_FILE_OPEN
-    BUTTON      ID_FILE_SAVE
-    SEPARATOR
-    BUTTON      ID_EDIT_CUT
-    BUTTON      ID_EDIT_COPY
-    BUTTON      ID_EDIT_PASTE
-    BUTTON      ID_EDIT_UNDO
-    BUTTON      ID_EDIT_REDO
-    BUTTON      ID_EDIT_FIND
-    BUTTON      ID_EDIT_PROPERTIES
-    SEPARATOR
-    BUTTON      ID_FILE_PRINT
-    BUTTON      ID_APP_ABOUT
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Bitmap
 //
 
-IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-IDR_MAINTB              BITMAP                  "res\\maintb.bmp"
-IDB_STOP                BITMAP                  "res\\Stop.bmp"
-IDB_WINDOW              BITMAP                  "res\\AppWindow.bmp"
-IDB_AUDIO               BITMAP                  "res\\Audio.bmp"
-IDB_CABINET             BITMAP                  "res\\Cabinet.bmp"
-IDB_CD                  BITMAP                  "res\\cd.bmp"
-IDB_COPY                BITMAP                  "res\\Copy.bmp"
-IDB_COPYFOLDER          BITMAP                  "res\\CopyFolder.bmp"
-IDB_CUT                 BITMAP                  "res\\Cut.bmp"
-IDB_DATABASE            BITMAP                  "res\\Database.bmp"
-IDB_DOCUMENT            BITMAP                  "res\\Document.bmp"
-IDB_REDOX               BITMAP                  "res\\Edit_Redo.bmp"
-IDB_UNDO                BITMAP                  "res\\Edit_Undo.bmp"
-IDB_EDITCODE            BITMAP                  "res\\EditCode.bmp"
-IDB_FIND                BITMAP                  "res\\Find.bmp"
-IDB_FINDNEXT            BITMAP                  "res\\FindNext.bmp"
-IDB_FLAGBLUE            BITMAP                  "res\\Flag_blue.bmp"
-IDB_FLAGGREEN           BITMAP                  "res\\Flag_green.bmp"
-IDB_FLAGRED             BITMAP                  "res\\Flag_red.bmp"
-IDB_GENERICFILE         BITMAP                  "res\\Genericfile.bmp"
-IDB_LIBRARY             BITMAP                  "res\\Library.bmp"
-IDB_NEWDOCUMENT         BITMAP                  "res\\NewDocument.bmp"
-IDB_NEWFOLDER           BITMAP                  "res\\NewFolder.bmp"
-IDB_OPEN                BITMAP                  "res\\Open.bmp"
-IDB_OPENFOLDER          BITMAP                  "res\\OpenFolder.bmp"
-IDB_PASTE               BITMAP                  "res\\Paste.bmp"
-IDB_PAUSE               BITMAP                  "res\\Pause.bmp"
-IDB_PLAY                BITMAP                  "res\\Play.bmp"
-IDB_AFILE               BITMAP                  "res\\Portrait.bmp"
-IDB_PRINT               BITMAP                  "res\\Print.bmp"
-IDB_PRINTPREVIEW        BITMAP                  "res\\PrintPreview.bmp"
-IDB_PRINTSETUP          BITMAP                  "res\\PrintSetup.bmp"
-IDB_PROPERTIES          BITMAP                  "res\\Properties.bmp"
-IDB_LOCKFORM            BITMAP                  "res\\ProtectForm.bmp"
-IDB_PUSHPIN             BITMAP                  "res\\Pushpin.bmp"
-IDB_REFRESH             BITMAP                  "res\\Refresh.bmp"
-IDB_RENAME              BITMAP                  "res\\Rename.bmp"
-IDB_REPEAT              BITMAP                  "res\\Repeat.bmp"
-IDB_SAVE                BITMAP                  "res\\Save.bmp"
-IDB_SAVEALL             BITMAP                  "res\\SaveAll.bmp"
-IDB_SCRIPTFILE          BITMAP                  "res\\Scriptfile.bmp"
-IDB_NOTELIST            BITMAP                  "res\\Notelist.bmp"
-IDB_NEWNOTELIST         BITMAP                  "res\\NewNotelist.bmp"
-IDB_NEWSEQUENCE         BITMAP                  "res\\NewSequence.bmp"
-IDB_SEQUENCE            BITMAP                  "res\\Sequence.bmp"
-IDB_PLAY1               BITMAP                  "res\\play1.bmp"
-IDB_WHOLE24             BITMAP                  "res\\whole24.bmp"
-IDB_HALF24              BITMAP                  "res\\half24.bmp"
-IDB_QUART24             BITMAP                  "res\\quart24.bmp"
-IDB_SIXTEENTH24         BITMAP                  "res\\sixteenth24.bmp"
-IDB_EIGHTH24            BITMAP                  "res\\eighth24.bmp"
+IDB_Add16               BITMAP                  "res\\Add16.bmp"
+IDB_Add32               BITMAP                  "res\\Add32.bmp"
+IDB_AddItem16           BITMAP                  "res\\AddItem16.bmp"
+IDB_AddItem32           BITMAP                  "res\\AddItem32.bmp"
+IDB_AddItem16_1         BITMAP                  "res\\AddItem16_1.bmp"
+IDB_AddItem32_1         BITMAP                  "res\\AddItem32_1.bmp"
+IDB_AddItem16_2         BITMAP                  "res\\AddItem16_1.bmp"
+IDB_AddItem32_2         BITMAP                  "res\\AddItem32_2.bmp"
+IDB_All16               BITMAP                  "res\\All16.bmp"
+IDB_All32               BITMAP                  "res\\All32.bmp"
+IDB_CD16                BITMAP                  "res\\CD16.bmp"
+IDB_CD32                BITMAP                  "res\\CD32.bmp"
+IDB_CloseItem16         BITMAP                  "res\\CloseItem16.bmp"
+IDB_CloseItem32         BITMAP                  "res\\CloseItem32.bmp"
+IDB_Copy16              BITMAP                  "res\\Copy16.bmp"
+IDB_Copy32              BITMAP                  "res\\Copy32.bmp"
+IDB_CopyItem16          BITMAP                  "res\\CopyItem16.bmp"
+IDB_CopyItem32          BITMAP                  "res\\CopyItem32.bmp"
+IDB_Cut16               BITMAP                  "res\\Cut16.bmp"
+IDB_Cut32               BITMAP                  "res\\Cut32.bmp"
+IDB_DeleteItem16        BITMAP                  "res\\DeleteItem16.bmp"
+IDB_DeleteItem16_1      BITMAP                  "res\\DeleteItem16_1.bmp"
+IDB_DeleteItem16_2      BITMAP                  "res\\DeleteItem16_2.bmp"
+IDB_DeleteItem32        BITMAP                  "res\\DeleteItem32.bmp"
+IDB_DeleteItem32_1      BITMAP                  "res\\DeleteItem32_1.bmp"
+IDB_DeleteItem32_2      BITMAP                  "res\\DeleteItem32_2.bmp"
+IDB_Down16              BITMAP                  "res\\Down16.bmp"
+IDB_Down32              BITMAP                  "res\\Down32.bmp"
+IDB_EditItem16          BITMAP                  "res\\EditItem16.bmp"
+IDB_EditItem32          BITMAP                  "res\\EditItem32.bmp"
+IDB_Find32              BITMAP                  "res\\Find32.bmp"
+IDB_Find16              BITMAP                  "res\\Find16.bmp"
+IDB_FindNext16          BITMAP                  "res\\FindNext16.bmp"
+IDB_FindNext16_1        BITMAP                  "res\\FindNext16_1.bmp"
+IDB_FindNext32          BITMAP                  "res\\FindNext32.bmp"
+IDB_FindNext32_1        BITMAP                  "res\\FindNext32_1.bmp"
+IDB_Help16              BITMAP                  "res\\Help16.bmp"
+IDB_Help32              BITMAP                  "res\\Help32.bmp"
+IDB_Info16              BITMAP                  "res\\Info16.bmp"
+IDB_Info32              BITMAP                  "res\\Info32.bmp"
+IDB_Item16              BITMAP                  "res\\Item16.bmp"
+IDB_Item32              BITMAP                  "res\\Item32.bmp"
+IDB_ItemHelp16          BITMAP                  "res\\ItemHelp16.bmp"
+IDB_ItemHelp32          BITMAP                  "res\\ItemHelp32.bmp"
+IDB_ItemProperties16    BITMAP                  "res\\ItemProperties16.bmp"
+IDB_ItemProperties32    BITMAP                  "res\\ItemProperties32.bmp"
+IDB_Keyboard16          BITMAP                  "res\\Keyboard16.bmp"
+IDB_Keyboard16_1        BITMAP                  "res\\Keyboard16_1.bmp"
+IDB_Keyboard32          BITMAP                  "res\\Keyboard32.bmp"
+IDB_NewItem16           BITMAP                  "res\\NewItem16.bmp"
+IDB_NewItem32           BITMAP                  "res\\NewItem32.bmp"
+IDB_NewProject16        BITMAP                  "res\\NewProject16.bmp"
+IDB_NewProject16_1      BITMAP                  "res\\NewProject16_1.bmp"
+IDB_NewProject32        BITMAP                  "res\\NewProject32.bmp"
+IDB_NewProject32_1      BITMAP                  "res\\NewProject32_1.bmp"
+IDB_OpenProject16       BITMAP                  "res\\OpenProject16.bmp"
+IDB_OpenProject16_1     BITMAP                  "res\\OpenProject16_1.bmp"
+IDB_OpenProject32       BITMAP                  "res\\OpenProject32.bmp"
+IDB_OpenProject32_1     BITMAP                  "res\\OpenProject32_1.bmp"
+IDB_Part16              BITMAP                  "res\\Part16.bmp"
+IDB_Part32              BITMAP                  "res\\Part32.bmp"
+IDB_Paste16             BITMAP                  "res\\Paste16.bmp"
+IDB_Paste32             BITMAP                  "res\\Paste32.bmp"
+IDB_Pause32             BITMAP                  "res\\Pause32.bmp"
+IDB_ProjectProperties16 BITMAP                  "res\\ProjectProperties16.bmp"
+IDB_ProjectProperties32 BITMAP                  "res\\ProjectProperties32.bmp"
+IDB_Redo32              BITMAP                  "res\\Redo32.bmp"
+IDB_Redo16              BITMAP                  "res\\Redo16.bmp"
+IDB_Remove16            BITMAP                  "res\\Remove16.bmp"
+IDB_Remove32            BITMAP                  "res\\Remove32.bmp"
+IDB_Save16              BITMAP                  "res\\Save16.bmp"
+IDB_Save32              BITMAP                  "res\\Save32.bmp"
+IDB_SaveAll16           BITMAP                  "res\\SaveAll16.bmp"
+IDB_SaveAll32           BITMAP                  "res\\SaveAll32.bmp"
+IDB_SaveAs16            BITMAP                  "res\\SaveAs16.bmp"
+IDB_SaveAs32            BITMAP                  "res\\SaveAs32.bmp"
+IDB_SaveProject16       BITMAP                  "res\\SaveProject16.bmp"
+IDB_SaveProject32       BITMAP                  "res\\SaveProject32.bmp"
+IDB_SaveProjectAs16     BITMAP                  "res\\SaveProjectAs16.bmp"
+IDB_SaveProjectAs32     BITMAP                  "res\\SaveProjectAs32.bmp"
+IDB_Speaker16           BITMAP                  "res\\Speaker16.bmp"
+IDB_Speaker32           BITMAP                  "res\\Speaker32.bmp"
+IDB_Start32             BITMAP                  "res\\Start32.bmp"
+IDB_Stop32              BITMAP                  "res\\Stop32.bmp"
+IDB_Undo32              BITMAP                  "res\\Undo32.bmp"
+IDB_Undo16              BITMAP                  "res\\Undo16.bmp"
+IDB_Up16                BITMAP                  "res\\Up16.bmp"
+IDB_Up32                BITMAP                  "res\\Up32.bmp"
+IDB_Up32_1              BITMAP                  "res\\Up32_1.bmp"
+IDB_Down32_1            BITMAP                  "res\\Down32_1.bmp"
+IDB_Up16_1              BITMAP                  "res\\Up16_1.bmp"
+IDB_Down16_1            BITMAP                  "res\\Down16_1.bmp"
+IDB_Help16_1            BITMAP                  "res\\Help16_1.bmp"
+IDB_Info16_1            BITMAP                  "res\\Info16_1.bmp"
+IDB_Help32_1            BITMAP                  "res\\Help32_1.bmp"
+IDB_Info32_1            BITMAP                  "res\\Info32_1.bmp"
+IDB_Pause32_1           BITMAP                  "res\\Pause32_1.bmp"
+IDB_Start32_1           BITMAP                  "res\\Start32_1.bmp"
+IDB_Stop32_1            BITMAP                  "res\\Stop32_1.bmp"
+IDB_Start32_2           BITMAP                  "res\\Start32_2.bmp"
+IDB_Stop32_2            BITMAP                  "res\\Stop32_2.bmp"
+IDB_Pause32_2           BITMAP                  "res\\Pause32_2.bmp"
 IDB_CCLIC               BITMAP                  "res\\cclic.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -146,6 +171,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Save File\tCtrl+S",          ID_ITEM_SAVE
         MENUITEM "&Close File\tCtrl-F4",        ID_ITEM_CLOSE
+        MENUITEM "Close &All Files",            ID_WINDOW_CLOSE_ALL
         MENUITEM SEPARATOR
         POPUP "Recent Projects"
         BEGIN
@@ -154,7 +180,10 @@ BEGIN
             MENUITEM "File3",                       ID_FILE_MRU_FILE3
             MENUITEM "File4",                       ID_FILE_MRU_FILE4
             MENUITEM "File5",                       ID_FILE_MRU_FILE5
-            MENUITEM "File6",                       ID_FILE_MRU_FILE4
+            MENUITEM "File6",                       ID_FILE_MRU_FILE6
+            MENUITEM "File7",                       ID_FILE_MRU_FILE7
+            MENUITEM "File8",                       ID_FILE_MRU_FILE8
+            MENUITEM "File9",                       ID_FILE_MRU_FILE9
         END
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
@@ -177,13 +206,22 @@ BEGIN
         MENUITEM "Next bookmark\tF2",           ID_MARKER_NEXT
         MENUITEM "Previous bookmark\tShift-F2", ID_MARKER_PREV
         MENUITEM "Clear bookmarks",             ID_MARKER_CLEAR
+    END
+    POPUP "&Item"
+    BEGIN
+        MENUITEM "&Edit...",                    ID_ITEM_EDIT
+        MENUITEM SEPARATOR
+        MENUITEM "&New...",                     ID_ITEM_NEW
+        MENUITEM "&Add...",                     ID_ITEM_ADD
+        MENUITEM "C&opy...",                    ID_ITEM_COPY
+        MENUITEM "&Remove",                     ID_ITEM_REMOVE
         MENUITEM SEPARATOR
         MENUITEM "&Properties...",              ID_ITEM_PROPERTIES
     END
     POPUP "&Project"
     BEGIN
         MENUITEM "&Generate...\tCtrl+Shift+G",  ID_PROJECT_GENERATE
-        MENUITEM "&Play...",                    ID_PROJECT_PLAY
+        MENUITEM "&Play",                       ID_PROJECT_PLAY
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_PROJECT_OPTIONS
     END
@@ -195,15 +233,10 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
     END
-    POPUP "&Window"
-    BEGIN
-        MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
-        MENUITEM "Close &All",                  ID_WINDOW_CLOSE_ALL
-    END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About...",                   ID_APP_ABOUT
         MENUITEM "Contents...",                 ID_HELP_CONTENTS
+        MENUITEM "&About...",                   ID_APP_ABOUT
     END
 END
 
@@ -245,13 +278,13 @@ BEGIN
     END
     POPUP "ProjectItems"
     BEGIN
-        MENUITEM "&Edit",                       ID_ITEM_EDIT
+        MENUITEM "&Edit...",                    ID_ITEM_EDIT
         MENUITEM "&Save\tCtrl+S",               ID_ITEM_SAVE
         MENUITEM "&Close\tCtrl+F4",             ID_ITEM_CLOSE
         MENUITEM SEPARATOR
-        MENUITEM "&New",                        ID_ITEM_NEW
-        MENUITEM "&Add",                        ID_ITEM_ADD
-        MENUITEM "C&opy",                       ID_ITEM_COPY
+        MENUITEM "&New...",                     ID_ITEM_NEW
+        MENUITEM "&Add...",                     ID_ITEM_ADD
+        MENUITEM "C&opy...",                    ID_ITEM_COPY
         MENUITEM "&Remove",                     ID_ITEM_REMOVE
         MENUITEM SEPARATOR
         MENUITEM "&Properties...",              ID_ITEM_PROPERTIES
@@ -276,41 +309,34 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\BSynthWin.ico"
+IDI_START               ICON                    "res\\start.ico"
+IDI_STOP                ICON                    "res\\stop.ico"
+IDI_PAUSE               ICON                    "res\\pause.ico"
+IDI_SPEAKER             ICON                    "res\\speaker.ico"
+IDI_CD                  ICON                    "res\\cd.ico"
+IDI_PART                ICON                    "res\\part.ico"
+IDI_ALL                 ICON                    "res\\all.ico"
 IDI_MVUP                ICON                    "res\\mvup.ico"
 IDI_MVDN                ICON                    "res\\mvdn.ico"
 IDI_ADD                 ICON                    "res\\add.ico"
 IDI_REM                 ICON                    "res\\rem.ico"
 IDI_INFO                ICON                    "res\\info.ico"
-IDI_WHOLENOTE           ICON                    "res\\whole.ico"
-IDI_HALFNOTE            ICON                    "res\\half.ico"
-IDI_QUARTNOTE           ICON                    "res\\quart.ico"
-IDI_EIGHTHNOTE          ICON                    "res\\eight.ico"
-IDI_SIXTEENTHNOTE       ICON                    "res\\sixt.ico"
-IDI_GENERATE            ICON                    "res\\generate.ico"
-IDI_SPEAKER             ICON                    "res\\spkr.ico"
-IDI_AUDIOCD             ICON                    "res\\audiocd.ico"
-IDI_STOP                ICON                    "res\\icon2.ico"
-IDI_START               ICON                    "res\\icon1.ico"
-IDI_RECORD              ICON                    "res\\record.ico"
-IDI_COPYNOTES           ICON                    "res\\copynotes.ico"
-IDI_NOTEGROUP           ICON                    "res\\notegroup.ico"
-IDI_PAUSE               ICON                    "res\\pause.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 270, 137
+IDD_ABOUTBOX DIALOGEX 0, 0, 302, 161
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "Microsoft Sans Serif", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,210,120,50,14
-    CTEXT           "\n© 2008,2009 Daniel R. Mitchell\n\nFor latest information and updates visit http://basicsynth.com\n\nThis work is licensed under a Creative Commons\nAttribution-Share Alike 3.0 United States License\n(http://creativecommons.org/licenses/by-sa/3.0/us/)",IDC_STATIC,5,40,255,75,SS_SUNKEN
-    ICON            IDR_MAINFRAME,IDC_STATIC,10,10,21,20
-    CONTROL         350,IDC_STATIC,"Static",SS_BITMAP,205,10,59,19,WS_EX_TRANSPARENT
-    CTEXT           "BasicSynth Composer",IDC_STATIC,40,5,155,30,SS_CENTERIMAGE | SS_SUNKEN
+    DEFPUSHBUTTON   "OK",IDOK,245,140,50,14
+    CTEXT           "\n© 2008,2009 Daniel R. Mitchell\n\nFor latest information and updates visit http://basicsynth.com\n\nThis work is licensed under a Creative Commons\nAttribution-Share Alike 3.0 United States License\n(http://creativecommons.org/licenses/by-sa/3.0/us/)",IDC_STATIC,5,50,290,85,SS_SUNKEN
+    ICON            IDR_MAINFRAME,IDC_STATIC,10,10,20,20,SS_CENTERIMAGE | SS_REALSIZEIMAGE
+    CONTROL         350,IDC_STATIC,"Static",SS_BITMAP,235,10,59,19,WS_EX_TRANSPARENT
+    CTEXT           "BasicSynth Composer",IDC_STATIC,70,5,155,30,SS_CENTERIMAGE | SS_SUNKEN
 END
 
 IDD_FINDREPL DIALOGEX 0, 0, 212, 131
@@ -334,7 +360,7 @@ BEGIN
     LTEXT           "Static",IDC_STAT_TEXT,5,110,155,15
 END
 
-IDD_PROJECT_PROPERTIES DIALOGEX 0, 0, 315, 271
+IDD_PROJECT_PROPERTIES DIALOGEX 0, 0, 315, 276
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_STATICEDGE
 CAPTION "Project Properties"
@@ -365,16 +391,16 @@ BEGIN
     LTEXT           "Tail (sec)",IDC_STATIC,140,135,41,12,SS_CENTERIMAGE
     EDITTEXT        IDC_PROJECT_TAIL,185,135,40,14,ES_AUTOHSCROLL
     LTEXT           " File Folders",IDC_STATIC,5,155,300,9,SS_CENTERIMAGE
-    LISTBOX         IDC_PROJECT_PATH,5,166,280,60,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "+",IDC_PROJECT_PATH_ADD,290,166,20,14,BS_ICON
-    PUSHBUTTON      "-",IDC_PROJECT_PATH_REM,290,179,20,14,BS_ICON
-    PUSHBUTTON      "^",IDC_PROJECT_PATH_UP,290,194,20,14,BS_ICON
-    PUSHBUTTON      "v",IDC_PROJECT_PATH_DN,290,209,20,14,BS_ICON
-    LTEXT           "Wave files",IDC_STATIC,5,233,40,12
-    EDITTEXT        IDC_PROJECT_WVPATH,45,230,240,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_PROJECT_WV_BROWSE,290,230,20,14
-    DEFPUSHBUTTON   "OK",IDOK,200,250,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,260,250,50,14
+    LISTBOX         IDC_PROJECT_PATH,5,166,250,60,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "+",IDC_PROJECT_PATH_ADD,260,165,25,22,BS_ICON
+    PUSHBUTTON      "-",IDC_PROJECT_PATH_REM,285,165,25,22,BS_ICON
+    PUSHBUTTON      "^",IDC_PROJECT_PATH_UP,260,200,25,22,BS_ICON
+    PUSHBUTTON      "v",IDC_PROJECT_PATH_DN,285,200,25,22,BS_ICON
+    LTEXT           "Wave files",IDC_STATIC,5,238,40,12
+    EDITTEXT        IDC_PROJECT_WVPATH,45,235,240,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_PROJECT_WV_BROWSE,290,235,20,14
+    DEFPUSHBUTTON   "OK",IDOK,205,255,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,255,50,14
     COMBOBOX        IDC_PROJECT_SAMPLEFMT,55,135,75,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Format",IDC_STATIC,5,135,45,14,SS_CENTERIMAGE
 END
@@ -396,131 +422,38 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,260,80,50,14
 END
 
-IDD_GENERATE DIALOGEX 0, 0, 316, 206
+IDD_GENERATE DIALOGEX 0, 0, 322, 241
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
 CAPTION "Generate WAV File"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    CONTROL         "Live",IDC_PLAY_LIVE,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,30,5,25,20
-    CONTROL         "Disk",IDC_DISK,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,55,5,25,20
-    LTEXT           "Play",IDC_STATIC,5,30,20,14,SS_CENTERIMAGE
-    CONTROL         "All",IDC_PLAY_ALL,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,30,29,25,20
-    CONTROL         "Part",IDC_PLAY_SOME,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,55,29,25,20
-    LTEXT           "From:",IDC_STATIC,5,50,20,14,SS_CENTERIMAGE
-    EDITTEXT        IDC_PLAY_FROM,30,50,50,14,ES_AUTOHSCROLL
-    LTEXT           "To:",IDC_STATIC,5,65,20,14,SS_CENTERIMAGE
-    EDITTEXT        IDC_PLAY_TO,30,65,50,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Start",IDC_START,5,85,35,25,BS_ICON
-    PUSHBUTTON      "Stop",IDC_STOP,45,85,35,25,BS_ICON
-    EDITTEXT        IDC_TEXT,85,5,225,195,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL | NOT WS_TABSTOP
-    EDITTEXT        IDC_TIME,45,125,35,14,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Pk. L.",IDC_STATIC,5,145,21,14
-    EDITTEXT        IDC_LEFT_PEAK,30,145,50,14,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_RIGHT_PEAK,30,161,50,14,ES_AUTOHSCROLL | ES_READONLY
-    DEFPUSHBUTTON   "Close",IDOK,5,185,75,14
-    LTEXT           "Out:",IDC_STATIC,5,5,20,14,SS_CENTERIMAGE
-    LTEXT           "Pk. R.",IDC_STATIC,5,161,21,14
-    CONTROL         "Check1",IDC_PAUSE,"Button",BS_AUTOCHECKBOX | BS_ICON | BS_PUSHLIKE | WS_TABSTOP,5,115,35,25
-    LTEXT           "Time",IDC_STATIC,55,115,16,8
+    PUSHBUTTON      "Start",IDC_START,5,5,25,22,BS_ICON | WS_GROUP
+    PUSHBUTTON      "Stop",IDC_STOP,31,5,25,22,BS_ICON
+    CONTROL         "Pause",IDC_PAUSE,"Button",BS_AUTOCHECKBOX | BS_ICON | BS_PUSHLIKE | WS_TABSTOP,57,5,25,22
+    CONTROL         "Live",IDC_PLAY_LIVE,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,89,5,25,22
+    CONTROL         "Disk",IDC_DISK,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,115,5,25,22
+    CONTROL         "All",IDC_PLAY_ALL,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,146,5,25,22
+    CONTROL         "Part",IDC_PLAY_SOME,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,172,5,25,22
+    RTEXT           "From ",IDC_STATIC,201,5,20,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_PLAY_FROM,224,5,40,12,ES_AUTOHSCROLL
+    RTEXT           "To ",IDC_STATIC,201,18,20,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_PLAY_TO,224,18,40,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Close",IDOK,271,5,44,14,WS_GROUP
+    CONTROL         "Time",IDC_TIME_ON,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,5,35,30,12
+    CONTROL         "Peak",IDC_PEAK_ON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,55,30,12
+    EDITTEXT        IDC_TIME,40,35,40,12,ES_AUTOHSCROLL | ES_READONLY | WS_GROUP | NOT WS_TABSTOP
+    CTEXT           "Time Meter",IDC_TIME_PROGRESS,80,35,235,12,WS_BORDER
+    CTEXT           "L.",IDC_STATIC,40,55,10,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_LEFT_PEAK,50,55,30,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    CTEXT           "Left Meter",IDC_LPK_METER,80,55,60,12,WS_BORDER
+    CTEXT           "R.",IDC_STATIC,145,55,10,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_RIGHT_PEAK,157,55,30,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    CTEXT           "Right Meter",IDC_RPK_METER,187,55,60,12,WS_BORDER
+    COMBOBOX        IDC_RATE,260,55,55,35,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_TEXT,5,75,310,160,ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL | WS_GROUP | NOT WS_TABSTOP
 END
 
-IDD_WVTABLE DIALOGEX 0, 0, 517, 262
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Wavetable"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LTEXT           "Name",IDC_STATIC,320,165,19,10,SS_CENTERIMAGE
-    EDITTEXT        IDC_WV_NAME,345,165,100,14,ES_AUTOHSCROLL
-    LTEXT           "Descr",IDC_STATIC,320,185,19,12,SS_CENTERIMAGE
-    EDITTEXT        IDC_WV_DESCR,345,185,100,14,ES_AUTOHSCROLL
-    CONTROL         "Gibbs",IDC_WV_GIBBS,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,455,165,50,14
-    PUSHBUTTON      "Sin",IDC_WV_SIN,315,215,50,14
-    PUSHBUTTON      "Square",IDC_WV_SQR,390,215,50,14
-    PUSHBUTTON      "Sawtooth",IDC_WV_SAW,315,230,50,14
-    PUSHBUTTON      "Pulse",IDC_WV_PLS,390,230,50,14
-    PUSHBUTTON      "Clear",IDC_WV_CLR,315,245,50,14
-    PUSHBUTTON      "Redraw",IDC_WV_REF,390,245,50,14
-    GROUPBOX        "Static",IDC_WV_GRAPH,25,155,280,100
-    LTEXT           "Mult.",IDC_STATIC,5,5,17,8
-    LTEXT           "Phs.",IDC_WV_PHSLBL,5,20,20,8
-    LTEXT           "Amp.",IDC_STATIC,5,34,23,10
-    EDITTEXT        IDC_WV_M1,30,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH1,30,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E1,30,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P1,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,30,50,30,100
-    EDITTEXT        IDC_WV_M2,60,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH2,60,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E2,60,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P2,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,60,50,30,100
-    EDITTEXT        IDC_WV_M3,90,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH3,90,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E3,90,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P3,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,90,50,30,100
-    EDITTEXT        IDC_WV_M4,120,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH4,120,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E4,120,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P4,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,120,50,30,100
-    EDITTEXT        IDC_WV_M5,150,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH5,150,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E5,150,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P5,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,150,50,30,100
-    EDITTEXT        IDC_WV_M6,180,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH6,180,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E6,180,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P6,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,180,50,30,100
-    EDITTEXT        IDC_WV_M7,210,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH7,210,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E7,210,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P7,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,210,50,30,100
-    EDITTEXT        IDC_WV_M8,240,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH8,240,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E8,240,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P8,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,240,50,30,100
-    EDITTEXT        IDC_WV_M9,270,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH9,270,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E9,270,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P9,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,265,50,30,100
-    EDITTEXT        IDC_WV_M10,300,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH10,300,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E10,300,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P10,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,295,50,30,100
-    EDITTEXT        IDC_WV_M11,330,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH11,330,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E11,330,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P11,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,330,50,30,100
-    EDITTEXT        IDC_WV_M12,360,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH12,360,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E12,360,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P12,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,360,50,30,100
-    EDITTEXT        IDC_WV_M13,390,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH13,390,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E13,390,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P13,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,390,50,30,100
-    EDITTEXT        IDC_WV_M14,420,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH14,420,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E14,420,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P14,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,420,50,30,100
-    EDITTEXT        IDC_WV_M15,450,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH15,450,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E15,450,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P15,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,450,50,30,100
-    EDITTEXT        IDC_WV_M16,480,5,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_PH16,480,20,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_WV_E16,480,34,30,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_WV_P16,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,480,50,30,100
-    LTEXT           "+1.0",IDC_STATIC,5,55,17,8
-    LTEXT           "0",IDC_STATIC,10,95,8,8
-    LTEXT           "-1.0",IDC_STATIC,5,140,14,8
-    DEFPUSHBUTTON   "OK",IDOK,460,215,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,460,235,50,14
-    GROUPBOX        "Settings",IDC_STATIC,310,155,200,55
-    LTEXT           "+1.0",IDC_STATIC,5,160,17,8
-    LTEXT           "0",IDC_STATIC,10,200,8,8
-    LTEXT           "-1.0",IDC_STATIC,5,246,14,8
-    CONTROL         "Sum",IDC_WV_TYPE,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,455,185,50,15
-END
-
-IDD_MIXER_SETUP DIALOGEX 0, 0, 237, 171
+IDD_MIXER_SETUP DIALOGEX 0, 0, 237, 201
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Mixer Setup"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -530,19 +463,19 @@ BEGIN
     CONTROL         "Lin. Pan",IDC_PAN_LIN,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,90,5,41,14
     CONTROL         "Trig Pan",IDC_PAN_TRIG,"Button",BS_AUTORADIOBUTTON,140,5,42,14
     CONTROL         "Sqrt. Pan",IDC_PAN_SQRT,"Button",BS_AUTORADIOBUTTON,185,5,46,14
-    GROUPBOX        "Effects",IDC_STATIC,5,25,225,120,WS_GROUP
-    LISTBOX         IDC_FX_LIST,10,35,190,75,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "^",IDC_FX_UP,205,35,20,14,BS_ICON
-    PUSHBUTTON      "v",IDC_FX_DN,205,50,20,14,BS_ICON
-    PUSHBUTTON      "-",IDC_FX_REM,205,65,20,14,BS_ICON
-    PUSHBUTTON      "...",IDC_FX_EDIT,205,95,20,14,BS_ICON
-    LTEXT           "Fx Name",IDC_STATIC,10,115,95,8
-    LTEXT           "Fx Type",IDC_STATIC,110,115,90,8
-    EDITTEXT        IDC_FX_NAME,10,125,95,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_FX_TYPE,110,125,90,35,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "+",IDC_FX_ADD,205,125,20,14,BS_ICON
-    DEFPUSHBUTTON   "OK",IDOK,125,150,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,180,150,50,14
+    GROUPBOX        "Effects",IDC_STATIC,0,25,235,150,WS_GROUP
+    LTEXT           "Fx Name",IDC_STATIC,10,35,95,8
+    EDITTEXT        IDC_FX_NAME,10,45,95,14,ES_AUTOHSCROLL
+    LTEXT           "Fx Type",IDC_STATIC,110,35,85,8
+    COMBOBOX        IDC_FX_TYPE,110,45,90,35,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "+",IDC_FX_ADD,205,35,25,22,BS_ICON
+    LISTBOX         IDC_FX_LIST,10,60,190,110,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "-",IDC_FX_REM,205,60,25,22,BS_ICON
+    PUSHBUTTON      "^",IDC_FX_UP,205,90,25,22,BS_ICON
+    PUSHBUTTON      "v",IDC_FX_DN,205,115,25,22,BS_ICON
+    PUSHBUTTON      "...",IDC_FX_EDIT,205,145,25,22,BS_ICON
+    DEFPUSHBUTTON   "OK",IDOK,125,185,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,180,185,50,14
 END
 
 IDD_WT_SELECT DIALOGEX 0, 0, 342, 151
@@ -582,42 +515,6 @@ BEGIN
     EDITTEXT        IDC_INST_NUM,45,125,65,14,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "OK",IDOK,205,125,50,14,WS_GROUP
     PUSHBUTTON      "Cancel",IDCANCEL,260,125,50,14
-END
-
-IDD_KEYBOARD DIALOGEX 0, 0, 763, 98
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
-EXSTYLE WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE
-FONT 8, "MS Shell Dlg", 400, 0, 0x0
-BEGIN
-    PUSHBUTTON      "Start",IDC_START,120,5,25,20,BS_ICON
-    PUSHBUTTON      "Stop",IDC_STOP,146,5,25,20,BS_ICON
-    CTEXT           "Volume",IDC_STATIC,176,5,29,15,SS_CENTERIMAGE
-    CONTROL         "",IDC_VOLUME,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOP | WS_TABSTOP,210,5,125,20,WS_EX_CLIENTEDGE
-    CONTROL         "Channel",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,340,5,27,12
-    COMBOBOX        IDC_CHANNEL,372,5,49,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_GROUP | WS_TABSTOP,WS_EX_STATICEDGE
-    CONTROL         "W",IDC_NOTE_W,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,425,5,25,20
-    CONTROL         "H",IDC_NOTE_H,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,450,5,25,20
-    CONTROL         "Q",IDC_NOTE_Q,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,475,5,25,20
-    CONTROL         "E",IDC_NOTE_E,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,500,5,25,20
-    CONTROL         "S",IDC_NOTE_S,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE,525,5,25,20
-    CONTROL         "Rec.",IDC_RECORD,"Button",BS_AUTOCHECKBOX | BS_ICON | BS_PUSHLIKE | WS_TABSTOP,564,5,25,20
-    CONTROL         "{ }",IDC_GROUP,"Button",BS_AUTOCHECKBOX | BS_ICON | BS_PUSHLIKE | WS_TABSTOP,595,5,25,20
-    CONTROL         "#",IDC_USE_SHARPS,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,625,5,14,10
-    CONTROL         "b",IDC_USE_FLATS,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,625,15,14,10
-    PUSHBUTTON      "Paste",IDC_COPYNOTES,645,5,25,20,BS_ICON
-    PUSHBUTTON      ">",IDC_GENERATE,675,5,25,20,BS_ICON | NOT WS_VISIBLE
-    CONTROL         "Spkr",IDC_SPEAKER,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,705,5,25,20
-    CONTROL         "CD",IDC_DISK,"Button",BS_AUTORADIOBUTTON | BS_ICON | BS_PUSHLIKE | NOT WS_VISIBLE,735,5,25,20
-    CTEXT           "Play",IDC_STATIC,675,30,25,15,SS_CENTERIMAGE | NOT WS_VISIBLE,WS_EX_TRANSPARENT
-    CONTROL         "All",IDC_PLAY_ALL,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE | NOT WS_VISIBLE | WS_GROUP | WS_TABSTOP,705,30,25,15
-    CONTROL         "Part",IDC_PLAY_SOME,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE | NOT WS_VISIBLE,735,30,25,15
-    CTEXT           "From",IDC_STATIC,675,50,25,14,SS_CENTERIMAGE | NOT WS_VISIBLE,WS_EX_TRANSPARENT
-    EDITTEXT        IDC_PLAY_FROM,705,50,55,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
-    CTEXT           "To",IDC_STATIC,675,65,25,14,SS_CENTERIMAGE | NOT WS_VISIBLE
-    EDITTEXT        IDC_PLAY_TO,705,65,55,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
-    LISTBOX         IDC_INSTRUMENT,5,5,110,90,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "",IDC_KBD_RIGHT,665,30,5,64,NOT WS_VISIBLE,WS_EX_CLIENTEDGE
-    GROUPBOX        "",IDC_KBD_LEFT,120,30,5,64,NOT WS_VISIBLE,WS_EX_CLIENTEDGE
 END
 
 IDD_EFFECTS DIALOGEX 0, 0, 147, 206
@@ -730,13 +627,13 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     LTEXT           "Name",IDC_STATIC,5,5,35,14,SS_CENTERIMAGE
     EDITTEXT        IDC_ITEM_NAME,45,5,265,14,ES_AUTOHSCROLL
-    LTEXT           "ID",IDC_STATIC,30,82,8,8
-    EDITTEXT        IDC_WVF_ID,45,80,40,14,ES_AUTOHSCROLL
     LTEXT           "Description",IDC_STATIC,5,25,36,8
     EDITTEXT        IDC_ITEM_DESCR,45,25,265,30,ES_MULTILINE | ES_AUTOHSCROLL
     LTEXT           "File",IDC_STATIC,5,60,35,14,SS_CENTERIMAGE
     EDITTEXT        IDC_FILE_NAME,45,60,235,14,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_FILE_BROWSE,285,60,24,14
+    LTEXT           "ID",IDC_STATIC,30,82,8,8
+    EDITTEXT        IDC_WVF_ID,45,80,40,14,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "OK",IDOK,205,100,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,259,100,50,14
 END
@@ -770,25 +667,25 @@ BEGIN
     PUSHBUTTON      "Close",IDCANCEL,230,175,40,14
 END
 
-IDD_MODSYNTH_CONFIG DIALOGEX 0, 0, 262, 180
+IDD_MODSYNTH_CONFIG DIALOGEX 0, 0, 197, 215
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ModSynth Configuration"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     LTEXT           "Name",IDC_STATIC,5,5,19,8
-    EDITTEXT        IDC_MS_NAME,30,5,225,14,ES_AUTOHSCROLL
-    LTEXT           "Type",IDC_STATIC,5,22,85,8
-    LISTBOX         IDC_MS_TYPE,5,35,140,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Add",IDC_MS_ADD,160,20,20,14,BS_ICON | WS_GROUP
-    PUSHBUTTON      "^",IDC_MS_MVUP,185,20,20,14,BS_ICON
-    PUSHBUTTON      "v",IDC_MS_MVDN,205,20,20,14,BS_ICON
-    PUSHBUTTON      "Rem",IDC_MS_REM,230,20,20,14,BS_ICON
-    LISTBOX         IDC_MS_UGENS,155,35,100,120,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_GROUP | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,155,160,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,205,160,50,14
+    EDITTEXT        IDC_MS_NAME,35,5,155,14,ES_AUTOHSCROLL
+    LTEXT           "Type",IDC_STATIC,5,25,25,8
+    LISTBOX         IDC_MS_TYPE,35,25,155,60,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_MS_ADD,5,90,25,22,BS_ICON | WS_GROUP
+    PUSHBUTTON      "Rem",IDC_MS_REM,5,112,25,22,BS_ICON
+    PUSHBUTTON      "^",IDC_MS_MVUP,5,145,25,22,BS_ICON
+    PUSHBUTTON      "v",IDC_MS_MVDN,5,168,25,22,BS_ICON
+    LISTBOX         IDC_MS_UGENS,35,90,155,100,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_GROUP | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,80,195,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,135,195,50,14
 END
 
-IDD_MODSYNTH_CONNECT DIALOGEX 0, 0, 277, 217
+IDD_MODSYNTH_CONNECT DIALOGEX 0, 0, 277, 210
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ModSynth Connect"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -799,11 +696,11 @@ BEGIN
     LISTBOX         IDC_MC_DST,110,15,100,75,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     CTEXT           "Parameter",IDC_STATIC,215,5,55,8
     LISTBOX         IDC_MC_PARAM,215,15,55,75,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    CTEXT           "Connections",IDC_STATIC,5,95,205,8,SS_CENTERIMAGE
-    LISTBOX         IDC_MC_CONN,5,105,205,105,LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Add",IDC_MC_ADD,220,105,25,20,BS_ICON | WS_GROUP
-    PUSHBUTTON      "Rem",IDC_MC_REM,220,130,25,20,BS_ICON
-    DEFPUSHBUTTON   "Done",IDOK,220,195,50,14,WS_GROUP
+    PUSHBUTTON      "Add",IDC_MC_ADD,5,105,25,22,BS_ICON | WS_GROUP
+    PUSHBUTTON      "Rem",IDC_MC_REM,5,130,25,22,BS_ICON
+    CTEXT           "Connections",IDC_STATIC,40,95,230,8,SS_CENTERIMAGE
+    LISTBOX         IDC_MC_CONN,35,105,235,80,LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,220,190,50,14,WS_GROUP
 END
 
 IDD_FILE_ORDER DIALOGEX 0, 0, 257, 166
@@ -811,11 +708,11 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "File Order"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LISTBOX         IDC_FILE_LIST,5,5,245,135,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "^",IDC_FILE_UP,5,145,20,14,BS_ICON
-    PUSHBUTTON      "v",IDC_FILE_DN,30,145,20,14,BS_ICON
-    DEFPUSHBUTTON   "OK",IDOK,145,145,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,200,145,50,14
+    LISTBOX         IDC_FILE_LIST,5,5,245,130,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "^",IDC_FILE_UP,5,140,25,22,BS_ICON
+    PUSHBUTTON      "v",IDC_FILE_DN,35,140,25,22,BS_ICON
+    DEFPUSHBUTTON   "OK",IDOK,145,140,50,22
+    PUSHBUTTON      "Cancel",IDCANCEL,200,140,50,22
 END
 
 IDD_SOUNDBANK_SEL DIALOGEX 0, 0, 232, 180
@@ -865,9 +762,9 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 263
+        RIGHTMARGIN, 295
         TOPMARGIN, 7
-        BOTTOMMARGIN, 130
+        BOTTOMMARGIN, 154
     END
 
     IDD_FINDREPL, DIALOG
@@ -883,7 +780,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 308
         TOPMARGIN, 7
-        BOTTOMMARGIN, 264
+        BOTTOMMARGIN, 269
     END
 
     IDD_FILE_PROPERTIES, DIALOG
@@ -897,17 +794,9 @@ BEGIN
     IDD_GENERATE, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 315
         TOPMARGIN, 7
-        BOTTOMMARGIN, 199
-    END
-
-    IDD_WVTABLE, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 510
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 255
+        BOTTOMMARGIN, 234
     END
 
     IDD_MIXER_SETUP, DIALOG
@@ -915,7 +804,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 230
         TOPMARGIN, 7
-        BOTTOMMARGIN, 164
+        BOTTOMMARGIN, 194
     END
 
     IDD_WT_SELECT, DIALOG
@@ -940,14 +829,6 @@ BEGIN
         RIGHTMARGIN, 309
         TOPMARGIN, 7
         BOTTOMMARGIN, 139
-    END
-
-    IDD_KEYBOARD, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 756
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 91
     END
 
     IDD_EFFECTS, DIALOG
@@ -1009,9 +890,9 @@ BEGIN
     IDD_MODSYNTH_CONFIG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 255
+        RIGHTMARGIN, 190
         TOPMARGIN, 7
-        BOTTOMMARGIN, 173
+        BOTTOMMARGIN, 208
     END
 
     IDD_MODSYNTH_CONNECT, DIALOG
@@ -1019,7 +900,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 270
         TOPMARGIN, 7
-        BOTTOMMARGIN, 210
+        BOTTOMMARGIN, 203
     END
 
     IDD_FILE_ORDER, DIALOG
@@ -1056,9 +937,9 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
     "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
+    "H",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
     VK_F3,          ID_EDIT_FINDNEXT,       VIRTKEY, NOINVERT
     "G",            ID_EDIT_GOTOLINE,       VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
@@ -1067,6 +948,9 @@ BEGIN
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "A",            ID_ITEM_ADD,            VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_ITEM_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    VK_F2,          ID_MARKER_NEXT,         VIRTKEY, NOINVERT
+    VK_F2,          ID_MARKER_PREV,         VIRTKEY, SHIFT, NOINVERT
+    VK_F2,          ID_MARKER_SET,          VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     "G",            ID_PROJECT_GENERATE,    VIRTKEY, SHIFT, CONTROL, NOINVERT
@@ -1074,10 +958,7 @@ BEGIN
     "O",            ID_PROJECT_OPEN,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_PROJECT_SAVE,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_F4,          ID_WINDOW_CLOSE,        VIRTKEY, CONTROL, NOINVERT
-    VK_F2,          ID_MARKER_SET,          VIRTKEY, CONTROL, NOINVERT
-    VK_F2,          ID_MARKER_NEXT,         VIRTKEY, NOINVERT
-    "H",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
-    VK_F2,          ID_MARKER_PREV,         VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -1116,6 +997,25 @@ BEGIN
     BEGIN
         VALUE "Translation", 0x409, 1200
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_GENERATE DLGINIT
+BEGIN
+    IDC_RATE, 0x403, 10, 0
+0x2f31, 0x3031, 0x5320, 0x6365, 0x002e, 
+    IDC_RATE, 0x403, 9, 0
+0x2f31, 0x2032, 0x6553, 0x2e63, "\000" 
+    IDC_RATE, 0x403, 7, 0
+0x2031, 0x6553, 0x2e63, "\000" 
+    IDC_RATE, 0x403, 7, 0
+0x2035, 0x6553, 0x2e63, "\000" 
+    0
 END
 
 
@@ -1215,7 +1115,7 @@ END
 STRINGTABLE 
 BEGIN
     ID_PROJECT_PROPERTIES   "Edit the project properties\nProperties"
-    ID_PROJECT_PLAY         "Satrt the keyboard player\nPlay"
+    ID_PROJECT_PLAY         "Start the keyboard player\nPlay"
 END
 
 STRINGTABLE 

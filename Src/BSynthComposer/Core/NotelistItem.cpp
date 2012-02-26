@@ -171,6 +171,39 @@ int NotelistList::Convert(nlConverter& cvt)
 	return err;
 }
 
+int SeqItem::Convert(SequenceFile& seqf)
+{
+	if (!useThis)
+		return 0;
+	int ret = 0;
+	if (editor)
+	{
+		bsString text;
+		((TextEditor*)editor)->GetText(text);
+		ret = seqf.LoadMem(text);
+	}
+	else
+	{
+		bsString fullPath;
+		theProject->FindOnPath(fullPath, GetFile());
+		ret = seqf.LoadFile(fullPath);
+	}
+	if (ret)
+	{
+		if (prjGenerate)
+		{
+			bsString errMsg("Sequence ");
+			errMsg += GetName();
+			errMsg += ": ";
+			bsString errLin;
+			seqf.GetError(errLin);
+			errMsg += errLin;
+			prjGenerate->AddMessage(errMsg);
+		}
+	}
+	return ret;
+}
+
 int SeqList::LoadSequences(InstrManager *mgr, Sequencer *seq)
 {
 	SequenceFile seqf;
@@ -182,8 +215,8 @@ int SeqList::LoadSequences(InstrManager *mgr, Sequencer *seq)
 	{
 		if (pi->GetType() == PRJNODE_SEQFILE)
 		{
-			FileItem *sf = (FileItem *) pi;
-			err |= seqf.LoadFile(sf->GetFile());
+			SeqItem *sf = (SeqItem *) pi;
+			err |= sf->Convert(seqf);
 		}
 		pi = prjTree->NextSibling(pi);
 	}

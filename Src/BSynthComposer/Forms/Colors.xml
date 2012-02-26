@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <colormap name="plain">
+  <include>ColorsCommon.xml</include>
   <color name="bg" val="#ff808080" />
   <color name="fg" val="#ff202020" />
   <color name="label" val="#fff0f0e0" />
@@ -32,6 +33,7 @@
   <color name="wtsel" val="#ff2020ff" />
   <color name="cmd" val="#ff000000" />
   <color name="hdr" val="#ffc0c0a0" />
+  <!-- these are now set from ColorsCommon
   <color name="glmphi" val="#ff80f080" />
   <color name="glmplo" val="#ff008000" />
   <color name="rlmplo" val="#ff602020" />
@@ -53,4 +55,8 @@
   <color name="yellow" val="#ffffff00" />
   <color name="cyan" val="#ff00ffff" />
   <color name="magenta" val="#ffff00ff" />
+  <color name="kwup" val="#ffffffe0" />
+  <color name="kwdn" val="#ffc8c8c0" />
+  <color name="kbup" val="#ff080808" />
+  <color name="kbdn" val="#ff303030" /> -->
 </colormap>

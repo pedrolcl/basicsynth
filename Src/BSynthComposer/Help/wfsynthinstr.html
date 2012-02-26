@@ -3,14 +3,21 @@
 <title>Wave File Playback Instrument</title>
 </head>
 <body>
-<h2><a name="_Wave_File_Playback"></a>Wave File Playback Instrument<hr/></h2>
+<h2>Wave File Playback Instrument</h2>
 <p>
 The <i>WFSynth </i>instrument plays a wave file. The wave file can be played once
 or looped, and a simple AR envelope may be applied to the file for fade-in and fade-out.
 </p>
-<h3>Patch Diagram<hr/></h3>
-<img src="images/wfplaydiag.jpg" alg="WF Synth diagram"/>
-<h3>Configuration<hr/></h3>
+<h3>Patch Diagram</h3>
+<img src="images/wfplaydiag.jpg" alt="WF Synth diagram"/>
+<h3>Configuration</h3>
+<p>The editor for wave playback is shown below.</p>
+<img src="images/wvplayed.jpg" alt="WF Synth editor"/>
+<p>The "Play all" switch causes the sound to be played through to the end, indendent of the note duration.
+The "Loop" switch causes the sound to loop through the note duration. The "Wavefile ID" value selects
+one of the wavefiles associated with the project. The "Attack" and "Decay" knobs set an envelope for
+the wave file. This allows the sound to fade-in or fade-out if needed.</p>
+<h4>Project and Notelist ID Values</h4>
 <p>
 In order to efficiently manage multiple files, the instrument uses
 a cache of wave files. These wave files are specified in the <a href="projects.html">project file</a>
@@ -163,7 +170,7 @@ values for the <i>WFSynth</i> instrument.
             </td>
         </tr>
     </table>
-<h3>XML Format<hr/></h3>
+<h3>XML Format</h3>
 <pre>
 &lt;instr&gt;
   &lt;wvf id=&quot;&quot; lp=&quot;&quot; pa=&quot;&quot; /&gt;

@@ -3,7 +3,7 @@
 <title>Notelist</title>
 </head>
 <body>
-<h1>Notelist<hr/></h1>
+<h1><a name="overview">Notelist</a></h1>
 <p>A Notelist score contains one or more <i>voices</i> and <i>sequences</i>,
 each containing a combination of <i>control statements</i> and <i>note
 statements</i>. A voice is used to group one or more notes that follow
@@ -23,7 +23,7 @@ allows each note to be specified with a minimal amount of information.</p>
 and may occur outside of a voice. Global control statements must be used
 carefully since they affect all subsequent notes in all voices. </p>
 
-<h2><a name="nlpitch">Pitch</a><hr/></h2>
+<h2><a name="nlpitch">Pitch</a></h2>
 
 <p>Each note statement begins with a value for the pitch. The pitch can be an
 integer value with middle C represented by the value of 48. Pitch can also be
@@ -38,7 +38,7 @@ Notelist.</p>
 
 <p>Rests are indicated by a pitch letter of &lsquo;R&rsquo;.</p>
 
-<h2><a name="nlrhythm">Rhythm</a><hr/></h2>
+<h2><a name="nlrhythm">Rhythm</a></h2>
 
 <p>Rhythm can be represented as absolute time in seconds or by a rhythm value.
 A rhythm value represents a fraction of a whole-note at the current tempo and
@@ -53,7 +53,7 @@ values are used when the exact time of the note is important, but, in general, i
 is better to use rhythm values so that durations can be changed globally using
 a tempo change rather than having to retype the duration for each note.</p>
 
-<h2><a name="nldynamic">Dynamics</a><hr/></h2>
+<h2><a name="nldynamic">Dynamics</a></h2>
 
 <p>Dynamics (i.e., volume levels) are specified with a number in the range 0 to
 100. A value of 0 represents silence and 100 represents maximum amplitude
@@ -62,14 +62,14 @@ basis. In addition, a <i>volume </i>statement can be used to modify the
 per-note volume levels for all subsequent notes in a voice. Volume levels are
 linear amplitude values, not decibels.</p>
 
-<h2><a name="nlparams">Synthesizer Parameters</a><hr/></h2>
+<h2><a name="nlparams">Synthesizer Parameters</a></h2>
 
 <p>In addition to pitch, rhythm and dynamics, a note statement can include any
 number of values that represent synthesizer parameters. Instrument parameters are
 passed to the synthesizer and are not interpreted by Notelist. The number of
 parameters and their interpretation is dependent on the synthesizer instrument.</p>
 
-<h2><a name="nlexpr">Notelist Expressions</a><hr/></h2>
+<h2><a name="nlexpr">Notelist Expressions</a></h2>
 
 <p>In most cases where a value is allowed, the value can be either a single
 number or a calculated value. A calculated value is called an <i>expression</i>.
@@ -224,9 +224,10 @@ three quarter notes and an eighth note tied together.</p>
 <tr><td>curvol </td><td>Last volume value</td></tr>
 <tr><td>curtime</td><td> Current time in seconds</td></tr>
 <tr><td>count  </td><td> Current loop count</td></tr>
+<tr><td>nlver</td><td>Current Notelist version</td></tr>
 </table>
 
-<h2><a name="nlexamples">Examples</a><hr/></h2>
+<h2><a name="nlexamples">Examples</a></h2>
 
 <p>Some examples of Notelist script syntax are
 shown below. In the following examples keywords are shown in lower case
@@ -444,7 +445,7 @@ and other parameters without resetting the oscillator phase or re-triggering
 the envelope generator. Not all synthesis instruments have this capability, and
 changing parameters that alter the envelope may have no effect on a sounding
 note.</p>
-<h2>Algorithmic Composition with Notelist<hr/></h2>
+<h2>Algorithmic Composition with Notelist</h2>
 <p>The previous examples are similar to traditional notation. However, Notelist also includes a variety
 of programming features that allow generation of notes by calculation. The following
 example defines sequences for major and diminished arpeggios and then
@@ -505,7 +506,7 @@ also possible to generate a score programatically. Since any program that can pr
 a text file can produce a Notelist score, Notelist can also be used as the output format 
 for automated composition programs.</p>
 <hr />
-<h1><a name="nlref">Notelist Reference</a><hr/></h1>
+<h1><a name="nlref">Notelist Reference</a></h1>
 
 <p>An alphabetized list of valid Notelist statements follows. Keywords may be
 any mixture of upper and lower case. Arguments are indicated in <i>italics </i>while
@@ -643,7 +644,7 @@ octaves with the upper note at a volume of 50 and the lower note at a volume of
 for evaluation. EVAL is treated as a unary operator. If the argument is an expression
 other than a string literal, it must be placed in parentheses.</p>
 
-<p>Note: This feature is not yet implemented in Basic Synth.</p>
+<p>Note: This feature is not yet implemented in BasicSynth.</p>
 
 <h3><a name="fgen">FGEN</a></h3>
 
@@ -677,7 +678,7 @@ phrase.</p>
 argument is normally a complete path to the file. Relative paths can be used and 
 will be relative to the current directory where Notelist is running.</p>
 
-<p>Note: In Basic Synth, the current directory is set to the project directory.</p>
+<p>Note: In BasicSynth, the current directory is set to the project directory.</p>
 
 <h3><a name="init">INIT</a></h3>
 
@@ -741,8 +742,8 @@ voice. All notes subsequent to the INSTRUMENT statement will be played on the
 indicated instrument. The <i>id </i>argument is typically a string that matches
 a pre-defined synthesizer instrument, but can also be a number if appropriate. </p>
 
-<p>Note: In Basic Synth, the id is always a string and must match one of the instruments
-configured for the project. A number is used in versions of Notelist that export to other systems, e.g., CSound</p>
+<p>Note: In BasicSynth, the id is always a string and must match one of the instruments
+configured for the project. A number is used in versions of Notelist that export to other systems.</p>
 
 <h3><a name="loop">LOOP</a></h3>
 
@@ -1215,14 +1216,21 @@ currently no concept of key signature in Notelist.</p>
 <p>Syntax: var <i>name</i>;</p>
 
 <p>The VAR statement declares one or more variable names. Variables are used to
-hold a value that can change during sequence generation. Variable names begin
-with a letter followed by any number of letters and digits. All variables must
+hold a value that can change during sequence generation. All variables must
 be declared before they can used. A single statement can define multiple
 variables by separating the variable names with commas.</p>
 
-<p>Note: Single letter variable names in the range [A-G], with or without a
+<p>In Notelist version 1.0, variable names begin with a letter followed by any number of letters and digits
+and are case-insensitive (i.e., name and NAME are equivalent).
+Beginning with version 1.1, a variable name can contain ASCII letters (a-z,A-Z), 
+numbers (0-9), underscore (_), dollar sign ($)
+and any non-ASCII character (character codes greater than 127, unicode U-007F). 
+The variable name cannot start with a number. For compatibility with prior versions,
+ASCII letters in variable names are case-insensitive. However, non-ASCII letters are case sensitive.</p>
+
+<p>Note: Single letters in the range [A-G], with or without a
 number following, represent pitches and cannot be used as variable names.
-Likewise, the single letter names W,H,Q,S,T represent rhythms.</p>
+Likewise, the single letters W,H,Q,S,T and EI represent rhythms.</p>
 
 <pre>
 var val1;
@@ -1243,6 +1251,9 @@ Notelist statements and it might be necessary to indicate that the prior
 behavior should be used instead. By setting a version number as the first
 statement in the file, the parser and generator will revert to the previous
 behavior and the file will not have to be edited to be properly interpreted.</p>
+
+<p>The current version of Notelist can be displayed using the <a href="#write"><i>WRITE</i></a> statement:</p>
+<pre>write "Notelist version is " :: nlver; </pre>
 
 <h3><a name="voice">VOICE</a></h3>
 

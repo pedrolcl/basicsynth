@@ -1,12 +1,15 @@
 include ../../BasicSynth.cfg
 
-$(BSBIN)/example02b: main.cpp
-	$(CPP) -lm $(CPPFLAGS) -o $@ main.cpp $(CMNLIB)
-	
-example02b: $(BSBIN)/example02b
+.PHONY: new clean
+
+EXENAME=$(BSBIN)/example02b$(EXE)
+
+$(EXENAME): main.cpp
+	$(CPP) $(CPPFLAGS) -o $@ main.cpp $(CMNLIB) -lm
+
+new: clean $(EXENAME)
 
 clean:
-	-rm main.o
-	-rm $(BSBIN)/example02b
-	
+	-rm -f $(EXENAME)
+
 main.cpp: $(BSINC)/SynthDefs.h $(BSINC)/WaveFile.h

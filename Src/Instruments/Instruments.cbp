@@ -7,60 +7,62 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug Win32">
-				<Option output="$(#BSHOME)/Lib/InstrumentsD.a" prefix_auto="0" extension_auto="0" />
+				<Option platforms="Windows;" />
+				<Option output="$(#BSHOME)/Lib/libInstrumentsD.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="gccDebug" />
+				<Option object_output="debugi686" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-W" />
-					<Add option="-O0" />
-					<Add option="-DWIN32" />
-					<Add option="-D_DEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-DUSE_TINYXML" />
-					<Add directory="$(#BSHOME)/Include" />
+					<Add option="-mthreads" />
+					<Add option="-D_WIN32" />
+					<Add option="-DDEBUG" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)\Lib\libInstrumentsD.a" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="$(#BSHOME)/Lib/Instruments.a" prefix_auto="0" extension_auto="0" />
+				<Option platforms="Windows;" />
+				<Option output="$(#BSHOME)/Lib/libInstruments.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="gccRelease" />
+				<Option object_output="releasei686" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-W" />
-					<Add option="-DWIN32" />
+					<Add option="-mthreads" />
+					<Add option="-D_WIN32" />
 					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-DUSE_TINYXML" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)\Lib\libInstruments.a" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Debug UNIX">
-				<Option output="$(#BSHOME)/Lib/InstrumentsD.a" prefix_auto="0" extension_auto="0" />
+				<Option platforms="Unix;" />
+				<Option output="$(#BSHOME)/Lib/libInstrumentsD.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="gccDebug" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-O2" />
 					<Add option="-g" />
-					<Add option="-W" />
+					<Add option="-pthread" />
 					<Add option="-DUNIX" />
 					<Add option="-DDEBUG" />
-					<Add option="-DUSE_TINYXML" />
-					<Add option="-DGCC" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)/Lib/libInstrumentsD.a" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Release UNIX">
-				<Option output="$(#BSHOME)/Lib/Instruments.a" prefix_auto="0" extension_auto="0" />
+				<Option platforms="Unix;" />
+				<Option output="$(#BSHOME)/Lib/libInstruments.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="gccRelease" />
 				<Option type="2" />
@@ -68,15 +70,21 @@
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-W" />
+					<Add option="-pthread" />
 					<Add option="-DUNIX" />
 					<Add option="-DNDEBUG" />
-					<Add option="-DUSE_TINYXML" />
-					<Add option="-DGCC" />
-					<Add directory="$(#BSHOME)/Include" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="ranlib $(#BSHOME)/Lib/libInstruments.a" />
+				</ExtraCommands>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-DUSE_TINYXML" />
+			<Add option="-DGCC" />
+			<Add directory="$(#BSHOME)/Include" />
+		</Compiler>
 		<Unit filename="AddSynth.cpp" />
 		<Unit filename="AddSynth.h" />
 		<Unit filename="BuzzSynth.cpp" />
@@ -87,11 +95,10 @@
 		<Unit filename="FMSynth.h" />
 		<Unit filename="GMPlayer.cpp" />
 		<Unit filename="GMPlayer.h" />
-		<Unit filename="Includes.cpp">
-			<Option target="Debug Win32" />
-			<Option target="Release Win32" />
+		<Unit filename="Includes.h">
+			<Option compile="1" />
+			<Option weight="0" />
 		</Unit>
-		<Unit filename="Includes.h" />
 		<Unit filename="LFO.cpp" />
 		<Unit filename="LFO.h" />
 		<Unit filename="LoadInstrLib.cpp" />
@@ -121,6 +128,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

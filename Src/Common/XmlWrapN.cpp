@@ -157,12 +157,17 @@ XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag)
 	return 0;
 }
 
-XmlSynthElem *XmlSynthDoc::Open(char *fname)
+XmlSynthElem *XmlSynthDoc::Open(const char *fname)
 {
 	return 0;
 }
 
-int XmlSynthDoc::Save(char *fname)
+XmlSynthElem *OpenXmlSynthDoc::(const char *fname, XmlSynthElem *rootElem)
+{
+	return 0;
+}
+
+int XmlSynthDoc::Save(const char *fname)
 {
 	return -1;
 }

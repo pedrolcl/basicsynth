@@ -2,13 +2,14 @@
 // BasicSynth - Project item to represent synthesis parameters.
 //
 // Copyright 2009, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
 #include "ComposerGlobal.h"
 #include "ComposerCore.h"
 #include "MIDIControlEd.h"
+#include <SMFFile.h>
 
 ///////////////////////////////////////////////
 // FIXME: Wavetables can also be allocated
@@ -103,7 +104,7 @@ int SynthItem::SaveProperties(PropertyBox *pb)
 
 	// If wtSize gets changed, we need to re-initialize the synthesizer.
 	// At present we can't do that reliably. So, the change is stored and
-	// will be applied on the next project open. As with wtUser, for a 
+	// will be applied on the next project open. As with wtUser, for a
 	// new project, the user can specify a value that will be applied
 	// for the first init.
 	pb->GetValue(PROP_PRJ_WTSZ, newSize);
@@ -213,12 +214,19 @@ int MidiItem::Load(XmlSynthElem *node)
 			chnlNode->GetAttribute("pan", val);
 			theProject->mgr.SetPan(chnl, val);
 		}
+		else if (chnlNode->TagMatch("sbfile"))
+		{
+			char *fname = 0;
+			chnlNode->GetContent(&fname);
+			sbFile.Attach(fname);
+		}
+
 		XmlSynthElem *n = chnlNode->NextSibling();
 		delete chnlNode;
 		chnlNode = n;
 	}
 
-	return 0;
+	return FileList::Load(node);
 }
 
 int MidiItem::Save(XmlSynthElem *node)
@@ -242,9 +250,60 @@ int MidiItem::Save(XmlSynthElem *node)
 		chnlNode->SetAttribute("pan", theProject->mgr.GetPan(chnl));
 		delete chnlNode;
 	}
+	chnlNode = midi->AddChild("sbfile");
+	if (chnlNode)
+	{
+		chnlNode->SetContent(sbFile);
+		delete chnlNode;
+	}
 
-	return 0;
+	return FileList::Save(midi);
+}
 
+int MidiItem::Generate(InstrManager *mgr, Sequencer *seq)
+{
+	SMFFile smf;
+	InstrConfig *inc = mgr->FindInstr("[midiplayer]");
+	if (inc == NULL)
+		return 0;
+
+	GMPlayer *ins = (GMPlayer*)inc->instrTmplt;
+	if (ins == NULL)
+		return 0;
+
+	SoundBank *sb = SoundBank::FindBank(sbFile);
+	if (sb == NULL)
+		sb = SoundBank::FindBankFile(sbFile);
+	ins->SetSoundBank(sb);
+
+	SMFInstrMap map[16];
+	for (int ch = 0; ch < 16; ch++)
+	{
+		map[ch].inc = inc;
+		map[ch].bnkParam = -1;
+		map[ch].preParam = -1;
+	}
+
+
+	int err = 0;
+	ProjectItem *pi = prjTree->FirstChild(this);
+	while (pi)
+	{
+		if (pi->GetType() == PRJNODE_MIDIFILE)
+		{
+			MidiFile *mf = (MidiFile *)pi;
+			if (mf->GetUse())
+			{
+				smf.Reset();
+				bsString fullPath;
+				theProject->FindOnPath(fullPath, mf->GetFile());
+				if (smf.LoadFile(fullPath) == 0)
+					err |= smf.GenerateSeq(seq, map, sbnk);
+			}
+		}
+		pi = prjTree->NextSibling(pi);
+	}
+	return err;
 }
 
 WidgetForm *MidiItem::CreateForm(int xo, int yo)
@@ -260,5 +319,7 @@ WidgetForm *MidiItem::CreateForm(int xo, int yo)
 int MidiItem::EditItem()
 {
 	FormEditor *fe = prjFrame->CreateFormEditor(this);
-	return 1;
+	if (fe)
+        return 1;
+    return 0;
 }

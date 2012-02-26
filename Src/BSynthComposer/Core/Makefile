@@ -1,59 +1,80 @@
+###########################################################################
+# makefile for BasicSynth Composer Core library
+#
+###########################################################################
 include ../../BasicSynth.cfg
-CORELIB=../Lib/core.a
+CORELIB=../Lib/$(LIBPREFIX)Core$(LIBSUFFIX).a
 
-CPPFLAGS+=-I$(BSDIR)/Src/Notelist
+CPPFLAGS += -I$(BSDIR)/Src/Notelist
 
-OBJS=\
-AddSynthEd.o \
-BuzzSynthEd.o \
-ChufferEd.o \
-EnvelopeWidget.o \
-FileItem.o \
-FMSynthEd.o \
-InstrItem.o \
-KeyboardForm.o \
-KeyboardWidget.o \
-KnobWidget.o \
-LibItem.o \
-MatSynthEd.o \
-MIDIControlEd.o \
-ModSynthEd.o \
-MixerEdit.o \
-MixerItem.o \
-NotelistItem.o \
-PathList.o \
-ProjectFrame.o \
-ProjectItem.o \
-ProjectOptions.o \
-SoundBankItem.o \
-SoundBankEd.o \
-SliderWidget.o \
-SubSynthEd.o \
-SwitchWidget.o \
-SynthEdit.o \
-SynthItem.o \
-SynthProject.o \
-SynthProjectPS.o \
-SynthWidget.o \
-TextWidget.o \
-ToneSynthEd.o \
-WavefileItem.o \
-WaveoutItem.o \
-WavetableEdit.o \
-WavetableItem.o \
-WFSynthEd.o \
-WidgetForm.o
+SRCS=\
+AddSynthEd.cpp \
+BuzzSynthEd.cpp \
+ChufferEd.cpp \
+EnvelopeWidget.cpp \
+FileItem.cpp \
+FMSynthEd.cpp \
+InstrItem.cpp \
+KeyboardForm.cpp \
+KeyboardWidget.cpp \
+KnobWidget.cpp \
+LibItem.cpp \
+MatSynthEd.cpp \
+MIDIControlEd.cpp \
+ModSynthEd.cpp \
+MixerEdit.cpp \
+MixerItem.cpp \
+NotelistItem.cpp \
+PathList.cpp \
+ProjectFrame.cpp \
+ProjectItem.cpp \
+ProjectOptions.cpp \
+SoundBankItem.cpp \
+SoundBankEd.cpp \
+SliderWidget.cpp \
+SubSynthEd.cpp \
+SwitchWidget.cpp \
+SynthEdit.cpp \
+SynthItem.cpp \
+SynthProject.cpp \
+SynthProjectPS.cpp \
+SynthWidget.cpp \
+TextWidget.cpp \
+ToneSynthEd.cpp \
+WavefileItem.cpp \
+WaveoutItem.cpp \
+WavetableEdit.cpp \
+WavetableItem.cpp \
+WFSynthEd.cpp \
+WidgetForm.cpp
+
+OBJS=$(patsubst %.cpp,$(ODIR)/%.o,$(SRCS))
+
+.PHONY: all new clean chkdirs
+
+all: chkdirs $(CORELIB)
+
+new: clean all
+
+chkdirs:
+	@test -d $(ODIR) || mkdir $(ODIR)
+	@test -d ../Lib || mkdir ../Lib
 
 $(CORELIB): $(OBJS)
-	-@rm $@
+	@echo Creating $@
+	@test $@ | rm -f $@
 	@$(AR) r $@ $(OBJS)
+	$(RANLIB) $@
 
-all: $(CORELIB)
+$(OBJS): ComposerGlobal.h.gch
 
 clean:
-	-@rm $(OBJS)
-	-@rm $(CORELIB)
+	-@rm -f $(OBJS)
+	-@rm -f $(CORELIB)
 
+ComposerGlobal.h.gch: ComposerGlobal.h
+	$(CPP) -x c++ -c $(CPPFLAGS) $< -o $@
+	
 AddSynthEd.cpp: ComposerGlobal.h ComposerCore.h SynthEdit.h AddSynthEd.h
 
 BuzzSynthEd.cpp: ComposerGlobal.h ComposerCore.h SynthEdit.h BuzzSynthEd.h

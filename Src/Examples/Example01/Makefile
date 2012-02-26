@@ -1,12 +1,25 @@
+###########################################################################
+# Makefile for BasicSynth example01
+#
+# "make new" rebuilds all executables
+# "make clean" removes the executable images from $(BSBIN)
+#
+# Dan Mitchell (http://basicsynth.com)
+###########################################################################
 include ../../BasicSynth.cfg
 
-$(BSBIN)/example01: main.cpp
-	$(CPP) -lm $(CPPFLAGS) -o $@ main.cpp $(CMNLIB) 
+.PHONY: all new clean
 
-example01: $(BSBIN)/example01
+EXENAME=$(BSBIN)/example01$(EXE)
+
+$(EXENAME): main.cpp $(CMNLIB)
+	$(CPP) $(CPPFLAGS) -o $@ main.cpp $(CMNLIB) -lm 
+
+all: $(EXENAME)
+
+new: clean $(EXENAME)
 
 clean:
-	-rm main.o
-	-rm $(BSBIN)/example01
+	-rm $(EXENAME)
 
 main.cpp: $(BSINC)/SynthDefs.h $(BSINC)/WaveFile.h

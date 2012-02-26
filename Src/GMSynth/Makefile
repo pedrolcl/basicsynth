@@ -1,26 +1,49 @@
 ###########################################################
 # Makefile for GMSynth library
-# TODO: This should build a shared library by linking with Common and Instruments
+# This builds both static lib and shared lib.
 ###########################################################
 include ../BasicSynth.cfg
 
-OBJS=\
-	GMSynth.o
+SRCS=GMSynth.cpp
 
-GMSYNTHLIB=$(BSHOME)/Lib/GMSynth.a
+OBJS=$(ODIR)/GMSynth.o
+
+MODULE=GMSynth
+
+GMSYNTHLIB=$(BSLIB)/$(LIBPREFIX)$(MODULE)$(LIBSUFFIX).a
+
+ifeq ($(SYS),Msys)
+GMSYNTHDLL=$(BSLIB)/$(LIBPREFIX)$(MODULE)dll$(LIBSUFFIX).dll
+IMPLIB=-Wl,--out-implib,$(BSLIB)/$(LIBPREFIX)$(MODULE)dll.a
+SNDLIB=-lWinmm
+else
+GMSYNTHDLL=$(BSLIB)/$(LIBPREFIX)$(MODULE)$(LIBSUFFIX).so
+IMPLIB=
+SNDLIB=-lasound
+endif
+
+CPPFLAGS+=-DSTATIC_GMSYNTH=1
+
+.PHONY: all new clean chkdirs
+
+all: chkdirs $(GMSYNTHLIB) $(GMSYNTHDLL)
+
+new: clean chkdirs $(GMSYNTHLIB)
 
 $(GMSYNTHLIB): $(OBJS)
-	-@rm $@
-	$(AR) r $@ $(OBJS)
+	@test $@ | rm -f $@
+	$(AR) cr $@ $(OBJS)
+	$(RANLIB) $@
 
-all: $(GMSYNTHLIB)
+$(GMSYNTHDLL): $(OBJS)
+	$(CPP) -shared -o $@ $(OBJS) $(LINKLIBS) $(SNDLIB) $(IMPLIB)
+
+chkdirs:
+	@test -d $(ODIR) || mkdir $(ODIR)
 
 clean:
-	-@rm $(OBJS)
-	-@rm $(GMSYNTHLIB)
+	-@rm -f $(OBJS)
+	-@rm -f $(GMSYNTHLIB)
+	-@rm -f $(GMSYNTHDLL)
 
-GMSynth.o: \
-	GMSynth.cpp \
-	GMSynthDLL.h \
-	GMInstrManager.h \
-	stdafx.h
+$(SRCS): GMSynthDLL.h GMInstrManager.h stdafx.h
