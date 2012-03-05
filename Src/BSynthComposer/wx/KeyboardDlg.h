@@ -21,6 +21,7 @@ private:
 	static wxBitmap *offscrn;
 	static wxRect offsSize;
 	int CheckBuffer(int w, int h);
+	wxMBConvUTF8 cutf8;
 
 public:
 	KeyboardDlg(wxWindow *parent, int w, int h);
@@ -71,9 +72,10 @@ public:
 	int Start();
 	void Clear();
 	void InitInstrList();
-	void AddInstrument(InstrConfig *ic);
-	void RemoveInstrument(InstrConfig *ic);
-	void UpdateInstrument(InstrConfig *ic);
-	void SelectInstrument(InstrConfig *ic);
+	int FindInstrument(InstrConfig *ic);
+	int AddInstrument(InstrConfig *ic);
+	int RemoveInstrument(InstrConfig *ic);
+	int UpdateInstrument(InstrConfig *ic);
+	int SelectInstrument(InstrConfig *ic);
 	void UpdateChannels();
 };

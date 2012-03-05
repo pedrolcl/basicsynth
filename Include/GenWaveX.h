@@ -12,7 +12,7 @@
 // GenWaveBuzz - pulse generator
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@
 #define _GENWAVEX_H_
 
 /// Incremental calculation of sum of waves. Slower than precalculating
-/// a sum of sinusoids, but bandwidth limited and also useful for doubling, 
+/// a sum of sinusoids, but bandwidth limited and also useful for doubling,
 /// chorus effects, etc.
 class GenWaveSum : public GenWaveWT
 {
@@ -40,9 +40,6 @@ private:
 	int   cntPart;
 	PhsAccum maxMult;
 	AmpValue scale;
-	AmpValue sigK;
-	AmpValue sigN;
-	AmpValue sigTL;
 	int gibbs;
 public:
 	GenWaveSum()
@@ -50,7 +47,6 @@ public:
 		parts = NULL;
 		numPart = 0;
 		cntPart = 0;
-		sigK = 0;
 		scale = 1;
 		gibbs = 0;
 		maxMult = 1;
@@ -189,9 +185,9 @@ public:
 		FrqValue tld2 = synthParams.ftableLength / 2;
 		scale = 0;
 		cntPart = 0;
-		AmpValue sigK;
-		AmpValue sigN;
-		AmpValue sigTL;
+		AmpValue sigK = 0;
+		AmpValue sigN = 0;
+		AmpValue sigTL = 0;
 		if (gibbs)
 		{
 			sigK = PI / maxMult;
@@ -317,8 +313,8 @@ public:
 
 	/// Get the index of modulation
 	AmpValue GetModIndex()
-	{ 
-		return indexOfMod; 
+	{
+		return indexOfMod;
 	}
 
 	/// Set the modulation frequency multiplier (c:m)
@@ -364,7 +360,7 @@ public:
 		AmpValue valMod = waveTable[(int)(modIndex+0.5)];
 		index += indexIncr + (PhsAccum(valMod) * modAmp);
 		modIndex += modIncr;
-		
+
 		return valCar;
 	}
 };
@@ -391,7 +387,7 @@ public:
 
 	/// Initialize the oscillator.
 	/// The array of values contains {Fc, WT, Fm, Am}
-	/// where Fc is the carrier frequency, WT the wavetable, 
+	/// where Fc is the carrier frequency, WT the wavetable,
 	/// Fm is the modulator frequency and Am is the modulator
 	/// amplitude.
 	/// @param n number of values (4)

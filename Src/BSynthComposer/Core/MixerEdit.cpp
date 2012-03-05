@@ -52,7 +52,8 @@ void MixerEdit::Setup(int xo, int yo)
 	int masterH;
 	int cn;
 	int fn;
-	char lbl[40];
+	//char lbl[40];
+	bsString lbl;
 	wdgRect rca;
 	wdgRect rcin;
 	wdgRect sndrc;
@@ -160,7 +161,9 @@ void MixerEdit::Setup(int xo, int yo)
 	rcin.y += sndrc.h + 5;
 	for (fn = 0; fn < numFx; fn++)
 	{
-		snprintf(lbl, 40, "Fx %d", fn);
+		//snprintf(lbl, 40, "Fx %d", fn);
+		lbl = "Fx ";
+		lbl += (long)fn;
 		txt = new TextWidget;
 		grp->AddWidget(txt);
 		txt->SetArea(rcin);
@@ -185,7 +188,8 @@ void MixerEdit::Setup(int xo, int yo)
 		rcin.h = rca.h;
 		grp->SetArea(rcin);
 		grp->Load(inputNode);
-		snprintf(lbl, 40, "%d", cn);
+		//snprintf(lbl, 40, "%d", cn);
+		lbl = (long)cn;
 		wdg = grp->FindID(21);
 		wdg->SetText(lbl);
 		wdg->SetID(inID+1);
@@ -229,7 +233,9 @@ void MixerEdit::Setup(int xo, int yo)
 		rcin.x = inx;
 		grp->SetArea(rcin);
 		grp->Load(effectNode);
-		snprintf(lbl, 40, "Fx %d", fn);
+		//snprintf(lbl, 40, "Fx %d", fn);
+		lbl = "Fx ";
+		lbl += (long)fn;
 		wdg = grp->FindID(21);
 		wdg->SetID(inID+1);
 		wdg->SetText(lbl);

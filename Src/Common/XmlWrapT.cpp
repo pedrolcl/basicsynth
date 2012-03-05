@@ -10,15 +10,11 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
+#include <SynthString.h>
 #include <XmlWrap.h>
 #if defined(USE_TINYXML)
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#if _WIN32 && _MSC_VER
-#define snprintf _snprintf
-#endif
-
+#include <locale.h>
+#include <mbstring.h>
 
 XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 {
@@ -28,6 +24,32 @@ XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 
 XmlSynthElem::~XmlSynthElem()
 {
+}
+
+// Early versions of this code marked the file
+// as encoding=UTF-8 but did not really convert
+// the text to UTF-8.  A partial work-around
+// is to simply change the single-byte characters
+// into wide characters, then converts to UTF-8
+// and hope for the best. This works for ISO-8859-1,
+// but will store invalid characters for almost
+// everything else. A better workaround is to
+// change the encoding attribute in the file,
+// then use setlocale(LC_CTYPE, encoding) and 
+// mbstowcs() to convert to UNICODE.
+void XmlSynthElem::ConvertUTF8(const char *in, bsString& out)
+{
+/* TODO:
+	if (doc && (!doc->UTF8() || doc->Version() == 0))
+	{
+		// use the encoding from the xml file to set the codepage,
+		// call mbstowcs to get a UTF-16 string,
+		// set the bsString using the UTF-16, which
+		// wil then automatically convert to UTF-8.
+	}
+	else
+*/
+	out.Assign(in);
 }
 
 void XmlSynthElem::Clear()
@@ -134,7 +156,7 @@ int XmlSynthElem::GetAttribute(const char *attrName, short& val)
 		const char *str = pElem->Attribute(attrName);
 		if (str)
 		{
-			val = atoi(str);
+			val = (short) bsString::StrToNum(str);
 			return 0;
 		}
 	}
@@ -149,7 +171,7 @@ int XmlSynthElem::GetAttribute(const char *attrName, long& val)
 		const char *str = pElem->Attribute(attrName);
 		if (str)
 		{
-			val = atol(str);
+			val = bsString::StrToNum(str);
 			return 0;
 		}
 	}
@@ -164,7 +186,7 @@ int XmlSynthElem::GetAttribute(const char *attrName, float& val)
 		const char *str = pElem->Attribute(attrName);
 		if (str)
 		{
-			val = (float) atof(str);
+			val = (float) bsString::StrToFlp(str);
 			return 0;
 		}
 	}
@@ -180,7 +202,7 @@ int XmlSynthElem::GetAttribute(const char *attrName, double& val)
 		const char *str = pElem->Attribute(attrName);
 		if (str)
 		{
-			val = atof(str);
+			val = bsString::StrToFlp(str);
 			return 0;
 		}
 	}
@@ -195,16 +217,27 @@ int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 		const char *s = pElem->Attribute(attrName);
 		if (s)
 		{
-			size_t len = strlen(s)+1;
-			*val = new char[len];
-			if (*val)
-			{
-				strcpy(*val, s);
-				return 0;
-			}
+			bsString tmp;
+			ConvertUTF8(s, tmp);
+			*val = tmp.Detach();
+			return 0;
 		}
 	}
 	*val = NULL;
+	return -1;
+}
+
+int XmlSynthElem::GetAttribute(const char *attrName, bsString& val)
+{
+	if (pElem)
+	{
+		const char *s = pElem->Attribute(attrName);
+		if (s)
+		{
+			ConvertUTF8(s, val);
+			return 0;
+		}
+	}
 	return -1;
 }
 
@@ -237,12 +270,9 @@ int XmlSynthElem::SetAttribute(const char *attrName, double val)
 {
 	if (pElem)
 	{
-		char strval[40];
-		if (snprintf(strval, 40, "%g", val) >= 0)
-		{
-			pElem->SetAttribute(attrName, strval);
-			return 0;
-		}
+		bsString strval(val);
+		pElem->SetAttribute(attrName, (const char *)strval);
+		return 0;
 	}
 	return -1;
 }
@@ -294,8 +324,9 @@ int XmlSynthElem::GetContent(char **data)
 				const char *s = t->Value();
 				if (s)
 				{
-					*data = new char[strlen(s)+1];
-					strcpy(*data, s);
+					bsString tmp;
+					ConvertUTF8(s, tmp);
+					*data = tmp.Detach();
 					return 0;
 				}
 			}
@@ -310,6 +341,8 @@ int XmlSynthElem::GetContent(char **data)
 
 XmlSynthDoc::XmlSynthDoc()
 {
+	isUTF8 = 0;
+	prjVersion = 0.0;
 }
 
 XmlSynthDoc::~XmlSynthDoc()
@@ -328,6 +361,11 @@ XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag)
 
 XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *root)
 {
+	xmlEncoding = "UTF-8";
+	xmlLocale = setlocale(LC_CTYPE, NULL);
+	prjVersion = 2.0;
+	isUTF8 = true;
+
 	doc = new TiXmlDocument;
 	if (doc)
 	{
@@ -345,6 +383,8 @@ XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *root)
 			{
 				doc->LinkEndChild(e);
 				root->SetNode(e);
+				root->SetAttribute("version", prjVersion);
+				root->SetAttribute("locale", xmlLocale);
 				return root;
 			}
 		}
@@ -357,18 +397,69 @@ XmlSynthElem *XmlSynthDoc::Open(const char *fname)
 	return Open(fname, 0);
 }
 
+static FILE *OpenXmlFile(const char *fname, const char *mode)
+{
+	FILE *fp = 0;
+	size_t wlen = bsString::utf16Len(fname) + 1;
+	wchar_t *wbuf = new wchar_t[wlen];
+	bsString::utf16(fname, wbuf, wlen);
+#if _WIN32
+	wchar_t wmode[20];
+	bsString::utf16(mode, wmode, 20);
+	fp = _wfopen(wbuf, wmode);
+#else
+	size_t clen = wcstombs(NULL, wbuf, wlen) + 1;
+	char *cbuf = new wchar_t[clen];
+	wcstombs(cbuf, wbuf, wlen);
+	fp = fopen(cbuf, mode);
+	delete cbuf;
+#endif
+	delete wbuf;
+	return fp;
+}
+
 XmlSynthElem *XmlSynthDoc::Open(const char *fname, XmlSynthElem* root)
 {
 	doc = new TiXmlDocument;
 	doc->SetTabSize(0);
-	if (fname && doc->LoadFile(fname))
+	if (fname)
 	{
-		if (root == 0)
-			root = new XmlSynthElem(this);
-		else
-			root->doc = this;
-		root->SetNode(doc->RootElement());
-		return root;
+		FILE *fp = OpenXmlFile(fname, "rb");
+		if (fp)
+		{
+			isUTF8 = 0;
+			prjVersion = 0;
+
+			int res = doc->LoadFile(fp, TIXML_ENCODING_UNKNOWN);
+			fclose(fp);
+			if (res)
+			{
+				TiXmlNode *n = 0;
+				while ((n = doc->IterateChildren(n)) != 0)
+				{
+					if (n->ToDeclaration())
+					{
+						TiXmlDeclaration *decl = n->ToDeclaration();
+						xmlEncoding = decl->Encoding();
+						if (xmlEncoding.CompareNC("UTF-8"))
+							isUTF8 = 1;
+						break;
+					}
+				}
+
+				TiXmlElement *e = doc->RootElement();
+				prjVersion = 0;
+				if (root == 0)
+					root = new XmlSynthElem(this);
+				else
+					root->doc = this;
+
+				root->SetNode(e);
+				root->GetAttribute("version", prjVersion);
+				root->GetAttribute("locale", xmlLocale);
+				return root;
+			}
+		}
 	}
 	return 0;
 }
@@ -377,8 +468,14 @@ int XmlSynthDoc::Save(const char *fname)
 {
 	if (doc && fname)
 	{
-		if (doc->SaveFile(fname))
-			return 0;
+		FILE *fp = OpenXmlFile(fname, "w");
+		if (fp)
+		{
+			int res = doc->SaveFile(fp);
+			fclose(fp);
+			if (res)
+				return 0;
+		}
 	}
 	return -1;
 }

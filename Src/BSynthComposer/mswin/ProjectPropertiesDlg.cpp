@@ -100,7 +100,8 @@ LRESULT ProjectPropertiesDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPar
 	PathListItem *pl = theProject->libPath->EnumList(0);
 	while (pl)
 	{
-		lbPath.InsertString(ndx++, pl->path);
+		//lbPath.InsertString(ndx++, pl->path);
+		InsertLBTextUTF8(lbPath, ndx++, pl->path);
 		pl = theProject->libPath->EnumList(pl);
 	}
 
@@ -123,17 +124,18 @@ LRESULT ProjectPropertiesDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOO
 	int lbIndex;
 	for (lbIndex = 0; lbIndex < lbCount; lbIndex++)
 	{
-		lbPath.GetText(lbIndex, path);
+		//lbPath.GetText(lbIndex, path);
+		GetLBTextUTF8(lbPath, lbIndex, path);
 		theProject->libPath->AddItem(path);
 	}
 
-	EndDialog(IDOK);
+	EndDialog(1);
 	return 0;
 }
 
 LRESULT ProjectPropertiesDlg::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(IDCANCEL);
+	EndDialog(0);
 	return 0;
 }
 
@@ -181,11 +183,13 @@ LRESULT ProjectPropertiesDlg::OnPathMvup(WORD wNotifyCode, WORD wID, HWND hWndCt
 	if (sel == LB_ERR || sel == 0)
 		return 0;
 	
-	char path[MAX_PATH];
-	lbPath.GetText(sel, path);
+	wchar_t path[MAX_PATH];
+	GetLBTextW(lbPath, sel, path);
+	//lbPath.GetText(sel, path);
 	lbPath.DeleteString(sel);
 	sel--;
-	lbPath.InsertString(sel, path);
+	//lbPath.InsertString(sel, path);
+	SetLBTextW(lbPath, sel, path);
 	lbPath.SetCurSel(sel);
 
 	EnableUpDn();
@@ -199,11 +203,13 @@ LRESULT ProjectPropertiesDlg::OnPathMvdn(WORD wNotifyCode, WORD wID, HWND hWndCt
 	if (sel == LB_ERR)
 		return 0;
 
-	char path[MAX_PATH];
-	lbPath.GetText(sel, path);
+	wchar_t path[MAX_PATH];
+	GetLBTextW(lbPath, sel, path);
+	//lbPath.GetText(sel, path);
 	lbPath.DeleteString(sel);
 	sel++;
-	lbPath.InsertString(sel, path);
+	//lbPath.InsertString(sel, path);
+	SetLBTextW(lbPath, sel, path);
 	lbPath.SetCurSel(sel);
 
 	EnableUpDn();
@@ -213,24 +219,23 @@ LRESULT ProjectPropertiesDlg::OnPathMvdn(WORD wNotifyCode, WORD wID, HWND hWndCt
 
 LRESULT ProjectPropertiesDlg::OnPathAdd(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	char name[MAX_PATH];
+	wchar_t name[MAX_PATH];
 	memset(name, 0, sizeof(name));
 
-	BROWSEINFO bi;
+	BROWSEINFOW bi;
 	memset(&bi, 0, sizeof(bi));
 	bi.hwndOwner = m_hWnd;
 	bi.pidlRoot = 0;
 	bi.pszDisplayName = name;
-	bi.lpszTitle = "Select the folder for project files";
+	bi.lpszTitle = L"Select the folder for project files";
     bi.ulFlags = BIF_USENEWUI;
 
 //	PIDLIST_ABSOLUTE pidl;
 	LPCITEMIDLIST pidl;
-	if ((pidl = SHBrowseForFolder(&bi)) != NULL)
+	if ((pidl = SHBrowseForFolderW(&bi)) != NULL)
 	{
-		SHGetPathFromIDList(pidl, name);
-		int count = lbPath.GetCount();
-		lbPath.InsertString(count, name);
+		SHGetPathFromIDListW(pidl, name);
+		SetLBTextW(lbPath, lbPath.GetCount(), name);
 		IMalloc *mp;
 		SHGetMalloc(&mp);
 		mp->Free((void*)pidl);
@@ -256,10 +261,10 @@ LRESULT ProjectPropertiesDlg::OnBrowseOut(WORD wNotifyCode, WORD wID, HWND hWndC
 	const char *spc = ProjectItem::GetFileSpec(PRJNODE_WVFILE);
 	const char *ext = ProjectItem::GetFileExt(PRJNODE_WVFILE);
 	char path[MAX_PATH];
-	path[0] = 0;
-	prjFileWnd.GetWindowText(path, MAX_PATH);
+	GetTextUTF8(prjFileWnd, path, MAX_PATH);
 	if (prjFrame->BrowseFile(0, path, spc, ext))
-		wavFileWnd.SetWindowText(SynthProject::SkipProjectDir(path));
+		SetTextUTF8(wavFileWnd, SynthProject::SkipProjectDir(path));
+		//wavFileWnd.SetWindowText(SynthProject::SkipProjectDir(path));
 
 	return 0;
 }
@@ -270,33 +275,40 @@ LRESULT ProjectPropertiesDlg::OnBrowseIn(WORD wNotifyCode, WORD wID, HWND hWndCt
 	const char *ext = ProjectItem::GetFileExt(PRJNODE_PROJECT);
 	char path[MAX_PATH];
 	path[0] = 0;
-	prjFileWnd.GetWindowText(path, MAX_PATH);
+	//prjFileWnd.GetWindowText(path, MAX_PATH);
+	GetTextUTF8(prjFileWnd, path, MAX_PATH);
 	if (prjFrame->BrowseFile(0, path, spc, ext))
-		prjFileWnd.SetWindowText(path);
+	{
+		//prjFileWnd.SetWindowText(path);
+		SetTextUTF8(prjFileWnd, path);
+	}
 
 	return 0;
 }
 
 LRESULT ProjectPropertiesDlg::OnBrowseWv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	char name[MAX_PATH];
-	memset(name, 0, sizeof(name));
-	wavPathWnd.GetWindowText(name, MAX_PATH);
+//	char name[MAX_PATH];
+//	memset(name, 0, sizeof(name));
+//	wavPathWnd.GetWindowText(name, MAX_PATH);
+	wchar_t wname[MAX_PATH];
+	memset(wname, 0, sizeof(wname));
+	::GetWindowTextW(wavPathWnd, wname, MAX_PATH);
 
-	BROWSEINFO bi;
+	BROWSEINFOW bi;
 	memset(&bi, 0, sizeof(bi));
 	bi.hwndOwner = m_hWnd;
 	bi.pidlRoot = 0;
-	bi.pszDisplayName = name;
-	bi.lpszTitle = "Select the folder for WAV files";
+	bi.pszDisplayName = wname;
+	bi.lpszTitle = L"Select the folder for WAV files";
     bi.ulFlags = BIF_USENEWUI;
 
 //	PIDLIST_ABSOLUTE pidl;
 	LPCITEMIDLIST pidl;
-	if ((pidl = SHBrowseForFolder(&bi)) != NULL)
+	if ((pidl = SHBrowseForFolderW(&bi)) != NULL)
 	{
-		SHGetPathFromIDList(pidl, name);
-		wavPathWnd.SetWindowText(name);
+		SHGetPathFromIDListW(pidl, wname);
+		::SetWindowTextW(wavPathWnd, wname);
 		IMalloc *mp;
 		SHGetMalloc(&mp);
 		mp->Free((void*)pidl);
@@ -322,13 +334,32 @@ void ProjectPropertiesDlg::AutoWavefile()
 	if (len1 > 0)
 	{
 		char buf[MAX_PATH];
-		prjFileWnd.GetWindowText(buf, MAX_PATH);
+		GetTextUTF8(prjFileWnd, buf, MAX_PATH);
 		char *name = SynthProject::SkipProjectDir(buf);
 		len1 = (int) strlen(name);
 		char *dot = strrchr(name, '.');
 		if (dot == NULL)
 			dot = &name[len1];
 		strcpy(dot, ".wav");
-		wavFileWnd.SetWindowText(name);
+		SetTextUTF8(wavFileWnd, name);
 	}
 }
+
+/*
+int ProjectPropertiesDlg::GetTextUTF8(HWND w, char *buf, int blen)
+{
+	wchar_t wbuf[blen];
+	memset(wbuf, 0, blen*sizeof(wchar_t));
+	int wlen = ::GetWindowTextW(w, wbuf, blen);
+	return ::WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, buf, blen, NULL, NULL);
+}
+
+void ProjectPropertiesDlg::SetTextUTF8(HWND w, char *buf, int blen)
+{
+	wchar_t wbuf[blen+1];
+	memset(wbuf, 0, (blen+1)*sizeof(wchar_t));
+	::MultiByteToWideChar(CP_UTF8, 0, buf, blen, wbuf, blen);
+	::SetWindowTextW(w, wbuf);
+}
+*/
+

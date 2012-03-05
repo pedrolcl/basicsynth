@@ -51,12 +51,10 @@ public:
 	/// @param e error structure.
 	virtual void OutputError(nlSyntaxErr *e)
 	{
-		char lnstr[80];
-		IntToStr(e->lineno, lnstr);
 		bsString msg;
 		msg = e->file;
 		msg += '(';
-		msg += lnstr;
+		msg += e->lineno;
 		msg += ')';
 		msg += " : ";
 		msg += e->msg;

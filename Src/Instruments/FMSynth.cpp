@@ -929,7 +929,7 @@ int FMSynth::Load(XmlSynthElem *parent)
 	float dval;
 	short ival;
 
-	XmlSynthElem node;
+	XmlSynthElem node(parent->Document());
 	XmlSynthElem *elem = parent->FirstChild(&node);
 	while (elem != NULL)
 	{

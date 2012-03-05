@@ -25,7 +25,8 @@ public:
 	DECLARE_FRAME_WND_CLASS("BSynthComposer", IDR_MAINFRAME)
 
 	int bVisible;
-	CTreeViewCtrl prjList;
+	//CTreeViewCtrl prjList;
+	utf8TreeViewCtrl prjList;
 	CTabView tabView;
 	//KeyboardDlg kbdWnd;
 	KeyboardDlg2 kbdWnd;

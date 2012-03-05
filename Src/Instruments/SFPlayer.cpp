@@ -738,8 +738,8 @@ int SFPlayerInstr::Load(XmlSynthElem *parent)
 {
 	char *cval;
 
-	XmlSynthElem elem;
-	XmlSynthElem celem;
+	XmlSynthElem elem(parent->Document());
+	XmlSynthElem celem(parent->Document());
 	XmlSynthElem *next = parent->FirstChild(&elem);
 	while (next != NULL)
 	{
@@ -807,8 +807,8 @@ int SFPlayerInstr::SaveEnv(XmlSynthElem *elem, EnvGenADSR& env)
 
 int SFPlayerInstr::Save(XmlSynthElem *parent)
 {
-	XmlSynthElem elem;
-	XmlSynthElem celem;
+	XmlSynthElem elem(parent->Document());
+	XmlSynthElem celem(parent->Document());
 
 	if (!parent->AddChild("sf", &elem))
 		return -1;

@@ -36,21 +36,19 @@ void ProjectOptions::Load()
 #endif
 	wxConfigBase *config = wxConfig::Get();
 	if (config->Read("Install", &str))
-		strncpy(installDir, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), installDir, MAX_PATH);
 	if (config->Read("HelpFile", &str))
-		strncpy(helpFile, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), helpFile, MAX_PATH);
 	if (config->Read("Forms", &str))
-		strncpy(formsDir, str, MAX_PATH);
-	if (config->Read("HelpFile", &str))
-		strncpy(helpFile, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), formsDir, MAX_PATH);
 	if (config->Read("Colors", &str))
-		strncpy(colorsFile, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), colorsFile, MAX_PATH);
 	if (config->Read("InstrLib", &str))
-		strncpy(defLibDir, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), defLibDir, MAX_PATH);
 	if (config->Read("Projects", &str))
-		strncpy(defPrjDir, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), defPrjDir, MAX_PATH);
 	if (config->Read("WaveIn", &str))
-		strncpy(defWaveIn, str, MAX_PATH);
+		bsString::utf8(str.wc_str(), defWaveIn, MAX_PATH);
 	if (config->Read("InclNotelist", &lval))
 		inclNotelist = (int)lval;
 	if (config->Read("InclSequence", &lval))
@@ -64,21 +62,21 @@ void ProjectOptions::Load()
 	if (config->Read("InclSoundFonts", &lval))
 		inclSoundFonts = lval;
 	if (config->Read("Latency", &str))
-		playBuf = atof(str);
+		playBuf = bsString::StrToFlp(str.c_str());
 	if (config->Read("TickRes", &str))
-		tickRes = atof(str);
+		tickRes = bsString::StrToFlp(str.c_str());
 	if (config->Read("InclInstruments", &str))
-		inclInstr = xtoi(str);
+		inclInstr = bsString::StrToNum(str.c_str(), 16);
 	if (config->Read("Author", &str))
-		strncpy(defAuthor, str, sizeof(defAuthor));
+		bsString::utf8(str.wc_str(), defAuthor, MAX_PATH);
 	if (config->Read("Copyright", &str))
-		strncpy(defCopyright, str, sizeof(defCopyright));
+		bsString::utf8(str.wc_str(), defCopyright, MAX_PATH);
 	if (config->Read("MIDIDeviceName", &str))
-		strncpy(midiDeviceName, str, sizeof(midiDeviceName));
+		bsString::utf8(str.wc_str(), midiDeviceName, MAX_PATH);
 	if (config->Read("MIDIDevice", &lval))
 		midiDevice = lval;
 	if (config->Read("WaveDevice", &str))
-		strncpy(waveDevice, str, sizeof(waveDevice));
+		bsString::utf8(str.wc_str(), waveDevice, MAX_PATH);
 	if (config->Read("Top", &lval))
 		frmTop = lval;
 	if (config->Read("Left", &lval))
@@ -89,6 +87,14 @@ void ProjectOptions::Load()
 		frmHeight = lval;
 	if (config->Read("Maximize", &lval))
 		frmMax = lval;
+	if (config->Read("EditFontFace", &str))
+		bsString::utf8(str.wc_str(), editFontFace, sizeof(editFontFace));
+	if (config->Read("EditFontSize", &lval))
+		editFontSize = (int)lval;
+	if (config->Read("EditTabSize", &lval))
+		editTabSize = (int)lval;
+	if (config->Read("ToolBarSize", &lval))
+		toolBarSize = (int)lval;
 
 	if (installDir[0] == '\0')
 	{
@@ -130,13 +136,16 @@ void ProjectOptions::Save()
 
 	wxConfigBase *config = wxConfig::Get();
 
-	config->Write("Projects", wxString(defPrjDir));
-	config->Write("Forms", wxString(formsDir));
-	config->Write("HelpFile", wxString(helpFile));
-	config->Write("Colors", wxString(colorsFile));
-	config->Write("WaveIn", wxString(defWaveIn));
-	config->Write("Author", wxString(defAuthor));
-	config->Write("Copyright", wxString(defCopyright));
+	// explicitly convert from utf8
+	wxMBConvUTF8 conv;
+
+	config->Write("Projects", wxString(defPrjDir, conv));
+	config->Write("Forms", wxString(formsDir, conv));
+	config->Write("HelpFile", wxString(helpFile, conv));
+	config->Write("Colors", wxString(colorsFile, conv));
+	config->Write("WaveIn", wxString(defWaveIn, conv));
+	config->Write("Author", wxString(defAuthor, conv));
+	config->Write("Copyright", wxString(defCopyright, conv));
 	config->Write("InclNotelist", inclNotelist);
 	config->Write("InclSequence", inclSequence);
 	config->Write("InclScripts", inclScripts);
@@ -144,17 +153,21 @@ void ProjectOptions::Save()
 	config->Write("InclLibraries", inclLibraries);
 	config->Write("InclSoundFonts", inclSoundFonts);
 	char buf[40];
-	snprintf(buf, 40, "%x", inclInstr);
+	bsString::NumToStr(inclInstr, buf, 40, 16);
 	config->Write("InclInstruments", wxString(buf));
 	config->Write("Latency", playBuf);
 	config->Write("TickRes", tickRes);
 	config->Write("MIDIDevice", midiDevice);
-	config->Write("MIDIDeviceName", wxString(midiDeviceName));
-	config->Write("WaveDevice", wxString(waveDevice));
+	config->Write("MIDIDeviceName", wxString(midiDeviceName, conv));
+	config->Write("WaveDevice", wxString(waveDevice, conv));
 	config->Write("Top", frmTop);
 	config->Write("Left", frmLeft);
 	config->Write("Width", frmWidth);
 	config->Write("Height", frmHeight);
 	config->Write("Maximize", frmMax);
+	config->Write("EditFontFace", wxString(editFontFace, conv));
+	config->Write("EditFontSize", editFontSize);
+	config->Write("EditTabSize", editTabSize);
+	config->Write("ToolBarSize", toolBarSize);
 }
 

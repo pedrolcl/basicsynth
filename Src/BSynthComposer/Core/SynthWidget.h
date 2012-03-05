@@ -490,7 +490,7 @@ public:
 	}
 
 	virtual const char *GetText() { return ""; }
-	virtual void SetText(const char *p) { SetValue(atof(p)); }
+	virtual void SetText(const char *p) { SetValue((float)bsString::StrToFlp(p)); }
 	virtual float GetValue() { return 0; }
 	virtual void SetValue(float v) { }
 	virtual int GetState() { return 0; }

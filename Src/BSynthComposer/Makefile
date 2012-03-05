@@ -88,9 +88,11 @@ installfltk: installcommon
 	chmod 0755 $(bindir)/bsynthcomposer
 	echo HelpFile=$(helpdir)/index.html >> $(optfile)
 
+# this will have problems on windows because the exe looks in 
+# the registry for the paths to things like forms and image files.
 installwx: installcommon
-	cp wx/bsynthcomposerwx $(bindir)/bsynthcomposer
-	chmod 0755 $(bindir)/bsynthcomposer
+	cp wx/bsynthcomposerwx$(EXE) $(bindir)/bsynthcomposer$(EXE)
+	chmod 0755 $(bindir)/bsynthcomposer$(EXE)
 	cp wx/resource.xml $(datadir)/resource.xml
 	chmod 0644 $(datadir)/resource.xml
 	mkdir -p $(datadir)/res

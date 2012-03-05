@@ -42,17 +42,23 @@ int WidgetForm::CanPaste()
 
 void WidgetForm::PasteText(const char *text)
 {
+	if (focus)
+		focus->SetText(text);
 }
 
 void WidgetForm::CopyText(bsString& text)
 {
-	if (focus->GetType() == wdgText)
-		text = focus->GetText();
-	else if (focus->GetType() == wdgValue)
+	if (focus)
 	{
-		char valbuf[40];
-		snprintf(valbuf, 40, "%f", focus->GetValue());
-		text = valbuf;
+		if (focus->GetType() == wdgText)
+			text = focus->GetText();
+		else if (focus->GetType() == wdgValue)
+		{
+			//char valbuf[40];
+			//snprintf(valbuf, 40, "%f", focus->GetValue());
+			//text = valbuf;
+			text = (double) focus->GetValue();
+		}
 	}
 }
 

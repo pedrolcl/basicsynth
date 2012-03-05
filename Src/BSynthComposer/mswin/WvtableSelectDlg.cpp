@@ -52,7 +52,7 @@ LRESULT WvtableSelectDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 		if (pi->GetType() == PRJNODE_WVTABLE)
 		{
 			WavetableItem *wi = (WavetableItem*)pi;
-			ndx = lst.AddString(wi->GetName());
+			ndx = lst.AddStringUTF8(wi->GetName());
 			lst.SetItemData(ndx, wi->GetID());
 			if (wi->GetID() == plotter.index)
 				selected = ndx;

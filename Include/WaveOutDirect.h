@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// BasicSynth - 
+// BasicSynth -
 //
 /// @file WaveOutDirect.h Send samples to the sound card using DirectSound
 /// @note Microsoft does NOT include the DirectX SDK with the compiler by
@@ -17,7 +17,7 @@
 //
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 /// small (3-6) to avoid latency problems.
 /// If playing a sequence, the time can be longer
 /// to allow for more lead time.
+/// NOTE: This class is not recommeded if there is
+/// any chance of a buffer lost condition. It assumes
+/// it can always lock some portion of the buffer!
 class WaveOutDirect : public WaveOutBuf
 {
 protected:
@@ -61,7 +64,7 @@ protected:
 public:
 
 	WaveOutDirect();
-	~WaveOutDirect();
+	virtual ~WaveOutDirect();
 	/// Setup the sound output buffer.
 	/// @param wnd window handle to pass to DirectSound for collaboration
 	/// @param leadtm block length in seconds
@@ -90,21 +93,29 @@ public:
 /// Ths class uses an indirect buffer write.
 /// Samples are put into a local buffer then
 /// copied during FlushOutput. This is safer
-/// since we always have a valid buffer to 
-/// write into. More important, we can reduce
-/// latency down to just above the minimum
-/// DirectSound value of 20ms.
+/// than WaveOutDirect since we always have
+/// a valid buffer to write into. In practie,
+/// the performance is as good as the WaveOutDirect
+/// class, and this should be used in most cases.
 class WaveOutDirectI : public WaveOutDirect
 {
 public:
 	WaveOutDirectI();
+	virtual ~WaveOutDirectI() { }
 	/// @copydoc WaveOutDirect::Setup
 	virtual int Setup(HWND wnd, float leadtm, int nb = 4, GUID *dev = 0);
 	/// @copydoc WaveOutDirect::Stop
 	virtual void Stop();
 	/// @copydoc WaveOutDirect::Restart
 	virtual void Restart();
-	/// @copydoc WaveOutDirect::FlushOutput
+	/// Flush output.
+	/// This overrides the base class method and is called at the point
+	/// where we need to dump the output buffer to the
+	/// DirectSound buffer. If the DirectSound buffer cannot
+	/// receive more data, we block waiting on available space.
+	/// This has the side-effect of waiting on playback
+	/// to move out of the way, and causes output to be
+	/// synchronized with sample rate.
 	virtual int FlushOutput();
 };
 

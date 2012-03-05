@@ -16,6 +16,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
+#include <SynthString.h>
 #include <XmlWrap.h>
 #if !defined(USE_MSXML) && !defined(USE_LIBXML) && !defined(USE_TINYXML)
 
@@ -93,6 +94,11 @@ int XmlSynthElem::GetAttribute(const char *attrName, double& val)
 int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 {
 	*val = 0;
+	return -1;
+}
+
+int XmlSynthElem::GetAttribute(const char *attrName, bsString& val)
+{
 	return -1;
 }
 

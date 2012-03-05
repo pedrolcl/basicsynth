@@ -642,6 +642,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\WinUTF8.h"
+				>
+			</File>
+			<File
 				RelativePath=".\WvtableSelectDlg.h"
 				>
 			</File>

@@ -5,7 +5,7 @@
 /// @file WaveFile.h Classes for wavefile managment
 //
 // Copyright 2008, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 ///////////////////////////////////////////////////////////////
@@ -31,8 +31,7 @@ extern bsInt32 Swap32(bsInt32 x);
 /// Size of RIFF chunk ID
 #define CHUNK_ID   4
 
-#pragma pack(push)
-#pragma pack(2)
+#pragma pack(push, 2)
 
 /// One chunk in a RIFF file.
 struct RiffChunk
@@ -55,7 +54,7 @@ struct FmtData
 	/// Bytes per second (samplerate * align)
 	bsInt32 avgbps;
 	/// Sample alignment (channels*bits)/8
-	bsInt16 align; 
+	bsInt16 align;
 	/// Bits per sample
 	bsInt16 bits;
 };
@@ -92,6 +91,8 @@ struct WavHDR32
 class WaveOut
 {
 public:
+	virtual ~WaveOut() { }
+
 	/// Put value directly to the output. This function bypasses
 	/// range checking or scaling or duplication into mutiple channels.
 	/// @param value the sample
@@ -164,7 +165,7 @@ public:
 		ownBuf = 0;
 	}
 
-	~WaveOutBufBase()
+	virtual ~WaveOutBufBase()
 	{
 		if (ownBuf)
 			DeallocBuf();
@@ -220,7 +221,7 @@ public:
 	}
 
 	/// Set the sample buffer. This can be used when you already
-	/// have an appropriately sized buffer, for example one 
+	/// have an appropriately sized buffer, for example one
 	/// allocated through DirectSound.
 	/// @param length size of the buffer in samples
 	/// @param ch number of output channels
@@ -292,7 +293,7 @@ public:
 class WaveOutBuf : public WaveOutBufBase<SampleValue>
 {
 public:
-	void OutS(SampleValue value)
+	virtual void OutS(SampleValue value)
 	{
 	//	if (sampleNumber >= sampleMax)
 	//		FlushOutput();
@@ -366,7 +367,7 @@ public:
 		bufSecs = 5;
 	}
 
-	~WaveFile()
+	virtual ~WaveFile()
 	{
 		wfp.FileClose();
 	}
@@ -380,7 +381,7 @@ public:
 		bufSecs = secs;
 	}
 
-	/// Open wave output file. The file is created if it does not exist. 
+	/// Open wave output file. The file is created if it does not exist.
 	/// Existing files are truncated.
 	/// @param fname path to the output file
 	/// @param chnls number of output channels, 1 or 2
@@ -394,7 +395,7 @@ public:
 
 	/// Write output to WAVE file. This does not need to be called directly.
 	/// The base class will call this method each time the buffer is filled.
-	int FlushOutput();
+	virtual int FlushOutput();
 };
 
 /// Wave file writer (32-bit float). WaveFileIEEE manages output to a WAV file.
@@ -418,7 +419,7 @@ public:
 		bufSecs = 5;
 	}
 
-	~WaveFileIEEE()
+	virtual ~WaveFileIEEE()
 	{
 		wfp.FileClose();
 	}
@@ -432,7 +433,7 @@ public:
 		bufSecs = secs;
 	}
 
-	/// Open wave output file. The file is created if it does not exist. 
+	/// Open wave output file. The file is created if it does not exist.
 	/// Existing files are truncated.
 	/// @param fname path to the output file
 	/// @param chnls number of output channels, 1 or 2
@@ -446,17 +447,17 @@ public:
 
 	/// Write output to WAVE file. This does not need to be called directly.
 	/// The base class will call this method each time the buffer is filled.
-	int FlushOutput();
+	virtual int FlushOutput();
 };
 
 #define SMPL_BUFSIZE 8192
 
 /// Wave file reader. WaveFileIn reads a WAV file into a buffer, converting samples
-/// to the internal data format (i.e. AmpValue). The peak values are rescaled to 
+/// to the internal data format (i.e. AmpValue). The peak values are rescaled to
 /// the maximum amplitude range. Only files in PCM format (16-bit samples, 44.1kHz)
 /// are allowed. However, multiple channels are allowed, but only the first two
 /// are used. These two are combined into a single channel. The resulting sample buffer is
-/// always one-channel, normalized to [-1,+1]. 
+/// always one-channel, normalized to [-1,+1].
 class WaveFileIn
 {
 private:

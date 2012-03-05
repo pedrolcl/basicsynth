@@ -15,7 +15,8 @@ class KeyboardDlg2 :
 private:
 	KeyboardForm *form;
 	Color bgColor;
-	CListBox instrList;
+	//CListBox instrList;
+	utf8ListBox instrList;
 	HFONT listFont;
 
 public:
@@ -108,10 +109,12 @@ public:
 	int Start();
 	void Clear();
 	void InitInstrList();
-	void AddInstrument(InstrConfig *ic);
-	void RemoveInstrument(InstrConfig *ic);
-	void UpdateInstrument(InstrConfig *ic);
-	void SelectInstrument(InstrConfig *ic);
+	int FindInstrument(InstrConfig *ic);
+	int AddInstrument(InstrConfig *ic);
+	int RemoveInstrument(InstrConfig *ic);
+	int UpdateInstrument(InstrConfig *ic);
+	int SelectInstrument(InstrConfig *ic);
+	int InsertInstrument(int ndx, InstrConfig *ic);
 	void UpdateChannels();
 };
 

@@ -24,17 +24,16 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	CheckDlgButton(IDC_INCL_LIBRARIES, prjOptions.inclLibraries);
 	CheckDlgButton(IDC_INCL_SOUNDFONTS, prjOptions.inclSoundFonts);
 	CheckDlgButton(IDC_INCL_MIDI, prjOptions.inclMIDI);
-	SetDlgItemText(IDC_DEF_PROJECTS, prjOptions.defPrjDir);
-	SetDlgItemText(IDC_DEF_WAVEIN, prjOptions.defWaveIn);
-	SetDlgItemText(IDC_DEF_FORMS, prjOptions.formsDir);
-	SetDlgItemText(IDC_DEF_COLORS, prjOptions.colorsFile);
-	SetDlgItemText(IDC_DEF_LIBRARIES, prjOptions.defLibDir);
-	SetDlgItemText(IDC_DEF_AUTHOR, prjOptions.defAuthor);
-	SetDlgItemText(IDC_DEF_COPYRIGHT, prjOptions.defCopyright);
+	SetItemUTF8(IDC_DEF_PROJECTS, prjOptions.defPrjDir);
+	SetItemUTF8(IDC_DEF_WAVEIN, prjOptions.defWaveIn);
+	SetItemUTF8(IDC_DEF_FORMS, prjOptions.formsDir);
+	SetItemUTF8(IDC_DEF_COLORS, prjOptions.colorsFile);
+	SetItemUTF8(IDC_DEF_LIBRARIES, prjOptions.defLibDir);
+	SetItemUTF8(IDC_DEF_AUTHOR, prjOptions.defAuthor);
+	SetItemUTF8(IDC_DEF_COPYRIGHT, prjOptions.defCopyright);
 
-	char buf[40];
-	snprintf(buf, 40, "%f", prjOptions.playBuf);
-	SetDlgItemText(IDC_LATENCY, buf);
+	bsString lat((double)prjOptions.playBuf);
+	SetDlgItemText(IDC_LATENCY, lat);
 
 	SoundDevInfo *sdi = NULL;
 	waveDev = GetDlgItem(IDC_WAVE_OUT);
@@ -50,7 +49,7 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	while ((sdi = prjOptions.midiList.EnumItem(sdi)) != NULL)
 		midiDev.AddString(sdi->name);
 	if (prjOptions.midiDeviceName[0])
-		midiDev.SelectString(-1, sdi->name);
+		midiDev.SelectString(-1, prjOptions.midiDeviceName);
 	else
 		midiDev.SetCurSel(0);
 
@@ -59,23 +58,28 @@ LRESULT OptionsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 void OptionsDlg::Browse(int id, char *caption)
 {
-	char name[MAX_PATH];
-	GetDlgItemText(id, name, MAX_PATH);
+	wchar_t wcap[MAX_PATH];
+	bsString::utf16(caption, wcap, MAX_PATH);
 
-	BROWSEINFO bi;
+	wchar_t name[MAX_PATH];
+	name[0] = 0;
+	::GetDlgItemTextW(m_hWnd, id, name, MAX_PATH);
+	//GetItemUTF8(id, name, MAX_PATH);
+
+	BROWSEINFOW bi;
 	memset(&bi, 0, sizeof(bi));
 	bi.hwndOwner = m_hWnd;
 	bi.pidlRoot = 0;
 	bi.pszDisplayName = name;
-	bi.lpszTitle = caption;
+	bi.lpszTitle = wcap;
     bi.ulFlags = BIF_USENEWUI;
 
 //	PIDLIST_ABSOLUTE pidl;
 	LPCITEMIDLIST pidl;
-	if ((pidl = SHBrowseForFolder(&bi)) != NULL)
+	if ((pidl = SHBrowseForFolderW(&bi)) != NULL)
 	{
-		SHGetPathFromIDList(pidl, name);
-		SetDlgItemText(id, name);
+		SHGetPathFromIDListW(pidl, name);
+		::SetDlgItemTextW(m_hWnd, id, name);
 		IMalloc *mp;
 		SHGetMalloc(&mp);
 		mp->Free((void*)pidl);
@@ -98,9 +102,9 @@ LRESULT OptionsDlg::OnBrowseForms(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 LRESULT OptionsDlg::OnBrowseColors(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	char name[MAX_PATH];
-	GetDlgItemText(IDC_DEF_COLORS, name, MAX_PATH);
+	GetItemUTF8(IDC_DEF_COLORS, name, MAX_PATH);
 	if (prjFrame->BrowseFile(1, name, "XML Files|*.xml|", "xml"))
-		SetDlgItemText(IDC_DEF_COLORS, name);
+		SetItemUTF8(IDC_DEF_COLORS, name);
 	return 0;
 }
 
@@ -125,24 +129,24 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 	prjOptions.inclLibraries = IsDlgButtonChecked(IDC_INCL_LIBRARIES);
 	prjOptions.inclSoundFonts = IsDlgButtonChecked(IDC_INCL_SOUNDFONTS);
 	prjOptions.inclMIDI = IsDlgButtonChecked(IDC_INCL_MIDI);
-	GetDlgItemText(IDC_DEF_PROJECTS, prjOptions.defPrjDir, MAX_PATH);
-	GetDlgItemText(IDC_DEF_WAVEIN, prjOptions.defWaveIn, MAX_PATH);
-	GetDlgItemText(IDC_DEF_FORMS, prjOptions.formsDir, MAX_PATH);
-	GetDlgItemText(IDC_DEF_COLORS, prjOptions.colorsFile, MAX_PATH);
-	GetDlgItemText(IDC_DEF_LIBRARIES, prjOptions.defLibDir, MAX_PATH);
-	GetDlgItemText(IDC_DEF_AUTHOR, prjOptions.defAuthor, MAX_PATH);
-	GetDlgItemText(IDC_DEF_COPYRIGHT, prjOptions.defCopyright, MAX_PATH);
+	GetItemUTF8(IDC_DEF_PROJECTS, prjOptions.defPrjDir, MAX_PATH);
+	GetItemUTF8(IDC_DEF_WAVEIN, prjOptions.defWaveIn, MAX_PATH);
+	GetItemUTF8(IDC_DEF_FORMS, prjOptions.formsDir, MAX_PATH);
+	GetItemUTF8(IDC_DEF_COLORS, prjOptions.colorsFile, MAX_PATH);
+	GetItemUTF8(IDC_DEF_LIBRARIES, prjOptions.defLibDir, MAX_PATH);
+	GetItemUTF8(IDC_DEF_AUTHOR, prjOptions.defAuthor, MAX_PATH);
+	GetItemUTF8(IDC_DEF_COPYRIGHT, prjOptions.defCopyright, MAX_PATH);
 
 	char buf[40];
 	buf[0] = '\0';
 	GetDlgItemText(IDC_LATENCY, buf, 40);
-	prjOptions.playBuf = atof(buf);
+	prjOptions.playBuf = (float) bsString::StrToFlp(buf);
 
 	prjOptions.midiDevice = SendDlgItemMessage(IDC_MIDI_IN, CB_GETCURSEL);
 	if (prjOptions.midiDevice == CB_ERR)
 		memset(prjOptions.midiDeviceName, 0, MAX_PATH);
 	else
-		GetDlgItemText(IDC_MIDI_IN, prjOptions.midiDeviceName, MAX_PATH);
+		GetItemUTF8(IDC_MIDI_IN, prjOptions.midiDeviceName, MAX_PATH);
 	if (theProject)
 		theProject->prjMidiIn.SetDevice(prjOptions.midiDevice, prjOptions.midiDeviceName);
 
@@ -150,12 +154,34 @@ LRESULT OptionsDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandle
 
 	prjOptions.Save();
 
-	EndDialog(IDOK);
+	EndDialog(1);
 	return 0;
 }
 
 LRESULT OptionsDlg::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(IDCANCEL);
+	EndDialog(0);
 	return 0;
+}
+
+void OptionsDlg::GetItemUTF8(int id, char *cbuf, int clen)
+{
+	utf8Window w = GetDlgItem(id);
+	w.GetTextUTF8(cbuf, clen);
+//	memset(cbuf, 0, clen);
+//	wchar_t wbuf[MAX_PATH];
+//	memset(wbuf, 0, sizeof(wbuf));
+//	::GetWindowTextW(GetDlgItem(id), wbuf, MAX_PATH);
+//	::WideCharToMultiByte(CP_UTF8, 0, wbuf, wcslen(wbuf)+1, cbuf, clen, NULL, NULL);
+}
+
+void OptionsDlg::SetItemUTF8(int id, const char *str)
+{
+	utf8Window w = GetDlgItem(id);
+	w.SetTextUTF8(str);
+//	int slen = (int) strlen(str);
+//	wchar_t wstr[MAX_PATH];
+//	memset(wstr, 0, sizeof(wstr));
+//	::MultiByteToWideChar(CP_UTF8, 0, str, slen+1, wstr, MAX_PATH);
+//	::SetWindowTextW(GetDlgItem(id), wstr);
 }

@@ -188,7 +188,8 @@ void OptionsDlg::SetItemText(const char *id, wxString& txt)
 
 void OptionsDlg::SetItemText(const char *id, const char *txt)
 {
-	wxString t(txt);
+	wxMBConvUTF8 conv;
+	wxString t(txt, conv);
 	SetItemText(id, t);
 }
 
@@ -208,5 +209,5 @@ void OptionsDlg::GetItemText(const char *id, char *txt, int len)
 {
 	wxString wval;
 	GetItemText(id, wval);
-	strncpy(txt, wval.data(), len);
+	bsString::utf8(wval.wc_str(), txt, len);
 }

@@ -564,14 +564,13 @@
 
 <object class="wxDialog" name= "DLG_ABOUTBOX">
 	<pos>0,0d</pos> 
-	<size>270,137d</size>
+	<size>270,140d</size>
 	<center>1</center>
 	<title>About BasicSynth</title>
 	<object class="wxButton" name= "wxID_OK">
 		<pos>210,120d</pos>
 		<size>50,14d</size>
-		<label>OK</label>
-    <bitmap>res/Ok32.png</bitmap>
+		<label>Close</label>
 	</object>
 	<object class="wxStaticBitmap" name= "IDC_STATIC">
 		<pos>5,5d</pos>
@@ -708,11 +707,12 @@
 		<pos>5,45d</pos>
 		<size>38,8d</size>
 		<label>Description</label>
-	</object>
-	<object class="wxTextCtrl" name= "IDC_PROJECT_DESCR">
-		<pos>45,45d</pos>
-		<size>265,30d</size>
-	</object>
+  </object>
+  <object class="wxTextCtrl" name= "IDC_PROJECT_DESCR">
+    <pos>45,45d</pos>
+    <size>265,30d</size>
+    <style>wxTE_MULTILINE</style>
+  </object>
 	<object class="wxStaticText" name= "IDC_STATIC">
 		<pos>5,80d</pos>
 		<size>38,14d</size>
@@ -1858,6 +1858,7 @@
     <object class="wxTextCtrl" name= "IDC_ITEM_DESCR">
      <pos>55,25d</pos>
       <size>80,14d</size>
+      <style>wxTE_MULTILINE</style>
     </object>
     <object class="wxStaticText" name= "IDC_VOL_LBL">
      <pos>5,48d</pos>

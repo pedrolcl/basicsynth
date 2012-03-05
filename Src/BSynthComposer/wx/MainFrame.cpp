@@ -178,15 +178,15 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     if (mainico.IsOk())
         SetIcon(mainico);
 
-	wxMenuBar *mb = wxXmlResource::Get()->LoadMenuBar("MB_MAINFRAME");
-	if (mb == NULL)
+	wxPrjMenu = wxXmlResource::Get()->LoadMenuBar("MB_MAINFRAME");
+	if (wxPrjMenu == NULL)
 	{
 		wxMessageBox("Menu bar didn't load");
 		exit(1);
 	}
-	SetMenuBar(mb);
+	SetMenuBar(wxPrjMenu);
 
-	wxMenu *file = mb->GetMenu(0);
+	wxMenu *file = wxPrjMenu->GetMenu(0);
 	wxMenuItem *recent = file->FindItemByPosition(9);
 	wxMenu *docMenu = recent->GetSubMenu();
 	if (docMenu)
@@ -238,6 +238,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	wxPrjSplit->SetMinimumPaneSize(minWidth);
 	wxPrjSplit->SetSashPosition(defTreeWidth);
 	wxPrjSplit->Show(false);
+	wxPrjTree->SaveSize();
 
 	// The actual size of the keyboard pane is set
 	// after the keyboard form is loaded.
@@ -247,8 +248,9 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
 MainFrame::~MainFrame()
 {
-	delete wxPrjToolBar;
-	delete wxPrjStatusBar;
+//	delete wxPrjToolBar;
+//	delete wxPrjStatusBar;
+//	delete wxPrjMenu;
 //	delete wxPrjSplit;
 	delete wxPrjTree;
 	delete wxPrjTabs;
@@ -259,6 +261,7 @@ MainFrame::~MainFrame()
 	delete ctxLibItem;
 	delete ctxProjectItem;
 	delete help;
+	delete kbdWnd;
 }
 
 
@@ -727,11 +730,27 @@ void MainFrame::OnUpdateEditMark(wxUpdateUIEvent& evt)
 
 void MainFrame::OnViewProject(wxCommandEvent& evt)
 {
+	// the wx splitter, when restoring the split,
+	// will split down the middle. We save the
+	// project tree size and reset the splitter
+	// position.
 	bVisible ^= PROJECT_PANE;
 	if (bVisible & PROJECT_PANE)
+	{
 		wxPrjSplit->SplitVertically(wxPrjTree, wxPrjTabs);
+		wxPrjSplit->SetSashPosition(wxPrjTree->SavedWidth());
+		ProjectItem *itm = GetClickedItem();
+		if (itm)
+			itemFlags = itm->ItemActions();
+		else
+			itemFlags = 0;
+	}
 	else
+	{
+		wxPrjTree->SaveSize();
+		itemFlags = 0;
 		wxPrjSplit->Unsplit(wxPrjTree);
+	}
 	UpdateLayout();
 }
 
@@ -958,9 +977,12 @@ void MainFrame::OnPageActivated(wxNotebookEvent& evt)
 ProjectItem *MainFrame::GetClickedItem()
 {
 	wxTreeItemId id = wxPrjTree->GetSelection();
-	bsTreeItemData *dp = (bsTreeItemData *)wxPrjTree->GetItemData(id);
-	if (dp)
-		return dp->prjItem;
+	if (id)
+	{
+		bsTreeItemData *dp = (bsTreeItemData *)wxPrjTree->GetItemData(id);
+		if (dp)
+			return dp->prjItem;
+	}
 	return 0;
 }
 
@@ -973,7 +995,7 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 
 	bsTreeItemData *dp = new bsTreeItemData(itm);
 
-	wxString name(itm->GetName());
+	wxString name(itm->GetName(), cutf8);
 	if (parent == NULL)
 		wxPrjTree->AddRoot(name, -1, -1, dp);
 	else
@@ -1001,6 +1023,8 @@ void MainFrame::SelectNode(ProjectItem *itm)
 			UpdateWindowUI();
 		}
 	}
+	else
+		itemFlags = 0;
 }
 
 void MainFrame::RemoveNode(ProjectItem *itm)
@@ -1025,7 +1049,13 @@ void MainFrame::UpdateNode(ProjectItem *itm)
 	{
 		bsTreeItemData *data = (bsTreeItemData*)itm->GetPSData();
 		if (data)
-			wxPrjTree->SetItemText(data->GetId(), itm->GetName());
+		{
+			wxString name(itm->GetName(), cutf8);
+			wxPrjTree->SetItemText(data->GetId(), name);
+			int pg = GetItemTab(itm);
+			if (pg >= 0)
+				wxPrjTabs->SetPageText((size_t)pg, name);
+		}
 	}
 }
 
@@ -1106,7 +1136,7 @@ int MainFrame::CloseAllEditors()
 	}
 	if (ret)
 		wxPrjTabs->DeleteAllPages(); // justin case...
-	wxPrjTabs->Show(false);
+	//wxPrjTabs->Show(false);
 	editFlags = 0;
 	return ret;
 }
@@ -1235,7 +1265,7 @@ FormEditor *MainFrame::CreateFormEditor(ProjectItem *pi)
 	form->SetItem(pi);
 	form->SetPSData(form);
 	form->Resize();
-	wxPrjTabs->AddPage(form, pi->GetName(), true);
+	wxPrjTabs->AddPage(form, wxString(pi->GetName(), cutf8), true);
 	wxPrjTabs->Show(true);
 	return form;
 }
@@ -1254,8 +1284,8 @@ TextEditor *MainFrame::CreateTextEditor(ProjectItem *pi)
 		pi->SetEditor(ed);
 		//ed->SetItem(pi);
 		ed->SetPSData((void*)ed);
-		wxPrjTabs->AddPage(ed, pi->GetName(), true);
-		wxPrjTabs->Show(true);
+		wxPrjTabs->AddPage(ed, wxString(pi->GetName(), cutf8), true);
+		//wxPrjTabs->Show(true);
 		return ed;
 	}
 
@@ -1302,6 +1332,31 @@ EditorView *MainFrame::GetActiveEditor()
 	return 0;
 }
 
+int MainFrame::GetItemTab(ProjectItem *itm)
+{
+	if (itm)
+		return GetItemTab(itm->GetEditor());
+	return -1;
+}
+
+int MainFrame::GetItemTab(EditorView *vw)
+{
+	if (vw)
+	{
+		FormEditorWin *form = reinterpret_cast<FormEditorWin*>(vw->GetPSData());
+		if (form)
+		{
+			size_t pg = 0;
+			for (pg = 0; pg < wxPrjTabs->GetPageCount(); pg++)
+			{
+				if (wxPrjTabs->GetPage(pg) == form)
+					return (int)pg;
+			}
+		}
+	}
+	return -1;
+}
+
 int MainFrame::OpenEditor(ProjectItem *itm)
 {
 	if (!itm)
@@ -1315,14 +1370,11 @@ int MainFrame::OpenEditor(ProjectItem *itm)
 			form->SetFocus();
 			return 1;
 		}
-		size_t pg;
-		for (pg = 0; pg < wxPrjTabs->GetPageCount(); pg++)
+		int pg = GetItemTab(vw);
+		if (pg >= 0)
 		{
-			if (wxPrjTabs->GetPage(pg) == form)
-			{
-				wxPrjTabs->SetSelection(pg);
-				return 1;
-			}
+			wxPrjTabs->SetSelection((size_t)pg);
+			return 1;
 		}
 		itm->SetEditor(0);
 	}
@@ -1396,6 +1448,8 @@ int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ex
 	{
 		strncpy(file, dlg->GetPath(), MAX_PATH);
 		SynthProject::NormalizePath(file);
+		if (ext && *ext)
+			SynthProject::CheckExtension(file, ext);
 		return 1;
 	}
 	return 0;

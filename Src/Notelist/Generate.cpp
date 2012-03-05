@@ -544,12 +544,12 @@ void nlVarValue::ChangeType(vType vnew)
 		case vtText:
 			break;
 		case vtNum:
-			lTmp = atoi(txtVal);
+			lTmp = bsString::StrToNum(txtVal);
 			delete txtVal;
 			lVal = lTmp;
 			break;
 		case vtReal:
-			dTmp = atof(txtVal);
+			dTmp = bsString::StrToFlp(txtVal);
 			delete txtVal;
 			dblVal = dTmp;
 			break;
@@ -562,7 +562,7 @@ void nlVarValue::ChangeType(vType vnew)
 			break;
 		case vtText:
 			txtTmp = new char[65];
-			IntToStr(lVal, txtTmp);
+			bsString::NumToStr(lVal, txtTmp, 65);
 			txtVal = txtTmp;
 			break;
 		case vtNum:
@@ -580,8 +580,7 @@ void nlVarValue::ChangeType(vType vnew)
 			break;
 		case vtText:
 			txtTmp = new char[80];
-			FltToStr(dblVal, txtTmp, 80);
-			//ecvt(dblVal, 10, &iTmp, &iTmp);
+			bsString::FlpToStr(dblVal, txtTmp, 80);
 			txtVal = txtTmp;
 			break;
 		case vtNum:

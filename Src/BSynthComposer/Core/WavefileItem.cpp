@@ -126,9 +126,11 @@ int WavefileItem::Load(XmlSynthElem *node)
 	node->GetAttribute("id", wvid);
 	if (name.Length() == 0)
 	{
-		char buf[80];
-		snprintf(buf, 80, "ID #%d", wvid);
-		name = buf;
+		//char buf[80];
+		//snprintf(buf, 80, "ID #%d", wvid);
+		//name = buf;
+		name = "ID #";
+		name += (long)wvid;
 	}
 	node->GetAttribute("lpst", loopStart);
 	node->GetAttribute("lpend", loopEnd);

@@ -163,14 +163,19 @@ void ScoreErrorsDlg::ShowErrors()
 	int index = itmSel.GetCurSel();
 	if (index >= 0)
 	{
-		char msg[256];
+		//char msg[256];
 		NotelistItem *ni = (NotelistItem*)itmSel.GetItemDataPtr(index);
 		ScoreError *err = ni->EnumErrors(0);
 		while (err)
 		{
-			snprintf(msg, 256, "%d: %s : %s", err->GetLine(), err->GetMsg(), err->GetToken());
-			index = errLst.AddString(msg);
-			//errLst.SetItemData(index, err->GetLine()-1);
+			bsString fmt;
+			fmt = err->GetLine();
+			fmt += ": ";
+			fmt += err->GetMsg();
+			fmt += " : ";
+			fmt += err->GetToken();
+			//snprintf(msg, 256, "%d: %s : %s", err->GetLine(), err->GetMsg(), err->GetToken());
+			index = errLst.AddString(fmt);
 			errLst.SetItemData(index, err->GetPosition());
 			err = ni->EnumErrors(err);
 			count++;

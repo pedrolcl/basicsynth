@@ -87,11 +87,13 @@ LRESULT ItemPropertiesBase::OnBrowse(WORD wNotifyCode, WORD wID, HWND hWndCtl, B
 	const char *ext = ProjectItem::GetFileExt(pi->GetType());
 	char path[MAX_PATH];
 	path[0] = '\0';
-	GetDlgItemText(IDC_FILE_NAME, path, MAX_PATH);
+//	GetDlgItemText(IDC_FILE_NAME, path, MAX_PATH);
+	GetTextUTF8(IDC_FILE_NAME, path, MAX_PATH);
 
 	if (prjFrame->BrowseFile(1, path, spc, ext))
 	{
-		SetDlgItemText(IDC_FILE_NAME, SynthProject::SkipProjectDir(path));
+		//SetDlgItemText(IDC_FILE_NAME, SynthProject::SkipProjectDir(path));
+		SetTextUTF8(IDC_FILE_NAME, SynthProject::SkipProjectDir(path));
 		if (needFile)
 			EnableOK();
 	}
@@ -181,7 +183,8 @@ LRESULT FilelistOrder::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	ProjectItem *ch = prjTree->FirstChild(pi);
 	while (ch)
 	{
-		int ndx = fileList.AddString(ch->GetName());
+		//int ndx = fileList.AddString(ch->GetName());
+		int ndx = AddLBTextUTF8(fileList, ch->GetName());
 		fileList.SetItemDataPtr(ndx, (void*)ch);
 		ch = prjTree->NextSibling(ch);
 	}
@@ -207,13 +210,13 @@ LRESULT FilelistOrder::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHan
 		index++;
 	}
 	theProject->SetChange(1);
-	EndDialog(IDOK);
+	EndDialog(1);
 	return 0;
 }
 
 LRESULT FilelistOrder::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(IDCANCEL);
+	EndDialog(0);
 	return 0;
 }
 

@@ -157,7 +157,7 @@ int ToneBase::Load(XmlSynthElem *parent)
 {
 	short ival;
 
-	XmlSynthElem elem;
+	XmlSynthElem elem(parent->Document());
 	XmlSynthElem *next = parent->FirstChild(&elem);
 	while (next != NULL)
 	{
@@ -204,7 +204,7 @@ int ToneBase::SaveEnv(XmlSynthElem *elem)
 
 int ToneBase::Save(XmlSynthElem *parent)
 {
-	XmlSynthElem elem;
+	XmlSynthElem elem(parent->Document());
 	if (!parent->AddChild("osc", &elem))
 		return -1;
 	SaveOscil(&elem);

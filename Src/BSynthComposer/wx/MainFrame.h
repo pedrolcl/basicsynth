@@ -48,6 +48,7 @@ class MainTree :
 private:
     DECLARE_EVENT_TABLE()
 	MainFrame *frame;
+	wxSize szSave;
 
 public:
 	MainTree(MainFrame *frm, wxWindow *parent, int w, int h)
@@ -57,6 +58,9 @@ public:
 	{
 	    frame = frm;
 	}
+
+	void SaveSize() { szSave = GetSize(); }
+	int SavedWidth() { return szSave.GetWidth(); }
 
 	void OnLftDClick(wxMouseEvent& evt);
 };
@@ -73,10 +77,12 @@ class MainFrame :
 {
 private:
     DECLARE_EVENT_TABLE()
+	wxMenuBar *wxPrjMenu;
 	wxToolBar *wxPrjToolBar;
 	wxStatusBar *wxPrjStatusBar;
 	wxSplitterWindow *wxPrjSplit;
-	wxTreeCtrl *wxPrjTree;
+//	wxTreeCtrl *wxPrjTree;
+	MainTree *wxPrjTree;
 	wxNotebook *wxPrjTabs;
 	wxTreeItemId wxTreeRoot;
 	wxMenu *ctxProject;
@@ -89,6 +95,7 @@ private:
 	wxFileHistory mruList;
 	wxString tmppath;
 	wxTimer  autosave;
+	wxMBConvUTF8 cutf8;
 	int bVisible;
 	int inGenerate;
 	long editFlags;
@@ -98,6 +105,8 @@ private:
 	KeyboardDlg *kbdWnd;
 
 	ProjectItem *GetClickedItem();
+	int GetItemTab(ProjectItem *itm);
+	int GetItemTab(EditorView *vw);
 
 	void AfterOpenProject();
 	void UpdateLayout(int rd = 1);

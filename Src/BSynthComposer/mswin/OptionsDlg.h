@@ -14,6 +14,9 @@ private:
 	CComboBox waveDev;
 	CComboBox midiDev;
 
+	void GetItemUTF8(int id, char *cbuf, int blen);
+	void SetItemUTF8(int id, const char *str);
+
 public:
 	OptionsDlg();
 

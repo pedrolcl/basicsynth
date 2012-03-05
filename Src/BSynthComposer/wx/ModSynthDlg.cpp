@@ -253,7 +253,7 @@ void ModSynthConnect::OnOK(wxCommandEvent& evt)
 void ModSynthConnect::OnCancel(wxCommandEvent& evt)
 {
 	ClearConnInfo();
-	EndModal(changed);
+	EndModal(0);
 }
 
 void ModSynthConnect::OnAdd(wxCommandEvent& evt)

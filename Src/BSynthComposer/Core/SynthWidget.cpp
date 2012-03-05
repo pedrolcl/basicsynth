@@ -371,7 +371,7 @@ int WidgetGroup::Load(XmlSynthElem *elem)
 	elem->GetAttribute("style", style);
 	GetColorAttribute(elem, "fr", frClr);
 
-	XmlSynthElem wdgNode;
+	XmlSynthElem wdgNode(elem->Document());
 	if (!elem->FirstChild(&wdgNode))
 		return 0;
 	do
@@ -576,7 +576,7 @@ void WidgetColorMap::Load(const char *path, const char *file, int top)
 		XmlSynthElem *root = doc.Open(fullPath);
 		if (root)
 		{
-			XmlSynthElem node;
+			XmlSynthElem node(&doc);
 			XmlSynthElem *child = root->FirstChild(&node);
 			while (child)
 			{

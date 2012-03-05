@@ -496,7 +496,7 @@ public:
 	/// @param on 1 = on, 0 = off
 	void ChannelOn(int ch, int on)
 	{
-		if (ch < mixInputs)
+		if (ch >= 0 && ch < mixInputs)
 			inBuf[ch].SetOn(on);
 	}
 
@@ -505,7 +505,7 @@ public:
 	/// @param v input volume level
 	void ChannelVolume(int ch, AmpValue v)
 	{
-		if (ch < mixInputs)
+		if (ch >= 0 && ch < mixInputs)
 			inBuf[ch].SetVolume(v);
 	}
 
@@ -515,7 +515,7 @@ public:
 	/// @param p pan level setting (-1,+1)
 	void ChannelPan(int ch, int pm, AmpValue p)
 	{
-		if (ch < mixInputs)
+		if (ch >= 0 && ch < mixInputs)
 			inBuf[ch].SetPan(pm, p);
 	}
 
@@ -569,7 +569,7 @@ public:
 	void FxInit(int f, GenUnit *fx, AmpValue lvl)
 	{
 		// NB: Must set mixInputs first.
-		if (mixInputs > 0 && f < fxUnits)
+		if (mixInputs > 0 && f >= 0 && f < fxUnits)
 			fxBuf[f].FxInit(fx, mixInputs, lvl);
 	}
 
@@ -579,7 +579,7 @@ public:
 	/// @param lvl output level
 	void FxReceive(int f, AmpValue lvl)
 	{
-		if (f < fxUnits)
+		if (f >= 0 && f < fxUnits)
 			fxBuf[f].FxOutSet(lvl);
 	}
 
@@ -589,7 +589,7 @@ public:
 	/// @param lvl send level
 	void FxLevel(int f, int ch, AmpValue lvl)
 	{
-		if (f < fxUnits)
+		if (f >= 0 && f < fxUnits)
 			fxBuf[f].FxSendSet(ch, lvl);
 	}
 	
@@ -599,7 +599,7 @@ public:
 	/// @param lvl pan setting
 	void FxPan(int f, int pm, AmpValue lvl)
 	{
-		if (f < fxUnits)
+		if (f >= 0 && f < fxUnits)
 			fxBuf[f].FxPanSet(pm, lvl);
 	}
 
@@ -609,7 +609,7 @@ public:
 	/// @param val sample value
 	void FxIn(int f, AmpValue val)
 	{
-		if (f < fxUnits)
+		if (f >= 0 && f < fxUnits)
 			fxBuf[f].FxIn(val);
 	}
 

@@ -549,7 +549,7 @@ int Chuffer::Load(XmlSynthElem *parent)
 	short ival;
 	long lval;
 
-	XmlSynthElem elem;
+	XmlSynthElem elem(parent->Document());
 	XmlSynthElem *next = parent->FirstChild(&elem);
 	while (next != NULL)
 	{
@@ -627,7 +627,7 @@ int Chuffer::Load(XmlSynthElem *parent)
 
 int Chuffer::Save(XmlSynthElem *parent)
 {
-	XmlSynthElem elem;
+	XmlSynthElem elem(parent->Document());
 	if (!parent->AddChild("sig", &elem))
 		return -1;
 	elem.SetAttribute("atk", (float)envAtk);

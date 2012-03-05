@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
-// Platform-specifc text editor 
+// Platform-specifc text editor
 //
 // Copyright 2010, Daniel R. Mitchell
-// License: Creative Commons/GNU-GPL 
+// License: Creative Commons/GNU-GPL
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
@@ -27,12 +27,11 @@ BEGIN_EVENT_TABLE(TextEditorWX,wxWindow)
 	EVT_ERASE_BACKGROUND(TextEditorWX::OnEraseBackground)
 END_EVENT_TABLE()
 
-
 TextEditorWX::TextEditorWX(wxWindow *parent, ProjectItem *p)
-  : wxWindow(parent, wxWindowID(201), wxDefaultPosition, wxDefaultSize)
+  : wxWindow(parent, wxWindowID(ID_EDIT_WND), wxDefaultPosition, wxDefaultSize)
 {
 	pi = p;
-	edwnd = new wxTextCtrl(this, wxWindowID(201), "", wxPoint(0,0), wxDefaultSize,
+	edwnd = new wxTextCtrl(this, wxWindowID(ID_EDIT_CTL), "", wxPoint(0,0), wxDefaultSize,
 		wxVSCROLL|wxHSCROLL|wxBORDER_SIMPLE|wxTE_MULTILINE|wxTE_RICH2|wxTE_NOHIDESEL|wxTE_PROCESS_TAB);
 	wxFont font(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, prjOptions.editFontFace);
 	edwnd->SetFont(font);

@@ -97,6 +97,8 @@ using namespace Gdiplus;
 
 #include <ComposerCore.h>
 
+#include "WinUTF8.h"
+
 extern void LoadEditorDLL();
 
 #if defined _M_IX86

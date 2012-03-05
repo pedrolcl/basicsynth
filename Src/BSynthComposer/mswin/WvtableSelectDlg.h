@@ -29,7 +29,8 @@ public:
 class WvtableSelectDlg : public CDialogImpl<WvtableSelectDlg>
 {
 private:
-	CListBox lst;
+	//CListBox lst;
+	utf8ListBox lst;
 	WavetableDraw plotter;
 
 public:

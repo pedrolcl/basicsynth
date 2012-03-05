@@ -10,6 +10,7 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
+#include <SynthString.h>
 #include <XmlWrap.h>
 #if defined(USE_MSXML)
 
@@ -214,6 +215,22 @@ int XmlSynthElem::GetAttribute(const char *attrName, char **val)
 	return rv;
 }
 
+int XmlSynthElem::GetAttribute(const char *attrName, bsString& val)
+{
+	int rv = -1;
+	if (pElem)
+	{
+		CComBSTR name(attrName);
+		CComVariant v;
+		if (pElem->getAttribute(name, &v) == S_OK)
+		{
+			v.ChangeType(VT_BSTR);
+			val.Assign(v.bstrVal);
+		}
+	}
+	return rv;
+}
+
 int XmlSynthElem::SetAttribute(const char *attrName, short val)
 {
 	return SetAttribute(attrName, (long) val);
@@ -264,6 +281,8 @@ int XmlSynthElem::SetAttribute(const char *attrName, const char *val)
 	if (pElem)
 	{
 		CComBSTR name(attrName);
+		// todo: CComVariant uses the system code page.
+		// this needs to use CP_UTF8
 		CComVariant v(val);
 		if (pElem->setAttribute(name, v) == S_OK)
 			rv = 0;
@@ -381,6 +400,7 @@ XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *rootElem)
 		{
 			pDoc->appendChild(pnew, &pout);
 			rootElem->SetNode(pout);
+			rootElem->SetAttribute("version", 2);
 			return rootElem;
 		}
 	}

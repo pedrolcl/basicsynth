@@ -273,7 +273,7 @@ public:
 
 		int segs = 0;
 		int index = UGEG_SEGLVL(0);
-		XmlSynthElem node;
+		XmlSynthElem node(elem->Document());
 		XmlSynthElem *child = elem->FirstChild(&node);
 		while (child)
 		{

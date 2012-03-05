@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-/// @file SynthThread.cpp Very simple thread class
+/// @file SynthThread.h Simple, portable thread class.
 //
 // Copyright 2010 Daniel R. Mitchell, All Rights Reserved
 // License: Creative Commons/GNU-GPL 
@@ -11,6 +11,7 @@
 #if !defined(_SYNTHTHREAD_H)
 #define _SYNTHTHREAD_H
 
+/// @brief Platform specific thread information.
 class ThreadInfo;
 
 /// @brief Simple thread class.
@@ -29,30 +30,31 @@ public:
 	SynthThread();
 	virtual ~SynthThread();
 
-	/// Start the thread.
-	/// This will invoke ThreadProc() on the new thread.
+	/// @brief Start the thread.
+	/// @details This will invoke ThreadProc() on the new thread.
 	/// The pri parameter sets the thread priority,
 	/// 0=normal, 1=above normal, 2=real-time.
 	/// @param pri thread priority level
 	/// @return 0 on success, -1 on failure
 	virtual int StartThread(int pri = 0);
 
-	/// Stop the thread.
-	/// This will kill the thread; brutal, not recommended.
+	/// @brief Stop the thread.
+	/// @details This will kill the thread; brutal, not recommended.
 	/// @return 0 on success, -1 on failure
 	virtual int StopThread();
 
-	/// Wait for the thread to exit.
+	/// @brief Wait for the thread to exit.
 	/// @return 0 on success, -1 on timeout
 	virtual int WaitThread();
 
-	/// Thread procedure.
-	/// The default implementation returns immediately.
+	/// @brief Thread procedure.
+	/// @details The default implementation returns immediately.
 	/// Derive a class from this one and implement ThreadProc().
 	/// @return exit code
 	virtual int ThreadProc();
 
-	/// Delay minimum amount.
+	/// @brief Delay minimum amount.
+	/// @details Used for spin locks.
 	virtual void ShortWait();
 };
 

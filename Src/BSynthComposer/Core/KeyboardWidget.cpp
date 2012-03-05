@@ -356,10 +356,11 @@ void KeyboardWidget::RhythmString(int rhy, bsString& str)
 
 void KeyboardWidget::NumberString(int num, bsString& str)
 {
-	char buf[20];
-	buf[0] = 0;
-	snprintf(buf, 20, "%d", num);
-	str += buf;
+	//char buf[20];
+	//buf[0] = 0;
+	//snprintf(buf, 20, "%d", num);
+	//str += buf;
+	str += (long)num;
 }
 
 void KeyboardWidget::CopyNotes()

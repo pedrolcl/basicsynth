@@ -28,6 +28,7 @@ private:
 	size_t maxLen;       // size of allocated buffer
 	size_t curLen;       // current actual string length
 	static const char *nulStr;
+	static char *FmtDig(char *s, unsigned long n, unsigned long base, size_t len);
 public:
 	bsString()
 	{
@@ -44,12 +45,36 @@ public:
 		Assign(s);
 	}
 
-	bsString(bsString& s)
+	explicit bsString(bsString& s)
 	{
 		theStr = NULL;
 		maxLen = 0;
 		curLen = 0;
 		Assign(s);
+	}
+
+	bsString(int n)
+	{
+		theStr = NULL;
+		maxLen = 0;
+		curLen = 0;
+		Assign((long)n);
+	}
+
+	explicit bsString(long n)
+	{
+		theStr = NULL;
+		maxLen = 0;
+		curLen = 0;
+		Assign(n);
+	}
+
+	explicit bsString(double d)
+	{
+		theStr = NULL;
+		maxLen = 0;
+		curLen = 0;
+		Assign(d);
 	}
 
 	~bsString()
@@ -63,12 +88,63 @@ public:
 		return curLen;
 	}
 
+	/// Set to a null string
+	bsString& Empty()
+	{
+		curLen = 0;
+		if (theStr)
+			*theStr = 0;
+		return *this; 
+	}
+
 	/// Cast to a char* type
 	operator const char *()
 	{
 		if (theStr)
 			return theStr;
 		return nulStr;
+	}
+
+	/*
+	/// Cast to a long type
+	operator long ()
+	{
+		if (theStr)
+			return ToInt();
+		return 0;
+	}
+
+	/// Cast to a double type
+	operator double ()
+	{
+		if (theStr)
+			return ToFloat();
+		return 0.0;
+	}
+	*/
+
+	static size_t NumToStr(long n, char *str, size_t len, int base = 10);
+	static long StrToNum(const char *s, int base = 10);
+
+	/// Convert to long integer.
+	long ToInt(int base = 10)
+	{
+		if (curLen == 0)
+			return 0;
+		return StrToNum(theStr, base);
+	}
+
+	static double FlpMinimum;
+	static int FlpPrecision;
+	static double StrToFlp(const char *s, int dp = '.');
+	static size_t FlpToStr(double val, char *str, size_t len, int dp = '.');
+
+	/// Convert to floating point.
+	double ToFloat()
+	{
+		if (curLen == 0)
+			return 0.0;
+		return StrToFlp(theStr);
 	}
 
 	/// Get a character at a specific position.
@@ -99,19 +175,14 @@ public:
 	/// \param s string to assign to the object
 	//@{
 	bsString& Assign(const char *s);
+	bsString& Assign(const bsString& s);
+	bsString& Assign(const wchar_t *ws);
 
-	bsString& Assign(const bsString& s)
-	{
-		if (s.curLen == 0)
-			curLen = 0;
-		else if (Allocate(s.curLen))
-		{
-			if (s.theStr && theStr)
-				strcpy(theStr, s.theStr);
-			curLen = s.curLen;
-		}
-		return *this;
-	}
+	/// \param n number to format.
+	/// \param base number base (8,10 or 16)
+	/// \param sgn treat as unsigned if false
+	bsString& Assign(long n, int base = 10L, bool sgn = true);
+	bsString& Assign(double n);
 
 	bsString& operator=(const char *s)
 	{
@@ -122,6 +193,17 @@ public:
 	{
 		return Assign(s);
 	}
+
+	bsString& operator=(long n)
+	{
+		return Assign(n);
+	}
+
+	bsString operator=(double d)
+	{
+		return Assign(d);
+	}
+
 	//@}
 
 	/// \name String concatenation
@@ -131,6 +213,9 @@ public:
 	/// \param s string to append
 	//@{
 	bsString& Append(const char *s);
+	bsString& Append(const wchar_t *ws);
+	bsString& Append(long n);
+	bsString& Append(double d);
 
 	bsString& operator+=(const char *s)
 	{
@@ -151,6 +236,17 @@ public:
 		}
 		return *this;
 	}
+
+	bsString& operator+=(long n)
+	{
+		return Append(n);
+	}
+
+	bsString& operator+=(double d)
+	{
+		return Append(d);
+	}
+
 	//@}
 
 	/// \name String Comparison
@@ -215,6 +311,26 @@ public:
 
 	/// Take ownership of the buffer from this object.
 	char *Detach(int *cl = 0, int *ml = 0);
+
+	/// \name unicode support
+	//@{
+	/// Calculate UTF-16 string length from UTF-8.
+	/// @param ws wide character string
+	static size_t utf8Len(const wchar_t *ws);
+	/// Calculate UTF-8 string length from UTF-16.
+	/// @param cs multi-byte character string
+	static size_t utf16Len(const char *cs);
+	/// Convert UTF-16 string to UTF-8.
+	/// @param ws wide character string
+	/// @param cs multi-byte character string
+	/// @param clen size of cs buffer
+	static size_t utf8(const wchar_t *ws, char *cs, size_t clen);
+	/// Convert UTF-8 string to UTF-16.
+	/// @param cs multi-byte character string
+	/// @param ws wide character string
+	/// @param wlen size of ws buffer
+	static size_t utf16(const char *cs, wchar_t *ws, size_t wlen);
+	//@}
 };
 /*@}*/
 #endif

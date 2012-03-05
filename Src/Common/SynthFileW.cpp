@@ -36,7 +36,11 @@ FileWriteUnBuf::~FileWriteUnBuf()
 
 int FileWriteUnBuf::FileOpen(const char *fname)
 {
-	fh = CreateFile(fname, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	size_t wlen = bsString::utf16Len(fname) + 1;
+	wchar_t *wbuf = new wchar_t[wlen];
+	bsString::utf16(fname, wbuf, wlen);
+	fh = CreateFileW(wbuf, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	delete wbuf;
 	if (fh == INVALID_HANDLE_VALUE)
 		return -1;
 	return 0;
@@ -99,7 +103,11 @@ int FileReadBuf::FileOpen(const char *fname)
 		if (inbuf == 0)
 			return -1;
 	}
-	fh = CreateFile(fname, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	size_t wlen = bsString::utf16Len(fname) + 1;
+	wchar_t *wbuf = new wchar_t[wlen];
+	bsString::utf16(fname, wbuf, wlen);
+	fh = CreateFileW(wbuf, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	delete wbuf;
 	if (fh == INVALID_HANDLE_VALUE)
 		return -1;
 	inread = 0;
@@ -203,15 +211,43 @@ int FileReadBuf::FileClose()
 
 int SynthFileExists(const char *fname)
 {
-	DWORD attr = GetFileAttributes(fname);
-	if (attr == INVALID_FILE_ATTRIBUTES)
-		return 0;
-	return 1;
+	DWORD attr = 0;
+
+	size_t wlen = bsString::utf16Len(fname) + 1;
+	wchar_t *wbuf = new wchar_t[wlen];
+	if (wbuf)
+	{
+		bsString::utf16(fname, wbuf, wlen);
+		attr = GetFileAttributesW(wbuf);
+		delete wbuf;
+	}
+	else
+		attr = ::GetFileAttributesA(fname);
+
+	return (attr == INVALID_FILE_ATTRIBUTES) ? 0 : 1;
 }
 
 int SynthCopyFile(const char *oldName, const char *newName)
 {
-	if (::CopyFile(oldName, newName, 0))
-		return 0;
-	return -1;
+	BOOL res = 0;
+
+	size_t oldlen = bsString::utf16Len(oldName) + 1;
+	wchar_t *wold = new wchar_t[oldlen];
+
+	size_t newlen = bsString::utf16Len(newName) + 1;
+	wchar_t *wnew = new wchar_t[newlen];
+
+	if (wold && wnew)
+	{
+		bsString::utf16(oldName, wold, oldlen);
+		bsString::utf16(newName, wnew, newlen);
+		res = ::CopyFileW(wold, wnew, 0);
+	}
+	else
+		res = ::CopyFileA(oldName, newName, 0);
+
+	delete wold;
+	delete wnew;
+
+	return res ? 0 : -1;
 }

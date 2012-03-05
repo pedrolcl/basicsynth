@@ -76,7 +76,7 @@ int GMPlayer::Load(XmlSynthElem *parent)
 {
 	char *cval;
 
-	XmlSynthElem elem;
+	XmlSynthElem elem(parent->Document());
 	XmlSynthElem *next = parent->FirstChild(&elem);
 	while (next != NULL)
 	{
@@ -105,7 +105,7 @@ int GMPlayer::Load(XmlSynthElem *parent)
 
 int GMPlayer::Save(XmlSynthElem *parent)
 {
-	XmlSynthElem elem;
+	XmlSynthElem elem(parent->Document());
 
 	if (!parent->AddChild("gm", &elem))
 		return -1;

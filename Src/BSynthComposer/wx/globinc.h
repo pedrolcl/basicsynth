@@ -4,25 +4,9 @@
 // (http://creativecommons.org/licenses/GPL/2.0/)
 // (http://www.gnu.org/licenses/gpl.html)
 //////////////////////////////////////////////////////////////////////
-// setting these macros makes VisualStudio IntelliSense work correctly!
-#ifdef _MSC_VER
-#define wxUSE_MENUS 1
-#define wxUSE_TOOLBAR 1
-#define wxUSE_STATUSBAR 1
-#define wxUSE_TREECTRL 1
-#define wxUSE_NOTEBOOK 1
-#define wxUSE_CONFIG 1
-#define wxUSE_STDPATHS 1
-#define wxUSE_REGEX 1
-#define wxUSE_FILE 1
-#define wxUSE_XRC 1
-#define wxUSE_TEXTCTRL 1
-#define wxUSE_BUTTON 1
-#define wxUSE_TOGGLEBTN 1
-#define wxUSE_RADIOBTN 1
-#define wxUSE_GAUGE 1
-//#define wxUSE_GRAPHICS_CONTEXT 1
-#endif
+// include defs.h explicitly to get wx_USE* definitions.
+// this allows VS intellisense to work.
+#include "wx/defs.h"
 
 #include <wx/app.h>
 #include <wx/window.h>
@@ -55,7 +39,6 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/html/helpctrl.h>
 #include <wx/stc/stc.h>
-
 #include <wx/graphics.h>
 
 #include <stdlib.h>
@@ -77,6 +60,8 @@
 #define ID_PROJECT_WND  201
 #define ID_KEYBOARD_WND 202
 #define ID_TAB_WND      203
+#define ID_EDIT_WND     204
+#define ID_EDIT_CTL     205
 
 class SynthApp: public wxApp
 {

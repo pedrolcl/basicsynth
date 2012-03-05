@@ -27,18 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -69,14 +69,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "Music synthesizer built from BasicSynth sound generation library"
+            VALUE "Comments", "Music synthesizer built from BasicSynth sound generation library."
             VALUE "CompanyName", "http://www.basicsynth.com"
             VALUE "FileDescription", "BasicSynth Composer"
             VALUE "FileVersion", "1, 0, 0, 1"
-            VALUE "InternalName", "wx"
-            VALUE "LegalCopyright", "Copyright (C) 2010 Daniel R. Mitchell"
+            VALUE "InternalName", "BSynthComposerWX"
+            VALUE "LegalCopyright", "Copyright 2010 Daniel R. Mitchell"
             VALUE "OriginalFilename", "bsynthcomposer.exe"
-            VALUE "ProductName", "BasicSynth - Sound generation "
+            VALUE "ProductName", "BasicSynth Composer - Synthesis Studio"
             VALUE "ProductVersion", "1, 4, 4, 0"
         END
     END
@@ -96,18 +96,22 @@ END
 // remains consistent on all systems.
 IDI_MAIN                ICON                    "res\\main.ico"
 
-WXCURSOR_HAND           CURSOR  DISCARDABLE     "wx/msw/hand.cur"
-WXCURSOR_BULLSEYE       CURSOR  DISCARDABLE     "wx/msw/bullseye.cur"
-WXCURSOR_PENCIL         CURSOR  DISCARDABLE     "wx/msw/pencil.cur"
-WXCURSOR_MAGNIFIER      CURSOR  DISCARDABLE     "wx/msw/magnif1.cur"
-WXCURSOR_ROLLER         CURSOR  DISCARDABLE     "wx/msw/roller.cur"
-WXCURSOR_PBRUSH         CURSOR  DISCARDABLE     "wx/msw/pbrush.cur"
-WXCURSOR_PLEFT          CURSOR  DISCARDABLE     "wx/msw/pntleft.cur"
-WXCURSOR_PRIGHT         CURSOR  DISCARDABLE     "wx/msw/pntright.cur"
-WXCURSOR_BLANK          CURSOR  DISCARDABLE     "wx/msw/blank.cur"
-WXCURSOR_RIGHT_ARROW    CURSOR  DISCARDABLE     "wx/msw/rightarr.cur"
-WXCURSOR_CROSS          CURSOR  DISCARDABLE     "wx/msw/cross.cur"
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
 
+WXCURSOR_HAND           CURSOR                  "wx/msw/hand.cur"
+WXCURSOR_BULLSEYE       CURSOR                  "wx/msw/bullseye.cur"
+WXCURSOR_PENCIL         CURSOR                  "wx/msw/pencil.cur"
+WXCURSOR_MAGNIFIER      CURSOR                  "wx/msw/magnif1.cur"
+WXCURSOR_ROLLER         CURSOR                  "wx/msw/roller.cur"
+WXCURSOR_PBRUSH         CURSOR                  "wx/msw/pbrush.cur"
+WXCURSOR_PLEFT          CURSOR                  "wx/msw/pntleft.cur"
+WXCURSOR_PRIGHT         CURSOR                  "wx/msw/pntright.cur"
+WXCURSOR_BLANK          CURSOR                  "wx/msw/blank.cur"
+WXCURSOR_RIGHT_ARROW    CURSOR                  "wx/msw/rightarr.cur"
+WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -237,6 +237,7 @@ public:
 
 	/// Get key aftertouch (polyphonic key pressure).
 	/// @param chnl MIDI channel number (0-15)
+	/// @param key MIDI key number
 	/// @returns aftertouch [0,127]
 	inline bsInt16 GetKeyAftertouch(int chnl, int key)
 	{
@@ -245,6 +246,7 @@ public:
 
 	/// Get normalized key aftertouch (polyphonic key pressure).
 	/// @param chnl MIDI channel number (0-15)
+	/// @param key MIDI key number
 	/// @returns aftertouch [0,1]
 	inline AmpValue GetKeyAftertouchN(int chnl, int key)
 	{
@@ -253,6 +255,7 @@ public:
 
 	/// Get scaled key aftertouch (polyphonic key pressure).
 	/// @param chnl MIDI channel number (0-15)
+	/// @param key MIDI key number
 	/// @returns aftertouch in centibels [0,960]
 	inline AmpValue GetKeyAftertouchCB(int chnl, int key)
 	{
@@ -325,7 +328,7 @@ public:
 	/// Set the sound bank number.
 	/// See GetBank().
 	/// @param chnl channel number
-	/// @param Sound bank number.
+	/// @param bank Sound bank number.
 	inline void SetBank(int chnl, int bank)
 	{
 		if (bank == 128)
@@ -351,7 +354,7 @@ public:
 
 	/// Set pan (CC10) value.
 	/// @param chnl MIDI channel number (0-15)
-	/// @param pan value [0-127]
+	/// @param val value [0-127]
 	inline void SetPan(int chnl, int val)
 	{
 		channel[chnl].cc[MIDI_CTRL_PAN] = val;

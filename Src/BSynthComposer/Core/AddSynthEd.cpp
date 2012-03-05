@@ -293,10 +293,11 @@ void AddSynthEdit::ValueChanged(SynthWidget *wdg)
 	if (id == 300) // # parts
 	{
 		char buf[40];
-		snprintf(buf, 40, "%d", numParts);
-		if (prjFrame->QueryValue("Enter number of parts (1-16)", buf, 40))
+		//snprintf(buf, 40, "%d", numParts);
+		bsString::NumToStr(numParts, buf, sizeof(buf));
+		if (prjFrame->QueryValue("Enter number of parts (1-16)", buf, sizeof(buf)))
 		{
-			int newParts = atoi(buf);
+			int newParts = bsString::StrToNum(buf);
 			if (newParts != numParts)
 			{
 				numParts = newParts;

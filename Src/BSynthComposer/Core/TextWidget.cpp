@@ -41,9 +41,7 @@ void TextWidget::SetValue(float v)
 
 float TextWidget::GetValue()
 {
-	if (text)
-		return atof(text);
-	return 0.0;
+	return (float) text.ToFloat();
 }
 
 void TextWidget::SetText(const char *s)
@@ -121,11 +119,10 @@ int TextWidget::BtnUp(int x, int y, int ctrl, int shift)
 		if (enable && area.Inside(x, y))
 		{
 			char buf[80];
-			float val;
 			if (buddy1)
 			{
-				val = buddy1->GetValue();
-				snprintf(buf, 80, "%f", val);
+				//snprintf(buf, 80, "%f", buddy1->GetValue());
+				bsString::FlpToStr(buddy1->GetValue(), buf, sizeof(buf));
 			}
 			else
 				strncpy(buf, text, sizeof(buf));

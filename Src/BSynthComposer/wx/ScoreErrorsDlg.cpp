@@ -165,13 +165,20 @@ void ScoreErrorsDlg::ShowErrors()
 	int index = itmSel->GetSelection();
 	if (index != wxNOT_FOUND)
 	{
-		wxString msg;
+		//wxString msg;
 		NotelistItem *ni = (NotelistItem*)itmSel->GetClientData(index);
 		ScoreError *err = ni->EnumErrors(0);
 		while (err)
 		{
-			msg.Format("%d: %s : %s", (int)err->GetLine(), err->GetMsg(), err->GetToken());
-			errLst->Append(msg, reinterpret_cast<void*>(err->GetPosition()));
+			// does not work:
+			// msg.Format("%d: %s : %s", (int)err->GetLine(), err->GetMsg(), err->GetToken());
+			bsString fmt;
+			fmt = err->GetLine();
+			fmt += ": ";
+			fmt += err->GetMsg();
+			fmt += " : ";
+			fmt += err->GetToken();
+			errLst->Append(wxString(fmt), reinterpret_cast<void*>(err->GetPosition()));
 			err = ni->EnumErrors(err);
 			count++;
 		}
@@ -189,15 +196,19 @@ void ScoreErrorsDlg::GotoLine()
 	if (index != wxNOT_FOUND)
 	{
 		NotelistItem *itm = (NotelistItem *)itmSel->GetClientData(index);
-		index = errLst->GetSelection();
-		if (index < 0)
-			index = 0;
-		long errPos = reinterpret_cast<long>(errLst->GetClientData(index));
-		if (errPos > 0) // the editor places the cursor after the char at this position
-			errPos--;
-		prjFrame->OpenEditor(itm);
-		EditorView *ed = itm->GetEditor();
-		ed->GotoPosition((int)errPos);
+		if (itm)
+		{
+			index = errLst->GetSelection();
+			if (index < 0)
+				index = 0;
+			long errPos = reinterpret_cast<long>(errLst->GetClientData(index));
+			if (errPos > 0) // the editor places the cursor after the char at this position
+				errPos--;
+			prjFrame->OpenEditor(itm);
+			EditorView *ed = itm->GetEditor();
+			if (ed)
+				ed->GotoPosition((int)errPos);
+		}
 	}
 }
 

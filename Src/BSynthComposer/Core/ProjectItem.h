@@ -1303,6 +1303,7 @@ public:
 	inline const char *WhatHappened() { return lastError; }
 
 	static char *NormalizePath(char *path);
+	static char *CheckExtension(char *path, const char *ext);
 	static char *SkipProjectDir(char *path);
 	static char *SaveStringCopy(const char *s);
 	static int FullPath(const char *s);

@@ -136,11 +136,11 @@ int SequenceFile::ParseMem(const char *linbuf)
 			mmsg |= chnl;
 		cevt->SetMessage(mmsg);
 		if ((parg = NextParam(parg, argbuf)) != NULL)
-			cevt->SetParam(P_START, atof(argbuf));
+			cevt->SetParam(P_START, (float)bsString::StrToFlp(argbuf));
 		if ((parg = NextParam(parg, argbuf)) != NULL)
 			cevt->SetControl((bsInt16)atoi(argbuf));
 		if ((parg = NextParam(parg, argbuf)) != NULL)
-			cevt->SetValue((bsInt16)atoi(argbuf));
+			cevt->SetValue((bsInt16)bsString::StrToNum(argbuf));
 		seq->AddEvent(cevt);
 		if (parg && (parg = NextParam(parg, argbuf)) != NULL)
 			return -1;
@@ -157,11 +157,11 @@ int SequenceFile::ParseMem(const char *linbuf)
 		tevt->SetTrack(0);
 		tevt->SetDuration(0);
 		if ((parg = NextParam(++parg, argbuf)) != NULL)
-			tevt->SetParam(P_START, atof(argbuf));
+			tevt->SetParam(P_START, (float) bsString::StrToFlp(argbuf));
 		if ((parg = NextParam(parg, argbuf)) != NULL)
-			tevt->SetTrkNo((bsInt16)atoi(argbuf));
+			tevt->SetTrkNo((bsInt16)bsString::StrToNum(argbuf));
 		if (evtype == SEQEVT_STARTTRACK && (parg = NextParam(parg, argbuf)) != NULL)
-			tevt->SetLoop((bsInt16)atoi(argbuf));
+			tevt->SetLoop((bsInt16)bsString::StrToNum(argbuf));
 		else
 			tevt->SetLoop(0);
 		seq->AddEvent(tevt);

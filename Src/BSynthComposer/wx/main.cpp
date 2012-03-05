@@ -14,6 +14,8 @@
 
 extern bool InitResources();
 
+static MainFrame *frame;
+
 bool SynthApp::OnInit()
 {
 	// use '.' for decimal point
@@ -32,7 +34,7 @@ bool SynthApp::OnInit()
 	knobCache = new WidgetImageCache;
 	switchCache = new WidgetImageCache;
 
-	MainFrame *frame = new MainFrame(prjOptions.programName,
+	frame = new MainFrame(prjOptions.programName,
 		wxPoint(prjOptions.frmLeft,prjOptions.frmTop),
 		wxSize(prjOptions.frmWidth,prjOptions.frmHeight));
 	frame->Show( true );
@@ -42,6 +44,7 @@ bool SynthApp::OnInit()
 
 void SynthApp::CleanUp()
 {
+	delete frame;
 	delete knobCache;
 	delete switchCache;
 }

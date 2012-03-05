@@ -614,6 +614,24 @@ char *SynthProject::NormalizePath(char *path)
 	return path;
 }
 
+// If the path doesn't have an extension, add the default.
+char *SynthProject::CheckExtension(char *path, const char *ext)
+{
+	if (ext == NULL)
+		return path;
+
+	char *slsh = strrchr(path, '/');
+	if (slsh == NULL)
+		slsh = path;
+	char *dot = strrchr(slsh, '.');
+	if (dot == NULL)
+	{
+		strcat(path, ".");
+		strcat(path, ext);
+	}
+	return path;
+}
+
 // Find the part of the path past the project directory.
 char *SynthProject::SkipProjectDir(char *path)
 {

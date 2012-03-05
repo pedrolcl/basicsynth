@@ -410,6 +410,7 @@ public:
 		velScale = 960.0;
 		velFlt = 0;
 		vibLfoFrq = 0;
+		vibLfoMwFrq = 50;
 		modLfoVol = 0;
 		modLfoFlt = 0;
 		modLfoFrq = 0;

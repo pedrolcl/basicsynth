@@ -145,8 +145,7 @@ class nlVariable;
 extern int CompareToken(const char *s1, const char *s2);
 extern char *StrMakeCopy(const char *);
 extern char *StrPaste(const char *s1, const char *s2);
-extern char *IntToStr(long val, char *s);
-extern char *FltToStr(double val, char *s, int len);
+
 #include "Lex.h"
 #include "Generate.h"
 #include "Parser.h"

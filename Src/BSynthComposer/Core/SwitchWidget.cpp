@@ -46,7 +46,7 @@ SwitchWidget::SwitchWidget() : SynthWidget(wdgSwitch)
 	track = 0;
 	swOn = 0;
 	act = 1;
-	lbl = 0;
+	//lbl = 0;
 	lblHeight = 12;
 	bold = 0;
 	italic = 0;

@@ -279,11 +279,11 @@ protected:
 	
 	/// Read a string and append to str
 	/// @param str output string
-	/// @len length to read
+	/// @param len length to read
 	void ReadString(bsString& str, bsUint32 len)
 	{
 		while (len-- > 0)
-			str += *inpPos++;
+			str += (long)*inpPos++;
 		str += "\r\n";
 	}
 	
@@ -375,6 +375,12 @@ public:
 		instrMap = map;
 	}
 
+	/// Set the sound bank (optional).
+	inline void SetSoundBank(SoundBank *sb)
+	{
+		sbnk = sb;
+	}
+
 	/// Emit note off events.
 	/// By default, we generate one event per note.
 	/// To emulate MIDI NoteOn/NoteOff, we can emit 
@@ -448,6 +454,8 @@ public:
 	/// @param seq Sequencer object
 	/// @param map instrument map 
 	/// @param sb SoundBank (optional)
+	/// @param mask channel mask (optional)
+	/// @returns 0 on success
 	int GenerateSeq(Sequencer *seq, SMFInstrMap *map, SoundBank *sb = 0, bsUint16 mask = 0xffff);
 
 	/// Determine how many notes are on each channel.

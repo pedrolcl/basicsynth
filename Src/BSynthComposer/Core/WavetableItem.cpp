@@ -51,8 +51,10 @@ int WavetableItem::CopyItem()
 	wnew->SetID(WT_USR(newID));
 	wnew->SetIndex(wtSet.wavTblMax + 1);
 	wnew->InitWaveform();
-	char nm[40];
-	snprintf(nm, 40, "#%d", WT_USR(newID));
+	//char nm[40];
+	//snprintf(nm, 40, "#%d", WT_USR(newID));
+	bsString nm("wt");
+	nm += (long)WT_USR(newID);
 	wnew->SetName(nm);
 	prjTree->AddNode(wnew);
 	wnew->ItemProperties();
@@ -162,9 +164,11 @@ int WavetableItem::Load(XmlSynthElem *node)
 	}
 	if (name.Length() == 0)
 	{
-		char buf[40];
-		snprintf(buf, 40, "#%d", wvID);
-		name = buf;
+		//char buf[40];
+		//snprintf(buf, 40, "#%d", wvID);
+		//name = buf;
+		name = "wt";
+		name += (long)wvID;
 	}
 	return 0;
 }

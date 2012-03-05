@@ -57,13 +57,16 @@ private:
 #if defined(USE_TINYXML)
 	TiXmlElement *pElem;
 	void SetNode(TiXmlElement *pnode) { pElem = pnode; }
+	void ConvertUTF8(const char *in, bsString& out);
 #endif
 
 	friend class XmlSynthDoc;
 
 public:
-	XmlSynthElem(XmlSynthDoc *p = 0);
+	XmlSynthElem(XmlSynthDoc *p);
+//	XmlSynthElem(XmlSynthDoc *p = 0);
 	~XmlSynthElem();
+	XmlSynthDoc *Document() { return doc; }
 	void Clear();
 	/// Get the first child element of this element.
 	/// This method allocates a new wrapper object.
@@ -92,6 +95,7 @@ public:
 	int GetAttribute(const char *attrName, float& val);
 	int GetAttribute(const char *attrName, double& val);
 	int GetAttribute(const char *attrName, char **val);
+	int GetAttribute(const char *attrName, bsString& val);
 	int SetAttribute(const char *attrName, short val);
 	int SetAttribute(const char *attrName, long val);
 	int SetAttribute(const char *attrName, float val);
@@ -106,6 +110,11 @@ public:
 class XmlSynthDoc
 {
 private:
+	int isUTF8;
+	double prjVersion;
+	bsString xmlEncoding;
+	bsString xmlLocale;
+
 #if defined(USE_MSXML)
 	CComQIPtr<IXMLDOMDocument> pDoc;
 	int GetXmlDoc();
@@ -144,6 +153,11 @@ public:
 	int Save(const char *fname);
 	/// Close the XML file.
 	int Close();
+	/// Is encoding utf-8
+	int UTF8() { return isUTF8; }
+	double Version() { return prjVersion; }
+	const char *Encoding() { return (const char*)xmlEncoding; }
+	const char *Locale() { return (const char *)xmlLocale; }
 };
 
 #endif

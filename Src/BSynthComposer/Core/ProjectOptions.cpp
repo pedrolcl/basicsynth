@@ -151,15 +151,6 @@ void ProjectOptions::InitDevInfo()
 	snd_config_update();
 
 	int ctlNum = -1;
-	int devNum;
-	snd_ctl_card_info_t *devInfo;
-	snd_pcm_t *pcmHandle;
-	snd_pcm_info_t *pcmInfo;
-	snd_rawmidi_t *midiHandle;
-	snd_rawmidi_info_t *midiInfo;
-
-	char hw[128];
-
 	SoundDevInfo *inf = waveList.AddItem();
 	inf->name = "default";
 	inf->id = -1;
@@ -222,8 +213,17 @@ void ProjectOptions::InitDevInfo()
 		}
 #endif
 		/*
+        snd_ctl_card_info_t *devInfo;
+        snd_pcm_t *pcmHandle;
+        snd_pcm_info_t *pcmInfo;
+        snd_rawmidi_t *midiHandle;
+        snd_rawmidi_info_t *midiInfo;
+
+        char hw[128];
+
         snprintf(hw, sizeof(hw), "hw:%d", ctlNum);
 
+        int devNum;
         snd_ctl_t *ctl;
         if (snd_ctl_open(&ctl, hw, 0) >= 0)
         {

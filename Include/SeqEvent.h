@@ -148,7 +148,7 @@ public:
 	/// @param s the parameter value
 	virtual void SetParam(bsInt16 id, char *s)
 	{
-		SetParam(id, (float) atof(s));
+		SetParam(id, (float) bsString::StrToFlp(s));
 	}
 
 	/// Get a parameter.

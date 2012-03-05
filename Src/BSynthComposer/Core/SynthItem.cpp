@@ -34,7 +34,10 @@ void SynthItem::InitSynth()
 		if (wv->GetType() == PRJNODE_WVTABLE)
 		{
 			if (wv->GetParts() == 0)
+			{
 				wv->AllocParts(1);
+				wv->SetPart(0, 1, 1.0, 0.0);
+			}
 			wv->InitWaveform();
 		}
 		wv = (WavetableItem *)prjTree->NextSibling(wv);
@@ -49,8 +52,10 @@ int SynthItem::ItemProperties()
 WavetableItem *SynthItem::AddWavetable(int ndx)
 {
 	WavetableItem *wvitm = new WavetableItem;
-	char nm[40];
-	snprintf(nm, 40, "#%d", WT_USR(ndx));
+	//char nm[40];
+	//snprintf(nm, 40, "#%d", WT_USR(ndx));
+	bsString nm("wt");
+	nm += (long)WT_USR(ndx);
 	wvitm->SetName(nm);
 	wvitm->SetSum(1);
 	wvitm->SetGibbs(0);

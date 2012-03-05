@@ -515,24 +515,25 @@ void KeyboardDlg::InitInstrList()
 	}
 }
 
-void KeyboardDlg::AddInstrument(InstrConfig *ic)
+int KeyboardDlg::AddInstrument(InstrConfig *ic)
 {
-	char fnbuf[20];
 	const char *np = ic->GetName();
 	if (*np == '[')
 	{
 		// internal control instrument - ignore it
-		return;
+		return wxNOT_FOUND;
 	}
+	bsString fnbuf;
 	if (!np || *np == 0)
 	{
-		np = fnbuf;
-		sprintf(fnbuf, "#%d", ic->inum);
+		fnbuf = "#";
+		fnbuf.Append((long)ic->inum);
+		np = (const char*)fnbuf;
 	}
-	instrList->Append(np, ic);
+	return instrList->Append(wxString(np, cutf8), (void*)ic);
 }
 
-void KeyboardDlg::SelectInstrument(InstrConfig *ic)
+int KeyboardDlg::FindInstrument(InstrConfig *ic)
 {
 	InstrConfig *ic2;
 	int count = instrList->GetCount();
@@ -541,58 +542,55 @@ void KeyboardDlg::SelectInstrument(InstrConfig *ic)
 	{
 		ic2 = (InstrConfig*)instrList->GetClientData(ndx);
 		if (ic == ic2)
-		{
-			instrList->SetSelection(ndx);
-			if (form)
-				form->GetKeyboard()->SetInstrument(ic);
-			if (ic && theProject)
-				theProject->prjMidiIn.SetInstrument(ic->inum);
-			break;
-		}
+			return ndx;
 		ndx++;
 	}
+	return wxNOT_FOUND;
 }
 
-void KeyboardDlg::RemoveInstrument(InstrConfig *ic)
+int KeyboardDlg::SelectInstrument(InstrConfig *ic)
+{
+	int ndx = FindInstrument(ic);
+	if (ndx != wxNOT_FOUND)
+	{
+		instrList->SetSelection(ndx);
+		if (form)
+			form->GetKeyboard()->SetInstrument(ic);
+		if (ic && theProject)
+			theProject->prjMidiIn.SetInstrument(ic->inum);
+	}
+	return ndx;
+}
+
+int KeyboardDlg::RemoveInstrument(InstrConfig *ic)
 {
 	if (form)
 		form->GetKeyboard()->SetInstrument(0);
 
-	InstrConfig *ic2;
-	int count = instrList->GetCount();
-	int ndx = 0;
-	while (ndx < count)
+	int sel = instrList->GetSelection();
+	int ndx = FindInstrument(ic);
+	if (ndx != wxNOT_FOUND)
 	{
-		ic2 = (InstrConfig*)instrList->GetClientData(ndx);
-		if (ic == ic2)
+		instrList->Delete(ndx);
+		if (ndx == sel)
 		{
-			instrList->Delete(ndx);
-			break;
+			int count = instrList->GetCount();
+			if (count == ndx)
+				ndx--;
+			instrList->SetSelection(ndx);
 		}
-		ndx++;
 	}
+
+	return ndx;
 }
 
 // this is called if the instrument name gets changed.
-void KeyboardDlg::UpdateInstrument(InstrConfig *ic)
+int KeyboardDlg::UpdateInstrument(InstrConfig *ic)
 {
-	const char *nm = ic->GetName();
-	if (nm == 0 || *nm == '[')
-		return;
-	InstrConfig *ic2;
-	int count = instrList->GetCount();
-	int ndx = 0;
-	while (ndx < count)
-	{
-		ic2 = (InstrConfig*)instrList->GetClientData(ndx);
-		if (ic == ic2)
-		{
-			instrList->Delete(ndx);
-			ndx = instrList->Append(nm, ic);
-			break;
-		}
-		ndx++;
-	}
+	int sel = FindInstrument(ic);
+	if (sel != wxNOT_FOUND)
+		instrList->SetString(sel, wxString(ic->GetName(), cutf8));
+	return sel;
 }
 
 void KeyboardDlg::UpdateChannels()

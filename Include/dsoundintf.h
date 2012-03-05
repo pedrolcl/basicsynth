@@ -1,8 +1,22 @@
-// dsound.h and dsound.lib are only included with the DirectX SDK, which is huge.
-// to avoid requiring the SDK, the parts used in BasicSynth are defined here.
+///////////////////////////////////////////////////////////
+/// @file dsoundintf.h Reference DirectSound.
+/// @details dsound.h and dsound.lib are only included with the DirectX SDK, which is huge.
+/// to avoid requiring the SDK, the parts used in BasicSynth are defined here.
+/// If the DirectX SDK is installed, and you want to use it, define USE_SDK_DSOUND=1
+//
+// Copyright 2008, Daniel R. Mitchell
+// License: Creative Commons/GNU-GPL
+// (http://creativecommons.org/licenses/GPL/2.0/)
+// (http://www.gnu.org/licenses/gpl.html)
+///////////////////////////////////////////////////////////
+/// @addtogroup grpSeq
+//@{
+#ifndef USE_SDK_DSOUND
 #define USE_SDK_DSOUND 0
+#endif
 #if USE_SDK_DSOUND
 #include <dsound.h>
+#pragma comment(lib, "dsound.lib")
 #else
 #ifndef _DSOUNDINTF_H
 #define _DSOUNDINTF_H
@@ -17,6 +31,16 @@
 #define DSBPLAY_LOOPING             0x00000001
 #define DSBCAPS_GLOBALFOCUS         0x00008000
 #define DSBCAPS_GETCURRENTPOSITION2 0x00010000
+
+#define DSBSTATUS_PLAYING           0x00000001
+#define DSBSTATUS_BUFFERLOST        0x00000002
+#define DSBSTATUS_LOOPING           0x00000004
+#define DSBSTATUS_LOCHARDWARE       0x00000008
+#define DSBSTATUS_LOCSOFTWARE       0x00000010
+#define DSBSTATUS_TERMINATED        0x00000020
+
+#define DSBLOCK_FROMWRITECURSOR     0x00000001
+#define DSBLOCK_ENTIREBUFFER        0x00000002
 
 typedef struct _DSCAPS
 {
@@ -126,3 +150,4 @@ struct IDirectSoundBuffer
 #endif
 
 #endif
+//@}

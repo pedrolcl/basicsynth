@@ -82,15 +82,17 @@ public:
 
 	virtual void SetValue(int id, float val, const char *lbl)
 	{
-		char txt[40];
-		snprintf(txt, 40, "%f", val);
+		//char txt[40];
+		//snprintf(txt, 40, "%f", val);
+		bsString txt((double)val);
 		SetValue(id, txt, lbl);
 	}
 
 	virtual void SetValue(int id, long val, const char *lbl)
 	{
-		char txt[40];
-		snprintf(txt, 40, "%ld", val);
+		//char txt[40];
+		//snprintf(txt, 40, "%ld", val);
+		bsString txt(val);
 		SetValue(id, txt, lbl);
 	}
 
@@ -99,17 +101,45 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-		    wxString wval(val);
+			// explicitly convert from utf8
+			wxMBConvUTF8 conv;
+			wxString wval(val, conv);
 		    if (child->IsKindOf(CLASSINFO(wxTextCtrl)))
                 ((wxTextCtrl*)child)->ChangeValue(wval);
+			else if (child->IsKindOf(CLASSINFO(wxListBox))
+				||   child->IsKindOf(CLASSINFO(wxComboBox)) )
+			{
+				((wxControlWithItems*)child)->SetStringSelection(wval);
+			}
+			//else if (child->IsKindOf(CLASSINFO(wxControl)))
+            //    ((wxControl*)child)->SetLabel(wval);
 			else
-                ((wxControl*)child)->SetLabel(wval);
+				child->SetLabel(wval);
 			if (lbl)
 			{
+				wxString wlbl(lbl, conv);
 				if (GetLabelID(id, &child))
-					child->SetLabel(lbl);
+					child->SetLabel(wlbl);
 			}
 		}
+	}
+
+	int GetValue(wxWindow *child, wxString& wval)
+	{
+		if (child)
+		{
+			if (child->IsKindOf(CLASSINFO(wxTextCtrl)))
+				wval = ((wxTextCtrl*)child)->GetValue();
+			else if (child->IsKindOf(CLASSINFO(wxListBox))
+				||   child->IsKindOf(CLASSINFO(wxComboBox)) )
+				wval  = ((wxControlWithItems*)child)->GetStringSelection();
+			//else if (child->IsKindOf(CLASSINFO(wxControl)))
+			//	wval = ((wxControl*)child)->GetLabel();
+			else
+				wval = child->GetLabel();
+			return 1;
+		}
+		return 0;
 	}
 
 	virtual int GetValueLength(int id)
@@ -118,11 +148,8 @@ public:
 		if (GetFieldID(id, &child))
 		{
 			wxString wval;
-		    if (child->IsKindOf(CLASSINFO(wxTextCtrl)))
-                wval = ((wxTextCtrl*)child)->GetValue();
-			else
-                wval = ((wxControl*)child)->GetLabel();
-			return wval.Len();
+			if (GetValue(child, wval))
+				return wval.Len();
 		}
 		return 0;
 	}
@@ -132,7 +159,7 @@ public:
 		char txt[40];
 		if (GetValue(id, txt, 40))
 		{
-			val = atof(txt);
+			val = (float)bsString::StrToFlp(txt);
 			return 1;
 		}
 		return 0;
@@ -143,7 +170,8 @@ public:
 		char txt[40];
 		if (GetValue(id, txt, 40))
 		{
-			val = atol(txt);
+			//val = atol(txt);
+			val = bsString::StrToNum(txt);
 			return 1;
 		}
 		return 0;
@@ -155,27 +183,28 @@ public:
 		if (GetFieldID(id, &child))
 		{
 			wxString wval;
-		    if (child->IsKindOf(CLASSINFO(wxTextCtrl)))
-                wval = ((wxTextCtrl*)child)->GetValue();
-			else
-                wval = ((wxControl*)child)->GetLabel();
-			strncpy(val, wval.data(), len);
-			return 1;
+			if (GetValue(child, wval))
+			{
+				bsString::utf8(wval.wc_str(), val, len);
+				return 1;
+			}
 		}
 		*val = 0;
 		return 0;
 	}
+
 
 	virtual int GetValue(int id, bsString& val)
 	{
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-		    if (child->IsKindOf(CLASSINFO(wxTextCtrl)))
-                val = ((wxTextCtrl*)child)->GetValue().data();
-			else
-                val = ((wxControl*)child)->GetLabel().data();
-			return 1;
+			wxString wval;
+			if (GetValue(child, wval))
+			{
+				val.Assign(wval.wc_str());
+				return 1;
+			}
 		}
 		return 0;
 	}
@@ -185,10 +214,14 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			// get item selection from list box
-			sel = (short) ((wxControlWithItems*)child)->GetSelection();
-			if (sel != wxNOT_FOUND)
-				return 1;
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
+			{
+				// get item selection from list box
+				sel = (short) ((wxControlWithItems*)child)->GetSelection();
+				if (sel != wxNOT_FOUND)
+					return 1;
+			}
 		}
 		return 0;
 	}
@@ -198,9 +231,13 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			wxControlWithItems* lst = (wxControlWithItems*)child;
-			if (lst->GetCount() > (unsigned int)sel)
-				lst->SetSelection(sel);
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
+			{
+				wxControlWithItems* lst = (wxControlWithItems*)child;
+				if (lst->GetCount() > (unsigned int)sel)
+					lst->SetSelection(sel);
+			}
 		}
 	}
 
@@ -210,12 +247,16 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			wxControlWithItems *lb = (wxControlWithItems*)child;
-			int index = lb->GetSelection();
-			if (index != wxNOT_FOUND)
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
 			{
-				*sel = lb->GetClientData(index);
-				return 1;
+				wxControlWithItems *lb = (wxControlWithItems*)child;
+				int index = lb->GetSelection();
+				if (index != wxNOT_FOUND)
+				{
+					*sel = lb->GetClientData(index);
+					return 1;
+				}
 			}
 		}
 		return 0;
@@ -226,15 +267,19 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			wxControlWithItems *lb = (wxControlWithItems*)child;
-			unsigned int count = lb->GetCount();
-			unsigned int index;
-			for (index = 0; index < count; index++)
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
 			{
-				if (lb->GetClientData() == sel)
+				wxControlWithItems *lb = (wxControlWithItems*)child;
+				unsigned int count = lb->GetCount();
+				unsigned int index;
+				for (index = 0; index < count; index++)
 				{
-					lb->SetSelection(index);
-					break;
+					if (lb->GetClientData() == sel)
+					{
+						lb->SetSelection(index);
+						break;
+					}
 				}
 			}
 		}
@@ -246,13 +291,17 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			wxControlWithItems *lb = (wxControlWithItems*)child;
-			ProjectItem *itm = prjTree->FirstChild(parent);
-			while (itm)
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
 			{
-				lb->Append(itm->GetName(), (void*)itm);
-				itm = prjTree->NextSibling(itm);
-				count++;
+				wxControlWithItems *lb = (wxControlWithItems*)child;
+				ProjectItem *itm = prjTree->FirstChild(parent);
+				while (itm)
+				{
+					lb->Append(itm->GetName(), (void*)itm);
+					itm = prjTree->NextSibling(itm);
+					count++;
+				}
 			}
 		}
 		return count;
@@ -263,8 +312,12 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			count = (int) ((wxControlWithItems*)child)->GetCount();
-			return 1;
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
+			{
+				count = (int) ((wxControlWithItems*)child)->GetCount();
+				return 1;
+			}
 		}
 		count = 0;
 		return 0;
@@ -275,9 +328,13 @@ public:
 		wxWindow *child = 0;
 		if (GetFieldID(id, &child))
 		{
-			wxControlWithItems *lb = (wxControlWithItems*)child;
-			if (ndx < (int)lb->GetCount())
-				return (ProjectItem*) lb->GetClientData((unsigned int)ndx);
+			if (child->IsKindOf(CLASSINFO(wxListBox))
+			 || child->IsKindOf(CLASSINFO(wxComboBox)) )
+			{
+				wxControlWithItems *lb = (wxControlWithItems*)child;
+				if (ndx < (int)lb->GetCount())
+					return (ProjectItem*) lb->GetClientData((unsigned int)ndx);
+			}
 		}
 		return 0;
 	}

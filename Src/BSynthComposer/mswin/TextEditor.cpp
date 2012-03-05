@@ -237,7 +237,7 @@ void TextEditorWin::Restyle(int position)
 			{
 				lenPos++;
 				ch = edwnd.GetCharAt(++chPos);
-			} while (strchr(",;{}[]():=", ch) != 0);
+			} while (ch > 0 && strchr(",;{}[]():=", ch) != 0 && chPos < position);
 			edwnd.SetStyling(lenPos, NLSTYLE_DELIM);
 			startPos = chPos;
 		}
@@ -266,7 +266,7 @@ void TextEditorWin::Restyle(int position)
 			do
 			{
 				ch = edwnd.GetCharAt(++chPos);
-			} while (chPos < position && ch != '"' && ch != '\n');
+			} while (ch > 0 && ch != '"' && ch != '\n' && chPos < position);
 			if (ch == '"')
 				ch = edwnd.GetCharAt(++chPos);
 			edwnd.StartStyling(startPos);
@@ -283,7 +283,7 @@ void TextEditorWin::Restyle(int position)
 			{
 				kwbuf[kwpos++] = ch;
 				ch = edwnd.GetCharAt(++chPos);
-			} while (AtoZ(ch) && kwpos <= KWMAXLEN && chPos < position);
+			} while (ch > 0 && AtoZ(ch) && kwpos <= KWMAXLEN && chPos < position);
 			kwbuf[kwpos] = '\0';
 			if (nlLex::IsKeyword(kwbuf) != T_ENDOF)
 			{

@@ -185,7 +185,7 @@ LRESULT ModSynthConfig::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHa
 
 LRESULT ModSynthConfig::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(changed);
+	EndDialog(0);
 	return 0;
 }
 
@@ -282,7 +282,7 @@ LRESULT ModSynthConnect::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bH
 LRESULT ModSynthConnect::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	ClearConnInfo();
-	EndDialog(changed);
+	EndDialog(0);
 	return 0;
 }
 

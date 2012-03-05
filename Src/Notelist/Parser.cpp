@@ -107,15 +107,12 @@ int nlParser::SkipTo(int *skiplist)
 		}
 		if (cvtPtr->GetDebugLevel() > 0)
 		{
-			char num[80];
-			IntToStr((long)theToken, num);
-			char *ebuf = new char[strlen(lexPtr->Tokbuf()) + strlen(num) + 20];
-			strcpy(ebuf, "Skipping: (");
-			strcat(ebuf, num);
-			strcat(ebuf, ") ");
-			strcat(ebuf, lexPtr->Tokbuf());
+			bsString ebuf;
+			ebuf = "Skipping: (";
+			ebuf += (long)theToken;
+			ebuf += ") ";
+			ebuf += lexPtr->Tokbuf();
 			cvtPtr->DebugNotify(0, ebuf);
-			delete ebuf;
 		}
 		theToken = lexPtr->Next();
 	}

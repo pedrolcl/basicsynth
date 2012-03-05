@@ -553,9 +553,12 @@ int FxItem::Load(XmlSynthElem *node)
 	node->GetAttribute("pan", pan);
 	if (name.Length() == 0)
 	{
-		char nmbuf[80];
-		snprintf(nmbuf, 80, "%s #%d", (const char *)fxType, unit);
-		name = nmbuf;
+		//char nmbuf[80];
+		//snprintf(nmbuf, 80, "%s #%d", (const char *)fxType, unit);
+		//name = nmbuf;
+		name = fxType;
+		name += ' ';
+		name += (long)unit;
 	}
 
 	if (send)

@@ -138,5 +138,10 @@ int SynthFileExists(const char *fname);
 /// @param newName full path to copied file
 int SynthCopyFile(const char *oldName, const char *newName);
 
+/// Create a file
+/// @param fname full path to new file
+/// @param data optional initial content
+/// @param datalen length of data
+int SynthCreateFile(const char *fname, void *data, size_t datalen);
 //@}
 #endif

@@ -414,7 +414,51 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\wx\msw\blank.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\bullseye.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\cross.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\hand.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\magnif1.cur"
+				>
+			</File>
+			<File
 				RelativePath=".\res\main.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\pbrush.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\pencil.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\pntleft.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\pntright.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\rightarr.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\wx\msw\roller.cur"
 				>
 			</File>
 			<File

@@ -404,25 +404,28 @@ void KeyboardDlg2::InitInstrList()
 	}
 }
 
-void KeyboardDlg2::AddInstrument(InstrConfig *ic)
+int KeyboardDlg2::AddInstrument(InstrConfig *ic)
 {
-	char fnbuf[20];
+	bsString fnbuf;
 	const char *np = ic->GetName();
 	if (*np == '[')
 	{
 		// internal control instrument - ignore it
-		return;
+		return -1;
 	}
 	if (!np || *np == 0)
 	{
-		np = fnbuf;
-		sprintf(fnbuf, "#%d", ic->inum);
+		fnbuf = "#";
+		fnbuf += (long)ic->inum;
+		np = (const char *)fnbuf;
+		ic->SetName(np);
 	}
-	int ndx = instrList.AddString(np);
+	int ndx = instrList.AddStringUTF8(np);
 	instrList.SetItemDataPtr(ndx, ic);
+	return ndx;
 }
 
-void KeyboardDlg2::SelectInstrument(InstrConfig *ic)
+int KeyboardDlg2::FindInstrument(InstrConfig *ic)
 {
 	InstrConfig *ic2;
 	int count = instrList.GetCount();
@@ -431,62 +434,68 @@ void KeyboardDlg2::SelectInstrument(InstrConfig *ic)
 	{
 		ic2 = (InstrConfig*)instrList.GetItemDataPtr(ndx);
 		if (ic == ic2)
-		{
-			instrList.SetCurSel(ndx);
-			if (form)
-				form->GetKeyboard()->SetInstrument(ic);
-			if (ic && theProject)
-				theProject->prjMidiIn.SetInstrument(ic->inum);
-			break;
-		}
+			return ndx;
 		ndx++;
 	}
+	return -1;
 }
 
-void KeyboardDlg2::RemoveInstrument(InstrConfig *ic)
+int KeyboardDlg2::SelectInstrument(InstrConfig *ic)
+{
+	int ndx = FindInstrument(ic);
+	if (ndx >= 0)
+	{
+		instrList.SetCurSel(ndx);
+		if (form)
+			form->GetKeyboard()->SetInstrument(ic);
+		if (ic && theProject)
+			theProject->prjMidiIn.SetInstrument(ic->inum);
+	}
+	return ndx;
+}
+
+int KeyboardDlg2::RemoveInstrument(InstrConfig *ic)
 {
 	if (form)
 		form->GetKeyboard()->SetInstrument(0);
 
-	InstrConfig *ic2;
-	int count = instrList.GetCount();
-	int ndx = 0;
-	while (ndx < count)
+	int sel = instrList.GetCurSel();
+	int ndx = FindInstrument(ic);
+	if (ndx >= 0)
 	{
-		ic2 = (InstrConfig*)instrList.GetItemDataPtr(ndx);
-		if (ic == ic2)
+		instrList.DeleteString(ndx);
+		if (ndx == sel)
 		{
-			instrList.DeleteString(ndx);
-			break;
+			int count = instrList.GetCount();
+			if (ndx == count)
+				ndx--;
+			instrList.SetCurSel(ndx);
 		}
-		ndx++;
 	}
+	return ndx;
 }
 
 // this is called if the instrument name gets changed.
-void KeyboardDlg2::UpdateInstrument(InstrConfig *ic)
+int KeyboardDlg2::UpdateInstrument(InstrConfig *ic)
 {
-	const char *nm = ic->GetName();
-	if (nm == 0 || *nm == '[')
-		return;
-	InstrConfig *ic2;
-	int count = instrList.GetCount();
-	int ndx = 0;
-	while (ndx < count)
+	int ndx = FindInstrument(ic);
+	if (ndx >= 0)
 	{
-		ic2 = (InstrConfig*)instrList.GetItemDataPtr(ndx);
-		if (ic == ic2)
-		{
-			instrList.DeleteString(ndx);
-			ndx = instrList.AddString(nm);
-			instrList.SetItemDataPtr(ndx, ic);
-			break;
-		}
-		ndx++;
+		instrList.DeleteString(ndx);
+		if (--ndx < 0)
+			ndx = 0;
+		ndx = InsertInstrument(ndx, ic);
 	}
+	return ndx;
 }
 
 void KeyboardDlg2::UpdateChannels()
 {
 }
 
+int KeyboardDlg2::InsertInstrument(int ndx, InstrConfig *ic)
+{
+	ndx = instrList.InsertStringUTF8(ndx, ic->GetName());
+	instrList.SetItemDataPtr(ndx, ic);
+	return ndx;
+}

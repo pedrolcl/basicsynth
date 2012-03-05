@@ -182,11 +182,8 @@ public:
 		enable = 1;
 		startTime = st;
 		tickRes = res;
-		seqResLen = seqLength;
 		// round up to integer multipler of res
-		bsInt32 rem = seqLength % res;
-		if (rem != 0)
-			seqResLen += res - rem;
+		seqResLen = ((seqLength / res) + 1) * res;
 		evtPlay = evtHead->next;
 		while (evtPlay != evtTail && evtPlay->start < st)
 			evtPlay = evtPlay->next;
@@ -209,14 +206,14 @@ public:
 	{
 		if (enable)
 		{
-			if ((startTime += tickRes) >= seqResLen)
+			if ((startTime += tickRes) > seqResLen)
 			{
 				// At the end - see if we should loop or quit
 				if (--loopCount == 0)
 					enable = 0;
 				else
 				{
-					startTime = 0;
+					startTime -= seqResLen;
 					evtPlay = evtHead->next;
 				}
 			}

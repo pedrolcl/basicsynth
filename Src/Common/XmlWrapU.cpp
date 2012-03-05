@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////
 
 #include <string.h>
+#include <SynthString.h>
 #include <XmlWrap.h>
 #if defined(USE_LIBXML)
 
@@ -182,6 +183,21 @@ int XmlSynthElem::GetAttribute(char *attrName, char **val)
 				rv = 0;
 			}
 			xmlFree(str);
+		}
+	}
+	return rv;
+}
+
+int XmlSynthElem::GetAttribute(char *attrName, bsString& val)
+{
+	int rv = -1;
+	if (pElem)
+	{
+		xmlChar *str = xmlGetProp(pElem, (const xmlChar *)attrName);
+		if (str)
+		{
+			val = (const char*)str;
+			rv = 0;
 		}
 	}
 	return rv;

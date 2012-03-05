@@ -489,6 +489,8 @@ void MainFrame::UpdateEditUI(int pg)
 			flags = vw->EditState();
 	}
 
+	UIEnable(ID_ITEM_CLOSE, tabView.GetPageCount() > 0);
+	
 	UIEnable(ID_EDIT_COPY, flags & VW_ENABLE_COPY);
 	UIEnable(ID_EDIT_CUT, flags & VW_ENABLE_CUT);
 	UIEnable(ID_EDIT_PASTE, flags & VW_ENABLE_PASTE);
@@ -499,7 +501,6 @@ void MainFrame::UpdateEditUI(int pg)
 	UIEnable(ID_EDIT_FINDNEXT, flags & VW_ENABLE_FIND);
 	UIEnable(ID_EDIT_SELECTALL, flags & VW_ENABLE_SELALL);
 	UIEnable(ID_ITEM_SAVE, flags & VW_ENABLE_FILE);
-	UIEnable(ID_ITEM_CLOSE, flags & VW_ENABLE_FILE);
 	UIEnable(ID_MARKER_SET, flags & VW_ENABLE_MARK);
 	UIEnable(ID_MARKER_NEXT, flags & VW_ENABLE_UNMARK);
 	UIEnable(ID_MARKER_PREV, flags & VW_ENABLE_UNMARK);
@@ -524,7 +525,7 @@ void MainFrame::UpdateItemUI(ProjectItem *pi)
 	UIEnable(ID_ITEM_COPY, itemFlags & ITM_ENABLE_COPY);
 	UIEnable(ID_ITEM_REMOVE, itemFlags & ITM_ENABLE_REM);
 	UIEnable(ID_ITEM_PROPERTIES, itemFlags & ITM_ENABLE_PROPS);
-	UIEnable(ID_ITEM_CLOSE, itemFlags & ITM_ENABLE_CLOSE && editFlags & VW_ENABLE_FILE);
+//	UIEnable(ID_ITEM_CLOSE, itemFlags & ITM_ENABLE_CLOSE && editFlags & VW_ENABLE_FILE);
 	UIEnable(ID_ITEM_SAVE, itemFlags & ITM_ENABLE_SAVE && editFlags & VW_ENABLE_FILE);
 	UIEnable(ID_WINDOW_CLOSE_ALL, tabView.GetPageCount() > 0);
 }
@@ -941,11 +942,13 @@ LRESULT MainFrame::OnViewProject(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 	{
 		UISetCheck(ID_VIEW_PROJECT, 1);
 		splitTop.SetSinglePaneMode(SPLIT_PANE_NONE);
+		UpdateItemUI(GetSelectedNode());
 	}
 	else
 	{
 		UISetCheck(ID_VIEW_PROJECT, 0);
 		splitTop.SetSinglePaneMode(SPLIT_PANE_RIGHT);
+		UpdateItemUI(NULL);
 	}
 	return 0;
 }
@@ -1017,8 +1020,8 @@ LRESULT MainFrame::OnWindowSave(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& 
 
 LRESULT MainFrame::OnWindowCloseAll(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	UpdateEditUI(-1);
 	CloseAllEditors();
+	UpdateEditUI(-1);
 	return 0;
 }
 
@@ -1051,7 +1054,6 @@ LRESULT MainFrame::OnWindowActivate(WORD wNotifyCode, WORD wID, HWND hWndCtl, BO
 LRESULT MainFrame::OnPageActivated(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
 	int pg = pnmh->idFrom;
-	UpdateEditUI(pg);
 	if (pg >= 0)
 	{
 		EditorView *vw = (EditorView *)tabView.GetPageData(pg);
@@ -1071,6 +1073,7 @@ LRESULT MainFrame::OnPageActivated(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 			}
 		}
 	}
+	UpdateEditUI(pg);
 	return 0;
 }
 
@@ -1190,28 +1193,21 @@ void MainFrame::AddNode(ProjectItem *itm, ProjectItem *sib)
 		return;
 
 	ProjectItem *parent = itm->GetParent();
-
-	TVINSERTSTRUCT tvi;
-	memset(&tvi, 0, sizeof(tvi));
-	if (sib)
-		tvi.hInsertAfter = (HTREEITEM) sib->GetPSData();
-	else
-		tvi.hInsertAfter = TVI_LAST;
+	HTREEITEM htparent;
 	if (parent)
-		tvi.hParent = (HTREEITEM) parent->GetPSData();
+		htparent = (HTREEITEM) parent->GetPSData();
 	else
-		tvi.hParent = TVI_ROOT;
-	tvi.item.mask = TVIF_TEXT | TVIF_PARAM;
-/*	if (!itm->IsLeaf())
-	{
-		tvi.item.mask |= TVIF_CHILDREN; 
-		tvi.item.cChildren = 1;
-	}
+		htparent = TVI_ROOT;
+
+	HTREEITEM htafter;
+	if (sib)
+		htafter = (HTREEITEM) sib->GetPSData();
 	else
-		tvi.item.cChildren = 0;*/
-	tvi.item.pszText = (LPSTR) itm->GetName();
-	tvi.item.lParam = (LPARAM) itm;
-	itm->SetPSData((void*) prjList.InsertItem(&tvi));
+		htafter = TVI_LAST;
+
+	HTREEITEM htitm = prjList.InsertItemUTF8(htparent, htafter, itm->GetName(), (void*)itm);
+	itm->SetPSData((void*)htitm);
+
 	itm->AddRef();
 }
 
@@ -1241,7 +1237,10 @@ void MainFrame::RemoveNode(ProjectItem *itm)
 void MainFrame::UpdateNode(ProjectItem *itm)
 {
 	if (itm)
-		prjList.SetItemText((HTREEITEM) itm->GetPSData(), itm->GetName());
+	{
+		//prjList.SetItemText((HTREEITEM) itm->GetPSData(), itm->GetName());
+		prjList.SetItemTextUTF8((HTREEITEM) itm->GetPSData(), itm->GetName());
+	}
 }
 
 void MainFrame::MoveNode(ProjectItem *itm, ProjectItem *prev)
@@ -1575,39 +1574,53 @@ void MainFrame::EditStateChanged()
 
 int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ext)
 {
-	char spcbuf[MAX_PATH];
-	strncpy(spcbuf, spec, MAX_PATH);
-	if (strstr(spcbuf, "*.*") == NULL)
-		strcat(spcbuf, "All Files|*.*|");
-	char *pipe = spcbuf;
-	while ((pipe = strchr(pipe, '|')) != 0)
+	// append All Files and convert | to null
+	wchar_t spcbuf[MAX_PATH];
+	memset(spcbuf, 0, sizeof(spcbuf));
+	::MultiByteToWideChar(CP_UTF8, 0, spec, strlen(spec)+1, spcbuf, MAX_PATH);
+	if (wcsstr(spcbuf, L"*.*") == NULL)
+		wcscat(spcbuf, L"All Files|*.*|");
+	wchar_t *pipe = spcbuf;
+	while ((pipe = wcschr(pipe, '|')) != 0)
 		*pipe++ = '\0';
+	
+	wchar_t filebuf[MAX_PATH];
+	memset(filebuf, 0, sizeof(filebuf));
+	::MultiByteToWideChar(CP_UTF8, 0, file, strlen(file)+1, filebuf, MAX_PATH);
+	// the term 'brain damage' comes to mind here...
+	pipe = filebuf;
+	while ((pipe = wcschr(pipe, '/')) != 0)
+		*pipe++ = '\\';
 
-	OPENFILENAME ofn;
+	wchar_t extbuf[MAX_PATH];
+	memset(extbuf, 0, sizeof(extbuf));
+	::MultiByteToWideChar(CP_UTF8, 0, ext, strlen(ext)+1, extbuf, MAX_PATH);
+
+	OPENFILENAMEW ofn;
 	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.Flags = OFN_NOCHANGEDIR;
-	ofn.hwndOwner = GetActiveWindow(); //m_hWnd;
+	ofn.hwndOwner = GetActiveWindow();
 	ofn.lpstrFilter = spcbuf;
-	ofn.lpstrDefExt = ext; 
-	ofn.lpstrFile = file;
+	ofn.lpstrDefExt = extbuf; 
+	ofn.lpstrFile = filebuf;
 	ofn.nMaxFile = MAX_PATH;
 	int result;
-	// the term 'brain damage' comes to mind here...
-	pipe = file;
-	while ((pipe = strchr(pipe, '/')) != 0)
-		*pipe++ = '\\';
 	if (open)
 	{
-		result = GetOpenFileName(&ofn);
+		result = GetOpenFileNameW(&ofn);
 	}
 	else
 	{
 		ofn.Flags |= OFN_OVERWRITEPROMPT;
-		result = GetSaveFileName(&ofn);
+		result = GetSaveFileNameW(&ofn);
 	}
 	if (result)
+	{
+		memset(file, 0, MAX_PATH);
+		::WideCharToMultiByte(CP_UTF8, 0, filebuf, wcslen(filebuf), file, MAX_PATH, NULL, NULL);
 		SynthProject::NormalizePath(file);
+	}
 	return result;
 }
 

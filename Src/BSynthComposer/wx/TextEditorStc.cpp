@@ -25,18 +25,18 @@ BEGIN_EVENT_TABLE(TextEditorStc,wxWindow)
 	EVT_PAINT(TextEditorStc::OnPaint)
 	EVT_SIZE(TextEditorStc::OnSize)
 	EVT_ERASE_BACKGROUND(TextEditorStc::OnEraseBackground)
-	EVT_STC_STYLENEEDED(202, TextEditorStc::OnEditRestyle)
-	EVT_STC_UPDATEUI(202, TextEditorStc::OnEditUpdateUI)
+	EVT_STC_STYLENEEDED(ID_EDIT_CTL, TextEditorStc::OnEditRestyle)
+	EVT_STC_UPDATEUI(ID_EDIT_CTL, TextEditorStc::OnEditUpdateUI)
 END_EVENT_TABLE()
 
 
 TextEditorStc::TextEditorStc(wxWindow *parent, ProjectItem *p)
-  : wxWindow(parent, wxWindowID(201), wxDefaultPosition, wxDefaultSize)
+  : wxWindow(parent, wxWindowID(ID_EDIT_WND), wxDefaultPosition, wxDefaultSize)
 {
 	sciFlags = 0;
 	findFlags = 0;
 	pi = p;
-	edwnd = new wxStyledTextCtrl(this, wxWindowID(202), wxPoint(0,0), wxDefaultSize, wxVSCROLL|wxHSCROLL|wxBORDER_SIMPLE);
+	edwnd = new wxStyledTextCtrl(this, wxWindowID(ID_EDIT_CTL), wxPoint(0,0), wxDefaultSize, wxVSCROLL|wxHSCROLL|wxBORDER_SIMPLE);
 
 	wxString face(prjOptions.editFontFace);
 	edwnd->SetCodePage(wxSTC_CP_UTF8);
@@ -253,7 +253,7 @@ void TextEditorStc::Restyle(int position)
 			{
 				lenPos++;
 				ch = edwnd->GetCharAt(++chPos);
-			} while (strchr(",;{}[]():=", ch) != 0);
+			} while (ch > 0 && strchr(",;{}[]():=", ch) != 0 && chPos < position);
 			edwnd->SetStyling(lenPos, NLSTYLE_DELIM);
 			startPos = chPos;
 		}
@@ -282,7 +282,7 @@ void TextEditorStc::Restyle(int position)
 			do
 			{
 				ch = edwnd->GetCharAt(++chPos);
-			} while (chPos < position && ch != '"' && ch != '\n');
+			} while (ch > 0 && ch != '"' && ch != '\n' && chPos < position);
 			if (ch == '"')
 				ch = edwnd->GetCharAt(++chPos);
 			edwnd->StartStyling(startPos, 0x1F);
@@ -299,7 +299,7 @@ void TextEditorStc::Restyle(int position)
 			{
 				kwbuf[kwpos++] = ch;
 				ch = edwnd->GetCharAt(++chPos);
-			} while (AtoZ(ch) && kwpos <= KWMAXLEN && chPos < position);
+			} while (ch > 0 && AtoZ(ch) && kwpos <= KWMAXLEN && chPos < position);
 			kwbuf[kwpos] = '\0';
 			if (nlLex::IsKeyword(kwbuf) != T_ENDOF)
 			{
@@ -334,7 +334,8 @@ int TextEditorStc::OpenFile(const char *fname)
 
 	if (::SynthFileExists(file))
 	{
-		edwnd->LoadFile(wxString((const char *)file));
+		wxMBConvUTF8 cutf8;
+		edwnd->LoadFile(wxString((const char *)file, cutf8));
 		// the LoadFile function selects all text, pffftttt...
 		edwnd->SetSelection(0,0);
 	}
@@ -381,7 +382,8 @@ int TextEditorStc::SaveFile(const char *fname)
 	else
 		file = fname;
 
-	if (!edwnd->SaveFile(wxString((const char *)file)))
+	wxMBConvUTF8 cutf8;
+	if (!edwnd->SaveFile(wxString((const char *)file, cutf8)))
 		return -1;
 
 	edwnd->SetSavePoint();

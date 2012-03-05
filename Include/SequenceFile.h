@@ -164,9 +164,13 @@ public:
 		seq = s;
 	}
 
-	/// Parse the sequence from a memory buffer.
+	/// Parse the sequence line from a memory buffer.
 	/// @param linbuf buffer with one sequencer line
 	int ParseMem(const char *linbuf);
+
+	/// Load the file from memory.
+	/// @param fileName pointer to buffer to load
+	int LoadMem(const char *fileName);
 
 	/// Load the file from a disk file
 	/// @param fileName path to file to load

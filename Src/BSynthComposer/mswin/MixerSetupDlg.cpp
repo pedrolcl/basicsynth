@@ -65,13 +65,13 @@ LRESULT EffectsSetupDlg::OnReset(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 LRESULT EffectsSetupDlg::OnOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	if (pi->SaveProperties(static_cast<PropertyBox*>(this)))
-		EndDialog(IDOK);
+		EndDialog(1);
 	return 0;
 }
 
 LRESULT EffectsSetupDlg::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(IDCANCEL);
+	EndDialog(0);
 	return 0;
 }
 

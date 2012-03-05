@@ -20,7 +20,6 @@
 					<Add option="-D_WIN32" />
 					<Add option="-DDEBUG" />
 					<Add option="-D_LIB" />
-					<Add option="-DUSE_TINY_XML" />
 				</Compiler>
 				<ExtraCommands>
 					<Add after="ranlib ..\Lib\libCoreD.a" />
@@ -40,7 +39,6 @@
 					<Add option="-D_WIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
-					<Add option="-DUSE_TINY_XML" />
 				</Compiler>
 				<ExtraCommands>
 					<Add after="ranlib ..\Lib\libCore.a" />
@@ -55,7 +53,7 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-g" />
+					<Add option="-O2" />
 					<Add option="-pthread" />
 					<Add option="-DDEBUG" />
 					<Add option="-DUNIX" />
