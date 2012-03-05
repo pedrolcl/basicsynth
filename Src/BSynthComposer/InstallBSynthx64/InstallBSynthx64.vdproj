@@ -147,6 +147,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3AE7B436F7DC4D89BA27B624339F8AC0"
+        "OwnerKey" = "8:_9FA318366BF74DCA82146AAC037D4181"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3B09C3F5A2394E7998D4CA55B17E7CA0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -327,6 +333,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_95C317D1EC66410FAF13DAB8FE48B57B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_969A991F75BB401FA07CC37D4A048772"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -353,6 +365,12 @@
         {
         "MsmKey" = "8:_9F4F7CC056F24120B0E83E03FCB5E7F7"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9FA318366BF74DCA82146AAC037D4181"
+        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -531,12 +549,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E34A460F474F4A8DA0E998C58D6D12E5"
-        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E509271F0C8E4794838312F0D28356D6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -569,12 +581,6 @@
         {
         "MsmKey" = "8:_F5294D99E7A8AD4E794C3A43CFA3109B"
         "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F555CFEC1DFD4060A9D0F1D0E7CA0BCD"
-        "OwnerKey" = "8:_E34A460F474F4A8DA0E998C58D6D12E5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1362,7 +1368,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -1712,6 +1718,26 @@
             "TargetName" = "8:FMSynthEd.xml"
             "Tag" = "8:"
             "Folder" = "8:_DDB8EA6F647C4284AE35513270D825EC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_95C317D1EC66410FAF13DAB8FE48B57B"
+            {
+            "SourcePath" = "8:..\\..\\..\\Binx64\\Scintilla.dll"
+            "TargetName" = "8:Scintilla.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_51FAE3B97D30409D93DF0CA1385F0669"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2746,7 +2772,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth Composer"
         "ProductCode" = "8:{20A19260-5D1E-4BAD-B5D6-3A68E09B35F9}"
-        "PackageCode" = "8:{558E5B5A-8D18-4E06-8E2C-8DC696D05241}"
+        "PackageCode" = "8:{B755DF2F-A8CF-426B-B052-B26633782E0E}"
         "UpgradeCode" = "8:{B6698655-7F90-4F8D-BC48-A9AF8CFFC860}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -2942,6 +2968,14 @@
                                     "ValueTypes" = "3:3"
                                     "Value" = "3:1"
                                     }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_70ED3F11A562492BBDB224B4E6B80EA4"
+                                    {
+                                    "Name" = "8:InclInstruments"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:ffffffff"
+                                    }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_75AF4379C5FE4AFC8459FAD947FCEDD2"
                                     {
                                     "Name" = "8:InclJavaScript"
@@ -2956,7 +2990,7 @@
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
                                     "ValueTypes" = "3:1"
-                                    "Value" = "8:Copyright 2010"
+                                    "Value" = "8:Copyright 2012"
                                     }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_BD1A135865F14AD5BFC974794927A09B"
                                     {
@@ -3482,11 +3516,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E34A460F474F4A8DA0E998C58D6D12E5"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3AE7B436F7DC4D89BA27B624339F8AC0"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86_x64.msm"
+            "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
                 "Properties"
                 {
                 }
@@ -3496,11 +3530,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F555CFEC1DFD4060A9D0F1D0E7CA0BCD"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9FA318366BF74DCA82146AAC037D4181"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86_x64.msm"
                 "Properties"
                 {
                 }
