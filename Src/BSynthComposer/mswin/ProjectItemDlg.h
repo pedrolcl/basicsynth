@@ -224,7 +224,7 @@ public:
 		wchar_t wpath[MAX_PATH];
 		memset(wpath, 0, sizeof(wpath));
 		int r = GetLBTextW(w, index, wpath);
-		::WideCharToMultiByte(CP_UTF8, 0, wpath, wcslen(wpath)+1, str, MAX_PATH, NULL, NULL);
+		::WideCharToMultiByte(CP_UTF8, 0, wpath, (int)wcslen(wpath)+1, str, MAX_PATH, NULL, NULL);
 		return r;
 	}
 
@@ -236,7 +236,7 @@ public:
 	virtual void InsertLBTextUTF8(HWND w, int index, const char *str)
 	{
 		wchar_t wpath[MAX_PATH];
-		::MultiByteToWideChar(CP_UTF8, 0, str, strlen(str)+1, wpath, MAX_PATH);
+		::MultiByteToWideChar(CP_UTF8, 0, str, (int)strlen(str)+1, wpath, MAX_PATH);
 		InsertLBTextW(w, index, wpath);
 	}
 
@@ -249,7 +249,7 @@ public:
 	{
 		wchar_t wstr[MAX_PATH];
 		memset(wstr, 0, sizeof(wstr));
-		::MultiByteToWideChar(CP_UTF8, 0, str, strlen(str)+1, wstr, MAX_PATH);
+		::MultiByteToWideChar(CP_UTF8, 0, str, (int)strlen(str)+1, wstr, MAX_PATH);
 		return AddLBTextW(w, wstr);
 	}
 

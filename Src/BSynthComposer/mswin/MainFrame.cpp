@@ -1577,7 +1577,7 @@ int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ex
 	// append All Files and convert | to null
 	wchar_t spcbuf[MAX_PATH];
 	memset(spcbuf, 0, sizeof(spcbuf));
-	::MultiByteToWideChar(CP_UTF8, 0, spec, strlen(spec)+1, spcbuf, MAX_PATH);
+	::MultiByteToWideChar(CP_UTF8, 0, spec, (int)strlen(spec)+1, spcbuf, MAX_PATH);
 	if (wcsstr(spcbuf, L"*.*") == NULL)
 		wcscat(spcbuf, L"All Files|*.*|");
 	wchar_t *pipe = spcbuf;
@@ -1586,7 +1586,7 @@ int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ex
 	
 	wchar_t filebuf[MAX_PATH];
 	memset(filebuf, 0, sizeof(filebuf));
-	::MultiByteToWideChar(CP_UTF8, 0, file, strlen(file)+1, filebuf, MAX_PATH);
+	::MultiByteToWideChar(CP_UTF8, 0, file, (int)strlen(file)+1, filebuf, MAX_PATH);
 	// the term 'brain damage' comes to mind here...
 	pipe = filebuf;
 	while ((pipe = wcschr(pipe, '/')) != 0)
@@ -1594,7 +1594,7 @@ int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ex
 
 	wchar_t extbuf[MAX_PATH];
 	memset(extbuf, 0, sizeof(extbuf));
-	::MultiByteToWideChar(CP_UTF8, 0, ext, strlen(ext)+1, extbuf, MAX_PATH);
+	::MultiByteToWideChar(CP_UTF8, 0, ext, (int)strlen(ext)+1, extbuf, MAX_PATH);
 
 	OPENFILENAMEW ofn;
 	memset(&ofn, 0, sizeof(ofn));
@@ -1618,7 +1618,7 @@ int MainFrame::BrowseFile(int open, char *file, const char *spec, const char *ex
 	if (result)
 	{
 		memset(file, 0, MAX_PATH);
-		::WideCharToMultiByte(CP_UTF8, 0, filebuf, wcslen(filebuf), file, MAX_PATH, NULL, NULL);
+		::WideCharToMultiByte(CP_UTF8, 0, filebuf, (int)wcslen(filebuf), file, MAX_PATH, NULL, NULL);
 		SynthProject::NormalizePath(file);
 	}
 	return result;

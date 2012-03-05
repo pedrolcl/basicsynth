@@ -13,8 +13,8 @@
 #include <SynthString.h>
 #include <XmlWrap.h>
 #if defined(USE_TINYXML)
+//#include <stdlib.h>
 #include <locale.h>
-#include <mbstring.h>
 
 XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 {
@@ -399,23 +399,15 @@ XmlSynthElem *XmlSynthDoc::Open(const char *fname)
 
 static FILE *OpenXmlFile(const char *fname, const char *mode)
 {
-	FILE *fp = 0;
-	size_t wlen = bsString::utf16Len(fname) + 1;
-	wchar_t *wbuf = new wchar_t[wlen];
-	bsString::utf16(fname, wbuf, wlen);
 #if _WIN32
+	wchar_t wbuf[260];
+	bsString::utf16(fname, wbuf, 260);
 	wchar_t wmode[20];
 	bsString::utf16(mode, wmode, 20);
-	fp = _wfopen(wbuf, wmode);
+	return _wfopen(wbuf, wmode);
 #else
-	size_t clen = wcstombs(NULL, wbuf, wlen) + 1;
-	char *cbuf = new wchar_t[clen];
-	wcstombs(cbuf, wbuf, wlen);
-	fp = fopen(cbuf, mode);
-	delete cbuf;
+	return fopen(fname, mode);
 #endif
-	delete wbuf;
-	return fp;
 }
 
 XmlSynthElem *XmlSynthDoc::Open(const char *fname, XmlSynthElem* root)
