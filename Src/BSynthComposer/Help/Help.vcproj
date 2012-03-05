@@ -250,7 +250,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Build Help file"
-					CommandLine="&quot;C:\Program Files\HTML Help Workshop\hhc.exe&quot; BSynthHelp.hhp&#x0D;&#x0A;"
+					CommandLine="hhc.exe BSynthHelp.hhp&#x0D;&#x0A;"
 					Outputs="BSynthHelp.chm"
 				/>
 			</FileConfiguration>
