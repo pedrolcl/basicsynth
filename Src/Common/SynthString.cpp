@@ -407,7 +407,7 @@ size_t bsString::NumToStr(long n, char *str, size_t len, int base)
 		n = -n;
 	}
 	s = FmtDig(s, (unsigned long)n, (unsigned long)base, len);
-	return (size_t)(str - s);
+	return (size_t)(s - str);
 }
 
 double bsString::FlpMinimum = 0.0000009;
@@ -505,7 +505,7 @@ size_t bsString::FlpToStr(double val, char *str, size_t len, int dp)
 		} while (--dig > 0 && fpart > fmin);
 		*s2 = '\0';
 	}
-	return (size_t)(str - s2);
+	return (size_t)(s2 - str);
 }
 
 // return the number of UTF=8 bytes in a UTF-16 string
