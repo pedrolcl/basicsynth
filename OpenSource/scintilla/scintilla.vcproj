@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="scintilla"
-	ProjectGUID="{C526D4BD-B441-4D41-9F28-DF4AFC48226A}"
+	Name="Scintilla"
+	ProjectGUID="{05FDF1F1-36BF-4D02-86B6-05BA442F0A91}"
 	RootNamespace="scintilla"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -44,13 +44,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;.."
-				PreprocessorDefinitions="SCI_LEXER;WIN32;_DEBUG;_WINDOWS;_USRDLL;SCINTILLA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="./include;./lexlib;./src"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SCINTILLA302_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -64,14 +64,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib"
-				OutputFile="..\..\Bin\SciLexerD.dll"
-				LinkIncremental="1"
+				AdditionalDependencies="IMM32.lib"
+				OutputFile="..\..\Bin\ScintillaD.dll"
+				LinkIncremental="2"
+				ModuleDefinitionFile="win32\Scintilla.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
+				OptimizeReferences="0"
 				LinkTimeCodeGeneration="0"
-				ProfileGuidedDatabase=""
-				ImportLibrary="../../Lib/$(TargetName).lib"
+				ImportLibrary="..\..\Lib\ScintillaD.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -122,13 +123,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;.."
-				PreprocessorDefinitions="SCI_LEXER;WIN32;_DEBUG;_WINDOWS;_USRDLL;SCINTILLA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="./include;./lexlib;./src"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SCINTILLA302_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -142,14 +143,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib"
-				OutputFile="..\..\Binx64\SciLexerD.dll"
-				LinkIncremental="1"
+				AdditionalDependencies="IMM32.lib"
+				OutputFile="..\..\Binx64\ScintillaD.dll"
+				LinkIncremental="2"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
+				OptimizeReferences="0"
 				LinkTimeCodeGeneration="0"
-				ProfileGuidedDatabase=""
-				ImportLibrary="../../Libx64/$(TargetName).lib"
+				ImportLibrary="..\..\Libx64\ScintillaD.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -201,12 +203,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;win32"
-				PreprocessorDefinitions="SCI_LEXER;WIN32;NDEBUG;_WINDOWS;_USRDLL;SCINTILLA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="./include;./lexlib;./src"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCINTILLA302_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -220,16 +222,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib"
-				OutputFile="..\..\Bin\SciLexer.dll"
+				AdditionalDependencies="IMM32.lib"
+				OutputFile="..\..\Bin\Scintilla.dll"
 				LinkIncremental="1"
-				GenerateDebugInformation="false"
+				ModuleDefinitionFile="win32\Scintilla.def"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				LinkTimeCodeGeneration="1"
-				ProfileGuidedDatabase=""
-				ImportLibrary="../../Lib/$(TargetName).lib"
+				ImportLibrary="..\..\Lib\Scintilla.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -282,12 +283,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="include;win32"
-				PreprocessorDefinitions="SCI_LEXER;WIN32;NDEBUG;_WINDOWS;_USRDLL;SCINTILLA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="./include;./lexlib;./src"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCINTILLA302_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -301,16 +302,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="imm32.lib"
-				OutputFile="..\..\Binx64\SciLexer.dll"
+				AdditionalDependencies="IMM32.lib"
+				OutputFile="..\..\Binx64\Scintilla.dll"
 				LinkIncremental="1"
-				GenerateDebugInformation="false"
+				ModuleDefinitionFile=""
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				LinkTimeCodeGeneration="1"
-				ProfileGuidedDatabase=""
-				ImportLibrary="../../Libx64/$(TargetName).lib"
+				ImportLibrary="..\..\Libx64\Scintilla.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -357,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lexlib\CharacterSet.cxx"
+				>
+			</File>
+			<File
 				RelativePath=".\src\CharClassify.cxx"
 				>
 			</File>
@@ -373,15 +377,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\DocumentAccessor.cxx"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Editor.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ExternalLexer.cxx"
 				>
 			</File>
 			<File
@@ -390,322 +386,6 @@
 			</File>
 			<File
 				RelativePath=".\src\KeyMap.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\KeyWords.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAbaqus.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAda.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAPDL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAsm.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAsn1.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexASY.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAU3.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexAVE.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexBaan.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexBash.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexBasic.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexBullant.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCaml.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCLW.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCmake.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCOBOL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexConf.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCPP.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCrontab.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCsound.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexCSS.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexD.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexEiffel.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexErlang.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexEScript.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexFlagship.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexForth.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexFortran.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexGAP.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexGui4Cli.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexHaskell.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexHTML.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexInno.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexKix.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexLisp.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexLout.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexLua.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMagik.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMarkdown.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMatlab.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMetapost.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMMIXAL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMPT.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMSSQL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexMySQL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexNimrod.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexNsis.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexOpal.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexOthers.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPascal.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPB.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPerl.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPLM.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPOV.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPowerPro.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPowerShell.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexProgress.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPS.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexPython.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexR.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexRebol.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexRuby.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexScriptol.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexSmalltalk.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexSML.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexSorcus.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexSpecman.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexSpice.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexSQL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexTACL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexTADS3.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexTAL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexTCL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexTeX.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexVB.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexVerilog.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexVHDL.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\LexYAML.cxx"
 				>
 			</File>
 			<File
@@ -719,45 +399,13 @@
 			<File
 				RelativePath=".\win32\PlatWin.cxx"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\PositionCache.cxx"
 				>
 			</File>
 			<File
-				RelativePath=".\src\PropSet.cxx"
+				RelativePath=".\lexlib\PropSetSimple.cxx"
 				>
 			</File>
 			<File
@@ -775,38 +423,6 @@
 			<File
 				RelativePath=".\win32\ScintillaWin.cxx"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="./src"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\Selection.cxx"
@@ -817,19 +433,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\StyleContext.cxx"
-				>
-			</File>
-			<File
 				RelativePath=".\src\UniConversion.cxx"
 				>
 			</File>
 			<File
 				RelativePath=".\src\ViewStyle.cxx"
-				>
-			</File>
-			<File
-				RelativePath=".\src\WindowAccessor.cxx"
 				>
 			</File>
 			<File
@@ -843,6 +451,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\lexlib\Accessor.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\AutoComplete.h"
 				>
 			</File>
@@ -851,7 +463,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Catalogue.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\CellBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\CharacterSet.h"
 				>
 			</File>
 			<File
@@ -879,6 +499,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\FontQuality.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Indicator.h"
 				>
 			</File>
@@ -887,7 +511,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lexlib\LexAccessor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\LexerBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\LexerModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\LexerNoExceptions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\LexerSimple.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\LineMarker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\OptionSet.h"
 				>
 			</File>
 			<File
@@ -895,7 +543,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\PerLine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\win32\PlatWin.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\PositionCache.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\PropSetSimple.h"
 				>
 			</File>
 			<File
@@ -915,11 +575,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lexlib\SparseState.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\SplitVector.h"
 				>
 			</File>
 			<File
 				RelativePath=".\src\Style.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\StyleContext.h"
 				>
 			</File>
 			<File
@@ -932,6 +600,10 @@
 			</File>
 			<File
 				RelativePath=".\src\ViewStyle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lexlib\WordList.h"
 				>
 			</File>
 			<File

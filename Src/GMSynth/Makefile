@@ -26,7 +26,7 @@ CPPFLAGS+=-DSTATIC_GMSYNTH=1
 
 .PHONY: all new clean chkdirs
 
-all: chkdirs $(GMSYNTHLIB) $(GMSYNTHDLL)
+all: chkdirs $(GMSYNTHLIB)
 
 new: clean chkdirs $(GMSYNTHLIB)
 
@@ -36,7 +36,7 @@ $(GMSYNTHLIB): $(OBJS)
 	$(RANLIB) $@
 
 $(GMSYNTHDLL): $(OBJS)
-	$(CPP) -shared -o $@ $(OBJS) $(LINKLIBS) $(SNDLIB) $(IMPLIB)
+	$(CPP) -fPIC -shared -o $@ $(OBJS) $(LINKLIBS) $(SNDLIB) $(IMPLIB)
 
 chkdirs:
 	@test -d $(ODIR) || mkdir $(ODIR)

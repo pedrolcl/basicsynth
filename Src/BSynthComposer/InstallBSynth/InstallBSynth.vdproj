@@ -129,6 +129,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2F2AF37CCA2D4BF7A8CDE691265DF39B"
+        "OwnerKey" = "8:_E528A999417F4989B6CB09EBFA3A8E60"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_30167F59B0354E8AAAB6B89D3B3810A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -215,6 +221,12 @@
         {
         "MsmKey" = "8:_51D9F2158D754580A9952F65AE01A05D"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5A66A3516D884F55005BA7939A2AC563"
+        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -501,6 +513,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C4A2EF22B60493F52C9C0950D1E87D16"
+        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C63A5EE77F2148FE8D4B7CB5A231FB57"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -527,6 +545,12 @@
         {
         "MsmKey" = "8:_E39DD1E56D0F47B9A803C3EC361D2E0B"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E528A999417F4989B6CB09EBFA3A8E60"
+        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1314,6 +1338,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5A66A3516D884F55005BA7939A2AC563"
+            {
+            "SourcePath" = "8:gdiplus.dll"
+            "TargetName" = "8:gdiplus.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_87D264B5825044799D95C07C10C07938"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B0D4CED31484FA987CABEC05ED14880"
@@ -2256,6 +2300,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4A2EF22B60493F52C9C0950D1E87D16"
+            {
+            "SourcePath" = "8:COMDLG32.dll"
+            "TargetName" = "8:COMDLG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_87D264B5825044799D95C07C10C07938"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C63A5EE77F2148FE8D4B7CB5A231FB57"
             {
             "SourcePath" = "8:..\\Forms\\SubSynthEd.xml"
@@ -2679,7 +2743,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth Composer"
         "ProductCode" = "8:{F41DBB95-DA27-4AA0-8F1C-E0E536E88032}"
-        "PackageCode" = "8:{2BAC8D1C-5F50-452C-B1ED-C5451EB3ED70}"
+        "PackageCode" = "8:{09A56171-2FE7-494C-9BAE-2303F1B07353}"
         "UpgradeCode" = "8:{1DF16329-30EA-455D-8985-06DD389ED628}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -3463,6 +3527,34 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_2F2AF37CCA2D4BF7A8CDE691265DF39B"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E528A999417F4989B6CB09EBFA3A8E60"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {

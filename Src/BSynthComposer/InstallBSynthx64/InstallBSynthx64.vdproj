@@ -207,14 +207,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_53ED9ECB3263438594800713087258C8"
-        "OwnerKey" = "8:_FA5BB2A0CE204BA5BC03A64405EB4F36"
+        "MsmKey" = "8:_558C15AA1B2B4BCFA8FC9541E95234FC"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_558C15AA1B2B4BCFA8FC9541E95234FC"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_580CB30F03949B07CAAE2E089A55A6AC"
+        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -299,6 +299,12 @@
         {
         "MsmKey" = "8:_84B80D81557742AB83EA6E3404156E47"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_85AF77C1F126487BAE64FD80C6E1A757"
+        "OwnerKey" = "8:_B188BB98BC154F2B8DDE7BF0A213D697"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -413,6 +419,12 @@
         {
         "MsmKey" = "8:_B0E7664C41564691A69F21933D06D294"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B188BB98BC154F2B8DDE7BF0A213D697"
+        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -568,12 +580,6 @@
         "Entry"
         {
         "MsmKey" = "8:_F5294D99E7A8AD4E794C3A43CFA3109B"
-        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FA5BB2A0CE204BA5BC03A64405EB4F36"
         "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1344,6 +1350,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_580CB30F03949B07CAAE2E089A55A6AC"
+            {
+            "SourcePath" = "8:gdiplus.dll"
+            "TargetName" = "8:gdiplus.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_51FAE3B97D30409D93DF0CA1385F0669"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B1E4F19B6EB4FF4A458368DD184C0AA"
@@ -3490,7 +3516,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_53ED9ECB3263438594800713087258C8"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_85AF77C1F126487BAE64FD80C6E1A757"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -3504,7 +3530,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_FA5BB2A0CE204BA5BC03A64405EB4F36"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B188BB98BC154F2B8DDE7BF0A213D697"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

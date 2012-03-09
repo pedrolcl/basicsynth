@@ -245,8 +245,12 @@ int WidgetGroup::EnumHitTest(SynthWidget *wdg, void *arg)
 
 int WidgetGroup::EnumGetSize(SynthWidget *wdg, void *arg)
 {
+	int x = 0;
+	int y = 0;
+	wdg->GetSize(x, y);
 	int *sz = (int*)arg;
-	wdg->GetSize(sz[0], sz[1]);
+	sz[0] = x;
+	sz[1] = y;
 	return 1;
 }
 

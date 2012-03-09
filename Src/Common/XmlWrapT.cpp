@@ -13,8 +13,9 @@
 #include <SynthString.h>
 #include <XmlWrap.h>
 #if defined(USE_TINYXML)
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <locale.h>
+#include <wchar.h>
 
 XmlSynthElem::XmlSynthElem(XmlSynthDoc *p)
 {
@@ -35,14 +36,14 @@ XmlSynthElem::~XmlSynthElem()
 // but will store invalid characters for almost
 // everything else. A better workaround is to
 // change the encoding attribute in the file,
-// then use setlocale(LC_CTYPE, encoding) and 
+// then use setlocale(LC_CTYPE, encoding) and
 // mbstowcs() to convert to UNICODE.
 void XmlSynthElem::ConvertUTF8(const char *in, bsString& out)
 {
 /* TODO:
-	if (doc && (!doc->UTF8() || doc->Version() == 0))
+	if (in is not valid UTF-8)
 	{
-		// use the encoding from the xml file to set the codepage,
+		// use the locale from the xml file to set the codepage,
 		// call mbstowcs to get a UTF-16 string,
 		// set the bsString using the UTF-16, which
 		// wil then automatically convert to UTF-8.
@@ -397,15 +398,38 @@ XmlSynthElem *XmlSynthDoc::Open(const char *fname)
 	return Open(fname, 0);
 }
 
+#ifndef MAX_PATH
+#define MAX_PATH 260
+#endif
 static FILE *OpenXmlFile(const char *fname, const char *mode)
 {
+	wchar_t wbuf[MAX_PATH];
 #if _WIN32
-	wchar_t wbuf[260];
-	bsString::utf16(fname, wbuf, 260);
+    // convert to UNICODE
+	bsString::utf16(fname, wbuf, MAX_PATH);
 	wchar_t wmode[20];
 	bsString::utf16(mode, wmode, 20);
 	return _wfopen(wbuf, wmode);
 #else
+	char cbuf[MAX_PATH];
+    char *lc = setlocale(LC_CTYPE, NULL);
+    if (lc && strcmp(lc, "C"))
+    {
+        char *dot = strchr(lc, '.');
+        if (dot)
+        {
+            // the user specified a codepage.
+            // if it is not UTF-8, convert...
+            if (strcmp(dot, ".UTF-8") != 0
+			 && strcmp(dot, ".utf-8") != 0)
+            {
+				bsString::utf16(fname, wbuf, MAX_PATH);
+				cbuf[0] = 0;
+				if (wcstombs(cbuf, wbuf, wcslen(wbuf)+1) != (size_t)-1)
+	            	fname = cbuf;
+            }
+        }
+    }
 	return fopen(fname, mode);
 #endif
 }
@@ -440,16 +464,18 @@ XmlSynthElem *XmlSynthDoc::Open(const char *fname, XmlSynthElem* root)
 				}
 
 				TiXmlElement *e = doc->RootElement();
-				prjVersion = 0;
-				if (root == 0)
-					root = new XmlSynthElem(this);
-				else
-					root->doc = this;
-
-				root->SetNode(e);
-				root->GetAttribute("version", prjVersion);
-				root->GetAttribute("locale", xmlLocale);
-				return root;
+				if (e)
+				{
+                    prjVersion = 0;
+                    xmlLocale = e->Attribute("locale");
+                    e->Attribute("version", &prjVersion);
+                    if (root == 0)
+                        root = new XmlSynthElem(this);
+                    else
+                        root->doc = this;
+                    root->SetNode(e);
+                    return root;
+				}
 			}
 		}
 	}

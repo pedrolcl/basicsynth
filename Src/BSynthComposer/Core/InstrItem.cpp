@@ -181,9 +181,9 @@ WidgetForm *InstrItem::CreateForm(int xo, int yo)
 	}
 
 	const char *type = inc->instrType->itype;
-	char form[MAX_PATH];
-	strncpy(form, type, MAX_PATH-7);
-	strcat(form, "Ed.xml");
+	// form file must be <type>ED.xml
+	bsString form(type);
+	form += "Ed.xml";
 
 	bsString path;
 	theProject->FindForm(path, form);
@@ -217,7 +217,14 @@ WidgetForm *InstrItem::CreateForm(int xo, int yo)
 		ed = new SynthEdit;
 	if (ed)
 	{
-		ed->Load(path, xo, yo);
+		if (ed->Load(path, xo, yo))
+		{
+			bsString msg;
+			msg = "Edit form ";
+			msg += form;
+			msg += " failed to load!";
+			prjFrame->Alert(msg, "Ooops");
+		}
 		ed->SetInstrument(inc);
 	}
 	return ed;

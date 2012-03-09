@@ -13,7 +13,7 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 		</Option>
 		<Build>
 			<Target title="Debug Win32">
-				<Option output=".\bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
+				<Option output="./bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
 				<Option object_output="debugi686" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -25,11 +25,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add option="-DDEBUG" />
 					<Add option="-D_WIN32" />
 					<Add option="-D__WXMSW__" />
-					<Add directory="$(#wx)\include" />
-					<Add directory="$(#wx)\lib\wx\include\msw-unicode-static-2.9" />
+					<Add directory="$(#wx)/include" />
+					<Add directory="$(#wx)/lib/wx/include/msw-unicode-static-2.9" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(#wx)\include" />
+					<Add directory="$(#wx)/include" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-mthreads" />
@@ -69,11 +69,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add library="rpcrt4" />
 					<Add library="advapi32" />
 					<Add library="wsock32" />
-					<Add directory="$(#wx)\lib" />
+					<Add directory="$(#wx)/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
-				<Option output=".\bsynthcomposerwx" prefix_auto="1" extension_auto="1" />
+				<Option output="./bsynthcomposerwx" prefix_auto="1" extension_auto="1" />
 				<Option object_output="releasei686" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -84,11 +84,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WIN32" />
 					<Add option="-D__WXMSW__" />
-					<Add directory="$(#wx)\include" />
-					<Add directory="$(#wx)\lib\wx\include\msw-unicode-static-2.9" />
+					<Add directory="$(#wx)/include" />
+					<Add directory="$(#wx)/lib/wx/include/msw-unicode-static-2.9" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(#wx)\include" />
+					<Add directory="$(#wx)/include" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
@@ -129,11 +129,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add library="rpcrt4" />
 					<Add library="advapi32" />
 					<Add library="wsock32" />
-					<Add directory="$(#wx)\lib" />
+					<Add directory="$(#wx)/lib" />
 				</Linker>
 			</Target>
 			<Target title="Debug mingw">
-				<Option output=".\bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
+				<Option output="./bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
 				<Option object_output="debugMingw" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -145,11 +145,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add option="-mthreads" />
 					<Add option="-DDEBUG" />
 					<Add option="-D_WIN32" />
-					<Add directory="$(#wx)\include" />
-					<Add directory="$(#wx)\lib\gcc_lib\mswud" />
+					<Add directory="$(#wx)/include" />
+					<Add directory="$(#wx)/lib/gcc_lib/mswud" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(#wx)\include\wx\msw" />
+					<Add directory="$(#wx)/include/wx/msw" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-mthreads" />
@@ -187,11 +187,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add library="rpcrt4" />
 					<Add library="advapi32" />
 					<Add library="wsock32" />
-					<Add directory="$(#wx)\lib\gcc_lib" />
+					<Add directory="$(#wx)/lib/gcc_lib" />
 				</Linker>
 			</Target>
 			<Target title="Release mingw">
-				<Option output=".\bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
+				<Option output="./bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
 				<Option object_output="releaseMingw" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -203,11 +203,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add option="-mthreads" />
 					<Add option="-DDEBUG" />
 					<Add option="-D_WIN32" />
-					<Add directory="$(#wx)\include" />
-					<Add directory="$(#wx)\lib\gcc_lib\mswu" />
+					<Add directory="$(#wx)/include" />
+					<Add directory="$(#wx)/lib/gcc_lib/mswu" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(#wx)\include\wx\msw" />
+					<Add directory="$(#wx)/include/wx/msw" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
@@ -246,11 +246,11 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 					<Add library="rpcrt4" />
 					<Add library="advapi32" />
 					<Add library="wsock32" />
-					<Add directory="$(#wx)\lib\gcc_lib" />
+					<Add directory="$(#wx)/lib/gcc_lib" />
 				</Linker>
 			</Target>
 			<Target title="Debug UNIX">
-				<Option output=".\bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
+				<Option output="./bsynthcomposerwx" prefix_auto="0" extension_auto="1" />
 				<Option object_output="gccDebug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -274,7 +274,7 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 				</Linker>
 			</Target>
 			<Target title="Release UNIX">
-				<Option output=".\bsynthcomposerwx" prefix_auto="1" extension_auto="1" />
+				<Option output="./bsynthcomposerwx" prefix_auto="1" extension_auto="1" />
 				<Option object_output="gccRelease" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -301,14 +301,14 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 			<Add option="-Wall" />
 			<Add option="-DGCC" />
 			<Add option="-DUSE_TINYXML" />
-			<Add directory="..\Core" />
-			<Add directory="$(#BSHOME)\Include" />
-			<Add directory="$(#BSHOME)\Src\Instruments" />
-			<Add directory="$(#BSHOME)\Src\Notelist" />
+			<Add directory="../Core" />
+			<Add directory="$(#BSHOME)/Include" />
+			<Add directory="$(#BSHOME)/Src/Instruments" />
+			<Add directory="$(#BSHOME)/Src/Notelist" />
 		</Compiler>
 		<Linker>
-			<Add directory="..\Lib" />
-			<Add directory="$(#BSHOME)\Lib" />
+			<Add directory="../Lib" />
+			<Add directory="$(#BSHOME)/Lib" />
 		</Linker>
 		<Unit filename="AboutDlg.h" />
 		<Unit filename="FindReplDlg.cpp" />
@@ -356,6 +356,10 @@ The mingw32 targets can be used when wxWidgets was built using makefile.gcc]]>
 		<Unit filename="resource.h" />
 		<Unit filename="wx.rc">
 			<Option compilerVar="WINDRES" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Debug mingw" />
+			<Option target="Release mingw" />
 		</Unit>
 		<Extensions>
 			<code_completion />

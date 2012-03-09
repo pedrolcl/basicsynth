@@ -53,20 +53,15 @@ void FormEditorWin::OnSize(wxSizeEvent& evt)
 
 void FormEditorWin::UpdateScrollBars()
 {
-	int scrollWidth;
-	int scrollHeight;
-	int formWidth;
-	int formHeight;
+	int scrollWidth = 0;
+	int scrollHeight = 0;
+	int formWidth = 0;
+	int formHeight = 0;
 
 	GetClientSize(&scrollWidth, &scrollHeight);
 	if (form)
 	{
 		form->GetSize(formWidth, formHeight);
-	}
-	else
-	{
-		formWidth = 0;
-		formHeight = 0;
 	}
 
 //	::wxLogDebug("SetScroll: Width(%d,%d) Height(%d,%d)\r\n", scrollWidth, formWidth, scrollHeight, formHeight);
@@ -121,11 +116,12 @@ void FormEditorWin::OnPaint(wxPaintEvent& evt)
 		int yoffs = GetScrollPos(wxVERTICAL);
 
 		wxMemoryDC *mdc = 0;
-		int formWidth;
-		int formHeight;
+		int formWidth = 0;
+		int formHeight = 0;
 		form->GetSize(formWidth, formHeight);
-		int winWidth;
-		int winHeight;
+
+		int winWidth = 0;
+		int winHeight = 0;
 		GetClientSize(&winWidth, &winHeight);
 		int bmWidth = (formWidth > winWidth) ? formWidth : winWidth;
 		int bmHeight = (formHeight > winHeight) ? formHeight : winHeight;

@@ -121,7 +121,12 @@ int WidgetForm::Load(const char *fileName, int xo, int yo)
 	XmlSynthDoc doc;
 	XmlSynthElem root(&doc);
 	if (doc.Open((char*)fileName, &root) == 0)
+	{
+#ifndef _WIN32
+		fprintf(stderr, "WidgetForm: failed to load %s\n", fileName);
+#endif
 		return -1;
+	}
 
 	int r = Load(&root, xo, yo);
 	root.Clear();

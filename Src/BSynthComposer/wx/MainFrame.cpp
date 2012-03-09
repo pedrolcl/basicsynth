@@ -1361,6 +1361,7 @@ int MainFrame::OpenEditor(ProjectItem *itm)
 {
 	if (!itm)
 		return 0;
+
 	EditorView *vw = itm->GetEditor();
 	if (vw)
 	{
