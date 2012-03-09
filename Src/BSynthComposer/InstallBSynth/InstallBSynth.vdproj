@@ -129,12 +129,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2F2AF37CCA2D4BF7A8CDE691265DF39B"
-        "OwnerKey" = "8:_E528A999417F4989B6CB09EBFA3A8E60"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_30167F59B0354E8AAAB6B89D3B3810A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -257,6 +251,12 @@
         {
         "MsmKey" = "8:_60AAC43BE6E247A483A651BEA88734C4"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_66B56273A6954DBBAB37DFABB66D942F"
+        "OwnerKey" = "8:_F8CE113DA16A4291BA1E7A7D536C8C41"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -549,14 +549,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E528A999417F4989B6CB09EBFA3A8E60"
-        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
+        "MsmKey" = "8:_E5513E7065734F2A862488A0B099EAC2"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E5513E7065734F2A862488A0B099EAC2"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_F8CE113DA16A4291BA1E7A7D536C8C41"
+        "OwnerKey" = "8:_1914AF24897F49BC8F6F2A9D49F051DE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2743,7 +2743,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BasicSynth Composer"
         "ProductCode" = "8:{F41DBB95-DA27-4AA0-8F1C-E0E536E88032}"
-        "PackageCode" = "8:{09A56171-2FE7-494C-9BAE-2303F1B07353}"
+        "PackageCode" = "8:{834EBC65-F75F-4BA7-9C82-FA11570AC53D}"
         "UpgradeCode" = "8:{1DF16329-30EA-455D-8985-06DD389ED628}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -2931,13 +2931,21 @@
                                     "ValueTypes" = "3:3"
                                     "Value" = "3:1"
                                     }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_10824B4E35CB437F8950AC83EB9CA6C5"
+                                    {
+                                    "Name" = "8:WaveIn"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:"
+                                    }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_1573FC4C61E241ED824F3DDE3C91C452"
                                     {
                                     "Name" = "8:EditFontSize"
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
                                     "ValueTypes" = "3:3"
-                                    "Value" = "3:14"
+                                    "Value" = "3:12"
                                     }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_15FE792F45094D5BB4DCA0C5790ACC4A"
                                     {
@@ -2970,6 +2978,14 @@
                                     "Transitive" = "11:FALSE"
                                     "ValueTypes" = "3:3"
                                     "Value" = "3:0"
+                                    }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_748023271E9D48128930F10480929EA2"
+                                    {
+                                    "Name" = "8:EditTabSize"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:3"
+                                    "Value" = "3:4"
                                     }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_7668BCF5BB5C45319833042F37B16674"
                                     {
@@ -3527,7 +3543,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_2F2AF37CCA2D4BF7A8CDE691265DF39B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_66B56273A6954DBBAB37DFABB66D942F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -3541,7 +3557,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E528A999417F4989B6CB09EBFA3A8E60"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F8CE113DA16A4291BA1E7A7D536C8C41"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

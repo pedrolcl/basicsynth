@@ -267,6 +267,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7B8EBD9D47F94C2C8366DA452DE873A5"
+        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7E21805701E7457CA377EB64200BD487"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -303,12 +309,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_85AF77C1F126487BAE64FD80C6E1A757"
-        "OwnerKey" = "8:_B188BB98BC154F2B8DDE7BF0A213D697"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_864DF32AFC494D93BFFD10E923FB2641"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -317,6 +317,12 @@
         {
         "MsmKey" = "8:_8D8D6AED994D4FC6859DE65680CB5E66"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8D8E558E20414E3080C58F2839B8AAD5"
+        "OwnerKey" = "8:_7B8EBD9D47F94C2C8366DA452DE873A5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -419,12 +425,6 @@
         {
         "MsmKey" = "8:_B0E7664C41564691A69F21933D06D294"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B188BB98BC154F2B8DDE7BF0A213D697"
-        "OwnerKey" = "8:_A30219D510D941B282AC4C7F0DAE26D5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2952,6 +2952,22 @@
                                 }
                                 "Values"
                                 {
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_10D660FD22584B9CB0FF78D54546AF48"
+                                    {
+                                    "Name" = "8:EditFontSize"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:3"
+                                    "Value" = "3:12"
+                                    }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_1DCADDCE63F8499DAC49120F99747019"
+                                    {
+                                    "Name" = "8:EditTabSize"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:3"
+                                    "Value" = "3:4"
+                                    }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_2577E5EE691A48B3AC1D5E38EBAA7B59"
                                     {
                                     "Name" = "8:Colors"
@@ -2968,6 +2984,14 @@
                                     "ValueTypes" = "3:3"
                                     "Value" = "3:1"
                                     }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_560050D68AC74391A179B77D7ABDFC0A"
+                                    {
+                                    "Name" = "8:Forms"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:[TARGETDIR]Forms"
+                                    }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_70ED3F11A562492BBDB224B4E6B80EA4"
                                     {
                                     "Name" = "8:InclInstruments"
@@ -2983,6 +3007,22 @@
                                     "Transitive" = "11:FALSE"
                                     "ValueTypes" = "3:3"
                                     "Value" = "3:0"
+                                    }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8A445F85683347C7B5CB4F1047207E5B"
+                                    {
+                                    "Name" = "8:EditFontFace"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:Courier New"
+                                    }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8FD39EFE416542CF8D324B53AA0B9E82"
+                                    {
+                                    "Name" = "8:TickRes"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:0.0005"
                                     }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_BCC15F1FD9AB4CB9AA06B1D60AA18E30"
                                     {
@@ -3032,9 +3072,25 @@
                                     "ValueTypes" = "3:3"
                                     "Value" = "3:0"
                                     }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_D676D22188FA40878BB427E061268228"
+                                    {
+                                    "Name" = "8:WaveIn"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:"
+                                    }
                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_F4DC69CBD35E4218B78051581EE6AE49"
                                     {
                                     "Name" = "8:InclNotelist"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:3"
+                                    "Value" = "3:1"
+                                    }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_FD2359B333304F35B50A539201694339"
+                                    {
+                                    "Name" = "8:InclSoundFonts"
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
                                     "ValueTypes" = "3:3"
@@ -3516,11 +3572,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_85AF77C1F126487BAE64FD80C6E1A757"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7B8EBD9D47F94C2C8366DA452DE873A5"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86_x64.msm"
                 "Properties"
                 {
                 }
@@ -3530,11 +3586,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B188BB98BC154F2B8DDE7BF0A213D697"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8D8E558E20414E3080C58F2839B8AAD5"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86_x64.msm"
+            "SourcePath" = "8:microsoft_vc90_crt_x86_x64.msm"
                 "Properties"
                 {
                 }
