@@ -24,6 +24,7 @@ This is a Git fork of the CVS repository at http://basicsynth.cvs.sourceforge.ne
 * CVS related files removed.
 * All original Makefiles renamed to 'Makefile.original'.
 * Some documentation added, like this readme file.
+* CMake build system added.
 * Other changes documented in the 'git log'.
 
 ## License: GPL v2

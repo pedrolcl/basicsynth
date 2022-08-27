@@ -7,6 +7,7 @@
 // (http://www.gnu.org/licenses/gpl.html)
 /////////////////////////////////////////////////////////////////
 
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/types.h>
 //#include <sys/uio.h>
@@ -214,7 +215,7 @@ int SynthCopyFile(const char *oldName, const char *newName)
 	}
 	close(fdin);
 	close(fdout);
-	delete buf;
+	delete[] buf;
 	if (nread == 0)
 		return 0;
 	return -1;

@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@basicsynth_libdir@
+includedir=@basicsynth_includedir@/basicsynth
+
+Name: basicsynth-static
+Description: BasicSynth Software Synthesizer
+URL: https://github.com/pedrolcl/basicsynth
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lbasicsynth-static
+Libs.private: -lm
+Cflags: -I${includedir}
