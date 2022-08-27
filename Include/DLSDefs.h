@@ -15,7 +15,7 @@
 
 /////////////////// RIFF CHUNK Value //////////////////////////
 #ifndef RIFF4CC
-#if BIG_ENDIAN
+#if BS_BIG_ENDIAN
 #define RIFF4CC(a,b,c,d) ((a<<24)|(b<<16)|(c<<8)|d)
 // NB: This macro only works for unsigned
 #define SwapBytes(n)  ((n&0xff)<<8)|((n>>8)&0xff)
