@@ -9,14 +9,16 @@ include(GNUInstallDirs)
 
 if (WIN32)
     set(_INIT_TINYXML OFF)
+    set(_INIT_SHARED OFF)
 else()
     set(_INIT_TINYXML ON)
+    set(_INIT_SHARED ON)
 endif()
 
 option(USE_LIBXML "Use libXml instead of TinyXML" OFF)
 option(USE_TINYXML "Use TinyXML instead of libXML" ${_INIT_TINYXML})
 option(USE_OSCILI "Use interpolated oscillators" ON)
-option(BUILD_BASICSYNTH_SHARED "Build a shared library" ON)
+option(BUILD_BASICSYNTH_SHARED "Build a shared library" ${_INIT_SHARED})
 option(BUILD_BASICSYNTH_STATIC "Build a static library" ON)
 option(BUILD_EXAMPLES "Build example programs" ON)
 

@@ -130,7 +130,7 @@ const char *XmlSynthElem::TagName()
 	return nodeTag;
 }
 
-int XmlSynthElem::GetAttribute(char *attrName, short& val)
+int XmlSynthElem::GetAttribute(const char *attrName, short& val)
 {
 	long tmp;
 	int rv = GetAttribute(attrName, tmp);
@@ -400,7 +400,7 @@ XmlSynthElem *XmlSynthDoc::NewDoc(const char *roottag, XmlSynthElem *rootElem)
 		{
 			pDoc->appendChild(pnew, &pout);
 			rootElem->SetNode(pout);
-			rootElem->SetAttribute("version", 2);
+			rootElem->SetAttribute("version", 2L);
 			return rootElem;
 		}
 	}

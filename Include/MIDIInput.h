@@ -29,6 +29,10 @@ typedef ULONG_PTR DWORD_PTR;
 #include <alsa/asoundlib.h>
 #endif
 
+#ifdef WIN32
+#include <mmsystem.h>
+#endif
+
 /// Read input from a MIDI device.
 /// MIDIInput is a generic MIDI input class. When enabled, it opens
 /// the device and waits for input. When a message is recieved the
